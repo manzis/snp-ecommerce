@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* 1. Theme Configuration - Mapping your Next.js fonts so they work */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  /* Map the CSS variables from layout.tsx to Tailwind font classes */
+  --font-titillium: var(--font-titillium);
+  --font-inter: var(--font-inter);
+  --font-custom: var(--font-custom);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* 2. Base Styles - Keeping your 410px design lock */
+@layer base {
+  html, body {
+    width: 410px;
+    overflow-x: hidden;
+    background-color: #ffffff;
+    background: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Desktop Override */
+  @media (min-width: 768px) {
+    html, body {
+      width: 100%;
+      background-color: #F9F9F9;
+    }
+  }
+}
+
+/* 3. Utilities - Moved OUTSIDE of base to fix the build error */
+@layer utilities {
+  /* Fix: Removed !important from @apply to stop the crash */
+  @media (hover: hover) {
+    .hover-state:hover {
+      @apply bg-[#f2f3f5] border-[#d1d5db];
+    }
+  }
+
+  .active-state:active {
+    @apply scale-95 bg-[#e5e7eb];
+  }
+}
