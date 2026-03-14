@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
-/* 1. Theme Configuration - Mapping your Next.js fonts so they work */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  
-  /* Map the CSS variables from layout.tsx to Tailwind font classes */
+@theme {
   --font-titillium: var(--font-titillium);
   --font-inter: var(--font-inter);
   --font-custom: var(--font-custom);
+  
+  /* Bouncy Spring Animation */
+  --timing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root {
@@ -16,26 +14,15 @@
   --foreground: #171717;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* 2. Base Styles - Keeping your 410px design lock */
 @layer base {
   html, body {
-    width: 410px;
     overflow-x: hidden;
     background-color: #ffffff;
     background: var(--background);
     color: var(--foreground);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Desktop Override */
   @media (min-width: 768px) {
     html, body {
       width: 100%;
@@ -44,16 +31,39 @@
   }
 }
 
-/* 3. Utilities - Moved OUTSIDE of base to fix the build error */
 @layer utilities {
-  /* Fix: Removed !important from @apply to stop the crash */
-  @media (hover: hover) {
-    .hover-state:hover {
-      @apply bg-[#f2f3f5] border-[#d1d5db];
-    }
+  @keyframes marquee-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 
-  .active-state:active {
-    @apply scale-95 bg-[#e5e7eb];
+  .shadow-smooth {
+    filter: drop-shadow(-13px 99px 40px rgba(0, 0, 0, 0.01)) 
+            drop-shadow(-7px 56px 34px rgba(0, 0, 0, 0.02)) 
+            drop-shadow(-3px 25px 25px rgba(0, 0, 0, 0.03)) 
+            drop-shadow(-1px 6px 14px rgba(0, 0, 0, 0.04));
+  }
+
+  .animate-marquee-continuous {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee-scroll 6s linear infinite;
+  }
+
+  .marquee-mask {
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .transition-bounce {
+    transition-timing-function: var(--timing-bounce);
   }
 }

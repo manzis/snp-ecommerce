@@ -1,13 +1,19 @@
 import ProductNav from '@/components/product/ProductNav';
-import Breadcrumbs from '@/components/product/Breadcrumbs';
+import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import ProductImage from '@/components/product/ProductImage';
 import ProductHeader from '@/components/product/ProductHeader';
 import ProductCTA from '@/components/product/ProductCTA';
+import ProductOptions from '@/components/product/ProductOptions';
+import Availability from '@/components/product/Availability';
+import ServiceHighlights from '@/components/product/ServiceHighlight';
+import ProductHighlights from '@/components/product/ProductHighlight';
+import ProductDetails from '@/components/product/ProductDetails';
+import ReviewsSection from '@/components/product/ReviewsSection';
+import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
+import WhyChooseUs from '@/components/product/WhyChooseUs';
 
 interface ProductPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
 }
 
 async function getProductData(slug: string) {
@@ -16,24 +22,18 @@ async function getProductData(slug: string) {
     slug: slug,
     category: { name: "Proteins", slug: "proteins" },
     brand: { name: "ASITIS NUTRITION", slug: "asitis-nutrition" },
-    title: "Asitis atom whey protein concerntrate - 27g protein 1 bcaa etc",
-    images: [
-      "/images/atom-whey.jpg",
-      "/images/atom-whey-2.jpg", 
-      "/images/atom-whey-3.jpg",
-      "/images/atom-whey-4.jpg"
-    ],
+    title: "Asitis atom whey protein concentrate - 27g protein 1 bcaa etc",
+    images: ["/images/atom-whey.jpg", "/images/atom-whey-2.jpg", "/images/atom-whey-3.jpg", "/images/atom-whey-4.jpg"],
     rating: 4.3,
     reviewsCount: "24.5K+",
     originalPrice: "RS. 5000",
-    discountedPrice: "rS. 4290",
+    discountedPrice: "RS. 4290",
     discountPercentage: "20%",
   };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
+  const { slug } = await params;
   const product = await getProductData(slug);
 
   const breadcrumbPath = [
@@ -44,60 +44,97 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#FFFFFF]">
-      {/* 
-          FIXED HEADER SECTION 
-          Locked at top-0. Covers Nav and Breadcrumbs.
-      */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF] w-full">
-        <ProductNav />
-        <Breadcrumbs path={breadcrumbPath} />
+    <article className="relative min-h-screen bg-[#FFFFFF]">
+      {/* FIXED HEADER SECTION */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04) ">
+        <div className="mx-auto w-full">
+          <ProductNav />
+          <div className="px-0">
+            <Breadcrumbs path={breadcrumbPath} />
+          </div>
+        </div>
       </header>
 
-      {/* 
-          SCROLLABLE CONTENT 
-          - pt-[130px]: Clears the fixed top header.
-          - pb-[88px]: Clears the 72px fixed bottom CTA + 16px extra spacing.
-      */}
-      <main className="mx-auto w-full md:max-w-7xl pt-[130px] pb-[100px]">
+      {/* MAIN CONTENT AREA */}
+      <main className="mx-auto w-full max-w-[1280px] pt-[140px] pb-[32px] px-0 ">
         
-        {/* Image Gallery Section */}
-        <section className="mt-[24px] px-[24px]">
-          <ProductImage
-            images={product.images}
-            rating={product.rating}
-            reviewsCount={product.reviewsCount}
-            productName={product.name}
-          />
-        </section>
+        <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
+          
+          {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS (Desktop Only for Highlights) */}
+          <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] lg:sticky lg:top-[160px] px-[24px] lg:px-[0] flex flex-col gap-y-[32px]">
+            <ProductImage
+              images={product.images}
+              rating={product.rating}
+              reviewsCount={product.reviewsCount}
+              productName={product.name}
+            />
 
-        {/* Product Title and Pricing Section */}
-        <section className="mt-[24px]">
-          <ProductHeader 
-            brand={product.brand.name}
-            title={product.title}
-            originalPrice={product.originalPrice}
-            discountedPrice={product.discountedPrice}
-            discountPercentage={product.discountPercentage}
-          />
-        </section>
+            {/* 
+                DESKTOP EXCLUSIVE: Product Highlights 
+                - hidden: Hidden on mobile/tablet
+                - lg:block: Visible only on desktop laptops
+            */}
+            <div className="hidden lg:block">
+              <ProductHighlights />
+            </div>
+          </div>
 
-        {/* Product Selection Placeholders */}
-        <div className="mt-10 px-[24px] space-y-8">
-           <div className="h-[200px] bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-titillium">
-             Flavor & Size Selection (Next)
-           </div>
-           <div className="h-[500px] bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 font-titillium">
-             Specifications
-           </div>
+          {/* RIGHT COLUMN: DETAILS & MOBILE HIGHLIGHTS */}
+          <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col px-[24px] lg:px-[0]">
+            <ProductHeader 
+              brand={product.brand.name}
+              title={product.title}
+              originalPrice={product.originalPrice}
+              discountedPrice={product.discountedPrice}
+              discountPercentage={product.discountPercentage}
+            />
+
+            {/* SPACED COMPONENTS */}
+            <div className="mt-[28px] flex flex-col gap-y-[28px]">
+              <ProductOptions />
+               <Availability />
+               <ServiceHighlights />
+
+               {/* 
+                   MOBILE/TABLET EXCLUSIVE: Product Highlights
+                   - block: Visible on mobile (maintaining vertical order)
+                   - lg:hidden: Removed from DOM flow on desktop
+               */}
+               <div className="lg:hidden">
+                 <ProductHighlights />
+               </div>
+               <div className="lg:hidden ">
+               <ProductDetails />
+               </div>
+               <div className="lg:hidden ">
+               <ReviewsSection />
+               </div>
+               <div className="lg:hidden ">
+               <QuestionsAndAnswers />
+               </div>
+               <div className="lg:hidden ">
+               <WhyChooseUs />
+               </div>
+            </div>
+
+          </div>
         </div>
+
+        <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
+              <ProductDetails />
+            </div>
+            <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
+              <ReviewsSection />
+            </div>
+            <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
+              <QuestionsAndAnswers />
+            </div>
+            <div className="hidden lg:block lg:mt-[28px] ">
+              <WhyChooseUs />
+            </div>
       </main>
 
-      {/* 
-          FIXED BOTTOM CTA 
-          Locked at bottom-0. Always visible on mobile/desktop.
-      */}
-    <ProductCTA />
-    </div>
+      <ProductCTA />
+    </article>
   );
 }

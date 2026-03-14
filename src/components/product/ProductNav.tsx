@@ -21,7 +21,7 @@ export default function ProductNav() {
   return (
     <nav 
       aria-label="Top navigation" 
-      className="flex w-full max-w-[410px] md:max-w-7xl mx-auto min-w-0 px-[24px] py-[16px] gap-[12px] items-center self-stretch shrink-0 flex-nowrap bg-[#ffffff] relative overflow-hidden shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]"
+      className="flex w-full lg:max-w-[1280px] mx-auto min-w-0 px-[24px] py-[12px] gap-[12px] items-center self-stretch shrink-0 flex-nowrap bg-[#ffffff] relative overflow-hidden ]"
     >
       {/* Back Button */}
       <button 

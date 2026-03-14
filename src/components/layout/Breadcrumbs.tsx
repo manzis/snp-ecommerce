@@ -11,7 +11,7 @@ export default function Breadcrumbs({ path }: { path: BreadcrumbItem[] }) {
   return (
     <nav 
       aria-label="Breadcrumb" 
-      className="flex w-full max-w-[410px] md:max-w-7xl mx-auto min-w-0 px-[24px] py-[16px] items-center shrink-0 flex-wrap bg-white md:bg-transparent "
+      className="flex w-full  md:max-w-7xl mx-auto min-w-0 px-[24px] py-[16px] items-center shrink-0 flex-wrap bg-white md:bg-transparent shadow-[0_1px_2px_0_rgba(16,24,40,0.04) "
     >
       <ol className="flex items-center gap-[2px] flex-wrap">
         {path.map((item, index) => (

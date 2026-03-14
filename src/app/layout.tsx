@@ -54,9 +54,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="antialiased bg-white font-titillium min-h-screen flex flex-col">
+      <body className="bg-white font-titillium min-h-screen flex flex-col">
         <ToastProvider>
-          {/* flex-grow ensures the page content fills space and pushes footer down */}
+         
           <div className="flex-grow">
             {children}
           </div>

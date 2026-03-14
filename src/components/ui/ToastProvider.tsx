@@ -7,19 +7,19 @@ import { Toast } from './Toast';
 type ToastType = 'success' | 'error';
 
 interface ToastContextType {
-  showToast: (message: string, type: ToastType) => void;
+  // Added optional description parameter
+  showToast: (message: string, type: ToastType, description?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
-  const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: ToastType; description?: string } | null>(null);
 
-  const showToast = useCallback((message: string, type: ToastType) => {
-    // If a toast already exists, clear it first to trigger fresh animation
+  const showToast = useCallback((message: string, type: ToastType, description?: string) => {
     setToast(null);
     setTimeout(() => {
-      setToast({ message, type });
+      setToast({ message, type, description });
     }, 10);
   }, []);
 
@@ -29,9 +29,10 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       <AnimatePresence>
         {toast && (
           <Toast 
-            key={toast.message} // Key helps Framer Motion track changes
+            key={toast.message} 
             message={toast.message} 
             type={toast.type} 
+            description={toast.description}
             onClose={() => setToast(null)} 
           />
         )}

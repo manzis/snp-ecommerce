@@ -1,25 +1,40 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  // This flag prevents hover states from sticking on mobile touch screens
-  future: {
-    hoverOnlyWhenSupported: true,
-  },
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-    fontFamily: {
-      titillium: ["var(--font-titillium)", "sans-serif"],
-      inter: ["var(--font-inter)", "sans-serif"],
-      custom: ["var(--font-custom)", "sans-serif"],
-    },
+      fontFamily: {
+        titillium: ["var(--font-titillium)", "sans-serif"],
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        }
+      },
+      animation: {
+        marquee: 'marquee 6s linear infinite',
+      },
     },
   },
-  plugins: [],
+ plugins: [
+    function ({ addUtilities }: any) {
+      addUtilities({
+        '.no-scrollbar': {
+          /* IE and Edge */
+          '-ms-overflow-style': 'none',
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+      });
+    },
+  ],
 };
-
 export default config;

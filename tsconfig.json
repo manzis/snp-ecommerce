@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/components/icons/SearchIcon.jsx", "src/components/icons/ChevronRightIcon.jsx", "src/components/icons/CartIcon.jsx"  ],
   "exclude": ["node_modules"]
 }
