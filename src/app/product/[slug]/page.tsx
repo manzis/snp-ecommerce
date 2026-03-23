@@ -20,7 +20,7 @@ async function getProductData(slug: string) {
   return {
     name: "Atom Whey Protein",
     slug: slug,
-    category: { name: "Proteins", slug: "proteins" },
+    category: { name: "Proteins", slug: "protein" },
     brand: { name: "ASITIS NUTRITION", slug: "asitis-nutrition" },
     title: "Asitis atom whey protein concentrate - 27g protein 1 bcaa etc",
     images: ["/images/atom-whey.jpg", "/images/atom-whey-2.jpg", "/images/atom-whey-3.jpg", "/images/atom-whey-4.jpg"],
@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="mx-auto w-full max-w-[1280px] pt-[140px] pb-[32px] px-0 ">
+      <main className="mx-auto w-full max-w-[1280px] pt-[160px] pb-[32px] px-0 ">
         
         <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
           
@@ -115,6 +115,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                <div className="lg:hidden ">
                <WhyChooseUs />
                </div>
+                <div className="lg:hidden ">
+               </div>
             </div>
 
           </div>
@@ -138,3 +140,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </article>
   );
 }
+
+
+
+
+
+
+
+

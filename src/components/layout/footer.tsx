@@ -70,15 +70,15 @@ const Footer = () => {
             {/* Social Links */}
             <nav className="flex gap-[12px] items-start self-stretch shrink-0">
               <Link href="#" className="flex gap-[4px] items-center shrink-0">
-                <FacebookIcon className="w-[16px] h-[16px] text-white" />
+                <FacebookIcon className="text-white" />
                 <span className="font-titillium text-[16px] leading-[18px] text-white underline">Facebook</span>
               </Link>
               <Link href="#" className="flex gap-[4px] items-center shrink-0">
-                <InstagramIcon className="w-[16px] h-[16px] text-white" />
+                <InstagramIcon className=" text-white" />
                 <span className="font-titillium text-[16px] leading-[18px] text-white underline">Instagram</span>
               </Link>
               <Link href="#" className="flex gap-[4px] items-center shrink-0">
-                <WhatsAppIcon className="w-[16px] h-[16px] text-white" />
+                <WhatsAppIcon className=" text-white" />
                 <span className="font-titillium text-[16px] leading-[18px] text-white underline">Whatsapp</span>
               </Link>
             </nav>

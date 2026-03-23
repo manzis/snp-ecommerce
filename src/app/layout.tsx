@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Titillium_Web, Inter } from "next/font/google";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import "./globals.css";
 import { ToastProvider } from '@/components/ui/ToastProvider';
-import Footer from '@/components/layout/footer'; // Import the Footer
+import Footer from '@/components/layout/footer';
+import ViewportManager from '@/components/layout/ViewPortManager';
 
 const titillium = Titillium_Web({
   subsets: ["latin"],
@@ -25,43 +27,34 @@ const customFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "SNP Store",
+  title: "SNP Store | Premium Supplements",
+  description: "High-performance supplements for your health.",
+};
+
+export const viewport: Viewport = {
+  width: 410,
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html 
       lang="en" 
-      className={`${titillium.variable} ${inter.variable} ${customFont.variable}`}
+      // This tells React to ignore minor attribute mismatches caused by extensions
+      suppressHydrationWarning
+      className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased initial-loading`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var targetWidth = 410;
-                var scale = window.screen.width / targetWidth;
-                var meta = document.createElement('meta');
-                meta.name = 'viewport';
-                if (window.screen.width < targetWidth) {
-                  meta.content = 'width=' + targetWidth + ', initial-scale=' + scale + ', maximum-scale=' + scale + ', user-scalable=no';
-                } else {
-                  meta.content = 'width=device-width, initial-scale=1';
-                }
-                document.getElementsByTagName('head')[0].appendChild(meta);
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body className="bg-white font-titillium min-h-screen flex flex-col">
+      <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
+        <Suspense fallback={null}>
+          <ViewportManager />
+        </Suspense>
+
         <ToastProvider>
-         
-          <div className="flex-grow">
+          <main className="flex-grow flex flex-col w-full relative">
             {children}
-          </div>
-          
-          {/* Global Footer appears on every page */}
+          </main>
           <Footer />
         </ToastProvider>
       </body>
