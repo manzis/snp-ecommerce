@@ -8,7 +8,7 @@ const SizeSelection: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState<string>('1kg');
 
   return (
-    <section className="relative flex flex-col items-start gap-[14px] w-full h-[79px]">
+    <section className="relative flex flex-col items-start gap-[16px] w-full h-[79px]">
       {/* 
           HEADER: Selected Size
           - tracking-[-0.02em]: Exact Figma Token

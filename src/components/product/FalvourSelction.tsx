@@ -14,7 +14,7 @@ const FlavourSelection: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   return (
-    <div className="relative flex flex-col items-start gap-[14px] w-full">
+    <div className="relative flex flex-col items-start gap-[15px] w-full">
       {/* 
           ANIMATION SYSTEM 
           - marquee-scroll: Hardware-accelerated name reveal
@@ -71,7 +71,7 @@ const FlavourSelection: React.FC = () => {
                 outline-[1.5px] outline-offset-0
                 ${isSelected 
                   ? 'outline-[#1D1D1D] p-[2px] selected-gradient' 
-                  : 'outline-[#E9E9E9] bg-[#FFFFFF] p-[4px]'}
+                  : 'outline-[#E8E8E8] bg-[#FFFFFF] p-[4px]'}
               `}
             >
               {/* 

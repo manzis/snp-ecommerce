@@ -13,7 +13,7 @@ const DeliveryDetails: React.FC = () => {
   const [deliveryType, setDeliveryType] = useState<'home' | 'pickup'>('home');
 
   return (
-    <section className="flex flex-col gap-[16px] w-full max-w-[700px] lg:max-w-none">
+    <section className="flex flex-col gap-[18px] w-full max-w-[700px] lg:max-w-none">
       {/* SECTION HEADER */}
       <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.4px] text-[#242424] leading-[18px]">
         Delivery Details

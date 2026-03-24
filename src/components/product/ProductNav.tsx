@@ -23,8 +23,9 @@ const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
   router.push('/search?autofocus=true');
 };
 
-  const handleBlur = (e: React.PointerEvent<HTMLButtonElement>) => {
+  const handleCart = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
+    router.push('/cart');
   };
 
   return (
@@ -63,7 +64,7 @@ const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
       <button 
         type="button"
         aria-label="View cart" 
-        onPointerUp={handleBlur}
+        onPointerUp={handleCart}
         className="flex w-[42px] h-[42px] p-[8px] flex-col justify-center items-center shrink-0 flex-nowrap relative z-[7] outline-none transition-all duration-200 rounded-[6px] md:hover:bg-[#f2f3f5] active:scale-[0.98]"
       >
         <div className="flex px-[1px] py-[2px] items-start shrink-0 relative z-[8]">

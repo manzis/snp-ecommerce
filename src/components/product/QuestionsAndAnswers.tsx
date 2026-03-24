@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from '@/components/ui/ToastProvider'; // Standard path for shadcn/toast pattern
-import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon'; 
+import DropDownIcon from '@/components/icons/DropDownIcon'; 
 import CalendarIcon from '@/components/icons/VanIcon'; 
 import SearchIcon from '@/components/icons/VanIcon'; 
 
@@ -60,7 +60,7 @@ const QuestionsAndAnswers: React.FC = () => {
           className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] border border-[#eaebf0] bg-[#fafbfc] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform"
         >
           <div className="w-[16px] h-[16px] rotate-[-90deg]">
-            <ChevronLeftIcon className="w-full h-full text-black" />
+            <DropDownIcon className="w-full h-full text-black" />
           </div>
         </button>
       </div>

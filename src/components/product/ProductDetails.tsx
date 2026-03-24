@@ -24,7 +24,7 @@ const ProductDetails: React.FC = () => {
   if (!mounted) return <div className="w-full h-[500px]" />;
 
   return (
-    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[16px] lg:mx-0 lg:max-w-none">
+    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none">
       {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
       <h2 className="h-[18px] font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
         Product Details
@@ -41,13 +41,13 @@ const ProductDetails: React.FC = () => {
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  flex ${tab.width} lg:flex-1 lg:min-w-[140px] h-[36px] px-[12px] py-[8px] justify-center items-center rounded-[6px] border transition-all duration-300 shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] outline-none
+                  flex ${tab.width} lg:flex-1 lg:min-w-[140px] h-[40px] px-[12px] py-[8px] justify-center items-center rounded-[6px] border transition-all duration-300 shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] outline-none
                   ${activeTab === tab.id 
                     ? 'bg-[#242424] border-[#242424]' 
                     : 'bg-[#fafbfc] border-[#eaebf0]'}
                 `}
               >
-                <span className={`font-inter text-[14px] font-semibold leading-[20px] tracking-[0.1px] whitespace-nowrap transition-colors duration-300
+                <span className={`font-titillium text-[14px] font-semibold leading-[24px] tracking-[0.1px] whitespace-nowrap transition-colors duration-300
                   ${activeTab === tab.id ? 'text-white' : 'text-[#252525]'}
                 `}>
                   {tab.label}
@@ -61,7 +61,7 @@ const ProductDetails: React.FC = () => {
         <div className="relative w-full ">
           
           {activeTab === 'description' && (
-            <div className="w-full font-inter text-[16px] font-normal leading-[22px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="w-full font-titillium text-[16px] font-normal leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
               <p>Information related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as follows</p>
             </div>
           )}

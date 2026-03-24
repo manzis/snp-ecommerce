@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             />
 
             {/* SPACED COMPONENTS */}
-            <div className="mt-[28px] flex flex-col gap-y-[28px]">
+            <div className="mt-[30px] flex flex-col gap-y-[30px]">
               <ProductOptions />
                <Availability />
                <ServiceHighlights />

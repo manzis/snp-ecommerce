@@ -61,7 +61,7 @@ const ProductHighlights: React.FC = () => {
   if (!mounted) return <div className="w-full h-[485px] bg-zinc-100 rounded-[8px]" />;
 
   return (
-    <section className="relative mx-auto flex w-full max-w-[362px] md:max-w-none flex-col items-start gap-[16px] lg:mx-0 select-none">
+    <section className="relative mx-auto flex w-full max-w-[362px] md:max-w-none flex-col items-start gap-[24px] lg:mx-0 select-none">
       <h2 className="font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424]">
         Product Highlights
       </h2>

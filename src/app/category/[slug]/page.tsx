@@ -6,7 +6,7 @@ import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import ProductCard from '@/components/search/SearchProductCard';
 import FilterBar, { SelectedFilters } from '@/components/search/FilterBar';
 import Pagination from '@/components/search/Pagination';
-import InfoIcon from '@/components/icons/InfoIcon';
+import DropDownIcon from '@/components/icons/DropDownIcon';
 import { CATEGORY_THEMES } from '@/lib/CategoryThemes';
 
 // MOCK DATA - Expansion of previous data to demonstrate pagination
@@ -98,7 +98,7 @@ export default function CategoryDetailPage() {
             {theme.benefitLabel}
           </span>
           <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] border border-[#eaebf0] bg-white">
-            <InfoIcon className="h-[16px] w-[16px] text-[#242424]" />
+            <DropDownIcon className="h-[16px] w-[16px] text-[#242424]" />
           </button>
         </div>
 
