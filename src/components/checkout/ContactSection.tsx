@@ -99,7 +99,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
             exit={{ height: 0, opacity: 0 }}
             className="w-full overflow-hidden"
           >
-            <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-b border-[#f1f5f9]">
+            <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
               <div className="flex flex-col gap-[10px] w-full">
                 
                 {/* Input Container with Enhanced "Hard" Shake Animation */}

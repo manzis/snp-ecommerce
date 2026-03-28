@@ -52,7 +52,7 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
   };
 
   return (
-    <div className={`main-container mx-auto flex w-full max-w-[412px] flex-col items-start bg-white border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${
+    <div className={`main-container mx-auto flex w-full  flex-col items-start bg-white border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${
       disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
     }`}>
       {/* ACCORDION HEADER */}
@@ -89,7 +89,7 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
             exit={{ height: 0, opacity: 0 }}
             className="w-full overflow-hidden"
           >
-            <div className="flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-b border-[#f1f5f9]">
+            <div className="flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
               
               <AddressSelector 
                 addresses={MOCK_ADDRESSES}

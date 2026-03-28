@@ -28,13 +28,13 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
   };
 
   return (
-    <nav className="main-container fixed top-0 z-50 flex h-[81px] w-full max-w-[410px] lg:max-w-[1280px] mx-auto items-center gap-[8px] bg-white px-[24px] py-[16px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
+    <nav className="main-container fixed top-0 z-50 flex h-[81px] w-full max-w-[410px] lg:max-w-[1280px] mx-auto items-center gap-[4px] bg-white px-[24px] py-[16px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
       {/* Back Button */}
       {showBack && (
         <button
           onClick={handleBack}
           type="button"
-          className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[5px] active:scale-95 transition-transform outline-none"
+          className="flex h-[42px] w-[42px] shrink-0 items-center  rounded-[5px] active:scale-95 transition-transform outline-none"
           aria-label="Go back"
         >
           <div className="h-[24px] w-[24px]">
@@ -44,7 +44,7 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
       )}
 
       {/* Title Section */}
-      <div className="flex flex-grow items-center gap-[10px] overflow-hidden">
+      <div className="flex flex-grow items-center  overflow-hidden">
         <h1 className="truncate font-titillium text-[20px] font-semibold leading-[26px] tracking-[-0.88px] text-[#242424]">
           {title}
         </h1>

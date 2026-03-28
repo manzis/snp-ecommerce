@@ -38,7 +38,7 @@ const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
         type="button"
         aria-label="Go back"
         onPointerUp={handleBack}
-        className="flex w-[42px] h-[42px] p-[8px] justify-center items-center shrink-0 flex-nowrap rounded-[5px]  relative  z-[1] outline-none transition-all duration-200 md:hover:bg-[#f2f3f5]"
+        className="flex w-[42px] h-[42px] items-center shrink-0 flex-nowrap rounded-[5px]  relative  z-[1] outline-none transition-all duration-200 md:hover:bg-[#f2f3f5]"
       >
         <BackIcon className="w-[24px] h-[24px] shrink-0 relative z-[2] text-[#242424]" />
       </button>
