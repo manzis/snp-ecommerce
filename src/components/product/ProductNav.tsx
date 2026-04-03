@@ -18,10 +18,10 @@ export default function ProductNav() {
     router.back();
   };
 
-const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
-  e.currentTarget.blur();
-  router.push('/search?autofocus=true');
-};
+  const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+    router.push('/search?autofocus=true');
+  };
 
   const handleCart = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
@@ -29,12 +29,12 @@ const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
   };
 
   return (
-    <nav 
-      aria-label="Top navigation" 
-      className="flex w-full lg:max-w-[1280px] mx-auto min-w-0 px-[24px] py-[12px] gap-[12px] items-center self-stretch shrink-0 flex-nowrap bg-[#ffffff] relative overflow-hidden"
+    <nav
+      aria-label="Top navigation"
+      className="flex w-full lg:px-[60px] mx-auto min-w-0 px-[24px] py-[12px] gap-[12px] items-center self-stretch shrink-0 flex-nowrap bg-[#ffffff] relative overflow-hidden"
     >
       {/* Back Button */}
-      <button 
+      <button
         type="button"
         aria-label="Go back"
         onPointerUp={handleBack}
@@ -51,8 +51,8 @@ const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
         className="flex flex-col justify-center items-center self-stretch flex-grow shrink-0 basis-0 flex-nowrap bg-[#ffffff] rounded-[6px] relative z-[3] outline-none transition-all duration-200 border border-transparent md:hover:bg-[#f2f3f5] active:scale-[0.99]"
       >
         <div className="flex px-[12px] py-[10px] gap-[4px] items-center self-stretch shrink-0 flex-nowrap relative z-[4]">
-          <SearchIcon className="w-[22px] h-[22px] shrink-0 relative z-[5] text-[#242424]" />
-          <span 
+          <SearchIcon className="w-[22px] h-[22px] shrink-0 relative z-[5] text-[#BEBEBE]" />
+          <span
             className="font-titillium text-[20px] font-[400] tracking-[-0.8px] bg-[linear-gradient(48.47deg,#bebebe,#020202)] bg-clip-text text-transparent whitespace-nowrap relative z-[6]"
           >
             Search products
@@ -61,9 +61,9 @@ const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
       </button>
 
       {/* Cart Button */}
-      <button 
+      <button
         type="button"
-        aria-label="View cart" 
+        aria-label="View cart"
         onPointerUp={handleCart}
         className="flex w-[42px] h-[42px] p-[8px] flex-col justify-center items-center shrink-0 flex-nowrap relative z-[7] outline-none transition-all duration-200 rounded-[6px] md:hover:bg-[#f2f3f5] active:scale-[0.98]"
       >

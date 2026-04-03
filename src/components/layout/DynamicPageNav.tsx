@@ -11,11 +11,11 @@ interface DynamicPageNavProps {
   showBack?: boolean;
 }
 
-const DynamicPageNav: React.FC<DynamicPageNavProps> = ({ 
-  title, 
-  subtitle, 
-  onBack, 
-  showBack = true 
+const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
+  title,
+  subtitle,
+  onBack,
+  showBack = true
 }) => {
   const router = useRouter();
 
@@ -28,7 +28,7 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
   };
 
   return (
-    <nav className="main-container fixed top-0 z-50 flex h-[81px] w-full max-w-[410px] lg:max-w-[1280px] mx-auto items-center gap-[4px] bg-white px-[24px] py-[16px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
+    <nav className="main-container fixed top-0 z-50 flex h-[81px] w-full lg:px-[60px] mx-auto items-center gap-[4px] bg-white px-[24px] py-[16px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
       {/* Back Button */}
       {showBack && (
         <button

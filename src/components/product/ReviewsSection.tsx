@@ -54,7 +54,7 @@ const ReviewsSection: React.FC = () => {
   return (
     <>
       <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none">
-        
+
         {/* HEADER ROW */}
         <div className="flex w-full items-center justify-between">
           <h2 className="font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424]">
@@ -67,24 +67,24 @@ const ReviewsSection: React.FC = () => {
 
         {/* HORIZONTAL SCROLLABLE REVIEWS */}
         <div className="w-full overflow-x-auto no-scrollbar">
-          <div className="flex flex-row gap-[6px] pb-2">
+          <div className="flex flex-row gap-[6px] lg:gap-[16px] pb-2">
             {reviewsData.map((review, index) => {
               const theme = themes[index % themes.length];
               return (
-                <motion.div 
+                <motion.div
                   key={review.id}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true, amount: 0.6 }} 
+                  viewport={{ once: true, amount: 0.6 }}
                   onClick={() => handleOpenLightbox(index)} // Opens dedicated Lightbox
                   className="relative flex h-[290px] w-[225px] flex-shrink-0 flex-col rounded-[8px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden bg-white cursor-pointer active:scale-[0.98] transition-transform"
                 >
                   {/* 1. Base Layer: Product Image */}
                   <div className="relative h-full w-full rounded-[6px] overflow-hidden">
-                    <Image 
-                      src={review.image} 
-                      alt="Reviewed Product" 
-                      fill 
+                    <Image
+                      src={review.image}
+                      alt="Reviewed Product"
+                      fill
                       className="object-cover"
                       sizes="225px"
                     />
@@ -92,23 +92,23 @@ const ReviewsSection: React.FC = () => {
 
                   {/* 2. Top Layer: Rating Badge */}
                   <div className="absolute right-[8px] top-[8px] z-20 flex h-[26px] w-[62px] items-center justify-center gap-[2px] rounded-[4px] bg-white px-[4px] py-[4px] shadow-sm pointer-events-none">
-                     <StarIcon className="h-[14px] w-[14px]" />
-                     <div className="font-titillium text-[12px] font-semibold text-[#242424]">
-                        {review.rating}<span className="font-normal opacity-60">/5.0</span>
-                     </div>
+                    <StarIcon className="h-[14px] w-[14px]" />
+                    <div className="font-titillium text-[12px] font-semibold text-[#242424]">
+                      {review.rating}<span className="font-normal opacity-60">/5.0</span>
+                    </div>
                   </div>
 
                   {/* 3. Bouncy Animated Text Overlay */}
-                  <motion.div 
+                  <motion.div
                     variants={{
-                      hidden: { y: "150%" }, 
+                      hidden: { y: "150%" },
                       visible: { y: 0 }
                     }}
-                    transition={{ 
-                      delay: 1.2, 
-                      type: "spring", 
-                      stiffness: 140, 
-                      damping: 12,    
+                    transition={{
+                      delay: 1.2,
+                      type: "spring",
+                      stiffness: 140,
+                      damping: 12,
                       mass: 0.8
                     }}
                     className={`absolute bottom-[2px] left-[2px] right-[2px] z-10 flex flex-col gap-[6px] p-[12px_12px_8px_12px] rounded-[6px] overflow-hidden pointer-events-none ${theme.bg}`}
@@ -137,8 +137,8 @@ const ReviewsSection: React.FC = () => {
                       transition={{
                         repeat: Infinity,
                         repeatType: "loop",
-                        duration: 2.5, 
-                        delay: 2.2, 
+                        duration: 2.5,
+                        delay: 2.2,
                         ease: "linear"
                       }}
                       className="absolute inset-0 z-20 w-[50%] skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none mix-blend-overlay"
@@ -168,7 +168,7 @@ const ReviewsSection: React.FC = () => {
               Post your Review
             </span>
             <div className="absolute right-[12px] top-1/2 -translate-y-1/2 h-[18px] w-[18px] -rotate-90">
-               <DropDownIcon className="h-full w-full text-black" />
+              <DropDownIcon className="h-full w-full text-black" />
             </div>
           </button>
         </div>
@@ -176,7 +176,7 @@ const ReviewsSection: React.FC = () => {
       </section>
 
       {/* RENDER THE LIGHTBOX GLOBALLY */}
-      <MediaLightbox 
+      <MediaLightbox
         isOpen={isLightboxOpen}
         media={lightboxMedia}
         initialIndex={activeImageIndex}

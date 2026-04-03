@@ -12,83 +12,104 @@
   --foreground: #242424;
 }
 
-.initial-loading body {
+/* 
+   1. COLD LOAD REVEAL SYSTEM
+   This prevents the "zoom-out jitter" when first opening the site.
+   We hide the body strictly until the Head Script confirms scaling is locked.
+*/
+html.initial-loading body {
   opacity: 0;
   visibility: hidden;
 }
 
-/* Reveal body when ViewportManager confirms scaling */
-.viewport-ready body {
+html.viewport-ready body {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.35s ease-in-out;
-}
-
-/* Ensure background remains white to prevent dark flashes */
-body {
-  background-color: #ffffff;
+  /* 
+     NOTE: We removed 'transition: opacity' from here. 
+     Page-to-page fades are now handled EXCLUSIVELY by your template.tsx. 
+     This eliminates the 'double-flash' during navigation.
+  */
 }
 
 @layer base {
-  html, body {
-    /* Prevent horizontal scroll during scaling */
-    overflow-x: hidden;
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
     background-color: #ffffff;
     color: var(--foreground);
+    /* Essential for fixed-width 410px scaling behavior */
+    overflow-x: hidden;
+    position: relative;
+
+    /* Hardware Acceleration & Text Quality */
     -webkit-font-smoothing: antialiased;
-    /* Ensure the scale transition feels natural */
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
     touch-action: manipulation;
   }
 
   /* Desktop View: Keep it clean and centered */
   @media (min-width: 768px) {
+
+    /* Bypass the "hide body" logic on desktop for better LCP performance */
     html.initial-loading body {
       opacity: 1;
       visibility: visible;
     }
-  }
 
-  .main-container {
-    margin-left: auto;
-    margin-right: auto;
+    body {
+      background-color: #F9F9F9;
+    }
+
+    .main-container {
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 }
 
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-}
 
-@layer utilities {
-  @keyframes marquee-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Premium Industrial Shadows */
   .shadow-smooth {
-    filter: drop-shadow(-13px 99px 40px rgba(0, 0, 0, 0.01)) 
-            drop-shadow(-7px 56px 34px rgba(0, 0, 0, 0.02)) 
-            drop-shadow(-3px 25px 25px rgba(0, 0, 0, 0.03)) 
-            drop-shadow(-1px 6px 14px rgba(0, 0, 0, 0.04));
+    filter: drop-shadow(-13px 99px 40px rgba(0, 0, 0, 0.01)) drop-shadow(-7px 56px 34px rgba(0, 0, 0, 0.02)) drop-shadow(-3px 25px 25px rgba(0, 0, 0, 0.03)) drop-shadow(-1px 6px 14px rgba(0, 0, 0, 0.04));
+  }
+
+  /* Scrolling Marquee Animation */
+  @keyframes marquee-scroll {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
   }
 
   .animate-marquee-continuous {
     display: inline-block;
     white-space: nowrap;
-    animation: marquee-scroll 6s linear infinite;
+    animation: marquee-scroll 10s linear infinite;
   }
 
   .marquee-mask {
     mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-  }
-
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
   }
 
   .transition-bounce {

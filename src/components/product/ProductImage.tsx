@@ -20,7 +20,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [animateHeart, setAnimateHeart] = useState(false);
   const [mounted, setMounted] = useState(false);
-  
+
   const startX = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
 
@@ -32,7 +32,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
     setAnimateHeart(true);
-    setTimeout(() => setAnimateHeart(false), 200); 
+    setTimeout(() => setAnimateHeart(false), 200);
   };
 
   const handleShare = async (e: React.MouseEvent) => {
@@ -41,11 +41,11 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
     const shareData = { title: productName, text: `Check out ${productName}!`, url: shareUrl };
 
     if (navigator.share && navigator.canShare?.(shareData)) {
-      try { await navigator.share(shareData); } catch (err) {}
+      try { await navigator.share(shareData); } catch (err) { }
     } else {
       try {
         await navigator.clipboard.writeText(shareUrl);
-      } catch (err) {}
+      } catch (err) { }
     }
   };
 
@@ -70,7 +70,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
     isDragging.current = false;
     const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
     const diff = startX.current - clientX;
-    if (Math.abs(diff) > 35) { 
+    if (Math.abs(diff) > 35) {
       if (diff > 0) navigate('next');
       else navigate('prev');
     }
@@ -79,33 +79,33 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
   if (!mounted) return <div className="w-full h-[318px] lg:h-[560px] bg-white rounded-[6px]" />;
 
   return (
-    <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[24px] relative select-none">
-      <div 
+    <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[24px] relative select-none ">
+      <div
         /* 
            FRAME LOCK: 
            - Mobile: h-[318px] (Exact Token)
            - Desktop: lg:h-[560px] (Increased for Premium Layout)
         */
-        className="relative h-[318px] lg:h-[560px] w-full overflow-hidden rounded-[6px] bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5]"
+        className="relative h-[332px] lg:h-[560px] w-full overflow-hidden rounded-[6px] bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5] p-[8px]"
         onMouseDown={handleStart}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
         onTouchStart={handleStart}
         onTouchEnd={handleEnd}
       >
-        <div 
+        <div
           className="flex h-full w-full transition-transform duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
           onTransitionEnd={() => setIsTransitioning(false)}
         >
           {images.map((img, idx) => (
             <div key={idx} className="relative h-full w-full shrink-0">
-              <Image 
-                src={img} 
-                alt={productName} 
-                fill 
-                className="object-contain lg:object-cover" 
-                priority={idx === 0} 
+              <Image
+                src={img}
+                alt={productName}
+                fill
+                className="object-contain lg:object-cover"
+                priority={idx === 0}
               />
             </div>
           ))}
@@ -137,10 +137,9 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
             onClick={handleWishlist}
             icon={
               <div className={`transition-transform duration-200 ${animateHeart ? 'scale-110' : 'scale-100'}`}>
-                <WishlistIcon 
-                  className={`w-full h-full transition-all duration-300 ${
-                    isWishlisted ? 'text-red-500 fill-red-500' : 'text-[#242424]'
-                  }`} 
+                <WishlistIcon
+                  className={`w-full h-full transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-[#242424]'
+                    }`}
                 />
               </div>
             }
@@ -160,9 +159,8 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
             aria-label={`Go to slide ${idx + 1}`}
             onPointerUp={(e) => e.currentTarget.blur()}
             onClick={() => !isTransitioning && setActiveIndex(idx)}
-            className={`h-full flex-1 transition-colors duration-400 ${
-                idx === activeIndex ? 'bg-[#242424]' : 'bg-transparent'
-            } md:hover:bg-[#242424]/10`}
+            className={`h-full flex-1 transition-colors duration-400 ${idx === activeIndex ? 'bg-[#242424]' : 'bg-transparent'
+              } md:hover:bg-[#242424]/10`}
           />
         ))}
       </div>

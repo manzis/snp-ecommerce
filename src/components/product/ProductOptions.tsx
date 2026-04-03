@@ -6,7 +6,7 @@ import DeliveryDetails from './DeliveryDetails';
 
 const ProductOptions: React.FC = () => {
   return (
-    <section className="relative flex w-full  lg:max-w-none flex-col items-start gap-[30px] mx-auto lg:mx-0">
+    <section className="relative flex w-full  lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0">
       <FlavourSelection />
       <SizeSelection />
       <OfferCard />
