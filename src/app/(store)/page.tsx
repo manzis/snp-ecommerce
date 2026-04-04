@@ -6,6 +6,8 @@ import TodaysDeals from '@/components/home/TodaysDeals';
 import ProductGridSection from '@/components/home/ProductGridSection';
 import SubscribeSection from '@/components/home/SubscribeSection';
 import TestimonialSection from '@/components/home/TestinomialSection';
+import FeatureBanners from '@/components/home/FeatureBanners';
+import ServicesMarquee from '@/components/home/ServicesMarquee';
 
 const BEST_SELLERS = [
   {
@@ -36,7 +38,7 @@ const BEST_SELLERS = [
     discountPercentage: "20%",
     rating: "4.3",
     image: "/images/atom-whey.jpg",
-    slug: "atom-whey-2"
+    slug: "atom-whey-3"
   },
   {
     brand: "Naturltein",
@@ -46,7 +48,7 @@ const BEST_SELLERS = [
     discountPercentage: "20%",
     rating: "4.3",
     image: "/images/atom-whey.jpg",
-    slug: "atom-whey-2"
+    slug: "atom-whey-4"
   },
   {
     brand: "Naturltein",
@@ -56,7 +58,7 @@ const BEST_SELLERS = [
     discountPercentage: "20%",
     rating: "4.3",
     image: "/images/atom-whey.jpg",
-    slug: "atom-whey-2"
+    slug: "atom-whey-5"
   },
 
 
@@ -89,8 +91,19 @@ export default function HomePage() {
         <HomeCategories />
 
         <ProductGridSection title="Best Sellers" products={BEST_SELLERS} />
-        <SubscribeSection />
+
+        <ProductGridSection title="Popular Products" products={POPULAR_PRODUCTS} />
+        <ServicesMarquee />
+        <FeatureBanners />
+
+
+
         <TestimonialSection />
+        <ServicesMarquee />
+
+        <ProductGridSection title="New Arrivals" products={BEST_SELLERS} />
+
+        <SubscribeSection />
 
 
 

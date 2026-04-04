@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { Suspense } from "react";
 import { ToastProvider } from '@/components/ui/ToastProvider';
+import { AuthModalProvider } from '@/context/AuthModalContext'; // Import Provider
+import { AuthProvider } from '@/context/AuthContext'; // Import new AuthProvider
+import LoginModal from '@/components/auth/LoginModal'; // Import Component
 import HomeBottomNav from "@/components/home/HomeBottomNav";
 import Footer from '@/components/layout/footer';
 import { titillium, inter, customFont } from "@/lib/fonts";
@@ -58,18 +61,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
         <ToastProvider>
-          {/* 
-              FIX: Added keys to the top-level Router children. 
-              This prevents OuterLayoutRouter from losing the element identity 
-              during page transitions.
-          */}
-          <main key="main-root-container" className="flex-grow flex flex-col w-full relative">
-            {children}
-          </main>
+          {/* Global Auth Context wrapping the app */}
+          <AuthProvider>
+            <AuthModalProvider>
 
-          <HomeBottomNav key="global-bottom-nav" />
+              <main key="main-root-container" className="flex-grow flex flex-col w-full relative">
+                {children}
+              </main>
 
-          <Footer key="global-footer" />
+              {/* Global UI Components */}
+              <HomeBottomNav key="global-bottom-nav" />
+              <Footer key="global-footer" />
+
+              {/* The Modal lives here at the bottom of the body */}
+              <LoginModal key="global-login-modal" />
+
+            </AuthModalProvider>
+          </AuthProvider>
         </ToastProvider>
       </body>
     </html>

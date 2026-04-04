@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import SearchNavbar from '@/components/search/SearchNavbar';
 import FilterBar, { SelectedFilters } from '@/components/search/FilterBar';
 import RecommendedBrands from '@/components/search/RecommendedBrands';
@@ -10,12 +10,9 @@ import RecentSearches from '@/components/search/RecentSearches';
 import { performSearch } from '@/lib/searchLogic';
 
 const STORAGE_KEY = 'snp_recent_searches';
-const MAX_RECENT_ITEMS = 6; 
+const MAX_RECENT_ITEMS = 6;
 
-/**
- * UPDATED MOCK DATA
- * Added 'category' field to support the filtering logic.
- */
+
 const MOCK_PRODUCTS = [
   { id: 1, slug: 'omega-3-fish-oil-triple-strength', category: 'fishoil', brand: 'Naturaltein', name: 'Omega 3 Fish Oil - Triple Strength', originalPrice: 'RS. 5000', discountedPrice: 'RS. 1890', discount: '20%', rating: 4.3, image: '/images/fishoil.jpg', description: 'High quality EPA/DHA' },
   { id: 2, slug: 'atom-whey-protein-concentrate', category: 'protein', brand: 'Asitis', name: 'Atom Whey Protein Concentrate', originalPrice: 'RS. 5000', discountedPrice: 'RS. 1890', discount: '20%', rating: 4.3, image: '/images/atom-whey.jpg', description: 'Pure protein for muscle gain' },
@@ -34,7 +31,7 @@ const MOCK_PRODUCTS = [
   { id: 15, slug: 'bulk-pre-workout-powder', category: 'preworkout', brand: 'Transparent Labs', name: 'Bulk Pre-Workout Powder', originalPrice: 'RS. 5000', discountedPrice: 'RS. 4500', discount: '10%', rating: 4.7, image: '/images/magnesium.jpg', description: 'Clinically dosed preworkout' },
 ];
 
-export default function SearchPage() {
+function SearchPageContent() {
   const [query, setQuery] = useState('');
   const [isSearched, setIsSearched] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -121,10 +118,10 @@ export default function SearchPage() {
         {!isSearched ? (
           /* BEFORE SEARCH STATE */
           <div className="flex flex-col">
-            <RecentSearches 
-              items={recentSearches} 
-              onSearch={handleSearch} 
-              onClear={clearRecent} 
+            <RecentSearches
+              items={recentSearches}
+              onSearch={handleSearch}
+              onClear={clearRecent}
             />
             <RecommendedBrands />
             <PopularProducts />
@@ -134,17 +131,25 @@ export default function SearchPage() {
           <div className="flex flex-col py-[20px]">
             <div className="px-[24px] mb-[16px]">
               <p className="font-titillium text-[14px] text-[#656565]">
-                {filteredResults.length > 0 
+                {filteredResults.length > 0
                   ? `Showing ${filteredResults.length} results for "${query}"`
                   : `No exact matches for "${query}". Try different filters or keywords.`}
               </p>
             </div>
-            
+
             {/* Component handles its own grid, pagination and product redirect */}
             <SearchResults products={filteredResults} />
           </div>
         )}
       </main>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white"></div>}>
+      <SearchPageContent />
+    </Suspense>
   );
 }

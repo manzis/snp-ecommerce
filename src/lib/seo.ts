@@ -1,11 +1,14 @@
-// In a helpers file, e.g., src/lib/seo.ts
+export interface BreadcrumbItem {
+  name: string;
+  href: string;
+}
 
-function generateBreadcrumbJsonLd(path: BreadcrumbItem[]) {
+export function generateBreadcrumbJsonLd(path: BreadcrumbItem[]) {
   const itemListElement = path.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://www.yoursite.com${item.href}`, // Use your full domain
+    item: `https://www.supplementnepal.com${item.href}`,
   }));
 
   return {
@@ -13,25 +16,4 @@ function generateBreadcrumbJsonLd(path: BreadcrumbItem[]) {
     '@type': 'BreadcrumbList',
     itemListElement,
   };
-}
-
-// Then, in your src/app/product/[slug]/page.tsx:
-
-export default async function ProductPage({ params }) {
-  // ... (fetch data and build breadcrumbPath as before)
-  const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbPath);
-
-  return (
-    <main>
-      {/* Add this script to inject the structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
-      
-      <ProductNav />
-      <Breadcrumbs path={breadcrumbPath} />
-      {/* ... */}
-    </main>
-  );
 }

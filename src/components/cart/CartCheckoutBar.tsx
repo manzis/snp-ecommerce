@@ -3,22 +3,39 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import InfoIcon from '@/components/icons/PriceInfoIcon';
+import { useAuthModal } from '@/context/AuthModalContext';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface CartCheckoutBarProps {
-  totalAmount: string; // Expected format: "NPR 1890"
+  totalAmount: string;
   mrpAmount: string;
-  onCheckout: () => void; // Handles router.push('/checkout') or order processing
+  onCheckout: () => void;
   isStatic?: boolean;
-  buttonText?: string; // Dynamic text: "Checkout", "Pay Now", etc.
+  buttonText?: string;
 }
 
-const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({ 
-  totalAmount, 
-  mrpAmount, 
+const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
+  totalAmount,
+  mrpAmount,
   onCheckout,
   isStatic = false,
   buttonText = "Checkout"
 }) => {
+  // FIXED: Moved the hook call inside the component body
+  const { openLogin } = useAuthModal();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleAction = () => {
+    if (user) {
+      if (onCheckout) onCheckout();
+      router.push('/checkout');
+    } else {
+      openLogin();
+    }
+  };
+
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -28,7 +45,6 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-      // Hide bar slightly before reaching the footer
       const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
       setIsVisible(!isAtBottom);
     };
@@ -40,7 +56,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
 
   const Content = (
     <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row pt-[10px] lg:pt-0 lg:items-center">
-      {/* LEFT SECTION: Price Info (50% Width) */}
+      {/* LEFT SECTION: Price Info */}
       <div className="flex flex-1 basis-0 h-full items-center bg-white px-[24px]">
         <div className="flex items-start gap-[10px]">
           <div className="flex flex-col">
@@ -53,7 +69,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
                 <div key={index} className="relative overflow-hidden h-[22px] min-w-[11px] flex justify-center">
                   <AnimatePresence mode="popLayout">
                     <motion.span
-                      key={char + index} // unique key for rolling effect
+                      key={char + index}
                       initial={{ y: 22, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: -22, opacity: 0 }}
@@ -72,10 +88,10 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
         </div>
       </div>
 
-      {/* RIGHT SECTION: Action Button (50% Width) */}
+      {/* RIGHT SECTION: Action Button */}
       <div className="flex flex-1 basis-0 h-full items-start lg:items-center justify-center bg-white px-[16px] lg:bg-transparent lg:pr-0">
-        <button 
-          onClick={onCheckout}
+        <button
+          onClick={handleAction} 
           className="w-full h-[60px] lg:h-[52px] flex items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98]"
         >
           <span className="font-custom text-[18px] text-[#1e1e1e] uppercase tracking-[0.2px]">

@@ -14,7 +14,7 @@ interface ToastProps {
 
 export const Toast = ({ message, type, description, onClose }: ToastProps) => {
   useEffect(() => {
-    const timer = setTimeout(onClose, 4000); 
+    const timer = setTimeout(onClose, 4000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -30,23 +30,23 @@ export const Toast = ({ message, type, description, onClose }: ToastProps) => {
    */
   const svgWidth = 271;
   const svgHeight = description ? 72 : 46; // (64 + 8) or (38 + 8)
-  
+
   // Path Coordinates: M (StartPoint) L (LineTo) A (ArcTo)
   // For 38px height: Radius is 22
   // For 64px height: Radius is 35
-  const pathD = description 
-    ? "M 36 1 L 235 1 A 35 35 0 0 1 235 71 L 36 71 A 35 35 0 0 1 36 1 Z" 
+  const pathD = description
+    ? "M 36 1 L 235 1 A 35 35 0 0 1 235 71 L 36 71 A 35 35 0 0 1 36 1 Z"
     : "M 23 1 L 248 1 A 22 22 0 0 1 248 45 L 23 45 A 22 22 0 0 1 23 1 Z";
 
   return (
-    <div className="fixed top-[125px] left-[335px] -translate-x-1/2 z-[200] pointer-events-none">
+    <div className="fixed top-[100px] left-[335px] -translate-x-1/2 z-[2000] pointer-events-none">
       <motion.div
         initial={{ y: -30, opacity: 0, scale: 0.9, x: "-50%" }}
         animate={{ y: 0, opacity: 1, scale: 1, x: "-50%" }}
         exit={{ y: -20, opacity: 0, scale: 0.95, x: "-50%" }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 350, 
+        transition={{
+          type: "spring",
+          stiffness: 350,
           damping: 25,
           mass: 0.8
         }}
@@ -61,12 +61,12 @@ export const Toast = ({ message, type, description, onClose }: ToastProps) => {
         `}
       >
         {/* 1. OUTER ORBITING PROGRESS BAR */}
-        <svg 
+        <svg
           key={description ? 'desc' : 'no-desc'} // Force re-render to reset path animation
-          className="absolute -inset-[4px] pointer-events-none overflow-visible" 
+          className="absolute -inset-[4px] pointer-events-none overflow-visible"
           style={{ width: `${svgWidth}px`, height: `${svgHeight}px` }}
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          fill="none" 
+          fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <motion.path
@@ -88,7 +88,7 @@ export const Toast = ({ message, type, description, onClose }: ToastProps) => {
               <CheckIcon className="w-[18px] h-[18px] text-white" />
             ) : (
               <div className="w-[18px] h-[18px] rounded-full bg-white flex items-center justify-center">
-                 <span className="text-[11px] font-bold text-[#8d0b0b] leading-none">!</span>
+                <span className="text-[11px] font-bold text-[#8d0b0b] leading-none">!</span>
               </div>
             )}
           </div>
@@ -107,7 +107,7 @@ export const Toast = ({ message, type, description, onClose }: ToastProps) => {
         </div>
 
         {/* 3. CLOSE BUTTON */}
-        <button 
+        <button
           onClick={onClose}
           type="button"
           className="absolute right-[12px] top-1/2 -translate-y-1/2 w-[20px] h-[20px] outline-none flex items-center justify-center transition-all hover:opacity-100 opacity-80 active:scale-75 z-20"

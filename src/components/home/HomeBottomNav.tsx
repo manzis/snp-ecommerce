@@ -12,10 +12,12 @@ import ContactUsIcon from '@/components/icons/ContactUsIcon';
 import AccountIcon from '@/components/icons/AccountIcon';
 
 const NAV_ITEMS = [
-    { label: 'All Products', icon: PackageIcon2, href: '/search' },
+    { label: 'Home', icon: PackageIcon2, href: '/' },
+    { label: 'Products', icon: AccountIcon, href: '/search' },
     { label: 'Categories', icon: CategoryIcon, href: '/category' },
-    { label: 'Contact Us', icon: ContactUsIcon, href: '/contact' },
-    { label: 'My Account', icon: AccountIcon, href: '/account' },
+    { label: 'Contact', icon: ContactUsIcon, href: '/contact' },
+    { label: 'Account', icon: AccountIcon, href: '/profile' },
+
 ];
 
 const HomeBottomNav: React.FC = () => {
@@ -76,7 +78,7 @@ const HomeBottomNav: React.FC = () => {
                             <motion.div
                                 // FIXED: Added unique key for the conditional block
                                 key="nav-sliding-indicator"
-                                className="absolute top-0 h-full w-[25%]"
+                                className="absolute top-0 h-full w-[20%]"
                                 initial={false}
                                 animate={{ x: `${activeIndex * 100}%` }}
                                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}

@@ -55,7 +55,7 @@ const SubscribeSection: React.FC = () => {
                 </form>
 
                 {/* DESKTOP ONLY TRANSPARENT IMAGE PLACEHOLDER */}
-                <div className="hidden lg:block absolute right-0 bottom-0 h-full w-[450px] pointer-events-none">
+                <div className="hidden lg:block absolute right-[20px] bottom-[40px] h-full w-[450px] pointer-events-none">
                     <Image
                         src="/images/subscription-banner.png"
                         alt="Subscribe Rewards"
