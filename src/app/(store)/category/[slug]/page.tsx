@@ -74,14 +74,14 @@ export default function CategoryDetailPage() {
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen mx-auto w-full max-w-[1280px] bg-white mt-[80px] pb-[60px]">
+    <div className="min-h-screen mx-auto w-full max-w-[1440px] bg-white mt-[80px] pb-[60px]">
       {/* FIXED NAV - Animated via template.tsx */}
       <DynamicPageNav 
         title={theme.title} 
         subtitle={`${filteredProducts.length} Products`} 
       />
 
-      <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px]">
+      <main className="mx-auto w-full max-w-[410px] lg:px-[48px] lg:max-w-[1440px]">
         {/* HERO SECTION */}
         <section className="px-[24px] py-[24px]" style={{ background: theme.gradient }}>
           <h2 className="font-titillium text-[20px] font-semibold leading-[26px] tracking-[-0.8px]" style={{ color: theme.textColor }}>

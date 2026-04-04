@@ -28,7 +28,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
     const bgColorClass = getBgColor(title);
 
     return (
-        <section className={`mx-auto w-full max-w-[1440px] lg:rounded-[24px] py-[32px] lg:px-[48px] lg:py-[48px] md:py-[64px] transition-colors duration-300 ${bgColorClass}`}>
+        <section className={`mx-auto w-full max-w-[1440px] py-[32px] lg:px-[48px] lg:py-[48px] md:py-[64px] transition-colors duration-300 ${bgColorClass}`}>
             {/* HEADER */}
             <div className="mb-[24px] flex items-center justify-between px-[24px] md:mb-[40px] md:px-0">
                 <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.8px] text-[#242424] md:text-[32px]">

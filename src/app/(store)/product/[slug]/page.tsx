@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="mx-auto w-full max-w-[1440px] pt-[150px] pb-[32px] px-0 ">
+      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[150px] pb-[32px] px-0 ">
 
         <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
 

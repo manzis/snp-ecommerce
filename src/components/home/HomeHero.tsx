@@ -7,7 +7,7 @@ import TodaysDeals from './TodaysDeals';
 const HomeHero: React.FC = () => {
     return (
         <section className="relative w-full overflow-hidden bg-white">
-            <div className="relative mx-auto flex h-[656px] w-full items-end rounded-br-[32px] lg:h-[900px]">
+            <div className="relative mx-auto flex h-[656px] w-full items-end rounded-br-[32px] lg:h-[820px]">
 
                 {/* BACKGROUND IMAGE & OVERLAYS */}
                 <div className="absolute inset-0 z-0">

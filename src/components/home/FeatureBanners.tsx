@@ -40,7 +40,7 @@ const FeatureBanners: React.FC = () => {
             </div>
 
             {/* BANNERS CONTAINER - Horizontal scroll on mobile, Grid on desktop */}
-            <div className="no-scrollbar flex w-full gap-[10px] overflow-x-auto px-[24px] lg:grid lg:grid-cols-2 lg:gap-[24px] lg:overflow-visible lg:px-0">
+            <div className="no-scrollbar flex w-full gap-[10px] overflow-x-auto px-[24px] lg:px-[48px] lg:grid lg:grid-cols-2 lg:gap-[24px] lg:overflow-visible lg:px-0">
                 {banners.map((banner) => (
                     <div
                         key={banner.id}
