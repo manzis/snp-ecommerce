@@ -116,8 +116,8 @@ const TestimonialSection: React.FC = () => {
             </div>
 
             <div className="flex w-full items-center justify-end gap-[16px] px-[24px] lg:px-[64px]">
-                <button onClick={() => scroll('left')} className="flex h-[44px] w-[44px] rotate-180 items-center justify-center rounded-full border border-[#f1f5f9] bg-white transition-all active:scale-90"><ArrowRightIcon className="h-[18px] w-[18px] text-[#242424]" /></button>
-                <button onClick={() => scroll('right')} className="flex h-[44px] w-[44px] items-center justify-center rounded-full border border-[#f1f5f9] bg-white transition-all active:scale-90"><ArrowRightIcon className="h-[18px] w-[18px] text-[#242424]" /></button>
+                <button onClick={() => scroll('left')} className="flex h-[36px] w-[36px] rotate-225 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px] " /></button>
+                <button onClick={() => scroll('right')} className="flex h-[36px] w-[36px] rotate-45 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px]" /></button>
             </div>
         </section>
     );

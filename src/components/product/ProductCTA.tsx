@@ -1,18 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/components/ui/ToastProvider';
+import { useCart } from '@/context/CartContext';
 
 /**
  * ProductCTA - Final Stable Version
- * Logic: Hides when user reaches the bottom 150px of the page (Footer area)
- * and reappears instantly when scrolling back up.
  */
 const ProductCTA = () => {
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const { showToast } = useToast();
+  const { addToCart } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,8 +45,11 @@ const ProductCTA = () => {
 
   const handleAddToCart = () => {
     if (!isInCart) {
+      addToCart();
       showToast("Successfully Added to Cart", "success");
       setIsInCart(true);
+    } else {
+      router.push('/cart');
     }
   };
 
@@ -67,7 +72,7 @@ const ProductCTA = () => {
             damping: 30,
             mass: 0.8
           }}
-          className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)]"
+          className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden"
           style={{
             paddingBottom: 'env(safe-area-inset-bottom)',
             position: 'fixed',

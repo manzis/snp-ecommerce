@@ -3,17 +3,18 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Icon imports
 import PackageIcon2 from '@/components/icons/PackageIcon2';
 import CategoryIcon from '@/components/icons/CategoryIcon';
 import ContactUsIcon from '@/components/icons/ContactUsIcon';
 import AccountIcon from '@/components/icons/AccountIcon';
+import { useCart } from '@/context/CartContext';
 
 const NAV_ITEMS = [
     { label: 'Home', icon: PackageIcon2, href: '/' },
-    { label: 'Products', icon: AccountIcon, href: '/search' },
+    { label: 'Products', icon: AccountIcon, href: '/products' },
     { label: 'Categories', icon: CategoryIcon, href: '/category' },
     { label: 'Contact', icon: ContactUsIcon, href: '/contact' },
     { label: 'Account', icon: AccountIcon, href: '/profile' },
@@ -22,7 +23,24 @@ const NAV_ITEMS = [
 
 const HomeBottomNav: React.FC = () => {
     const pathname = usePathname();
+    const { cartCount } = useCart();
     const [isScrollVisible, setIsScrollVisible] = useState(true);
+    const [showIndicator, setShowIndicator] = useState(true);
+
+    useEffect(() => {
+        setShowIndicator(true);
+        const timer = setTimeout(() => {
+            setShowIndicator(false);
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, [pathname]);
+
+    const isIndicatorVisible = useMemo(() => {
+        if (cartCount === 0) return false;
+        const isExcludedPath = pathname === '/profile' || pathname === '/login';
+        if (isExcludedPath) return false;
+        return showIndicator;
+    }, [cartCount, pathname, showIndicator]);
 
     const activeIndex = useMemo(() => {
         const index = NAV_ITEMS.findIndex(item =>
@@ -34,7 +52,8 @@ const HomeBottomNav: React.FC = () => {
     const isExcludedPage = useMemo(() =>
         pathname === '/cart' ||
         pathname === '/checkout' ||
-        pathname.startsWith('/product'),
+        pathname === '/product' ||
+        pathname.startsWith('/product/'),
         [pathname]);
 
     useEffect(() => {
@@ -57,7 +76,57 @@ const HomeBottomNav: React.FC = () => {
     if (isExcludedPage) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[100] flex justify-center pointer-events-none md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none md:hidden">
+            {/* Cart Checkout Indicator - Mobile Only */}
+            <AnimatePresence>
+                {isIndicatorVisible && (
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{
+                            y: isScrollVisible ? 0 : 100,
+                            opacity: isScrollVisible ? 1 : 0
+                        }}
+                        exit={{ y: 20, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+                        className="pointer-events-auto mb-[12px]"
+                    >
+                        <div 
+                            className="rounded-[13px] p-[1px]"
+                            style={{ background: 'linear-gradient(90deg, #E5D200 0%, #F2EFD8 100%)' }}
+                        >
+                            <Link
+                                href="/cart"
+                                className="flex h-[40px] w-[362px] items-center justify-between rounded-[12px] px-[12px] py-[8px] "
+                                style={{ background: 'linear-gradient(95.13deg, #ffe900 0%, #ffffff 100%)' }}
+                            >
+                                {/* Right side: Cart Icon and Items Waiting text */}
+                                <div className="flex items-center gap-[8px] relative">
+                                    <div
+                                        className="w-[20px] h-[20px] shrink-0 bg-cover bg-center bg-no-repeat relative z-[1]"
+                                        style={{ backgroundImage: 'url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2026-04-05/rB9TyiwxLp.png)' }}
+                                    />
+                                    <div className="flex items-center gap-[12px] relative z-[2]">
+                                        <div className="font-titillium text-[16px] leading-[18px] text-[#242424] relative z-[3] whitespace-nowrap">
+                                            <span className="font-normal">Items in your cart waiting </span>
+                                            <span className="font-semibold">({cartCount})</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Left side: Checkout and arrow */}
+                                <div className="flex items-center gap-[6px] relative z-[4]">
+                                    <span className="font-titillium text-[16px] font-semibold leading-[18px] text-[#308026] relative z-[6]">Checkout</span>
+                                    <div
+                                        className="w-[14px] h-[14px] shrink-0 bg-cover bg-center bg-no-repeat relative z-[7]"
+                                        style={{ backgroundImage: 'url(https://codia-f2c.s3.us-west-1.amazonaws.com/image/2026-04-05/93yC2vW1Ya.png)' }}
+                                    />
+                                </div>
+                            </Link>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <motion.nav
                 initial={false}
                 animate={{

@@ -39,7 +39,7 @@ export const Toast = ({ message, type, description, onClose }: ToastProps) => {
     : "M 23 1 L 248 1 A 22 22 0 0 1 248 45 L 23 45 A 22 22 0 0 1 23 1 Z";
 
   return (
-    <div className="fixed top-[100px] left-[335px] -translate-x-1/2 z-[2000] pointer-events-none">
+    <div className="fixed top-[100px] left-1/2 z-[2000] pointer-events-none">
       <motion.div
         initial={{ y: -30, opacity: 0, scale: 0.9, x: "-50%" }}
         animate={{ y: 0, opacity: 1, scale: 1, x: "-50%" }}

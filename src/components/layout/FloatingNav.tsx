@@ -6,6 +6,7 @@ import MenuIcon from '@/components/icons/MenuIcon';
 import HeartIcon from '@/components/icons/SearchIcon';
 import CartIcon from '@/components/icons/CartIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
+import { useCart } from '@/context/CartContext';
 
 interface FloatingNavProps {
     bannerText?: string;
@@ -16,6 +17,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
     bannerText = "Free Delivery for Orders above 5000",
     showBanner = true
 }) => {
+    const { cartCount } = useCart();
     return (
         <nav className="fixed top-[12px] left-1/2 z-[100] w-full -translate-x-1/2 px-[13px] md:top-[24px]">
             <div className="main-container mx-auto flex w-full max-w-[384px] flex-col items-start overflow-hidden rounded-[16px] border border-[#f1f5f9] bg-white p-[6px]  md:max-w-[1100px] lg:max-w-[1280px] md:p-[10px]">
@@ -58,11 +60,18 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                         {/* Cart Link */}
                         <Link
                             href="/cart"
-                            className="flex items-center justify-center transition-transform active:scale-90"
+                            className="relative flex items-center justify-center transition-transform active:scale-90"
                             aria-label="Cart"
                         >
-                            <div className="h-[22px] w-[22px] md:h-[28px] md:w-[28px]">
+                            <div className="relative h-[22px] w-[22px] md:h-[28px] md:w-[28px]">
                                 <CartIcon className="h-full w-full text-[#242424]" />
+                                {cartCount > 0 && (
+                                    <div className="absolute -right-[12px] -top-[12px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] border-white bg-[#242424] px-[5px] py-[2px] md:-right-[14px] md:-top-[14px] md:h-[22px] md:min-w-[22px]">
+                                        <span className="font-titillium text-[10px] font-normal leading-none text-white md:text-[13px]">
+                                            {cartCount}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </Link>
                     </div>

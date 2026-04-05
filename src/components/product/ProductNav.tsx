@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import BackIcon from '@/components/icons/BackIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
 import CartIcon from '@/components/icons/CartIcon';
+import { useCart } from '@/context/CartContext';
 
 /**
  * ProductNav component for the top navigation bar.
@@ -12,6 +13,7 @@ import CartIcon from '@/components/icons/CartIcon';
  */
 export default function ProductNav() {
   const router = useRouter();
+  const { cartCount } = useCart();
 
   const handleBack = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
@@ -69,6 +71,13 @@ export default function ProductNav() {
       >
         <div className="flex px-[1px] py-[2px] items-start shrink-0 relative z-[8]">
           <CartIcon className="w-[21.75px] h-[19.5px] shrink-0 relative z-[9] text-[#242424]" />
+          {cartCount > 0 && (
+            <div className="absolute -right-[10px] -top-[8px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] border-white bg-[#242424] px-[5px] py-[2px] z-[10]">
+              <span className="font-titillium text-[10px] font-normal leading-none text-white">
+                {cartCount}
+              </span>
+            </div>
+          )}
         </div>
       </button>
     </nav>

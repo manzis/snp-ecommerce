@@ -13,19 +13,12 @@ interface ServiceItemProps {
 
 const ServiceItem: React.FC<ServiceItemProps> = ({ title, icon, bgColor = "bg-white", textColor = "text-[#242424]", width }) => (
     <div
-        className={`flex h-[100px] lg:h-[280px] shrink-0 flex-col justify-center items-start gap-[2px] lg:gap-[12px] px-[24px] lg:px-[48px] py-[12px] border-r border-[#e2e8f0] ${bgColor} select-none transition-all`}
-        style={{ width: 'var(--item-width)' } as React.CSSProperties}
+        className={`service-item flex h-[100px] lg:h-[280px] shrink-0 flex-col justify-center items-start gap-[2px] lg:gap-[12px] px-[24px] lg:px-[48px] py-[12px] border-r border-[#e2e8f0] ${bgColor} select-none transition-all`}
+        style={{ 
+            '--item-width-mobile': width.mobile,
+            '--item-width-desktop': width.desktop 
+        } as React.CSSProperties}
     >
-        {/* CSS Variables used to handle responsive width without layout shift */}
-        <style jsx>{`
-            div { 
-                --item-width: ${width.mobile}; 
-            }
-            @media (min-width: 1024px) {
-                div { --item-width: ${width.desktop}; }
-            }
-        `}</style>
-
         <div className="relative h-[24px] w-[24px] lg:h-[60px] lg:w-[60px] shrink-0 pointer-events-none">
             <Image
                 src={`/images/icons/${icon}`}
@@ -82,13 +75,77 @@ const ServicesMarquee: React.FC = () => {
                     .animate-r1 { animation: marqueeRow1 20s linear infinite; }
                     .animate-r2 { animation: marqueeRow2 25s linear infinite; }
                 }
+
+                .service-item {
+                    width: var(--item-width-mobile);
+                }
+                @media (min-width: 1024px) {
+                    .service-item {
+                        width: var(--item-width-desktop);
+                    }
+                }
+
+                .marquee-mask {
+                    mask-image: linear-gradient(to right, 
+                        transparent 0px, 
+                        rgba(0,0,0,0.1) 10px, 
+                        rgba(0,0,0,0.45) 24px, 
+                        rgba(0,0,0,0.85) 38px, 
+                        black 48px, 
+                        black calc(100% - 48px), 
+                        rgba(0,0,0,0.85) calc(100% - 38px), 
+                        rgba(0,0,0,0.45) calc(100% - 24px), 
+                        rgba(0,0,0,0.1) calc(100% - 10px), 
+                        transparent 100%
+                    );
+                    -webkit-mask-image: linear-gradient(to right, 
+                        transparent 0px, 
+                        rgba(0,0,0,0.1) 10px, 
+                        rgba(0,0,0,0.45) 24px, 
+                        rgba(0,0,0,0.85) 38px, 
+                        black 48px, 
+                        black calc(100% - 48px), 
+                        rgba(0,0,0,0.85) calc(100% - 38px), 
+                        rgba(0,0,0,0.45) calc(100% - 24px), 
+                        rgba(0,0,0,0.1) calc(100% - 10px), 
+                        transparent 100%
+                    );
+                }
+                @media (min-width: 1024px) {
+                    .marquee-mask {
+                        mask-image: linear-gradient(to right, 
+                            transparent 0px, 
+                            rgba(0,0,0,0.1) 15px, 
+                            rgba(0,0,0,0.45) 35px, 
+                            rgba(0,0,0,0.85) 55px, 
+                            black 70px, 
+                            black calc(100% - 70px), 
+                            rgba(0,0,0,0.85) calc(100% - 55px), 
+                            rgba(0,0,0,0.45) calc(100% - 35px), 
+                            rgba(0,0,0,0.1) calc(100% - 15px), 
+                            transparent 100%
+                        );
+                        -webkit-mask-image: linear-gradient(to right, 
+                            transparent 0px, 
+                            rgba(0,0,0,0.1) 15px, 
+                            rgba(0,0,0,0.45) 35px, 
+                            rgba(0,0,0,0.85) 55px, 
+                            black 70px, 
+                            black calc(100% - 70px), 
+                            rgba(0,0,0,0.85) calc(100% - 55px), 
+                            rgba(0,0,0,0.45) calc(100% - 35px), 
+                            rgba(0,0,0,0.1) calc(100% - 15px), 
+                            transparent 100%
+                        );
+                    }
+                }
             `}} />
 
             {/* MAX WIDTH CONTAINER FOR DESKTOP */}
-            <div className="relative mx-auto max-w-[1440px] flex flex-col border-y border-[#e2e8f0]">
+            <div className="relative mx-auto max-w-[1440px] flex flex-col border-y border-[#e2e8f0] marquee-mask">
 
                 {/* TOP ROW */}
-                <div className="relative flex h-[100px] lg:h-[200px] w-full items-center overflow-hidden border-b border-[#e2e8f0]">
+                <div className="relative flex h-[100px] lg:h-[180px] w-full items-center overflow-hidden border-b border-[#e2e8f0]">
                     <div className="marquee-container animate-r1">
                         {fullRow1.map((item, idx) => (
                             <ServiceItem key={`r1-${idx}`} {...item} />
@@ -97,29 +154,13 @@ const ServicesMarquee: React.FC = () => {
                 </div>
 
                 {/* BOTTOM ROW */}
-                <div className="relative flex h-[100px] lg:h-[200px] w-full items-center overflow-hidden">
+                <div className="relative flex h-[100px] lg:h-[180px] w-full items-center overflow-hidden">
                     <div className="marquee-container animate-r2">
                         {fullRow2.map((item, idx) => (
                             <ServiceItem key={`r2-${idx}`} {...item} />
                         ))}
                     </div>
                 </div>
-
-                {/* CORNER BLUR OVERLAYS - Scaled width for larger desktop items */}
-                <div
-                    className="pointer-events-none absolute inset-y-0 left-0 z-20 w-[120px] lg:w-[250px] backdrop-blur-[16px]"
-                    style={{
-                        maskImage: 'linear-gradient(to right, black 0%, rgba(0,0,0,0.6) 40%, transparent 100%)',
-                        WebkitMaskImage: 'linear-gradient(to right, black 0%, rgba(0,0,0,0.6) 40%, transparent 100%)'
-                    }}
-                />
-                <div
-                    className="pointer-events-none absolute inset-y-0 right-0 z-20 w-[120px] lg:w-[250px] backdrop-blur-[16px]"
-                    style={{
-                        maskImage: 'linear-gradient(to left, black 0%, rgba(0,0,0,0.6) 40%, transparent 100%)',
-                        WebkitMaskImage: 'linear-gradient(to left, black 0%, rgba(0,0,0,0.6) 40%, transparent 100%)'
-                    }}
-                />
             </div>
         </section>
     );

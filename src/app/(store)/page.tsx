@@ -8,6 +8,7 @@ import SubscribeSection from '@/components/home/SubscribeSection';
 import TestimonialSection from '@/components/home/TestinomialSection';
 import FeatureBanners from '@/components/home/FeatureBanners';
 import ServicesMarquee from '@/components/home/ServicesMarquee';
+import Brands from '@/components/home/Brands';
 
 const BEST_SELLERS = [
   {
@@ -91,17 +92,20 @@ export default function HomePage() {
         <HomeCategories />
 
         <ProductGridSection title="Best Sellers" products={BEST_SELLERS} />
-
+        <Brands />
         <ProductGridSection title="Popular Products" products={POPULAR_PRODUCTS} />
+
         <ServicesMarquee />
         <FeatureBanners />
 
 
 
         <TestimonialSection />
-        <ServicesMarquee />
+
 
         <ProductGridSection title="New Arrivals" products={BEST_SELLERS} />
+
+        <ServicesMarquee />
 
         <SubscribeSection />
 

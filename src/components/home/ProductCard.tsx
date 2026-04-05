@@ -27,7 +27,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return (
         <Link
             href={`/product/${slug}`}
-            className="relative flex h-[261px] w-[199px] flex-shrink-0 flex-col md:w-full items-center gap-[10px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[8px] transition-transform active:scale-[0.98] lg:w-[250px]  lg:h-[320px]"
+            className="group relative flex h-[261px] w-full max-w-[199px] flex-shrink-0 flex-col items-center gap-[10px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[8px] transition-all  active:scale-[0.98] md:max-w-full lg:h-[320px] lg:max-w-[250px]"
         >
             {/* RATING BADGE (TOP LEFT) */}
             <div className="absolute left-[11px] top-[11px] z-[10] flex items-center justify-center gap-[2px] overflow-hidden rounded-[6px] bg-[#ffe900] px-[8px] py-[6px]">
@@ -38,25 +38,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
 
             {/* DISCOUNT BADGE (TOP RIGHT) */}
-            <div className="absolute left-[134px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[6px] py-[2px] lg:left-auto lg:right-[11px]">
+            <div className="absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[6px] py-[2px]">
                 <span className="font-custom text-[10px] font-normal leading-[14px] text-[#242424]">
                     save {discountPercentage}
                 </span>
             </div>
 
             {/* PRODUCT IMAGE - SCALABLE AREA */}
-            <div className="relative flex min-h-0 w-full flex-1 items-center justify-center rounded-[12px] overflow-hidden">
+            <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden rounded-[12px]">
                 <Image
                     src={image}
                     alt={title}
                     fill
                     className="object-contain p-[8px]"
-                    sizes="199px"
+                    sizes="(max-width: 768px) 199px, 250px"
                 />
             </div>
 
             {/* PRODUCT DETAILS BLOCK */}
-            <div className="flex w-full flex-shrink-0 flex-col items-start gap-[8px] rounded-[12px] bg-[#f7faf6] px-[16px] pb-[16px] pt-[8px]">
+            <div className="flex w-full flex-shrink-0 flex-col items-start gap-[8px] rounded-[12px] bg-[#f7faf6] px-[16px] pb-[16px] pt-[8px] transition-colors group-hover:bg-[#f2f9f1]">
                 <div className="flex flex-col items-start justify-end gap-[4px] self-stretch pb-[2px]">
                     <div className="flex flex-col items-start gap-[2px] self-stretch pb-[4px]">
                         <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#bebebe] uppercase">

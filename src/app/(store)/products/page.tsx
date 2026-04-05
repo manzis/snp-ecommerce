@@ -1,0 +1,248 @@
+'use client';
+
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import DynamicPageNav from '@/components/layout/DynamicPageNav';
+import ProductCard from '@/components/home/ProductCard';
+import Pagination from '@/components/search/Pagination';
+import SearchIcon from '@/components/icons/SearchIcon';
+import DropDownIcon from '@/components/icons/DropDownIcon';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Mock data for Brands and Categories
+const BRANDS = [
+    'All Brands',
+    'Optimum Nutrition',
+    'MuscleBlaze',
+    'MyProtein',
+    'Dymatize',
+    'MuscleTech',
+    'GNC',
+    'Rule 1',
+    'Cellucor',
+    'Scivation',
+    'Ultimate Nutrition',
+];
+
+const CATEGORIES = [
+    'All Categories',
+    'Proteins',
+    'Creatine',
+    'Multivitamins',
+    'Essentials',
+    'Accessories',
+];
+
+// Mock products data - DETERMINISTIC
+const MOCK_PRODUCTS = Array.from({ length: 48 }, (_, i) => ({
+    id: i + 1,
+    brand: BRANDS[(i % (BRANDS.length - 1)) + 1],
+    title: `Premium Supplement Series ${i + 1}`,
+    originalPrice: `RS. ${2000 + (i % 10) * 100}`,
+    discountedPrice: `RS. ${1500 + (i % 10) * 100}`,
+    discountPercentage: '25%',
+    rating: (4 + (i % 10) / 10).toFixed(1),
+    image: i % 3 === 0 ? '/images/atom-whey.jpg' : (i % 3 === 1 ? '/images/protein.jpg' : '/images/creatine.png'),
+    slug: `product-${i + 1}`,
+    category: CATEGORIES[(i % (CATEGORIES.length - 1)) + 1],
+}));
+
+const ProductsPage: React.FC = () => {
+    const router = useRouter();
+    const [selectedBrand, setSelectedBrand] = useState('All Brands');
+    const [selectedCategory, setSelectedCategory] = useState('All Categories');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isClient, setIsClient] = useState(false);
+    const [isBrandsOpen, setIsBrandsOpen] = useState(false);
+    const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+    const itemsPerPage = 20;
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    const filteredProducts = useMemo(() => {
+        return MOCK_PRODUCTS.filter((product) => {
+            const brandMatch = selectedBrand === 'All Brands' || product.brand === selectedBrand;
+            const categoryMatch = selectedCategory === 'All Categories' || product.category === selectedCategory;
+            return brandMatch && categoryMatch;
+        });
+    }, [selectedBrand, selectedCategory]);
+
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const displayedProducts = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredProducts.slice(start, start + itemsPerPage);
+    }, [filteredProducts, currentPage, itemsPerPage]);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (!isClient) {
+        return <div className="min-h-screen bg-white" />;
+    }
+
+    return (
+        <div className="min-h-screen bg-white">
+            <DynamicPageNav
+                title="All Products"
+                subtitle={`${filteredProducts.length} items`}
+            />
+
+            <div className="pt-[80px]">
+                {/* Search Header */}
+                <div className="mx-auto max-w-[1440px] px-[24px] lg:px-[60px] pt-[24px]">
+                    <div
+                        onClick={() => router.push('/search?autofocus=true')}
+                        className="group flex w-full cursor-pointer items-center gap-[12px] rounded-[12px] border border-[#f1f5f9] bg-[#fafafa] px-[16px] py-[12px] transition-all hover:border-[#308026] hover:bg-white md:py-[16px]"
+                    >
+                        <SearchIcon className="h-[20px] w-[20px] text-[#838383] transition-colors group-hover:text-[#308026]" />
+                        <span className="font-titillium text-[15px] text-[#838383] md:text-[16px]">
+                            Search for products, brands or categories...
+                        </span>
+                    </div>
+                </div>
+
+                {/* Filter Sections - FULL WIDTH BORDERS */}
+                <div className="flex flex-col">
+                    {/* Brand Accordion */}
+                    <div className="w-full border-b border-[#f1f5f9]">
+                        <div className="mx-auto max-w-[1440px] px-[24px] lg:px-[60px] flex flex-col py-[8px]">
+                            <div
+                                onClick={() => setIsBrandsOpen(!isBrandsOpen)}
+                                className="flex cursor-pointer items-center justify-between py-[12px] transition-colors hover:opacity-80"
+                            >
+                                <h3 className="font-titillium text-[16px] font-semibold text-[#242424]">Filter by Brands</h3>
+                                <div className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] bg-white transition-all">
+                                    <DropDownIcon className={`h-[16px] w-[16px] text-[#242424] transition-transform duration-300 ${isBrandsOpen ? 'rotate-180' : ''}`} />
+                                </div>
+                            </div>
+                            <AnimatePresence>
+                                {isBrandsOpen && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="no-scrollbar flex gap-[8px] overflow-x-auto pb-[8px] pt-[4px]">
+                                            {BRANDS.map((brand) => (
+                                                <button
+                                                    key={`brand-filter-${brand}`}
+                                                    onClick={() => {
+                                                        setSelectedBrand(brand);
+                                                        setCurrentPage(1);
+                                                    }}
+                                                    className={`shrink-0 rounded-full border px-[16px] py-[6px] font-titillium text-[14px] transition-all ${selectedBrand === brand
+                                                        ? 'border-[#308026] bg-[#308026] text-white'
+                                                        : 'border-[#f1f5f9] bg-white text-[#575757] hover:border-[#308026] hover:text-[#308026]'
+                                                        }`}
+                                                >
+                                                    {brand}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+
+                    {/* Category Accordion */}
+                    <div className="w-full border-b border-[#f1f5f9]">
+                        <div className="mx-auto max-w-[1440px] px-[24px] lg:px-[60px] flex flex-col py-[8px] ">
+                            <div
+                                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                                className="flex cursor-pointer items-center justify-between py-[12px] transition-colors hover:opacity-80"
+                            >
+                                <h3 className="font-titillium text-[16px] font-semibold text-[#242424]">Filter by Categories</h3>
+                                <div className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] bg-white transition-all">
+                                    <DropDownIcon className={`h-[16px] w-[16px] text-[#242424] transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                                </div>
+                            </div>
+                            <AnimatePresence>
+                                {isCategoriesOpen && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="no-scrollbar flex gap-[8px] overflow-x-auto pb-[8px] pt-[4px]">
+                                            {CATEGORIES.map((cat) => (
+                                                <button
+                                                    key={`category-filter-${cat}`}
+                                                    onClick={() => {
+                                                        setSelectedCategory(cat);
+                                                        setCurrentPage(1);
+                                                    }}
+                                                    className={`shrink-0 rounded-full border px-[16px] py-[6px] font-titillium text-[14px] transition-all ${selectedCategory === cat
+                                                        ? 'border-[#308026] bg-[#308026] text-white'
+                                                        : 'border-[#f1f5f9] bg-white text-[#575757] hover:border-[#308026] hover:text-[#308026]'
+                                                        }`}
+                                                >
+                                                    {cat}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                </div>
+
+                <main className="mx-auto flex w-full max-w-[1440px] flex-col px-[16px] pb-[100px] pt-[32px] lg:px-[60px]">
+
+
+                    {/* Product Grid */}
+                    {displayedProducts.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-[16px] sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:gap-[24px]">
+                            {displayedProducts.map((product) => (
+                                <ProductCard
+                                    key={`all-products-grid-${product.slug}-${product.id}`}
+                                    brand={product.brand}
+                                    title={product.title}
+                                    originalPrice={product.originalPrice}
+                                    discountedPrice={product.discountedPrice}
+                                    discountPercentage={product.discountPercentage}
+                                    rating={product.rating}
+                                    image={product.image}
+                                    slug={product.slug}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-[100px]">
+                            <p className="font-titillium text-[18px] text-[#838383]">No products found matching your selection.</p>
+                            <button
+                                onClick={() => {
+                                    setSelectedBrand('All Brands');
+                                    setSelectedCategory('All Categories');
+                                }}
+                                className="mt-[16px] font-titillium text-[16px] font-semibold text-[#308026] underline underline-offset-4"
+                            >
+                                Reset Filters
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="mt-[48px]">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    )}
+                </main>
+            </div>
+        </div>
+    );
+};
+
+export default ProductsPage;

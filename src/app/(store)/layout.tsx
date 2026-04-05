@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { AuthModalProvider } from '@/context/AuthModalContext'; // Import Provider
 import { AuthProvider } from '@/context/AuthContext'; // Import new AuthProvider
+import { CartProvider } from '@/context/CartContext';
 import LoginModal from '@/components/auth/LoginModal'; // Import Component
 import HomeBottomNav from "@/components/home/HomeBottomNav";
 import Footer from '@/components/layout/footer';
@@ -61,22 +62,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
         <ToastProvider>
-          {/* Global Auth Context wrapping the app */}
+          {/* Global Auth & Cart Contexts wrapping the app */}
           <AuthProvider>
-            <AuthModalProvider>
+            <CartProvider>
+              <AuthModalProvider>
 
-              <main key="main-root-container" className="flex-grow flex flex-col w-full relative">
-                {children}
-              </main>
+                <main key="main-root-container" className="flex-grow flex flex-col w-full relative">
+                  {children}
+                </main>
 
-              {/* Global UI Components */}
-              <HomeBottomNav key="global-bottom-nav" />
-              <Footer key="global-footer" />
+                {/* Global UI Components */}
+                <HomeBottomNav key="global-bottom-nav" />
+                <Footer key="global-footer" />
 
-              {/* The Modal lives here at the bottom of the body */}
-              <LoginModal key="global-login-modal" />
+                {/* The Modal lives here at the bottom of the body */}
+                <LoginModal key="global-login-modal" />
 
-            </AuthModalProvider>
+              </AuthModalProvider>
+            </CartProvider>
           </AuthProvider>
         </ToastProvider>
       </body>
