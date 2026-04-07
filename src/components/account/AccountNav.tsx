@@ -5,7 +5,7 @@ import BackIcon from '@/components/icons/BackIcon';
 import SearchIcon from '@/components/icons/CartIcon';
 import HelpIcon from '@/components/icons/HelpIcon';
 
-const ProfileNav: React.FC = () => {
+const AccountNav: React.FC = () => {
     return (
         <nav className="flex h-[81px] w-full items-center gap-[8px] px-[24px] py-[16px]">
             {/* BACK BUTTON */}
@@ -16,7 +16,7 @@ const ProfileNav: React.FC = () => {
             {/* PAGE TITLE */}
             <div className="flex flex-1 items-center  gap-[10px]">
                 <span className="font-titillium text-[20px] font-[600] leading-[26px] tracking-[-0.8px] text-white">
-                    My Profile
+                    Account Settings
                 </span>
             </div>
 
@@ -38,4 +38,4 @@ const ProfileNav: React.FC = () => {
     );
 };
 
-export default ProfileNav;
+export default AccountNav;

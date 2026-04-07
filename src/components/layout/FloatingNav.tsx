@@ -52,8 +52,8 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                             className="flex items-center justify-center transition-transform active:scale-90"
                             aria-label="Wishlist"
                         >
-                            <div className="h-[24px] w-[24px] md:h-[28px] md:w-[28px]">
-                                <SearchIcon className="h-full w-full text-[#242424]" />
+                            <div className="h-[24px] w-[24px] md:h-[28px] md:w-[28px] mb-[2px]">
+                                <SearchIcon className="h-full w-full text-[#242424] " />
                             </div>
                         </Link>
 

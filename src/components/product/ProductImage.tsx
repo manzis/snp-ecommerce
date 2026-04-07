@@ -76,7 +76,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
     }
   };
 
-  if (!mounted) return <div className="w-full h-[318px] lg:h-[560px] bg-white rounded-[6px]" />;
+  if (!mounted) return <div className="w-full h-[320px] lg:h-[560px] bg-white rounded-[6px]" />;
 
   return (
     <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[24px] relative select-none ">
@@ -86,7 +86,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
            - Mobile: h-[318px] (Exact Token)
            - Desktop: lg:h-[560px] (Increased for Premium Layout)
         */
-        className="relative h-[332px] lg:h-[560px] w-full overflow-hidden rounded-[6px] bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5] p-[8px]"
+        className="relative h-[340px] lg:h-[560px] w-full overflow-hidden rounded-[6px] bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5] p-[8px]"
         onMouseDown={handleStart}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}

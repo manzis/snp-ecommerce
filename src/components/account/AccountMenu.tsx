@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import ProfileIcon from '@/components/icons/AccountIcon';
 import AddressIcon from '@/components/icons/AddressIcon';
@@ -22,8 +22,21 @@ const MenuLink = ({ icon: Icon, label, href }: { icon: any, label: string, href:
     </Link>
 );
 
-const ProfileMenu: React.FC = () => {
+const AccountMenu: React.FC = () => {
     const router = useRouter();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            await AuthService.signOut();
+            router.push('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+            setIsLoggingOut(false);
+        }
+    };
+
     return (
         <section className="flex w-full flex-col gap-[12px] px-[24px] pb-[40px] lg:max-w-[500px]">
             {/* GROUP 1 */}
@@ -43,18 +56,25 @@ const ProfileMenu: React.FC = () => {
 
             {/* LOGOUT BUTTON */}
             <button
-                onClick={async () => {
-                    await AuthService.signOut();
-                    router.push('/login');
-                }}
-                className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[12px] border-[1.5px] border-[#f0e4e4] bg-[linear-gradient(90deg,#ffffff,#ffefef)] px-[16px] py-[16px] transition-all active:scale-[0.98]"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className={`flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[12px] border-[1.5px] border-[#f0e4e4] bg-[linear-gradient(90deg,#ffffff,#ffefef)] px-[16px] py-[16px] transition-all ${isLoggingOut ? 'opacity-70 grayscale-[0.3]' : 'active:scale-[0.98]'}`}
             >
-                <span className="font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
-                    Log Out
-                </span>
+                {isLoggingOut ? (
+                    <>
+                        <div className="w-4 h-4 border-2 border-[#b02900] border-t-transparent rounded-full animate-spin"></div>
+                        <span className="font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
+                            Logging out...
+                        </span>
+                    </>
+                ) : (
+                    <span className="font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
+                        Log Out
+                    </span>
+                )}
             </button>
         </section>
     );
 };
 
-export default ProfileMenu;
+export default AccountMenu;

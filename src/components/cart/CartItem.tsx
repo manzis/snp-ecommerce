@@ -108,7 +108,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
       {/* Delivery Info */}
       <div className="flex items-center gap-[6px] px-[24px] py-[12px]">
-        <PackageIcon className="h-[15px] w-[15px] text-[#242424]" />
+        <PackageIcon className="h-[16px] w-[16px] text-[#242424]" />
         <span className="font-titillium text-[14px] text-[#242424]">
           {getDeliveryString(item.stock_status)}
         </span>

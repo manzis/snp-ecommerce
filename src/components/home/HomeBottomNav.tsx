@@ -37,15 +37,16 @@ const HomeBottomNav: React.FC = () => {
 
     const isIndicatorVisible = useMemo(() => {
         if (cartCount === 0) return false;
-        const isExcludedPath = pathname === '/profile' || pathname === '/login';
+        const isExcludedPath = pathname.startsWith('/account') || pathname === '/login';
         if (isExcludedPath) return false;
         return showIndicator;
     }, [cartCount, pathname, showIndicator]);
 
     const activeIndex = useMemo(() => {
-        const index = NAV_ITEMS.findIndex(item =>
-            item.href === '/category' ? pathname.startsWith('/category') : pathname === item.href
-        );
+        const index = NAV_ITEMS.findIndex(item => {
+            if (item.href === '/') return pathname === '/';
+            return pathname.startsWith(item.href);
+        });
         return index;
     }, [pathname]);
 

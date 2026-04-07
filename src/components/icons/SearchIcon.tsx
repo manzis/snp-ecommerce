@@ -5,7 +5,7 @@ import { SVGProps } from "react";
 const SearchIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 22 22" // Maintains internal coordinate system for scaling
+    viewBox="0 0 20 20" // Maintains internal coordinate system for scaling
     fill="none"
     {...props}
   >
