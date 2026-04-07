@@ -3,35 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
-const highlightsData = [
-  { 
-    id: 1, 
-    type: 'video', 
-    src: '/videos/video-highlight.mp4',
-    poster: '/images/video-poster.png',
-    alt: 'Dynamic video showing supplement texture and mixability'
-  },
-  { 
-    id: 2, 
-    type: 'image', 
-    src: '/images/highlight1.png',
-    alt: 'Detailed nutritional facts and protein content breakdown'
-  },
-  { 
-    id: 3, 
-    type: 'image', 
-    src: '/images/highlight2.jpg',
-    alt: 'Quality assurance and lab testing certification'
-  },
-  { 
-    id: 4, 
-    type: 'image', 
-    src: '/images/highlight3.png',
-    alt: 'Premium packaging and authentic brand seal'
-  },
-];
+import type { ProductHighlightItem } from '@/services/productService';
 
-const ProductHighlights: React.FC = () => {
+interface ProductHighlightsProps {
+  highlights?: ProductHighlightItem[];
+}
+
+const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -51,14 +29,14 @@ const ProductHighlights: React.FC = () => {
     const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
     const diff = startX.current - clientX;
 
-    if (Math.abs(diff) > 50) {
-      if (diff > 0 && activeTab < highlightsData.length - 1) setActiveTab(prev => prev + 1);
+    if (Math.abs(diff) > 50 && highlights.length > 0) {
+      if (diff > 0 && activeTab < highlights.length - 1) setActiveTab(prev => prev + 1);
       else if (diff < 0 && activeTab > 0) setActiveTab(prev => prev - 1);
     }
     setIsDragging(false);
   };
 
-  if (!mounted) return <div className="w-full h-[485px] bg-zinc-100 rounded-[8px]" />;
+  if (!mounted || highlights.length === 0) return <div className="w-full h-[485px] bg-[#F9F9F9] rounded-[8px]" />;
 
   return (
     <section className="relative mx-auto flex w-full max-w-[362px] md:max-w-none flex-col items-start gap-[24px] lg:mx-0 select-none">
@@ -87,18 +65,18 @@ const ProductHighlights: React.FC = () => {
           onTouchEnd={handleEnd}
         >
           <div key={activeTab} className="relative h-full w-full pointer-events-none animate-in fade-in duration-500">
-            {highlightsData[activeTab].type === 'video' ? (
+            {highlights[activeTab]?.type === 'video' ? (
               <video
-                src={highlightsData[activeTab].src}
-                poster={highlightsData[activeTab].poster}
+                src={highlights[activeTab].src}
+                poster={highlights[activeTab].poster}
                 autoPlay muted loop playsInline
                 className="h-full w-full object-cover"
-                aria-label={highlightsData[activeTab].alt}
+                aria-label={highlights[activeTab].alt}
               />
             ) : (
               <Image
-                src={highlightsData[activeTab].src}
-                alt={highlightsData[activeTab].alt}
+                src={highlights[activeTab]?.src || '/images/highlight1.png'}
+                alt={highlights[activeTab]?.alt || 'Highlight Image'}
                 fill draggable={false}
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 800px"
@@ -108,9 +86,9 @@ const ProductHighlights: React.FC = () => {
 
             {/* Mobile-only Pagination (Hides on Desktop) */}
             <div className="absolute bottom-[16px] left-0 right-0 z-30 flex lg:hidden justify-center items-center gap-[6px] pointer-events-auto">
-              {highlightsData.map((_, idx) => (
+              {highlights.map((_, idx) => (
                 <button
-                  key={idx}
+                  key={`hl-pag-${idx}`}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setActiveTab(idx); }}
                   className={`h-[2.5px] rounded-[20px] transition-all duration-300 ${idx === activeTab ? 'bg-black w-[32px]' : 'bg-white/60 w-[24px]'}`}
@@ -126,12 +104,12 @@ const ProductHighlights: React.FC = () => {
             - hidden -> lg:flex: Only visible on Desktop/Large Tablet
         */}
         <div className="hidden lg:flex flex-col gap-[6px] lg:flex-[1] h-full">
-          {highlightsData.slice(0, 3).map((item, idx) => {
+          {highlights.slice(0, 3).map((item, idx) => {
             const isActive = activeTab === idx;
             
             return (
               <button
-                key={item.id}
+                key={`hl-thumb-${idx}`}
                 onClick={() => setActiveTab(idx)}
                 className={`relative flex-1 w-full overflow-hidden rounded-[8px] border-[2px] transition-all duration-300 shadow-[0_1px_3px_0_rgba(16,24,40,0.1)]
                   ${isActive ? 'border-[#3F9633]' : 'border-white'}

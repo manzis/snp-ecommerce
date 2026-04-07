@@ -1,27 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
+import type { ProductFlavour } from '@/services/productService';
+import { useProductSelectionStore } from '@/store/productSelectionStore';
 
-const flavours = [
-  { id: 1, name: 'Vanilla', img: '/images/vanilla.jpg' },
-  { id: 2, name: 'Cream Chocolate Chip', img: '/images/chocolate.jpg' },
-  { id: 4, name: 'Magnesium', img: '/images/magnesium.jpg' },
-  { id: 6, name: 'Fish Oil', img: '/images/fishoil.jpg' },
-];
+interface FlavourSelectionProps {
+  flavours: ProductFlavour[];
+}
 
-const FlavourSelection: React.FC = () => {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
+  const { selectedFlavor: selectedId, setFlavor: setSelectedId, flavorError } = useProductSelectionStore();
+
+  useEffect(() => {
+    if (flavours.length > 0 && !selectedId) {
+      // Find the first available flavour
+      const firstAvailable = flavours.find(f => f.is_available);
+      if (firstAvailable) {
+        setSelectedId(firstAvailable.id);
+      }
+    }
+  }, [flavours, selectedId]);
 
   return (
-    <div className="relative flex flex-col items-start gap-[15px] w-full">
+    <div id="flavour-section" className="relative flex flex-col items-start gap-[15px] w-full ">
       {/* 
           ANIMATION SYSTEM 
           - marquee-scroll: Hardware-accelerated name reveal
           - selected-gradient: Figma-exact background
           - marquee-mask: Premium edge fading for text overflow
       */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes marquee-scroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -42,23 +52,35 @@ const FlavourSelection: React.FC = () => {
 
       {/* Header: Dynamic text based on selection */}
       <h3 className="whitespace-nowrap text-left font-titillium text-[18px] font-semibold tracking-[-0.36px] text-[#242424]">
-        Selected Flavour : <span className="font-normal">{flavours.find(f => f.id === selectedId)?.name || 'Unflavoured'}</span>
+        Selected Flavour : <span className="font-normal">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || 'Unflavoured')}</span>
       </h3>
-      
+
       {/* 
           SCROLL CONTAINER 
           - pt-[2px] buffer to prevent 'Outside Border' clipping
           - no-scrollbar for clean prototype feel
       */}
       <div className="flex w-full flex-nowrap gap-[14px] overflow-x-auto pt-[2px] pb-[6px] px-[2px] no-scrollbar">
-        {flavours.map((item) => {
+        {flavours.length === 0 ? (
+          <button
+            type="button"
+            className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
+          >
+            <div className="flex h-[38px] flex-row items-center justify-center gap-[10px]">
+              <span className="whitespace-nowrap text-center font-titillium text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
+                No Flavour
+              </span>
+            </div>
+          </button>
+        ) : flavours.map((item) => {
           const isSelected = selectedId === item.id;
-          const isLong = item.name.length > 10;
-          
+          const isLong = item.flavour_name.length > 10;
+
           return (
             <button
               key={item.id}
               type="button"
+              disabled={!item.is_available}
               onClick={() => setSelectedId(item.id)}
               /* 
                  FRAME 8: MAIN CARD
@@ -68,12 +90,20 @@ const FlavourSelection: React.FC = () => {
               */
               className={`
                 group relative flex h-[105px] w-[85px] flex-shrink-0 flex-col items-center justify-between rounded-[6px] transition-all duration-200 ease-in
-                outline-[1.5px] outline-offset-0
-                ${isSelected 
-                  ? 'outline-[#1D1D1D] p-[2px] selected-gradient' 
+                outline-[1.5px] outline-offset-0 overflow-hidden
+                ${!item.is_available ? 'opacity-60 cursor-not-allowed bg-[#FAFAFA]' : 'cursor-pointer'}
+                ${isSelected
+                  ? 'outline-[#1D1D1D] p-[2px] selected-gradient'
                   : 'outline-[#E8E8E8] bg-[#FFFFFF] p-[4px]'}
               `}
             >
+              {!item.is_available && (
+                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center  ">
+                  <span className=" bg-[#EFEFEF] w-full px-[6px] py-[3px] font-titillium text-[10px] font-semibold tracking-[-0.02em] text-[#242424] text-center ">
+                    Not Available
+                  </span>
+                </div>
+              )}
               {/* 
                   FRAME 11: IMAGE WRAPPER
                   - Expands 77px -> 81px on selection due to padding reduction
@@ -84,21 +114,21 @@ const FlavourSelection: React.FC = () => {
               `}>
                 <div className={`relative w-full flex-grow transition-all duration-200 ease-in ${isSelected ? 'h-[67px]' : 'h-[63px]'}`}>
                   <Image
-                    src={item.img}
-                    alt={item.name}
+                    src={item.image_url || '/images/vanilla.jpg'}
+                    alt={item.flavour_name || 'flavour'}
                     fill
                     className="object-contain"
                     sizes="81px"
-                    priority={item.id === 1}
+                    priority={false}
                   />
                 </div>
               </div>
 
-            
+
               <div className={`
                 relative flex h-[26px] flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
-                ${isSelected 
-                  ? 'w-[81px] bg-[#3F9733] rounded-[5px]' 
+                ${isSelected
+                  ? 'w-[81px] bg-[#3F9733] rounded-[5px]'
                   : 'w-[77px] bg-[#EFEFEF] rounded-[3px]'}
               `}>
                 <div className={`relative w-full overflow-hidden ${isLong ? 'marquee-mask' : ''}`}>
@@ -108,14 +138,14 @@ const FlavourSelection: React.FC = () => {
                       px-[2px] font-titillium text-[16px] font-semibold leading-[16px] tracking-[-0.06em] transition-colors duration-200
                       ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
                     `}>
-                      {item.name}
+                      {item.flavour_name}
                     </span>
                     {isLong && (
                       <span className={`
                         pr-10 font-titillium text-[16px] font-semibold leading-[16px] tracking-[-0.06em]
                         ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
                       `}>
-                        {item.name}
+                        {item.flavour_name}
                       </span>
                     )}
                   </div>
@@ -125,6 +155,11 @@ const FlavourSelection: React.FC = () => {
           );
         })}
       </div>
+      {flavorError && (
+        <span className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
+          Please select a flavour
+        </span>
+      )}
     </div>
   );
 };

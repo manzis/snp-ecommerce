@@ -1,28 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCartStore } from '@/store/cartStore';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 
-interface CartSummaryProps {
-  mrp: number;
-  subtotal: number; // Price after item-level discount
-  discount: number; // Additional coupon discount
-  appliedCode?: string;
-}
+interface CartSummaryProps { }
 
-const CartSummary: React.FC<CartSummaryProps> = ({ 
-  mrp, 
-  subtotal, 
-  discount, 
-  appliedCode 
-}) => {
+const CartSummary: React.FC<CartSummaryProps> = () => {
+  const { items, coupon, getCouponDiscount } = useCartStore();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // LOGIC CALCULATIONS
-  const itemDiscount = mrp - subtotal;
-  const totalDiscount = itemDiscount + discount;
-  const finalPrice = subtotal - discount;
+  const subtotal = useMemo(() =>
+    items.reduce((acc, item) => acc + (item.price * item.quantity), 0),
+    [items]);
+
+  const totalMRP = useMemo(() =>
+    items.reduce((acc, item) => acc + ((item.mrp || item.price) * item.quantity), 0),
+    [items]);
+
+  const itemDiscount = totalMRP - subtotal;
+  const couponDiscount = getCouponDiscount();
+  const totalDiscount = itemDiscount + couponDiscount;
+  const finalPrice = subtotal - couponDiscount;
 
   return (
     <section className="flex w-full flex-col bg-white mt-[12px]">
@@ -31,13 +31,13 @@ const CartSummary: React.FC<CartSummaryProps> = ({
         <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
           <span className="font-titillium text-[16px] text-[#242424]">MRP</span>
           <span className="font-titillium text-[16px] text-[#242424] text-right">
-            NPR {mrp.toLocaleString()}
+            NPR {totalMRP.toLocaleString()}
           </span>
         </div>
 
         {/* DISCOUNTS ACTION AREA */}
-        <div 
-          className="flex flex-col cursor-pointer" 
+        <div
+          className="flex flex-col cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
@@ -56,44 +56,54 @@ const CartSummary: React.FC<CartSummaryProps> = ({
             </span>
           </div>
 
-          {/* DYNAMIC BREAKDOWN LOGIC */}
+          {/* Expandable Content */}
           <AnimatePresence>
             {isExpanded && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
+                animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="overflow-hidden border-b border-[#f1f5f9]"
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden bg-[#fafafa]"
               >
-                <div className="flex flex-col gap-[12px] px-[24px] py-[16px]">
+                <div className="flex flex-col px-[24px] py-[16px] gap-[12px]">
                   <div className="flex justify-between items-center">
-                    <span className="font-titillium text-[14px] text-[#242424] opacity-60">Item Discount</span>
-                    <span className="font-titillium text-[14px] text-[#242424]">- NPR {itemDiscount.toLocaleString()}</span>
+                    <span className="font-titillium text-[15px] text-[#242424] opacity-60">Discount on MRP</span>
+                    <span className="font-titillium text-[15px] font-medium text-[#308026]">
+                      - NPR {itemDiscount.toLocaleString()}
+                    </span>
                   </div>
-                  
-                  {discount > 0 && (
+
+                  {couponDiscount > 0 && (
                     <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-[4px]">
-                        <span className="font-titillium text-[14px] text-[#242424] opacity-60">Coupon Discount</span>
-                        {appliedCode && (
-                          <span className="font-titillium text-[14px] font-semibold text-[#242424]">({appliedCode})</span>
-                        )}
+                      <div className="flex items-center gap-[6px]">
+                        <span className="font-titillium text-[15px] text-[#242424] opacity-60">Coupon Discount</span>
+                        <span className="px-[6px] py-[1px] bg-[#e8f3e4] text-[#308026] text-[10px] font-bold rounded-sm uppercase tracking-wider">
+                          {coupon?.code}
+                        </span>
                       </div>
-                      <span className="font-titillium text-[14px] text-[#242424]">- NPR {discount.toLocaleString()}</span>
+                      <span className="font-titillium text-[15px] font-medium text-[#308026]">
+                        - NPR {couponDiscount.toLocaleString()}
+                      </span>
                     </div>
                   )}
+
+                  <div className="flex justify-between items-center">
+                    <span className="font-titillium text-[15px] text-[#242424] opacity-60">Delivery Charges</span>
+                    <span className="font-titillium text-[15px] font-medium text-[#308026]">FREE</span>
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
 
-        {/* SUBTOTAL */}
-        <div className="flex justify-between items-center px-[24px] py-[18px]">
-          <span className="font-titillium text-[16px] font-semibold text-[#242424]">Sub Total Amount</span>
-          <span className="font-titillium text-[18px]  font-bold text-[#242424]">
-            NPR {finalPrice.toLocaleString()}
-          </span>
+          {/* Subtotal Banner */}
+          <div className="flex justify-between items-center px-[24px] py-[18px]">
+            <span className="font-titillium text-[16px] font-semibold text-[#242424]"> Sub Total Amount</span>
+            <span className="font-titillium text-[18px] font-bold text-[#242424]">
+              NPR {finalPrice.toLocaleString()}
+            </span>
+          </div>
         </div>
       </div>
 

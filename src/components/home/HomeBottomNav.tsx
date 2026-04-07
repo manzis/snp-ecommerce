@@ -17,7 +17,7 @@ const NAV_ITEMS = [
     { label: 'Products', icon: AccountIcon, href: '/products' },
     { label: 'Categories', icon: CategoryIcon, href: '/category' },
     { label: 'Contact', icon: ContactUsIcon, href: '/contact' },
-    { label: 'Account', icon: AccountIcon, href: '/profile' },
+    { label: 'Account', icon: AccountIcon, href: '/account' },
 
 ];
 
@@ -90,7 +90,7 @@ const HomeBottomNav: React.FC = () => {
                         transition={{ type: 'spring', stiffness: 400, damping: 40 }}
                         className="pointer-events-auto mb-[12px]"
                     >
-                        <div 
+                        <div
                             className="rounded-[13px] p-[1px]"
                             style={{ background: 'linear-gradient(90deg, #E5D200 0%, #F2EFD8 100%)' }}
                         >

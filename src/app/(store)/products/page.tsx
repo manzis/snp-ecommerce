@@ -8,44 +8,10 @@ import Pagination from '@/components/search/Pagination';
 import SearchIcon from '@/components/icons/SearchIcon';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import { motion, AnimatePresence } from 'framer-motion';
+import Loader from '@/components/ui/Loader';
 
-// Mock data for Brands and Categories
-const BRANDS = [
-    'All Brands',
-    'Optimum Nutrition',
-    'MuscleBlaze',
-    'MyProtein',
-    'Dymatize',
-    'MuscleTech',
-    'GNC',
-    'Rule 1',
-    'Cellucor',
-    'Scivation',
-    'Ultimate Nutrition',
-];
-
-const CATEGORIES = [
-    'All Categories',
-    'Proteins',
-    'Creatine',
-    'Multivitamins',
-    'Essentials',
-    'Accessories',
-];
-
-// Mock products data - DETERMINISTIC
-const MOCK_PRODUCTS = Array.from({ length: 48 }, (_, i) => ({
-    id: i + 1,
-    brand: BRANDS[(i % (BRANDS.length - 1)) + 1],
-    title: `Premium Supplement Series ${i + 1}`,
-    originalPrice: `RS. ${2000 + (i % 10) * 100}`,
-    discountedPrice: `RS. ${1500 + (i % 10) * 100}`,
-    discountPercentage: '25%',
-    rating: (4 + (i % 10) / 10).toFixed(1),
-    image: i % 3 === 0 ? '/images/atom-whey.jpg' : (i % 3 === 1 ? '/images/protein.jpg' : '/images/creatine.png'),
-    slug: `product-${i + 1}`,
-    category: CATEGORIES[(i % (CATEGORIES.length - 1)) + 1],
-}));
+import { fetchProducts, fetchCategories, fetchBrands } from '@/services/productService';
+import type { Product, Category, Brand } from '@/services/productService';
 
 const ProductsPage: React.FC = () => {
     const router = useRouter();
@@ -53,21 +19,37 @@ const ProductsPage: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState('All Categories');
     const [currentPage, setCurrentPage] = useState(1);
     const [isClient, setIsClient] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isBrandsOpen, setIsBrandsOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
     const itemsPerPage = 20;
 
+    const [products, setProducts] = useState<Product[]>([]);
+    const [brandsData, setBrandsData] = useState<Brand[]>([]);
+    const [categoriesData, setCategoriesData] = useState<Category[]>([]);
+
     useEffect(() => {
         setIsClient(true);
+        Promise.all([fetchProducts(), fetchBrands(), fetchCategories()]).then(([prods, brands, cats]) => {
+            setProducts(prods);
+            setBrandsData(brands);
+            setCategoriesData(cats);
+            setIsLoading(false);
+        });
     }, []);
 
+    const BRANDS = ['All Brands', ...brandsData.map(b => b.name)];
+    const CATEGORIES = ['All Categories', ...categoriesData.map(c => c.name)];
+
     const filteredProducts = useMemo(() => {
-        return MOCK_PRODUCTS.filter((product) => {
-            const brandMatch = selectedBrand === 'All Brands' || product.brand === selectedBrand;
-            const categoryMatch = selectedCategory === 'All Categories' || product.category === selectedCategory;
+        return products.filter((product) => {
+            const brandName = product.brands?.name || '';
+            const categoryName = product.categories?.name || '';
+            const brandMatch = selectedBrand === 'All Brands' || brandName === selectedBrand;
+            const categoryMatch = selectedCategory === 'All Categories' || categoryName === selectedCategory;
             return brandMatch && categoryMatch;
         });
-    }, [selectedBrand, selectedCategory]);
+    }, [selectedBrand, selectedCategory, products]);
 
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
     const displayedProducts = useMemo(() => {
@@ -198,18 +180,22 @@ const ProductsPage: React.FC = () => {
 
 
                     {/* Product Grid */}
-                    {displayedProducts.length > 0 ? (
+                    {isLoading ? (
+                        <div className="flex w-full min-h-[30vh] items-center justify-center">
+                            <Loader />
+                        </div>
+                    ) : displayedProducts.length > 0 ? (
                         <div className="grid grid-cols-2 gap-[16px] sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:gap-[24px]">
                             {displayedProducts.map((product) => (
                                 <ProductCard
                                     key={`all-products-grid-${product.slug}-${product.id}`}
-                                    brand={product.brand}
+                                    brand={product.brands?.name || ''}
                                     title={product.title}
-                                    originalPrice={product.originalPrice}
-                                    discountedPrice={product.discountedPrice}
-                                    discountPercentage={product.discountPercentage}
-                                    rating={product.rating}
-                                    image={product.image}
+                                    originalPrice={product.original_price}
+                                    discountedPrice={product.discounted_price}
+                                    discountPercentage={product.discount_percentage}
+                                    rating={product.rating.toString()}
+                                    image={product.images?.[0] || '/images/protein.jpg'}
                                     slug={product.slug}
                                 />
                             ))}

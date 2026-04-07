@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from '@/components/ui/ToastProvider';
-import { useCart } from '@/context/CartContext';
 
 /**
  * ProductCTA - Final Stable Version
@@ -12,8 +10,6 @@ import { useCart } from '@/context/CartContext';
 const ProductCTA = () => {
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const { showToast } = useToast();
-  const { addToCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -43,11 +39,15 @@ const ProductCTA = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleSuccess = () => setIsInCart(true);
+    window.addEventListener('addToCartSuccess', handleSuccess);
+    return () => window.removeEventListener('addToCartSuccess', handleSuccess);
+  }, []);
+
   const handleAddToCart = () => {
     if (!isInCart) {
-      addToCart();
-      showToast("Successfully Added to Cart", "success");
-      setIsInCart(true);
+      window.dispatchEvent(new CustomEvent('requestAddToCart'));
     } else {
       router.push('/cart');
     }

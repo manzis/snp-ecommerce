@@ -38,21 +38,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
 
   const [isVisible, setIsVisible] = useState(true);
 
-  useEffect(() => {
-    if (isStatic) return;
-
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
-      setIsVisible(!isAtBottom);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isStatic]);
+  // The scroll listener that hides the bar at the bottom of the page
+  // has been removed per your request so it remains permanently visible.
 
   const Content = (
     <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row pt-[10px] lg:pt-0 lg:items-center">
@@ -91,7 +78,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       {/* RIGHT SECTION: Action Button */}
       <div className="flex flex-1 basis-0 h-full items-start lg:items-center justify-center bg-white px-[16px] lg:bg-transparent lg:pr-0">
         <button
-          onClick={handleAction} 
+          onClick={handleAction}
           className="w-full h-[60px] lg:h-[52px] flex items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98]"
         >
           <span className="font-custom text-[18px] text-[#1e1e1e] uppercase tracking-[0.2px]">

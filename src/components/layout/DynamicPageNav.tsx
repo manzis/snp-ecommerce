@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ChevronLeftIcon from '@/components/icons/BackIcon';
 
@@ -18,8 +18,16 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
   showBack = true
 }) => {
   const router = useRouter();
+  const [isClickable, setIsClickable] = useState(false);
 
-  const handleBack = () => {
+  useEffect(() => {
+    const timer = setTimeout(() => setIsClickable(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleBack = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (!isClickable) return;
     if (onBack) {
       onBack();
     } else {

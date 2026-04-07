@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import type { Product } from '@/services/productService';
 
 type TabID = 'description' | 'ingredients' | 'manufacturer' | 'other';
 
-const ProductDetails: React.FC = () => {
+interface ProductDetailsProps {
+  product: Product;
+}
+
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [activeTab, setActiveTab] = useState<TabID>('description');
   const [mounted, setMounted] = useState(false);
 
@@ -13,6 +18,20 @@ const ProductDetails: React.FC = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const info = Array.isArray(product.product_info) ? product.product_info[0] : product.product_info;
+  const otherDetails = info?.other_details || {};
+  const manufacturerInfo = info?.manufacture_info || {};
+
+  // Decide which data source to use based on the active tab
+  const activeDataObj = activeTab === 'manufacturer' ? manufacturerInfo : otherDetails;
+  const activeEntries = Object.entries(activeDataObj);
+
+  // Group into pairs (chunks of 2) for mapping 2-column rows
+  const rowChunks = [];
+  for (let i = 0; i < activeEntries.length; i += 2) {
+    rowChunks.push(activeEntries.slice(i, i + 2));
+  }
 
   const tabs: { id: TabID; label: string; width: string }[] = [
     { id: 'description', label: 'Product Description', width: 'w-[161px]' },
@@ -24,14 +43,14 @@ const ProductDetails: React.FC = () => {
   if (!mounted) return <div className="w-full h-[500px]" />;
 
   return (
-    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none">
+    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none px-[24px]">
       {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
       <h2 className="h-[18px] font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
         Product Details
       </h2>
 
       <div className="flex w-full flex-col gap-[16px] self-stretch">
-        
+
         {/* TABS NAVIGATION: 610px width scrollable row on mobile */}
         <nav className="flex w-full flex-col items-start gap-[10px] overflow-x-auto no-scrollbar">
           <div className="flex w-[610px] lg:w-full flex-nowrap lg:flex-wrap gap-[16px] shrink-0">
@@ -42,8 +61,8 @@ const ProductDetails: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`
                   flex ${tab.width} lg:flex-1 lg:min-w-[140px] h-[40px] px-[12px] py-[8px] justify-center items-center rounded-[6px] border transition-all duration-300 shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] outline-none
-                  ${activeTab === tab.id 
-                    ? 'bg-[#242424] border-[#242424]' 
+                  ${activeTab === tab.id
+                    ? 'bg-[#242424] border-[#242424]'
                     : 'bg-[#fafbfc] border-[#eaebf0]'}
                 `}
               >
@@ -59,10 +78,10 @@ const ProductDetails: React.FC = () => {
 
         {/* CONTENT AREA: Smoothest animation transitions */}
         <div className="relative w-full ">
-          
+
           {activeTab === 'description' && (
             <div className="w-full font-titillium text-[16px] font-normal leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
-              <p>Information related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as followsInformation related to the product are as follows Information related to the product are as follows</p>
+              <p>{info?.description || 'No description available for this product.'}</p>
             </div>
           )}
 
@@ -70,8 +89,8 @@ const ProductDetails: React.FC = () => {
             <div className="w-full flex justify-center animate-in fade-in zoom-in-95 duration-500">
               {/* IMAGE: Using local public folder path to avoid URL errors */}
               <div className="relative box-content w-full h-[362px] rounded-[8px] border-[4px] border-white shadow-[0_4px_6px_0_rgba(16,24,40,0.1)] overflow-hidden">
-                <Image 
-                  src="/images/ingredients.png" 
+                <Image
+                  src={info?.ingredients_image || "/images/ingredients.png"}
                   alt="Product Ingredients"
                   fill
                   className="object-cover"
@@ -83,21 +102,40 @@ const ProductDetails: React.FC = () => {
 
           {(activeTab === 'manufacturer' || activeTab === 'other') && (
             <div className="w-full flex flex-col gap-0 animate-in fade-in slide-in-from-right-4 duration-500">
-              {/* ROW 1 */}
-              <div className="flex w-full h-[73px] items-stretch justify-between border-t border-[#e8e8e8]">
-                <DetailItem label="Sales Package" value="01 Packet of Protein Powder" border={false} />
-                <DetailItem label="Quantity" value="1kg" />
-              </div>
-              {/* ROW 2 */}
-              <div className="flex w-full h-[73px] items-stretch justify-between border-t border-[#e8e8e8]">
-                <DetailItem label="Model Name" value="Atom Whey" border={false} />
-                <DetailItem label="Form" value="Powder" />
-              </div>
-              {/* ROW 3 (Full Width) */}
-              <div className="flex flex-col gap-[5px] py-[8px] border-t border-[#e8e8e8]">
-                <span className="font-inter text-[14px] font-semibold leading-[20px] text-[#242424] tracking-[0.1px]">Country of Origin</span>
-                <span className="font-inter text-[16px] font-normal leading-[20px] text-[#242424]">India / Nepal</span>
-              </div>
+              {rowChunks.length === 0 ? (
+                <div className="py-4 text-[#787878] italic">No detailed information available.</div>
+              ) : (
+                rowChunks.map((chunk, rowIndex) => {
+                  // If it's the last chunk and only has 1 item, render it full width (matching the original 'Country of Origin' style)
+                  if (chunk.length === 1 && rowIndex === rowChunks.length - 1) {
+                    const [key, val] = chunk[0];
+                    return (
+                      <div key={key} className="flex flex-col gap-[5px] py-[8px] border-t border-[#e8e8e8]">
+                        <span className="font-inter text-[14px] font-semibold leading-[20px] text-[#242424] tracking-[0.1px]">
+                          {key}
+                        </span>
+                        <span className="font-inter text-[16px] font-normal leading-[20px] text-[#242424]">
+                          {String(val)}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  // Normal 2-item row
+                  return (
+                    <div key={rowIndex} className="flex w-full min-h-[73px] items-stretch justify-between border-t border-[#e8e8e8]">
+                      {chunk.map(([key, val], idx) => (
+                        <DetailItem
+                          key={key}
+                          label={key}
+                          value={String(val)}
+                          border={idx !== 0}
+                        />
+                      ))}
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
         </div>

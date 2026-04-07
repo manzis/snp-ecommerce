@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 // Icon imports
 import FacebookIcon from '@/components/icons/FacebookIcon';
 import InstagramIcon from '@/components/icons/InstagramIcon';
@@ -12,6 +13,12 @@ import SmileyFaceIcon from '@/components/icons/SmileyFaceIcon';
 import QuickLinksNav from './QuicklinksNav';
 
 const Footer = () => {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith('/checkout') || pathname?.startsWith('/cart')) {
+    return null;
+  }
+
   return (
     <footer className="mx-auto w-full bg-[#308026] px-[4px] pt-[4px] rounded-t-[24px] flex flex-col gap-[16px] items-start flex-nowrap relative">
 

@@ -12,34 +12,30 @@ import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
 
+import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService';
+import { notFound } from 'next/navigation';
+
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function getProductData(slug: string) {
-  return {
-    name: "Atom Whey Protein",
-    slug: slug,
-    category: { name: "Proteins", slug: "protein" },
-    brand: { name: "ASITIS NUTRITION", slug: "asitis-nutrition" },
-    title: "Asitis atom whey protein concentrate - 27g protein 1 bcaa etc",
-    images: ["/images/atom-whey.jpg", "/images/atom-whey-2.jpg", "/images/atom-whey-3.jpg", "/images/atom-whey-4.jpg"],
-    rating: 4.3,
-    reviewsCount: "24.5K+",
-    originalPrice: "RS. 5000",
-    discountedPrice: "RS. 4290",
-    discountPercentage: "20%",
-  };
-}
-
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await getProductData(slug);
+  const product = await fetchProductBySlug(slug);
+
+  if (!product) {
+    notFound();
+  }
+
+  const [reviews, qaPairs] = await Promise.all([
+    fetchProductReviews(product.id),
+    fetchProductQA(product.id)
+  ]);
 
   const breadcrumbPath = [
     { name: "Supplements", href: "/supplements" },
-    { name: product.category.name, href: `/category/${product.category.slug}` },
-    { name: product.brand.name, href: `/brand/${product.brand.slug}` },
+    { name: product.categories?.name || "Category", href: `/category/${product.categories?.slug || ''}` },
+    { name: product.brands?.name || "Brand", href: `/brand/${product.brands?.slug || ''}` },
     { name: product.name, href: `/product/${product.slug}` }
   ];
 
@@ -63,9 +59,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS (Desktop Only for Highlights) */}
           <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] lg:sticky lg:top-[160px] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">
             <ProductImage
-              images={product.images}
+              images={product.images || []}
               rating={product.rating}
-              reviewsCount={product.reviewsCount}
+              reviewsCount={product.reviews_count}
               productName={product.name}
             />
 
@@ -75,24 +71,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 - lg:block: Visible only on desktop laptops
             */}
             <div className="hidden lg:block">
-              <ProductHighlights />
+              <ProductHighlights highlights={product.highlights || []} />
             </div>
           </div>
 
           {/* RIGHT COLUMN: DETAILS & MOBILE HIGHLIGHTS */}
-          <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col px-[24px] lg:px-[0] ">
+          <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col lg:px-[0] ">
             <ProductHeader
-              brand={product.brand.name}
+              brand={product.brands?.name || ''}
               title={product.title}
-              originalPrice={product.originalPrice}
-              discountedPrice={product.discountedPrice}
-              discountPercentage={product.discountPercentage}
+              originalPrice={product.original_price}
+              discountedPrice={product.discounted_price}
+              discountPercentage={product.discount_percentage}
             />
 
             {/* SPACED COMPONENTS */}
-            <div className="mt-[30px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
-              <ProductOptions />
-              <Availability />
+            <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
+              <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers!} />
+              <Availability stockStatus={product.stock_status || 'in_stock'} />
               <ServiceHighlights />
 
               {/* 
@@ -101,40 +97,46 @@ export default async function ProductPage({ params }: ProductPageProps) {
                    - lg:hidden: Removed from DOM flow on desktop
                */}
               <div className="lg:hidden">
-                <ProductHighlights />
+                <ProductHighlights highlights={product.highlights || []} />
               </div>
               <div className="lg:hidden ">
-                <ProductDetails />
+                <ProductDetails product={product} />
               </div>
               <div className="lg:hidden ">
-                <ReviewsSection />
+                <ReviewsSection reviews={reviews} />
               </div>
               <div className="lg:hidden ">
-                <QuestionsAndAnswers />
+                <QuestionsAndAnswers qaPairs={qaPairs} />
               </div>
+
               <div className="lg:hidden ">
                 <WhyChooseUs />
               </div>
+
               <div className="lg:hidden ">
               </div>
             </div>
+
 
           </div>
         </div>
 
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <ProductDetails />
+          <ProductDetails product={product} />
         </div>
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <ReviewsSection />
+          <ReviewsSection reviews={reviews} />
         </div>
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <QuestionsAndAnswers />
+          <QuestionsAndAnswers qaPairs={qaPairs} />
         </div>
         <div className="hidden lg:block lg:mt-[28px] ">
           <WhyChooseUs />
         </div>
+
+
       </main>
+
 
       <ProductCTA />
     </article>

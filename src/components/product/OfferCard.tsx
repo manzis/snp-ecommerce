@@ -24,7 +24,7 @@ const OffersCard: React.FC = () => {
   ];
 
   const handleCopy = async (e: React.MouseEvent, code: string) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(code);
@@ -47,11 +47,12 @@ const OffersCard: React.FC = () => {
     }
   };
 
-  if (!mounted) return <div className="w-[362px] h-[82px] bg-white rounded-[12px] shadow-sm" />;
+  if (!mounted) return <div className=" h-[82px]  bg-white rounded-[12px] shadow-sm" />;
 
   return (
-    <div 
-      className="relative flex w-full max-w-[700px] lg:max-w-none flex-col items-start gap-[2px] rounded-[12px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] overflow-hidden transition-all duration-500 transition-bounce"
+
+    <div
+      className="relative flex w-full max-w-[700px]  lg:max-w-none flex-col items-start gap-[2px] rounded-[12px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] overflow-hidden transition-all duration-500 transition-bounce"
       style={{
         background: 'linear-gradient(269.37deg, #EAFFCD -1.23%, #FFFFFF 112.02%)',
       }}
@@ -64,13 +65,13 @@ const OffersCard: React.FC = () => {
       <button
         onClick={toggleExpand}
         aria-expanded={isExpanded}
-        className="group relative flex h-[40px] w-full flex-row items-center justify-between rounded-[12px] p-[8px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] outline-none z-20 border-[1px] border-transparent"
+        className="group relative flex h-[40px]  w-full flex-row items-center justify-between rounded-[12px] p-[8px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] outline-none z-20 border-[1px] border-transparent"
         style={{
-           background: `
+          background: `
       linear-gradient(white, white) padding-box, 
       linear-gradient(30deg, #3F9733 10%, #3F9733 10%, #E5E5E5 80%, #E5E5E5 100%) border-box
     `,
-  }}
+        }}
       >
         {/* Left Side: Icon + Label Group */}
         <div className="flex flex-row items-center gap-[12px]">
@@ -81,7 +82,7 @@ const OffersCard: React.FC = () => {
         </div>
 
         {/* Right Side: Rotatable Chevron */}
-        <div 
+        <div
           className={`h-[20px] w-[20px] flex-shrink-0 transition-transform duration-500 transition-bounce
             ${isExpanded ? 'rotate-90' : 'rotate-0'}
           `}
@@ -95,7 +96,7 @@ const OffersCard: React.FC = () => {
           - grid-rows-[0fr] -> grid-rows-[1fr]
           - This is the secret for smooth transition to 'height: auto'
       */}
-      <div 
+      <div
         className={`
           grid w-full transition-all duration-500 transition-bounce
           ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}
@@ -106,8 +107,8 @@ const OffersCard: React.FC = () => {
             {coupons.map((coupon, index) => {
               const isThisCopied = copiedCode === coupon.code;
               return (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="flex h-[58px] w-full flex-row items-center gap-[12px] p-[12px] border-b border-[#242424]/5 last:border-none"
                 >
                   {/* COUPON CODE - 8px fixed padding, never squishes */}
@@ -123,12 +124,12 @@ const OffersCard: React.FC = () => {
                   </div>
 
                   {/* COPY BUTTON - Premium state feedback */}
-                  <button 
+                  <button
                     className={`
                       flex h-[32px] min-w-[60px] flex-shrink-0 items-center justify-center rounded-[6px] border px-[10px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] 
                       transition-all duration-200 active:scale-90
-                      ${isThisCopied 
-                        ? 'bg-[#3F9733] border-[#3F9733] scale-105' 
+                      ${isThisCopied
+                        ? 'bg-[#3F9733] border-[#3F9733] scale-105'
                         : 'bg-white border-[#EAEBF0]'}
                     `}
                     onClick={(e) => handleCopy(e, coupon.code)}
@@ -149,9 +150,9 @@ const OffersCard: React.FC = () => {
           - Only visible when height is small
           - Transition ensures it doesn't overlap coupons during expansion
       */}
-      <div 
+      <div
         className={`
-          w-full flex h-[36px] items-center justify-center px-[12px] pb-[12px] pt-[8px] transition-all duration-300
+          w-full flex h-[36px]  items-center justify-center px-[12px] pb-[12px] pt-[8px] transition-all duration-300
           ${isExpanded ? 'hidden h-0 opacity-0' : 'flex h-[36px] opacity-100'}
         `}
       >
@@ -160,6 +161,7 @@ const OffersCard: React.FC = () => {
         </span>
       </div>
     </div>
+
   );
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useCartStore } from '@/store/cartStore';
 
 interface CartContextType {
     cartCount: number;
@@ -11,28 +12,19 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [cartCount, setCartCount] = useState(0);
+    const [mounted, setMounted] = useState(false);
+    const cartItems = useCartStore((state) => state.items);
 
-    // Initial load from localStorage (optional, but good for persistence)
     useEffect(() => {
-        const savedCount = localStorage.getItem('snp_cart_count');
-        if (savedCount) {
-            setCartCount(parseInt(savedCount, 10));
-        }
+        setMounted(true);
     }, []);
 
-    const addToCart = () => {
-        setCartCount(prev => {
-            const newCount = prev + 1;
-            localStorage.setItem('snp_cart_count', newCount.toString());
-            return newCount;
-        });
-    };
+    // Real cart items total, accounting for native quantity bindings
+    const cartCount = mounted ? cartItems.reduce((acc, item) => acc + item.quantity, 0) : 0;
 
-    const clearCart = () => {
-        setCartCount(0);
-        localStorage.removeItem('snp_cart_count');
-    };
+    // Interface safety shims - core logic operates directly on Zustand now
+    const addToCart = () => {};
+    const clearCart = () => {};
 
     return (
         <CartContext.Provider value={{ cartCount, addToCart, clearCart }}>

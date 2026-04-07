@@ -1,19 +1,45 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import CheckoutPriceHeader from '@/components/checkout/CheckoutPriceHeader';
 import ContactSection from '@/components/checkout/ContactSection';
 import DeliverySection from '@/components/checkout/DeliverySection';
 import PaymentSection from '@/components/checkout/PaymentSection';
 import CartCheckoutBar from '@/components/cart/CartCheckoutBar';
+import { useCartStore } from '@/store/cartStore';
+import { validateCoupon } from '@/services/couponService';
+import { createOrder } from '@/services/orderService';
+import { supabase } from '@/lib/supabase/client';
+import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
 
 export default function CheckoutPage() {
+  // 0. AVOID HYDRATION MISMATCH FOR LOCALSTORAGE
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // 1. STATE MANAGEMENT
   const [activeStep, setActiveStep] = useState<'contact' | 'delivery' | 'payments' | null>('contact');
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const router = useRouter();
 
   // Data persistence for validation & order processing
+  const {
+    items,
+    userId,
+    clearCart,
+    coupon,
+    applyCoupon,
+    removeCoupon,
+    getCouponDiscount
+  } = useCartStore();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+
   const [contactData, setContactData] = useState({ value: '', marketing: true });
   const [deliveryData, setDeliveryData] = useState<{ addressId: string; option: string; shippingPrice: number } | null>(null);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
@@ -46,11 +72,44 @@ export default function CheckoutPage() {
     // so we don't auto-close the accordion here to allow switching.
   };
 
+  const handleApplyCoupon = async (code: string) => {
+    setIsValidating(true);
+    const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const result = await validateCoupon(code, subtotal, items);
+    setIsValidating(false);
+
+    if (result.isValid && result.coupon) {
+      applyCoupon(result.coupon);
+    } else {
+      alert(result.message || "Invalid Coupon Code");
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+  };
+
   const handleToggle = (step: 'contact' | 'delivery' | 'payments') => {
     setActiveStep((prev) => (prev === step ? null : step));
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    if (items.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    // GATEKEEPER 0: Auth
+    let currentUserId = userId;
+    if (!currentUserId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login?redirect=/checkout');
+        return;
+      }
+      currentUserId = user.id;
+    }
+
     // GATEKEEPER 1: Contact
     if (!contactData.value || contactData.value.trim() === '') {
       setContactError("Required: Please fill contact details");
@@ -70,17 +129,30 @@ export default function CheckoutPage() {
     if (!selectedPaymentId) {
       setActiveStep('payments');
       paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Shake effect or error toast could be added here
       return;
     }
 
-    // SUCCESS: Process Order
-    console.log("Order Finalized", {
-      contact: contactData,
-      delivery: deliveryData,
-      payment: selectedPaymentId,
-      total: finalTotal
-    });
+    setIsProcessing(true);
+    try {
+      const order = await createOrder({
+        user_id: currentUserId,
+        total_amount: finalTotal,
+        mrp_amount: totalMRP,
+        discount_amount: totalMRP - subtotal + couponDiscount,
+        shipping_amount: shippingCharge,
+        shipping_address: deliveryData,
+        contact_details: contactData,
+        payment_method: selectedPaymentId
+      }, items);
+
+      await clearCart();
+      router.push(`/checkout/success?orderId=${order.id}`);
+    } catch (error) {
+      console.error("Order processing failed:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // 4. AUTO-SCROLL EFFECT
@@ -93,26 +165,42 @@ export default function CheckoutPage() {
   }, [activeStep]);
 
   // 5. PERFORMANCE OPTIMIZED CALCULATIONS
-  const baseAmount = 2500;
+  const totalMRP = useMemo(() => {
+    return items.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
+  }, [items]);
+
+  const subtotal = useMemo(() => {
+    return items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+  }, [items]);
+
+  const couponDiscount = getCouponDiscount();
+  const couponCode = coupon?.code || "";
+
   const shippingCharge = deliveryData?.shippingPrice || 0;
-  const finalTotal = useMemo(() => baseAmount + shippingCharge, [shippingCharge]);
+  const codCharge = selectedPaymentId === 'cod' ? 13 : 0;
+  const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - couponDiscount, [subtotal, shippingCharge, codCharge, couponDiscount]);
+
+  if (!isMounted) return null;
 
   return (
     <div className="min-h-screen bg-[#f7faf6] pt-[81px] pb-[80px]">
       <DynamicPageNav title="Checkout" />
 
-      <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px]">
+      <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
 
         {/* LEFT COLUMN: Checkout Flow */}
         <div className="flex-1 flex flex-col gap-[12px]">
 
           <CheckoutPriceHeader
             totalAmount={`NPR ${finalTotal.toLocaleString()}`}
-            mrp={2800}
-            subtotal={2600}
-            couponDiscount={100}
-            couponCode="PREPAID"
+            mrp={totalMRP}
+            subtotal={subtotal}
+            couponDiscount={couponDiscount}
+            couponCode={couponCode}
             shippingCharge={shippingCharge}
+            codCharge={codCharge}
+            onApplyCoupon={handleApplyCoupon}
+            onRemoveCoupon={handleRemoveCoupon}
           />
 
           <div className="flex flex-col border-b border-[#f1f5f9]">
@@ -163,8 +251,8 @@ export default function CheckoutPage() {
               <CartCheckoutBar
                 isStatic={true}
                 totalAmount={`NPR ${finalTotal.toLocaleString()}`}
-                mrpAmount="NPR 2800"
-                buttonText="Place Order"
+                mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
+                buttonText={isProcessing ? "Processing..." : "Place Order"}
                 onCheckout={handlePlaceOrder}
               />
             </div>
@@ -172,11 +260,13 @@ export default function CheckoutPage() {
         </aside>
       </main>
 
+      <CheckoutPrompt />
+
       {/* Mobile Sticky Bar */}
       <CartCheckoutBar
         totalAmount={`NPR ${finalTotal.toLocaleString()}`}
-        mrpAmount="NPR 2800"
-        buttonText="Place Order"
+        mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
+        buttonText={isProcessing ? "Processing..." : "Place Order"}
         onCheckout={handlePlaceOrder}
       />
     </div>
