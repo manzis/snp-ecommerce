@@ -3,9 +3,8 @@ import { SVGProps } from "react"
 const SvgComponent = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={10}
-    height={10}
     fill="none"
+    viewBox="0 0 10 10"
     {...props}
   >
     <g clipPath="url(#a)">

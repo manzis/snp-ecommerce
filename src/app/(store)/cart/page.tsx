@@ -79,7 +79,7 @@ export default function CartPage() {
                   Stack up your daily dose of fitness now!
                 </p>
                 <button
-                  onClick={() => router.push('/')}
+                  onClick={() => router.push('/products')}
                   className="mt-[12px] flex h-[48px] items-center justify-center rounded-[16px] bg-[#3F9733] hover:bg-[#347d2a] px-[32px] font-titillium text-[16px] font-semibold text-white transition-all active:scale-[0.98] outline-none shadow-sm"
                 >
                   Shop Now

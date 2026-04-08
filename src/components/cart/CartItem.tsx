@@ -64,7 +64,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         {/* Content Area - min-w-0 is required for the child truncate to function properly in flex */}
         <div className="flex flex-1 flex-col gap-[8px] pl-[16px] min-w-0">
           <div className="flex flex-col gap-[2px] w-full">
-            <span className="font-titillium text-[12px] text-[#bebebe] leading-[18px]">
+            <span className="font-titillium text-[12px] text-[#242424] leading-[18px]">
               {item.brand || 'Store Product'}
             </span>
             {/* Product Name - Single line with ellipsis */}
@@ -130,7 +130,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
                 showToast("Item Removed Successfully!", "success");
               }
             }}
-            className={`flex flex-1 items-center justify-center gap-[15px] py-[12px] bg-white active:bg-[#f9fafb] transition-colors
+            className={`flex flex-1 items-center justify-center gap-[12px] py-[12px] bg-white active:bg-[#f9fafb] transition-colors
               ${idx !== 2 ? 'border-r border-[#f1f5f9]' : ''}`}
           >
             <action.icon className="h-[18px] w-[18px] text-[#6a6b6e]" />

@@ -185,7 +185,7 @@ const ProductsPage: React.FC = () => {
                             <Loader />
                         </div>
                     ) : displayedProducts.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-[16px] sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:gap-[24px]">
+                        <div className="grid grid-cols-2 gap-[12px] sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:gap-[20px]">
                             {displayedProducts.map((product) => (
                                 <ProductCard
                                     key={`all-products-grid-${product.slug}-${product.id}`}

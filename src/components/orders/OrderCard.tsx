@@ -5,12 +5,24 @@ import Link from 'next/link';
 import PackageIcon from '@/components/icons/PackageIcon';
 import RightBackIcon from '@/components/icons/RightBackIcon';
 import HelpIcon from '@/components/icons/HelpIcon';
-import StarIcon from '@/components/icons/StarIcon';
+import StarIcon from '@/components/icons/StarIcon2';
 
-export type OrderStatus = 'CONFIRMED' | 'IN_TRANSIT' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
+export type OrderStatus = 
+    | 'PENDING' 
+    | 'CONFIRMED' 
+    | 'PROCESSING' 
+    | 'SHIPPED' 
+    | 'IN_TRANSIT' 
+    | 'RETURNED' 
+    | 'SCHEDULED' 
+    | 'OUT_FOR_DELIVERY' 
+    | 'DELIVERED' 
+    | 'CANCELLED' 
+    | 'FAILED';
 
 export interface OrderProps {
-    id: string;
+    id: string; // Full UUID
+    shortId: string; // Display ID (e.g., #5A2B)
     status: OrderStatus;
     dateText: string;
     brand: string;
@@ -22,22 +34,36 @@ export interface OrderProps {
     isCancellable: boolean;
 }
 
-const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; iconColor: string; bg: string }> = {
+export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; iconColor: string; bg: string }> = {
+    // Group 1: Neutral/Processing (Confirmed style)
+    PENDING: { text: "Order Pending", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
     CONFIRMED: { text: "Order Confirmed", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
-    IN_TRANSIT: { text: "In Transit", color: "text-[#EAB308]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
-    SHIPPED: { text: "Shipped", color: "text-[#242424]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
+    PROCESSING: { text: "Processing", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
+
+    // Group 2: Yellow (Shipped, Transit, Returned, Scheduled)
+    SHIPPED: { text: "Shipped", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
+    IN_TRANSIT: { text: "In Transit", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
+    RETURNED: { text: "Order Returned", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
+    SCHEDULED: { text: "Scheduled", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
+
+    // Group 3: Green (Delivered, Out for Delivery)
+    OUT_FOR_DELIVERY: { text: "Out for Delivery", color: "text-[#308026]", iconColor: "text-[#308026]", bg: "bg-[#eaffcc]" },
     DELIVERED: { text: "Delivered", color: "text-[#308026]", iconColor: "text-[#308026]", bg: "bg-[#eaffcc]" },
-    CANCELLED: { text: "Cancelled", color: "text-[#d92d20]", iconColor: "text-[#d92d20]", bg: "bg-gradient-to-t from-[#FCE8E8] to-white" },
+
+    // Group 4: Red (Failed, Cancelled)
     FAILED: { text: "Delivery Failed", color: "text-[#d92d20]", iconColor: "text-[#d92d20]", bg: "bg-gradient-to-t from-[#FCE8E8] to-white" },
+    CANCELLED: { text: "Cancelled", color: "text-[#d92d20]", iconColor: "text-[#d92d20]", bg: "bg-gradient-to-t from-[#FCE8E8] to-white" },
 };
 
 const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
     const config = STATUS_CONFIG[order.status];
     const isDelivered = order.status === 'DELIVERED';
+    const isOutForDelivery = order.status === 'OUT_FOR_DELIVERY';
     const isFailedOrCancelled = order.status === 'CANCELLED' || order.status === 'FAILED';
+    const isActiveGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'SCHEDULED', 'RETURNED'].includes(order.status);
 
     return (
-        <div className="flex w-full flex-col items-center justify-center bg-white pt-[16px] lg:rounded-[16px] lg:border lg:border-[#f1f5f9] overflow-hidden transition-all duration-300 ">
+        <div className="flex w-full flex-col items-center justify-center bg-white pt-[20px] lg:rounded-[16px] lg:border lg:border-[#f1f5f9] overflow-hidden transition-all duration-300 ">
 
             {/* HEADER: STATUS & TRACKING */}
             <div className="flex w-full items-center px-[24px] pb-[8px]">
@@ -54,8 +80,8 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                         </span>
                     </div>
                     {/* Hide Track Order if Cancelled/Failed/Delivered */}
-                    {!isFailedOrCancelled && !isDelivered && (
-                        <Link href={`/account/orders/${order.id}/track`} className="flex h-[32px]  items-center justify-center gap-[10px] rounded-[8px] border border-[#f1f5f9] px-[8px] py-[12px] transition-all hover:bg-gray-50 active:scale-95">
+                    {isActiveGroup && (
+                        <Link href={`/account/orders/${order.id}/track`} className="flex h-[32px]  items-center justify-center gap-[10px] rounded-[8px] border border-[#f1f5f9] px-[8px] py-[12px] transition-all bg-[#FAFBFC] hover:bg-gray-50 active:scale-95">
                             <span className="font-titillium text-[14px] font-[600] leading-[24px] tracking-[-0.2px] text-[#242424] whitespace-nowrap">
                                 Track Order
                             </span>
@@ -65,7 +91,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
             </div>
 
             {/* BODY: PRODUCT OVERVIEW (Clickable array) */}
-            <Link href={`/account/orders/${order.id}`} className="flex w-full items-center gap-[24px] p-[12px_24px_20px_24px] lg:p-[16px_32px_20px_32px] group transition-colors active:bg-gray-50">
+            <Link href={`/account/orders/${order.id}`} className="flex w-full items-center gap-[24px]  p-[12px_24px_20px_24px] lg:p-[16px_32px_20px_32px] group transition-colors active:bg-gray-50">
                 <div className="flex flex-1 items-center">
                     {/* IMAGE BORDER BOX */}
                     <div className="relative flex w-[83px] items-center justify-center rounded-[6px] border border-[#e2e8f0] p-[6px] shrink-0 transition-transform group-hover:scale-[1.02]">
@@ -82,10 +108,10 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                     </div>
 
                     {/* PRODUCT DETAILS */}
-                    <div className="flex flex-1 flex-col items-start pl-[16px] overflow-hidden">
+                    <div className="flex flex-1 flex-col w-[200px] lg:w-auto items-start pl-[16px] overflow-hidden">
                         <div className="flex flex-col items-start w-full pb-[2px]">
                             <div className="flex flex-col items-start gap-[2px] w-full pb-[4px]">
-                                <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[#bebebe] whitespace-nowrap">
+                                <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[#242424] whitespace-nowrap">
                                     {order.brand}
                                 </span>
                                 <div className="flex flex-col items-start gap-[6px] w-full">
@@ -103,7 +129,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                             </div>
                         </div>
                         {/* VARIANTS */}
-                        <div className="flex items-center gap-[13px]">
+                        <div className="flex items-center gap-[12px]">
                             <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91] whitespace-nowrap">
                                 Size : {order.size}
                             </span>
@@ -129,8 +155,8 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                         <div className="flex flex-col items-start gap-[4px]">
                             <div className="flex items-start gap-[4px]">
                                 {[...Array(5)].map((_, i) => (
-                                    <div key={i} className="flex items-center justify-center  shrink-0 opacity-30">
-                                        <StarIcon className="text-[#3f9633] w-[16px] h-[16px]" />
+                                    <div key={i} className="flex items-center justify-center  shrink-0 ">
+                                        <StarIcon className="text-[#3f9633] w-[20px] h-[20px]" />
                                     </div>
                                 ))}
                             </div>
@@ -167,8 +193,8 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                                 </span>
                             </Link>
                         </div>
-                        <span className="font-titillium text-[14px] font-[400] leading-[30px] text-[rgba(36,36,36,0.4)] whitespace-nowrap">
-                            ID: #{order.id}
+                        <span className="font-titillium text-[14px] font-[400] leading-[30px] tracking-[0.4px] text-[#8a8e91] whitespace-nowrap">
+                            ID: #{order.shortId}
                         </span>
                     </div>
 

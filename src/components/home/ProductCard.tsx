@@ -59,7 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="flex w-full flex-shrink-0 flex-col items-start gap-[8px] rounded-[12px] bg-[#f7faf6] px-[16px] pb-[16px] pt-[8px] transition-colors group-hover:bg-[#f2f9f1]">
                 <div className="flex flex-col items-start justify-end gap-[4px] self-stretch pb-[2px]">
                     <div className="flex flex-col items-start gap-[2px] self-stretch pb-[4px]">
-                        <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#bebebe] uppercase">
+                        <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#818B73] uppercase">
                             {brand}
                         </span>
                         <h3 className="h-[16px] self-stretch overflow-hidden truncate font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c]">

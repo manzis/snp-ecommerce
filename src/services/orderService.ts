@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import type { CartItemType } from './cartService';
+import type { OrderProps, OrderStatus } from '@/components/orders/OrderCard';
 
 export interface OrderData {
   user_id: string;
@@ -7,6 +7,11 @@ export interface OrderData {
   mrp_amount: number;
   discount_amount: number;
   shipping_amount: number;
+  discount_on_mrp: number;
+  coupon_discount: number;
+  coupon_code: string | null;
+  cod_fees: number;
+  tax_amount: number;
   shipping_address: any;
   contact_details: any;
   payment_method: string;
@@ -22,27 +27,58 @@ export interface OrderItemData {
 }
 
 /**
- * Creates a new order and its associated items in a way that mimics a transaction
+ * Maps database order status to UI OrderStatus
  */
-export async function createOrder(orderData: OrderData, items: CartItemType[]) {
-  // 1. Create the order
-  const { data: order, error: orderError } = await supabase
-    .from('orders')
-    .insert([{
-      ...orderData,
-      status: 'pending'
-    }])
-    .select()
-    .single();
-
-  if (orderError) {
-    console.error('Error creating order:', orderError);
-    throw orderError;
+export function mapStatus(dbStatus: string): OrderStatus {
+  const status = dbStatus.toLowerCase();
+  switch (status) {
+    case 'pending': return 'PENDING';
+    case 'confirmed': return 'CONFIRMED';
+    case 'processing': return 'PROCESSING';
+    case 'shipped': return 'SHIPPED';
+    case 'in_transit': return 'IN_TRANSIT';
+    case 'out_for_delivery': return 'OUT_FOR_DELIVERY';
+    case 'delivered': return 'DELIVERED';
+    case 'returned': return 'RETURNED';
+    case 'scheduled': return 'SCHEDULED';
+    case 'failed': return 'FAILED';
+    case 'cancelled': return 'CANCELLED';
+    default: return 'CONFIRMED';
   }
+}
 
-  // 2. Create the order items
-  const orderItems = items.map(item => ({
-    order_id: order.id,
+/**
+ * Maps database order record to OrderCard props
+ */
+export function mapToOrderProps(order: any): OrderProps {
+  // Get the first item for the summary view
+  const firstItem = order.order_items?.[0] || {};
+  const product = firstItem.products || {};
+  
+  // Format date: "Apr 18, 2026"
+  const date = new Date(order.created_at);
+  const dateText = `${order.status === 'delivered' ? 'Delivered' : order.status === 'cancelled' ? 'Cancelled' : 'Ordered'} On ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+  return {
+    id: order.id, // Full UUID for routing
+    shortId: order.id.split('-')[0].toUpperCase(), // Short ID for display
+    status: mapStatus(order.status),
+    dateText,
+    brand: product.brand_name || 'SNP Nutrition',
+    title: product.name || 'Product Details',
+    image: product.images?.[0] || '/images/product.png',
+    size: firstItem.selected_size || 'Standard',
+    flavour: firstItem.selected_flavor || 'Default',
+    extraItemsCount: Math.max(0, (order.order_items?.length || 0) - 1),
+    isCancellable: order.status === 'pending' || order.status === 'confirmed' || order.status === 'processing',
+  };
+}
+
+/**
+ * Creates a new order using the atomic RPC function
+ */
+export async function createOrder(orderData: OrderData, items: any[]) {
+  const formattedItems = items.map(item => ({
     product_id: item.product_id,
     quantity: item.quantity,
     price: item.price,
@@ -51,29 +87,43 @@ export async function createOrder(orderData: OrderData, items: CartItemType[]) {
     selected_flavor: item.selected_flavor
   }));
 
-  const { error: itemsError } = await supabase
-    .from('order_items')
-    .insert(orderItems);
+  const { data, error } = await supabase.rpc('create_order_v2', {
+    p_user_id: orderData.user_id,
+    p_total_amount: orderData.total_amount,
+    p_mrp_amount: orderData.mrp_amount,
+    p_discount_amount: orderData.discount_amount,
+    p_shipping_amount: orderData.shipping_amount,
+    p_discount_on_mrp: orderData.discount_on_mrp || 0,
+    p_coupon_discount: orderData.coupon_discount || 0,
+    p_coupon_code: orderData.coupon_code || null,
+    p_cod_fees: orderData.cod_fees || 0,
+    p_tax_amount: orderData.tax_amount || 0,
+    p_shipping_address: orderData.shipping_address,
+    p_contact_details: orderData.contact_details,
+    p_payment_method: orderData.payment_method,
+    p_items: formattedItems
+  });
 
-  if (itemsError) {
-    console.error('Error creating order items:', itemsError);
-    // Note: In a real system we'd ideally rollback the order here. 
-    // Supabase RPC or Database Functions are better for atomic transactions.
-    throw itemsError;
+  if (error) {
+    console.error('Error creating order via RPC:', error);
+    throw error;
   }
 
-  return order;
+  return { id: data };
 }
 
 /**
- * Fetch orders for a user
+ * Fetch orders for a user with product details
  */
 export async function fetchUserOrders(userId: string) {
   const { data, error } = await supabase
     .from('orders')
     .select(`
       *,
-      order_items (*)
+      order_items (
+        *,
+        products (name, images, brands (name))
+      )
     `)
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
@@ -83,11 +133,11 @@ export async function fetchUserOrders(userId: string) {
     return [];
   }
 
-  return data;
+  return data.map(mapToOrderProps);
 }
 
 /**
- * Fetch a single order with items and product details
+ * Fetch a single order with full details
  */
 export async function fetchOrderDetails(orderId: string) {
   const { data, error } = await supabase
@@ -96,7 +146,7 @@ export async function fetchOrderDetails(orderId: string) {
       *,
       order_items (
         *,
-        products (name, images)
+        products (*)
       )
     `)
     .eq('id', orderId)
@@ -105,6 +155,19 @@ export async function fetchOrderDetails(orderId: string) {
   if (error) {
     console.error('Error fetching order details:', error);
     return null;
+  }
+
+  // Backwards compatibility: Inject full address details if only ID exists
+  if (data?.shipping_address?.addressId && !data.shipping_address.addressDetails) {
+    const { data: addressData } = await supabase
+      .from('user_addresses')
+      .select('*')
+      .eq('id', data.shipping_address.addressId)
+      .single();
+    
+    if (addressData) {
+      data.shipping_address.addressDetails = addressData;
+    }
   }
 
   return data;

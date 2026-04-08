@@ -7,27 +7,20 @@ import AddressSelector from './AddressSelector';
 import DeliveryMethodSelector from './DeliveryMethodSelector';
 import AddressModal from './AddressModal';
 
-interface Address {
-  id: string;
-  name: string;
-  addressLine: string;
-  email: string;
-  phone: string;
-  type: 'Home' | 'Work' | 'Other';
-}
+import { UserAddress } from '@/services/addressService';
+import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions/addressActions';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface DeliverySectionProps {
   isOpen: boolean;
   isConfirmed: boolean;
   disabled?: boolean;
-  onConfirm: (address: Address, option: string) => void;
+  userId: string;
+  onConfirm: (address: UserAddress, option: string) => void;
   onToggle: () => void;
 }
 
-const MOCK_ADDRESSES: Address[] = [
-  { id: '1', name: "Manjish Upadhaya", addressLine: "Kathmandu, Baneshwor, Putali Sadak", email: "manjishupdahaya@gmail.com", phone: "+977 9807553740", type: 'Home' },
-  { id: '2', name: "Manjish Upadhaya", addressLine: "Kathmandu, Baneshwor, Putali Sadak", email: "manjishupdahaya@gmail.com", phone: "+977 9807553740", type: 'Work' }
-];
+
 
 const DELIVERY_METHODS = [
   { id: 'home', title: 'Home Delivery', price: 'NPR 150', desc: 'Deliver the parcel to home address, Doorstep' },
@@ -38,17 +31,59 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
   isOpen,
   isConfirmed,
   disabled = false,
+  userId,
   onConfirm,
   onToggle,
 }) => {
-  const [selectedAddressId, setSelectedAddressId] = useState('1');
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState('');
   const [deliveryOption, setDeliveryOption] = useState('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
+  const { showToast } = useToast();
+
+  React.useEffect(() => {
+    fetchUserAddressesAction().then(res => {
+      if (res.data) {
+        setAddresses(res.data);
+        if (res.data.length > 0) setSelectedAddressId(res.data[0].id!);
+      }
+    });
+  }, []);
 
   const handleConfirm = () => {
-    const addr = MOCK_ADDRESSES.find(a => a.id === selectedAddressId);
+    const addr = addresses.find(a => a.id === selectedAddressId);
     if (addr) onConfirm(addr, deliveryOption);
+  };
+
+  const handleModalSuccess = (addr: UserAddress) => {
+    // Refresh addresses
+    fetchUserAddressesAction().then(res => {
+      if (res.data) {
+        setAddresses(res.data);
+        setSelectedAddressId(addr.id!);
+      }
+    });
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this address?")) return;
+    
+    const result = await deleteUserAddressAction(id);
+    if (result.success) {
+      showToast("Address removed successfully!", "success");
+      fetchUserAddressesAction().then(res => {
+        if (res.data) {
+          setAddresses(res.data);
+          if (selectedAddressId === id) {
+            setSelectedAddressId(res.data.length > 0 ? res.data[0].id! : '');
+          }
+        }
+      });
+    } else {
+      showToast(result.error || "Failed to remove address", "error");
+    }
   };
 
   return (
@@ -92,11 +127,21 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
             <div className="flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
               
               <AddressSelector 
-                addresses={MOCK_ADDRESSES}
+                addresses={addresses}
                 selectedId={selectedAddressId}
                 onSelect={setSelectedAddressId}
-                onEdit={(id) => { setModalMode('edit'); setIsModalOpen(true); }}
-                onAddNew={() => { setModalMode('add'); setIsModalOpen(true); }}
+                onDelete={handleDeleteAddress}
+                onEdit={(id) => { 
+                  const t = addresses.find(a => a.id === id);
+                  if(t) setEditingAddress(t);
+                  setModalMode('edit'); 
+                  setIsModalOpen(true); 
+                }}
+                onAddNew={() => { 
+                  setEditingAddress(null);
+                  setModalMode('add'); 
+                  setIsModalOpen(true); 
+                }}
               />
 
               <DeliveryMethodSelector 
@@ -108,10 +153,10 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
               {/* CONFIRM BUTTON */}
               <button 
                 onClick={handleConfirm}
-                disabled={MOCK_ADDRESSES.length === 0}
+                disabled={addresses.length === 0}
                 className={`w-full py-[14px] rounded-[12px] font-titillium text-[16px] font-semibold transition-all active:scale-[0.98] ${
-                  MOCK_ADDRESSES.length === 0 
-                  ? 'bg-[#f1f5f9] text-[#838383] cursor-not-allowed' 
+                  addresses.length === 0 
+                  ? 'bg-[#ffe900] text-[#242424] opacity-50 cursor-not-allowed' 
                   : 'bg-[#ffe900] active:bg-[#f5e000] text-[#242424]'
                 }`}
               >
@@ -125,6 +170,9 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
       <AddressModal 
         isOpen={isModalOpen} 
         mode={modalMode} 
+        userId={userId}
+        initialAddress={editingAddress}
+        onSuccess={handleModalSuccess}
         onClose={() => setIsModalOpen(false)} 
       />
     </div>

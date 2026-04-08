@@ -188,7 +188,10 @@ CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH C
 
 -- 10. ORDERS TABLE
 DO $$ BEGIN
-    CREATE TYPE order_status AS ENUM ('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned');
+    CREATE TYPE order_status AS ENUM (
+        'pending', 'confirmed', 'processing', 'shipped', 'in_transit', 
+        'out_for_delivery', 'delivered', 'scheduled', 'returned', 'failed', 'cancelled'
+    );
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -236,4 +239,49 @@ CREATE POLICY "Users can view items of their own orders" ON order_items FOR SELE
 
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+
+-- 12. RPC FUNCTIONS
+CREATE OR REPLACE FUNCTION create_order_v1(
+  p_user_id UUID,
+  p_total_amount NUMERIC,
+  p_mrp_amount NUMERIC,
+  p_discount_amount NUMERIC,
+  p_shipping_amount NUMERIC,
+  p_shipping_address JSONB,
+  p_contact_details JSONB,
+  p_payment_method VARCHAR,
+  p_items JSONB -- Array of {product_id, quantity, price, mrp, selected_size, selected_flavor}
+) RETURNS UUID AS $$
+DECLARE
+  v_order_id UUID;
+  v_item JSONB;
+BEGIN
+  -- 1. Insert the order
+  INSERT INTO orders (
+    user_id, total_amount, mrp_amount, discount_amount, 
+    shipping_amount, status, shipping_address, contact_details, payment_method
+  ) VALUES (
+    p_user_id, p_total_amount, p_mrp_amount, p_discount_amount, 
+    p_shipping_amount, 'pending', p_shipping_address, p_contact_details, p_payment_method
+  ) RETURNING id INTO v_order_id;
+
+  -- 2. Insert order items
+  FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+  LOOP
+    INSERT INTO order_items (
+      order_id, product_id, quantity, price, mrp, selected_size, selected_flavor
+    ) VALUES (
+      v_order_id,
+      (v_item->>'product_id')::UUID,
+      (v_item->>'quantity')::INTEGER,
+      (v_item->>'price')::NUMERIC,
+      (v_item->>'mrp')::NUMERIC,
+      v_item->>'selected_size',
+      v_item->>'selected_flavor'
+    );
+  END LOOP;
+
+  RETURN v_order_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 

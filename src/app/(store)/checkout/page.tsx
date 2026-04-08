@@ -9,8 +9,9 @@ import DeliverySection from '@/components/checkout/DeliverySection';
 import PaymentSection from '@/components/checkout/PaymentSection';
 import CartCheckoutBar from '@/components/cart/CartCheckoutBar';
 import { useCartStore } from '@/store/cartStore';
+import { useCheckoutStore } from '@/store/checkoutStore';
 import { validateCoupon } from '@/services/couponService';
-import { createOrder } from '@/services/orderService';
+import { placeOrderAction } from '@/app/actions/orderActions';
 import { supabase } from '@/lib/supabase/client';
 import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
 
@@ -23,8 +24,10 @@ export default function CheckoutPage() {
   }, []);
 
   // 1. STATE MANAGEMENT
-  const [activeStep, setActiveStep] = useState<'contact' | 'delivery' | 'payments' | null>('contact');
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const activeStep = useCheckoutStore((state) => state.activeStep);
+  const setActiveStep = useCheckoutStore((state) => state.setActiveStep);
+  const completedSteps = useCheckoutStore((state) => state.completedSteps);
+  const setCompletedSteps = useCheckoutStore((state) => state.setCompletedSteps);
   const router = useRouter();
 
   // Data persistence for validation & order processing
@@ -40,9 +43,15 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
 
-  const [contactData, setContactData] = useState({ value: '', marketing: true });
-  const [deliveryData, setDeliveryData] = useState<{ addressId: string; option: string; shippingPrice: number } | null>(null);
-  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+  const contactData = useCheckoutStore((state) => state.contactData);
+  const setContactData = useCheckoutStore((state) => state.setContactData);
+  
+  const deliveryData = useCheckoutStore((state) => state.deliveryData);
+  const setDeliveryData = useCheckoutStore((state) => state.setDeliveryData);
+  
+  const selectedPaymentId = useCheckoutStore((state) => state.selectedPaymentId);
+  const setSelectedPaymentId = useCheckoutStore((state) => state.setSelectedPaymentId);
+  const resetCheckout = useCheckoutStore((state) => state.reset);
 
   // Validation error triggers
   const [contactError, setContactError] = useState<string | null>(null);
@@ -61,7 +70,7 @@ export default function CheckoutPage() {
 
   const handleDeliveryConfirm = (address: any, option: string) => {
     const shippingPrice = option === 'home' ? 150 : 100;
-    setDeliveryData({ addressId: address.id, option, shippingPrice });
+    setDeliveryData({ addressId: address.id, option, shippingPrice, addressDetails: address });
     setCompletedSteps((prev) => [...new Set([...prev, 'delivery'])]);
     setActiveStep('payments');
   };
@@ -90,7 +99,7 @@ export default function CheckoutPage() {
   };
 
   const handleToggle = (step: 'contact' | 'delivery' | 'payments') => {
-    setActiveStep((prev) => (prev === step ? null : step));
+    setActiveStep(activeStep === step ? null : step);
   };
 
   const handlePlaceOrder = async () => {
@@ -134,19 +143,29 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
     try {
-      const order = await createOrder({
+      const result = await placeOrderAction({
         user_id: currentUserId,
         total_amount: finalTotal,
         mrp_amount: totalMRP,
         discount_amount: totalMRP - subtotal + couponDiscount,
         shipping_amount: shippingCharge,
+        discount_on_mrp: totalMRP - subtotal,
+        coupon_discount: couponDiscount,
+        coupon_code: couponCode || null,
+        cod_fees: codCharge,
+        tax_amount: 0,
         shipping_address: deliveryData,
         contact_details: contactData,
         payment_method: selectedPaymentId
       }, items);
 
-      await clearCart();
-      router.push(`/checkout/success?orderId=${order.id}`);
+      if (result.success) {
+        await clearCart();
+        resetCheckout();
+        router.push(`/checkout/success?orderId=${result.orderId}`);
+      } else {
+        alert(result.message || "Failed to place order. Please try again.");
+      }
     } catch (error) {
       console.error("Order processing failed:", error);
       alert("Something went wrong. Please try again.");
@@ -217,6 +236,7 @@ export default function CheckoutPage() {
             {/* STEP 2: DELIVERY */}
             <div ref={deliveryRef}>
               <DeliverySection
+                userId={userId!}
                 isOpen={activeStep === 'delivery'}
                 isConfirmed={completedSteps.includes('delivery')}
                 disabled={!completedSteps.includes('contact')}
