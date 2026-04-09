@@ -70,7 +70,11 @@ export function mapToOrderProps(order: any): OrderProps {
     size: firstItem.selected_size || 'Standard',
     flavour: firstItem.selected_flavor || 'Default',
     extraItemsCount: Math.max(0, (order.order_items?.length || 0) - 1),
-    isCancellable: order.status === 'pending' || order.status === 'confirmed' || order.status === 'processing',
+    isCancellable: order.status === 'pending' || order.status === 'confirmed',
+    cancellationReason: order.cancellation_reason || undefined,
+    statusUpdates: order.status_updates || [],
+    carrierName: order.carrier_name || undefined,
+    trackingNumber: order.tracking_number || undefined,
   };
 }
 

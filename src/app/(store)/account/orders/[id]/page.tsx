@@ -37,6 +37,26 @@ export default function OrderDetailsPage() {
         getOrder();
     }, [orderId]);
 
+    const handleCancelSuccess = (reason: string) => {
+        setOrder(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                status: 'CANCELLED',
+                isCancellable: false,
+                cancellationReason: reason,
+                statusUpdates: [
+                    ...(prev.statusUpdates || []),
+                    {
+                        status: 'CANCELLED',
+                        message: `Cancelled by User. Reason: ${reason}`,
+                        date: new Date().toISOString()
+                    }
+                ]
+            };
+        });
+    };
+
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#f7faf6]">
@@ -75,7 +95,11 @@ export default function OrderDetailsPage() {
 
                             <div className="flex flex-col gap-[16px] p-[16px_24px_24px_24px]">
                                 <OtherShipmentItems items={orderData?.order_items} total={orderData?.total_amount} />
-                                <OrderActions isCancellable={order.isCancellable} />
+                                <OrderActions 
+                                    isCancellable={order.isCancellable} 
+                                    orderId={order.id} 
+                                    onCancelSuccess={handleCancelSuccess} 
+                                />
                             </div>
                         </section>
 

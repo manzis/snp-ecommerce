@@ -74,3 +74,57 @@ export async function fetchUserOrdersAction(page: number = 1, limit: number = 10
     return { success: false, message: error.message || 'Failed to fetch orders.' };
   }
 }
+
+/**
+ * Server action to cancel an existing order
+ */
+export async function cancelOrderAction(orderId: string, reason: string) {
+  const supabase = await createClient();
+  
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { success: false, message: 'Unauthorized.' };
+  }
+
+  try {
+    // Attempt to invoke the atomic status tracking RPC first
+    const { error: rpcError } = await supabase.rpc('update_order_status', {
+      p_order_id: orderId,
+      p_new_status: 'cancelled',
+      p_message: `Cancelled by User. Reason: ${reason}`
+    });
+
+    if (rpcError) {
+       // Fallback for missing RPC: direct update (assumes `cancellation_reason` or basic fallback)
+       const { error } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'cancelled',
+          cancellation_reason: reason
+        })
+        .eq('id', orderId)
+        .eq('user_id', user.id);
+
+       if (error) {
+         if (error.message?.includes('cancellation_reason')) {
+            const { error: fallbackError } = await supabase
+              .from('orders')
+              .update({ status: 'cancelled' })
+              .eq('id', orderId)
+              .eq('user_id', user.id);
+              
+            if (fallbackError) throw fallbackError;
+         } else {
+            throw error;
+         }
+       }
+    }
+
+    revalidatePath('/account/orders');
+    revalidatePath(`/account/orders/${orderId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Action Error: cancelOrderAction:', error);
+    return { success: false, message: error.message || 'Failed to process cancellation.' };
+  }
+}

@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -6,6 +8,8 @@ import PackageIcon from '@/components/icons/PackageIcon';
 import RightBackIcon from '@/components/icons/RightBackIcon';
 import HelpIcon from '@/components/icons/HelpIcon';
 import StarIcon from '@/components/icons/StarIcon2';
+import CancelOrderModal from '@/components/orders/CancelOrderModal';
+import { cancelOrderAction } from '@/app/actions/orderActions';
 
 export type OrderStatus = 
     | 'PENDING' 
@@ -20,6 +24,12 @@ export type OrderStatus =
     | 'CANCELLED' 
     | 'FAILED';
 
+export interface StatusUpdateLog {
+    status: string;
+    message: string;
+    date: string;
+}
+
 export interface OrderProps {
     id: string; // Full UUID
     shortId: string; // Display ID (e.g., #5A2B)
@@ -32,6 +42,10 @@ export interface OrderProps {
     flavour: string;
     extraItemsCount: number;
     isCancellable: boolean;
+    cancellationReason?: string;
+    statusUpdates?: StatusUpdateLog[];
+    carrierName?: string;
+    trackingNumber?: string;
 }
 
 export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; iconColor: string; bg: string }> = {
@@ -61,6 +75,21 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
     const isOutForDelivery = order.status === 'OUT_FOR_DELIVERY';
     const isFailedOrCancelled = order.status === 'CANCELLED' || order.status === 'FAILED';
     const isActiveGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'SCHEDULED', 'RETURNED'].includes(order.status);
+    
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
+
+    const handleCancelOrder = async (reason: string) => {
+        setIsCancelling(true);
+        const res = await cancelOrderAction(order.id, reason);
+        setIsCancelling(false);
+        if (res.success) {
+            setIsCancelModalOpen(false);
+            alert('Order successfully cancelled.');
+        } else {
+            alert(res.message || 'Failed to cancel order.');
+        }
+    };
 
     return (
         <div className="flex w-full flex-col items-center justify-center bg-white pt-[20px] lg:rounded-[16px] lg:border lg:border-[#f1f5f9] overflow-hidden transition-all duration-300 ">
@@ -178,6 +207,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                             {!isFailedOrCancelled && !isDelivered && (
                                 <button
                                     type="button"
+                                    onClick={() => order.isCancellable && setIsCancelModalOpen(true)}
                                     disabled={!order.isCancellable}
                                     className={`flex h-[32px] items-center justify-center gap-[4px] rounded-[8px] border border-[#f1f5f9] px-[12px] transition-all ${order.isCancellable ? 'active:scale-95 hover:bg-red-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
                                 >
@@ -201,19 +231,26 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
 
                     <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[rgba(36,36,36,0.8)]">
                         {isFailedOrCancelled
-                            ? "Note: Refund will take up to 7 days for cancelled and failed orders."
+                            ? order.cancellationReason && order.status === 'CANCELLED' 
+                                ? `Cancellation Reason: ${order.cancellationReason}` 
+                                : "Note: Refund will take up to 7 days for cancelled and failed orders."
                             : isDelivered
                                 ? <>Note: You can only get support for delivered items up to 4 days from the delivery date regarding any returns. Check our <Link href="/terms" className="text-[#308026] underline hover:text-[#242424] transition-colors">Terms and Conditions</Link>.</>
                                 : order.isCancellable
                                     ? "Note: You can cancel your order before it gets dispatched."
                                     : "Note: Cancellation is not allowed once the product has shipped."}
                     </span>
-
-
-
-
                 </div>
             </div>
+
+            {/* CANCELLATION WIZARD MODAL */}
+            <CancelOrderModal 
+                isOpen={isCancelModalOpen}
+                onClose={() => setIsCancelModalOpen(false)}
+                onConfirm={handleCancelOrder}
+                isProcessing={isCancelling}
+                savedAmount={0} // Typically discount could be mapped from order data!
+            />
         </div>
     );
 };

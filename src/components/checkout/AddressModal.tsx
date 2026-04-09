@@ -9,6 +9,7 @@ import MapSelector from './MapSelector';
 import { reverseGeocode } from '@/utils/geocode';
 import { supabase } from '@/lib/supabase/client';
 import { useCheckoutStore } from '@/store/checkoutStore';
+import { useUIStore } from '@/store/uiStore';
 
 
 interface AddressModalProps {
@@ -40,6 +41,12 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
   const [tempLat, setTempLat] = useState(27.7172);
   const [tempLng, setTempLng] = useState(85.3240);
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const setHideBottomNav = useUIStore(state => state.setHideBottomNav);
+
+  useEffect(() => {
+    setHideBottomNav(isOpen);
+    return () => setHideBottomNav(false);
+  }, [isOpen, setHideBottomNav]);
 
   useEffect(() => {
     if (isOpen) {
@@ -344,7 +351,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                   <p className="font-titillium text-[14px] text-[#838383]">Tap anywhere on the map to drop a pin.</p>
                 </div>
 
-                <div className="flex-1 w-full rounded-[16px] overflow-hidden border border-[#eaebf0] shadow-inner mb-[24px]">
+                <div className="flex-1 w-full min-h-0 mb-[16px] z-[1]">
                   <MapSelector
                     defaultLat={tempLat}
                     defaultLng={tempLng}

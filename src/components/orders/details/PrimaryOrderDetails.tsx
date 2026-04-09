@@ -1,9 +1,12 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import HelpIcon from '@/components/icons/HelpIcon';
 import PackageIcon from '@/components/icons/PackageIcon';
 import TickIcon from '@/components/icons/TickIcon';
 import { OrderProps, STATUS_CONFIG } from '@/components/orders/OrderCard';
+import TrackingModal from '@/components/orders/details/TrackingModal';
 
 interface PrimaryOrderDetailsProps {
     order: OrderProps;
@@ -27,16 +30,40 @@ const GET_PROGRESS_CONFIG = (status: OrderProps['status']) => {
 };
 
 export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps) {
+    const [mounted, setMounted] = useState(false);
+    const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+
+    useEffect(() => {
+        // Trigger mounting animation shortly after mount for smoothest CSS transition
+        const timer = setTimeout(() => setMounted(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
+
     const config = STATUS_CONFIG[order.status];
     const progress = GET_PROGRESS_CONFIG(order.status);
 
     // Status Groups
     const isGreenGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(order.status);
+
+    // Resolve Latest Dynamic Update
+    const latestUpdate = order.statusUpdates && order.statusUpdates.length > 0 
+        ? order.statusUpdates[order.statusUpdates.length - 1] 
+        : null;
+
+    const displayUpdateMessage = latestUpdate 
+        ? latestUpdate.message 
+        : (order.status === 'CANCELLED' && order.cancellationReason
+            ? `Cancellation processed. Reason: ${order.cancellationReason}`
+            : 'Order placed securely.');
+            
+    const displayUpdateDate = latestUpdate 
+        ? new Date(latestUpdate.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : order.dateText.replace(/^.*? on /i, '');
     const isYellowGroup = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'RETURNED'].includes(order.status);
     const isRedGroup = ['FAILED', 'CANCELLED'].includes(order.status);
 
     // Node States
-    const isNode1Active = true; // Always active if order exists
+    const isNode1Active = true; 
     const isNode2Active = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED'].includes(order.status);
     const isNode3Active = ['OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED'].includes(order.status);
 
@@ -98,9 +125,14 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                                     <h3 className={`font-titillium text-[18px] font-[700] leading-[30px] ${config.color}`}>
                                         {config.text}
                                     </h3>
-                                    <p className="font-titillium text-[12px] font-[400] leading-[18px] text-[#242424] mt-[2px]">
-                                        Update : {order.status === 'DELIVERED' ? 'Successfully delivered to your address.' : 'Preparing your order to dispatch.'}
-                                    </p>
+                                    <div className="flex flex-col mt-[2px]">
+                                        <p className="font-titillium text-[13px] font-[500] leading-[18px] text-[#242424]">
+                                            Update: <span className="font-[400] opacity-80">{displayUpdateMessage}</span>
+                                        </p>
+                                        <span className="font-titillium text-[11px] font-[400] leading-[14px] text-[#8a8e91] mt-[2px]">
+                                            {displayUpdateDate}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[8px] ${config.bg}`}>
                                     <PackageIcon className={`h-[24px] w-[24px] ${config.iconColor}`} />
@@ -115,8 +147,8 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                                 <div className="absolute left-0 top-1/2 h-[3px] w-full -translate-y-1/2 bg-[#e2e8f0]"></div>
                                 {/* Active Progress Bar */}
                                 <div
-                                    className={`absolute left-0 top-1/2 h-[3px] -translate-y-1/2 transition-all duration-500 ease-out ${progress.color}`}
-                                    style={{ width: progress.width }}
+                                    className={`absolute left-0 top-1/2 h-[3px] -translate-y-1/2 transition-all duration-[1000ms] ease-[cubic-bezier(0.25,1,0.5,1)] ${progress.color}`}
+                                    style={{ width: mounted ? progress.width : '0%' }}
                                 ></div>
 
                                 <div className="absolute left-0 top-1/2 flex w-full -translate-y-1/2 justify-between">
@@ -181,13 +213,27 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                         </div>
                     </div>
 
-                    <button className="flex h-[42px] w-full items-center justify-center gap-[10px] rounded-[12px] bg-[#ffe900] py-[12px] transition-transform active:scale-[0.98] hover:bg-[#ffe000]">
-                        <span className="font-titillium text-[16px] font-[600] leading-[22px] tracking-[-0.2px] text-[#242424]">
-                            See all updates
-                        </span>
-                    </button>
+                    <div className="flex flex-col gap-[12px] w-full mt-[12px]">
+                        <button 
+                            onClick={() => setIsTrackingModalOpen(true)}
+                            className="flex h-[42px] w-full items-center justify-center gap-[10px] rounded-[12px] bg-[#ffe900] py-[12px] transition-transform active:scale-[0.98] hover:bg-[#ffe000]"
+                        >
+                            <span className="font-titillium text-[16px] font-[600] leading-[22px] tracking-[-0.2px] text-[#242424]">
+                                See all updates
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <TrackingModal 
+                isOpen={isTrackingModalOpen} 
+                onClose={() => setIsTrackingModalOpen(false)} 
+                statusUpdates={order.statusUpdates || []}
+                carrierName={order.carrierName}
+                trackingNumber={order.trackingNumber}
+                currentStatus={order.status}
+            />
         </div>
     );
 }

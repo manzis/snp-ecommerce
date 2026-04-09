@@ -11,6 +11,7 @@ import CategoryIcon from '@/components/icons/CategoryIcon';
 import ContactUsIcon from '@/components/icons/ContactUsIcon';
 import AccountIcon from '@/components/icons/AccountIcon';
 import { useCart } from '@/context/CartContext';
+import { useUIStore } from '@/store/uiStore';
 
 const NAV_ITEMS = [
     { label: 'Home', icon: PackageIcon2, href: '/' },
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
 const HomeBottomNav: React.FC = () => {
     const pathname = usePathname();
     const { cartCount } = useCart();
+    const hideBottomNav = useUIStore(state => state.hideBottomNav);
     const [isScrollVisible, setIsScrollVisible] = useState(true);
     const [showIndicator, setShowIndicator] = useState(true);
 
@@ -74,7 +76,7 @@ const HomeBottomNav: React.FC = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [isExcludedPage]);
 
-    if (isExcludedPage) return null;
+    if (isExcludedPage || hideBottomNav) return null;
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none md:hidden">
@@ -135,7 +137,7 @@ const HomeBottomNav: React.FC = () => {
                     opacity: isScrollVisible ? 1 : 0
                 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] will-change-transform"
+                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white/80 backdrop-blur-md px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] will-change-transform"
                 style={{
                     paddingBottom: 'env(safe-area-inset-bottom)',
                     WebkitTransform: 'translateZ(0)'

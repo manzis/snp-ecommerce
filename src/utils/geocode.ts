@@ -17,3 +17,16 @@ export async function reverseGeocode(lat: number, lng: number) {
   }
   return null;
 }
+
+export async function searchLocations(query: string) {
+  if (!query) return [];
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Location search failed", error);
+    return [];
+  }
+}
+
