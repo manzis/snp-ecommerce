@@ -44,4 +44,27 @@ export class AuthService {
 
     return user
   }
+
+  /**
+   * Check if the current user is an admin.
+   */
+  static async isAdmin() {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) return false
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (error || !profile) {
+      console.error('Error fetching user role:', error?.message)
+      return false
+    }
+
+    return profile.role === 'admin'
+  }
 }

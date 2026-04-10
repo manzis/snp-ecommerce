@@ -14,7 +14,7 @@ interface PrimaryOrderDetailsProps {
 
 const GET_PROGRESS_CONFIG = (status: OrderProps['status']) => {
     switch (status) {
-        case 'PENDING': return { width: '5%', color: 'bg-[#308026]', label1: 'Order Pending' };
+        case 'PENDING': return { width: '5%', color: 'bg-[#308026]', label1: 'Order Received' };
         case 'CONFIRMED': return { width: '20%', color: 'bg-[#308026]', label1: 'Order Confirmed' };
         case 'PROCESSING': return { width: '40%', color: 'bg-[#308026]', label1: 'Processing' };
         case 'SHIPPED': return { width: '50%', color: 'bg-[#308026]', label1: 'Order Shipped', label2: 'Shipped' };
@@ -24,8 +24,9 @@ const GET_PROGRESS_CONFIG = (status: OrderProps['status']) => {
         case 'DELIVERED': return { width: '100%', color: 'bg-[#308026]', label1: 'Order Confirmed', label3: 'Delivered' };
         case 'RETURNED': return { width: '100%', color: 'bg-[#A16207]', label1: 'Order Confirmed', label3: 'Order Returned' };
         case 'FAILED': return { width: '100%', color: 'bg-[#d92d20]', label1: 'Order Confirmed', label3: 'Delivery Failed' };
-        case 'CANCELLED': return { width: '100%', color: 'bg-[#d92d20]', label1: 'Order Pending', label3: 'Cancelled' };
-        default: return { width: '0%', color: 'bg-[#308026]', label1: 'Order Placed' };
+        case 'CANCELLED': return { width: '100%', color: 'bg-[#d92d20]', label1: 'Order Received', label3: 'Cancelled' };
+        case 'RESCHEDULED': return { width: '100%', color: 'bg-[#A16207]', label1: 'Order Received', label3: 'Delivery Rescheduled' };
+        default: return { width: '0%', color: 'bg-[#308026]', label1: 'Order Received' };
     }
 };
 
@@ -46,26 +47,62 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
     const isGreenGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(order.status);
 
     // Resolve Latest Dynamic Update
-    const latestUpdate = order.statusUpdates && order.statusUpdates.length > 0 
-        ? order.statusUpdates[order.statusUpdates.length - 1] 
+    const latestUpdate = order.statusUpdates && order.statusUpdates.length > 0
+        ? order.statusUpdates[order.statusUpdates.length - 1]
         : null;
 
-    const displayUpdateMessage = latestUpdate 
-        ? latestUpdate.message 
+    const displayUpdateMessage = latestUpdate
+        ? latestUpdate.message
         : (order.status === 'CANCELLED' && order.cancellationReason
             ? `Cancellation processed. Reason: ${order.cancellationReason}`
             : 'Order placed securely.');
-            
-    const displayUpdateDate = latestUpdate 
+
+    const displayUpdateDate = latestUpdate
         ? new Date(latestUpdate.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         : order.dateText.replace(/^.*? on /i, '');
-    const isYellowGroup = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'RETURNED'].includes(order.status);
+    const isYellowGroup = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'RETURNED', 'RESCHEDULED'].includes(order.status);
     const isRedGroup = ['FAILED', 'CANCELLED'].includes(order.status);
 
+    const reachedShipping = order.statusUpdates?.some(log =>
+        ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED'].includes(log.status.toUpperCase())
+    );
+    const hideShipping = ['CANCELLED', 'FAILED'].includes(order.status) && !reachedShipping;
+
     // Node States
-    const isNode1Active = true; 
-    const isNode2Active = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED'].includes(order.status);
-    const isNode3Active = ['OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED'].includes(order.status);
+    const isNode1Active = true;
+    const isNode2Active = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED', 'RESCHEDULED'].includes(order.status);
+    const isNode3Active = ['OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED', 'RESCHEDULED'].includes(order.status);
+
+    // Dynamic Timeline Dates
+    const formatTimelineDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${d.toLocaleDateString('en-US', { weekday: 'short' })}`;
+    };
+
+    const firstLog = order.statusUpdates && order.statusUpdates.length > 0
+        ? order.statusUpdates.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0]
+        : null;
+    const node1Date = firstLog ? formatTimelineDate(firstLog.date) : order.dateText.replace(/^.*? on /i, '');
+    const topHeaderText = `Ordered on ${order.dateText.replace(/^.*? on /i, '')}`;
+
+    const shippingLog = order.statusUpdates?.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).find(l =>
+        ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY'].includes(l.status.toUpperCase())
+    );
+    const node2Date = shippingLog ? formatTimelineDate(shippingLog.date) : '';
+
+    let node3Date = '';
+    if (['DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED'].includes(order.status)) {
+        const terminalLog = order.statusUpdates?.slice().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+        if (terminalLog) {
+            node3Date = formatTimelineDate(terminalLog.date);
+        }
+    } else if (order.status === 'OUT_FOR_DELIVERY') {
+        node3Date = 'Expected today';
+    } else {
+        node3Date = 'Expected soon';
+    }
 
     return (
         <div className="flex flex-col gap-[24px] relative z-[2]">
@@ -117,8 +154,8 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                 <div className="flex w-full flex-col justify-between items-start gap-[24px] rounded-[20px] bg-[#ffffff] p-[12px] md:h-auto border border-[#f1f5f9]">
                     <div className="flex w-full flex-col gap-[24px]">
                         <div className="flex w-full flex-col px-[6px] py-[4px]">
-                            <span className="w-full text-left font-titillium text-[11px] font-[400] leading-[14px] text-[#242424]/40">
-                                {order.dateText}
+                            <span className="w-full text-left font-titillium text-[11px] font-[400] leading-[12px] text-[#242424]/40">
+                                {topHeaderText}
                             </span>
                             <div className="flex w-full items-center justify-between mt-[4px]">
                                 <div className="flex flex-col justify-center items-start">
@@ -158,9 +195,11 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                                     </div>
 
                                     {/* Node 2: Shipped/In Transit */}
-                                    <div className={`flex items-center justify-center h-[18px] w-[18px] rounded-full outline outline-3 outline-white relative z-10 ${isNode2Active ? progress.color : 'bg-white border-2 border-[#e2e8f0]'}`}>
-                                        {isNode2Active && <TickIcon className="h-[10px] w-[10px] text-white" />}
-                                    </div>
+                                    {!hideShipping && (
+                                        <div className={`flex items-center justify-center h-[18px] w-[18px] rounded-full outline outline-3 outline-white relative z-10 ${isNode2Active ? progress.color : 'bg-white border-2 border-[#e2e8f0]'}`}>
+                                            {isNode2Active && <TickIcon className="h-[10px] w-[10px] text-white" />}
+                                        </div>
+                                    )}
 
                                     {/* Node 3: Delivered/Final State */}
                                     <div className="relative flex items-center justify-center">
@@ -187,26 +226,28 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                             <div className="flex w-full justify-between items-center">
                                 <div className="flex flex-1 flex-col items-start">
                                     <span className={`font-titillium text-[13px] font-[600] leading-[18px] ${isNode1Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
-                                        {progress.label1 || 'Ordered'}
+                                        {progress.label1 || 'Order Received'}
                                     </span>
-                                    <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262]">Apr 03</span>
-                                </div>
-                                <div className="flex flex-1 flex-col items-center">
-                                    <span className={`font-titillium text-[13px] font-[600] leading-[18px] text-center ${isNode2Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
-                                        {progress.label2 || 'Shipped'}
+                                    <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262]">
+                                        {node1Date}
                                     </span>
-                                    <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262] text-center">Apr 04</span>
                                 </div>
+                                {!hideShipping && (
+                                    <div className="flex flex-1 flex-col items-center">
+                                        <span className={`font-titillium text-[13px] font-[600] leading-[18px] text-center ${isNode2Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
+                                            {progress.label2 || 'Shipped'}
+                                        </span>
+                                        <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262] text-center">
+                                            {node2Date}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className="flex flex-1 flex-col items-end">
                                     <span className={`font-titillium text-[13px] font-[600] leading-[18px] text-right ${isNode3Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
                                         {progress.label3 || 'Delivery'}
                                     </span>
                                     <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262] text-right">
-                                        {order.status === 'DELIVERED'
-                                            ? 'Apr 04'
-                                            : order.status === 'OUT_FOR_DELIVERY'
-                                                ? 'Expected today'
-                                                : 'Expected soon'}
+                                        {node3Date}
                                     </span>
                                 </div>
                             </div>
@@ -214,7 +255,7 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                     </div>
 
                     <div className="flex flex-col gap-[12px] w-full mt-[12px]">
-                        <button 
+                        <button
                             onClick={() => setIsTrackingModalOpen(true)}
                             className="flex h-[42px] w-full items-center justify-center gap-[10px] rounded-[12px] bg-[#ffe900] py-[12px] transition-transform active:scale-[0.98] hover:bg-[#ffe000]"
                         >
@@ -226,9 +267,9 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                 </div>
             </div>
 
-            <TrackingModal 
-                isOpen={isTrackingModalOpen} 
-                onClose={() => setIsTrackingModalOpen(false)} 
+            <TrackingModal
+                isOpen={isTrackingModalOpen}
+                onClose={() => setIsTrackingModalOpen(false)}
                 statusUpdates={order.statusUpdates || []}
                 carrierName={order.carrierName}
                 trackingNumber={order.trackingNumber}

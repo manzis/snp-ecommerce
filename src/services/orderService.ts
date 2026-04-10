@@ -43,6 +43,7 @@ export function mapStatus(dbStatus: string): OrderStatus {
     case 'scheduled': return 'SCHEDULED';
     case 'failed': return 'FAILED';
     case 'cancelled': return 'CANCELLED';
+    case 'rescheduled': return 'RESCHEDULED';
     default: return 'CONFIRMED';
   }
 }

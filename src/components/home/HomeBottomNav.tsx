@@ -137,7 +137,7 @@ const HomeBottomNav: React.FC = () => {
                     opacity: isScrollVisible ? 1 : 0
                 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white/80 backdrop-blur-md px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] will-change-transform"
+                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white  px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] will-change-transform"
                 style={{
                     paddingBottom: 'env(safe-area-inset-bottom)',
                     WebkitTransform: 'translateZ(0)'

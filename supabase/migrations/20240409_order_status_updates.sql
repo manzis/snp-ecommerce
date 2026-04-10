@@ -34,7 +34,7 @@ BEGIN
      jsonb_build_object(
         'status', v_initial_status,
         'message', 'Order placed successfully.',
-        'date', timezone('utc'::text, now())
+        'date', (now() AT TIME ZONE 'Asia/Kathmandu')::text
      )
   );
 
@@ -85,7 +85,7 @@ BEGIN
     status_updates = status_updates || jsonb_build_object(
       'status', p_new_status,
       'message', p_message,
-      'date', timezone('utc'::text, now())
+      'date', (now() AT TIME ZONE 'Asia/Kathmandu')::text
     )
   WHERE id = p_order_id;
 END;

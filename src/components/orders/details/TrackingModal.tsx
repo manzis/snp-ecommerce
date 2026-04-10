@@ -36,7 +36,8 @@ const STATUS_RANK: Record<string, number> = {
     'PENDING': 1, 'CONFIRMED': 2, 'PROCESSING': 3,
     'SHIPPED': 4, 'IN_TRANSIT': 5, 'SCHEDULED': 6,
     'OUT_FOR_DELIVERY': 7, 'DELIVERED': 8,
-    'RETURNED': 8, 'FAILED': 8, 'CANCELLED': 8
+    'RETURNED': 8, 'FAILED': 8, 'CANCELLED': 8,
+    'RESCHEDULED': 8
 };
 
 const GET_PROGRESS_CONFIG = (status: OrderStatus) => {
@@ -58,15 +59,15 @@ const GET_PROGRESS_CONFIG = (status: OrderStatus) => {
 
 // --- Professional Tracking Sub-Components ---
 
-const TimelineDot = ({ 
-    isActive, 
-    isLatest, 
-    glowColor, 
+const TimelineDot = ({
+    isActive,
+    isLatest,
+    glowColor,
     size = 'small',
     progressColor
-}: { 
-    isActive: boolean; 
-    isLatest: boolean; 
+}: {
+    isActive: boolean;
+    isLatest: boolean;
     glowColor: string;
     size?: 'small' | 'large';
     progressColor: string;
@@ -80,7 +81,7 @@ const TimelineDot = ({
     const leftOffset = 'left-[-50px]';
 
     return (
-        <div 
+        <div
             className={`absolute ${leftOffset} inset-y-0 flex items-center justify-center z-30`}
             style={{ width: containerWidth }}
         >
@@ -95,11 +96,11 @@ const TimelineDot = ({
                     ]
                 } : { scale: 1 }}
                 transition={shouldGlow ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-                style={isLatest ? { 
+                style={isLatest ? {
                     boxShadow: `0 0 0 2px white, 0 0 0 5px ${glowColor}`,
                     width: dotDimension,
                     height: dotDimension
-                } : { 
+                } : {
                     outline: '2px solid white',
                     width: dotDimension,
                     height: dotDimension
@@ -112,32 +113,41 @@ const TimelineDot = ({
     );
 };
 
-const TimelineSegment = ({ 
-    isActive, 
-    isFirst, 
-    isLast, 
-    progressColor 
-}: { 
-    isActive: boolean; 
-    isFirst: boolean; 
-    isLast: boolean; 
+const TimelineSegment = ({
+    isIncomingActive,
+    isOutgoingActive,
+    isFirst,
+    isLast,
+    progressColor
+}: {
+    isIncomingActive: boolean;
+    isOutgoingActive: boolean;
+    isFirst: boolean;
+    isLast: boolean;
     progressColor: string;
 }) => {
-    // We extend the top/bottom overlap to close gaps between milestones (mb-12)
-    const segmentStyle = {
-        top: isFirst ? '50%' : '-16px', 
-        bottom: isLast ? '50%' : '-16px'
-    };
-
     return (
-        <div className="absolute left-[-31px] w-[2px] z-10" style={segmentStyle}>
-            {isActive && (
-                <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: '100%' }}
-                    transition={{ duration: 0.4 }}
-                    className={`h-full w-full ${progressColor} origin-top`}
-                />
+        <div className="absolute left-[-31px] w-[2px] z-10 top-0 bottom-0 overflow-visible">
+            {/* Gray Background spanning the required bounds */}
+            <div className="absolute w-full bg-[#e2e8f0]" style={{
+                top: isFirst ? '50%' : '-16px',
+                bottom: isLast ? '50%' : '-16px'
+            }} />
+
+            {/* Colored Top half */}
+            {isIncomingActive && !isFirst && (
+                <div className={`absolute w-full ${progressColor}`} style={{
+                    top: '-16px',
+                    bottom: '50%'
+                }} />
+            )}
+
+            {/* Colored Bottom half */}
+            {isOutgoingActive && !isLast && (
+                <div className={`absolute w-full ${progressColor}`} style={{
+                    top: '50%',
+                    bottom: '-16px'
+                }} />
             )}
         </div>
     );
@@ -147,76 +157,138 @@ const TimelineSegment = ({
 
 function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStatus: OrderStatus) {
     return React.useMemo(() => {
-        const currentRank = STATUS_RANK[currentStatus] || 0;
-        
-        const isMilestoneActive = (id: string) => {
-            if (id === 'ORDERED') return true;
-            if (id === 'SHIPPED') return currentRank >= 4;
-            if (id === 'DELIVERY') return currentRank >= 8;
-            return false;
-        };
+        // Ensure currentStatus is uppercase for lookup
+        const normalizedCurrentStatus = currentStatus.toUpperCase() as OrderStatus;
+        const currentRank = STATUS_RANK[normalizedCurrentStatus] || 0;
 
-        const getFinalLabel = () => {
-            if (currentStatus === 'CANCELLED') return 'Order Cancelled';
-            if (currentStatus === 'RETURNED') return 'Order Returned';
-            if (currentStatus === 'FAILED') return 'Delivery Failed';
-            return 'Delivery';
-        };
+        // Terminal statuses that should NOT have virtual gap-filling
+        const TERMINAL_STATUSES: OrderStatus[] = ['CANCELLED', 'FAILED', 'RETURNED'];
+        const isTerminal = TERMINAL_STATUSES.includes(normalizedCurrentStatus);
 
-        const groups: { id: string; label: string; isActive: boolean; isCompleted: boolean; logs: any[] }[] = [];
-
-        // Build Phases
-        const phases = [
-            { id: 'ORDERED', label: 'Order Placed', statusRange: ['PENDING', 'CONFIRMED', 'PROCESSING'] },
-            { id: 'SHIPPED', label: 'Shipped', statusRange: ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY'] },
-            { id: 'DELIVERY', label: getFinalLabel(), statusRange: ['DELIVERED', 'FAILED', 'CANCELLED', 'RETURNED'] }
+        // Standard sequence for gap-filling (UPPERCASE)
+        const standardSequence: OrderStatus[] = [
+            'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED',
+            'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED'
         ];
 
-        phases.forEach(phase => {
-            const phaseLogs: any[] = [];
-            
-            phase.statusRange.forEach(s => {
-                const existing = statusUpdates.find(u => u.status === s);
-                if (existing) {
-                    phaseLogs.push({ id: `log-${s}`, data: existing, isActive: true, status: s });
-                } else if (currentRank >= (STATUS_RANK[s] || 0) && phase.id !== 'DELIVERY') {
-                    // Logic for Virtualization: Only virtualize non-terminal steps
-                    phaseLogs.push({ 
-                        id: `virtual-${s}`, 
-                        data: { status: s, message: STATUS_CONFIG[s as OrderStatus]?.text || s, date: new Date().toISOString() }, 
+        // 1. Map all actual logs (Convert status to uppercase for consistent lookup)
+        const allLogs: { id: string; status: OrderStatus; data: StatusUpdateLog; isActive: boolean; isVirtual?: boolean }[] =
+            statusUpdates.map((u, idx) => {
+                const statusUpper = u.status.toUpperCase() as OrderStatus;
+                return {
+                    id: `real-${statusUpper}-${idx}-${u.date}`,
+                    status: statusUpper,
+                    data: u,
+                    isActive: true
+                };
+            });
+
+        // 2. Add missing intermediate logs (only for non-terminal workflows)
+        if (!isTerminal) {
+            standardSequence.forEach(s => {
+                const sRank = STATUS_RANK[s];
+                // Only fill if it's missing (any case) and rank is lower than current
+                if (sRank < currentRank && !allLogs.some(l => l.status === s)) {
+                    
+                    // Find the timestamp of the actual log that 'triggered' this jump
+                    // i.e., the chronologically earliest REAL log that has a rank greater than this virtual one
+                    const triggeringLog = [...allLogs]
+                        .filter(l => !l.isVirtual)
+                        .sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime())
+                        .find(l => (STATUS_RANK[l.status] || 0) > sRank);
+
+                    const virtualDate = triggeringLog ? triggeringLog.data.date : new Date().toISOString();
+
+                    allLogs.push({
+                        id: `virtual-${s}`,
+                        status: s,
+                        data: {
+                            status: s,
+                            message: STATUS_CONFIG[s]?.text || s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+                            date: virtualDate 
+                        },
                         isActive: true,
-                        status: s
+                        isVirtual: true
                     });
                 }
             });
+        }
 
-            // Special Terminal Logic for Phase 3
-            if (phase.id === 'DELIVERY' && phaseLogs.length === 0 && ['DELIVERED', 'FAILED', 'CANCELLED', 'RETURNED'].includes(currentStatus)) {
-                const finalLog = statusUpdates.find(u => u.status === currentStatus);
-                if (finalLog) phaseLogs.push({ id: `log-final`, data: finalLog, isActive: true, status: currentStatus });
-            }
+        // 3. Sort logs primarily by DATE (Chronological), then by RANK for stability
+        const sortedLogs = allLogs.sort((a, b) => {
+            const timeA = new Date(a.data.date).getTime();
+            const timeB = new Date(b.data.date).getTime();
 
-            // Milestone is COMPLETED only if the current rank has moved PAST its status range
-            const isCompleted = (id: string) => {
-                if (id === 'ORDERED') return currentRank >= 4;
-                if (id === 'SHIPPED') return currentRank >= 8;
+            if (timeA !== timeB) return timeA - timeB;
+
+            const rankA = STATUS_RANK[a.status] || 0;
+            const rankB = STATUS_RANK[b.status] || 0;
+            return rankA - rankB;
+        });
+
+        // 4. Group into milestones
+        const getFinalLabel = () => {
+            if (normalizedCurrentStatus === 'CANCELLED') return 'Order Cancelled';
+            if (normalizedCurrentStatus === 'RETURNED') return 'Order Returned';
+            if (normalizedCurrentStatus === 'FAILED') return 'Delivery Failed';
+            if (normalizedCurrentStatus === 'RESCHEDULED') return 'Delivery Rescheduled';
+            if (normalizedCurrentStatus === 'DELIVERED') return 'Delivered';
+            return 'Delivery';
+        };
+
+        const reachedShipping = statusUpdates.some(log => {
+            const rank = STATUS_RANK[log.status.toUpperCase() as OrderStatus] || 0;
+            return rank >= 4 && rank <= 7;
+        });
+
+        const hideShipping = isTerminal && !reachedShipping;
+
+        const phases = [
+            { id: 'ORDERED', label: 'Order Received', rankRange: [1, 3] },
+            ...(!hideShipping ? [{ id: 'SHIPPED', label: 'Shipped', rankRange: [4, 6] }] : []),
+            { id: 'DELIVERY', label: getFinalLabel(), rankRange: [8, 8] }
+        ];
+
+        const groups = phases.map(phase => {
+            const logs = sortedLogs.filter((l, idx) => {
+                const rank = STATUS_RANK[l.status] || 0;
+
+                // Normal rank-based grouping
+                if (rank >= phase.rankRange[0] && rank <= phase.rankRange[1]) return true;
+
+                // Dynamic override for OUT_FOR_DELIVERY (rank 7)
+                if (rank === 7) {
+                    const hasEarlierTerminal = sortedLogs.slice(0, idx).some(prev => (STATUS_RANK[prev.status] || 0) >= 8);
+
+                    if (phase.id === 'DELIVERY' && hasEarlierTerminal) return true;
+                    if (phase.id === 'SHIPPED' && !hasEarlierTerminal) return true;
+                }
+
+                // Special case: Terminal Phase should capture its specific statuses
+                if (phase.id === 'DELIVERY' && isTerminal && TERMINAL_STATUSES.includes(l.status as OrderStatus)) return true;
+
                 return false;
-            };
-
-            groups.push({ 
-                id: phase.id, 
-                label: phase.label, 
-                isActive: isMilestoneActive(phase.id), 
-                isCompleted: isCompleted(phase.id),
-                logs: phaseLogs 
             });
+
+            const isActive = isTerminal ? logs.length > 0 : logs.some(l => l.isActive);
+            const isCompleted = phase.id === 'ORDERED' ? currentRank >= 4 :
+                phase.id === 'SHIPPED' ? currentRank >= 7 :
+                    (phase.id === 'DELIVERY' && normalizedCurrentStatus === 'DELIVERED');
+
+            return {
+                id: phase.id,
+                label: phase.label,
+                isActive,
+                isCompleted,
+                logs
+            };
         });
 
         const flatElements = groups.flatMap(g => [
-            { type: 'milestone', id: g.id, label: g.label, isActive: g.isActive },
-            ...g.logs.map(l => ({ type: 'log', ...l }))
+            { type: 'milestone' as const, id: g.id, label: g.label, isActive: g.isActive },
+            ...g.logs.map(l => ({ type: 'log' as const, ...l }))
         ]);
-        
+
         const latestActiveIndex = flatElements.reduce((acc, el, idx) => el.isActive ? idx : acc, -1);
 
         return { groups, flatElements, latestActiveIndex };
@@ -225,9 +297,10 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
 
 export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierName, trackingNumber, currentStatus }: TrackingModalProps) {
     const [mounted, setMounted] = useState(false);
-    
-    const reconciliation = useTrackingReconciliation(statusUpdates, currentStatus);
-    const progress = GET_PROGRESS_CONFIG(currentStatus);
+
+    const normalizedCurrentStatus = currentStatus.toUpperCase() as OrderStatus;
+    const reconciliation = useTrackingReconciliation(statusUpdates, normalizedCurrentStatus);
+    const progress = GET_PROGRESS_CONFIG(normalizedCurrentStatus);
 
     const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(() => {
         // Default to opening the LATEST active milestone
@@ -352,13 +425,30 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                             </div>
                         ) : (
                             <div className="flex flex-col w-full relative pl-[60px]">
-                                {/* Unified Vertical Axis - Snapped to terminal dot centers (18px = center of 36px header) */}
-                                <div className="absolute left-[29px] top-[18px] bottom-[18px] w-[2px] bg-[#e2e8f0]" />
+                                {/* Unified Vertical Axis - The reliable gray track behind everything */}
+                                {/* Removed absolute tracking line. Segments draw their own gray track perfectly. */}
 
-                                {reconciliation.groups.map((group) => {
+                                {reconciliation.groups.map((group, groupIndex) => {
                                     const isExpanded = expandedMilestones.has(group.id);
                                     const milestoneIdx = reconciliation.flatElements.findIndex(el => el.type === 'milestone' && el.id === group.id);
                                     
+                                    const isOutgoingActive = isExpanded 
+                                        ? (group.isActive && reconciliation.flatElements[milestoneIdx + 1]?.isActive || false)
+                                        : (group.isActive && reconciliation.groups[groupIndex + 1]?.isActive || false);
+
+                                    let isIncomingActive = false;
+                                    if (groupIndex > 0) {
+                                        const prevGroup = reconciliation.groups[groupIndex - 1];
+                                        const prevExpanded = expandedMilestones.has(prevGroup.id);
+                                        if (prevExpanded && prevGroup.logs.length > 0) {
+                                            isIncomingActive = group.isActive && prevGroup.logs[prevGroup.logs.length - 1].isActive;
+                                        } else {
+                                            isIncomingActive = group.isActive && prevGroup.isActive;
+                                        }
+                                    }
+
+                                    const isLastRenderedGroupNode = (groupIndex === reconciliation.groups.length - 1) && (!isExpanded || group.logs.length === 0);
+
                                     return (
                                         <div key={group.id} className="flex flex-col w-full mb-[12px]">
                                             {/* Milestone Header */}
@@ -366,14 +456,15 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                                 className={`relative flex items-center justify-between w-full h-[36px] ${group.isCompleted ? 'bg-[#ECF7E8]' : 'bg-[#f8fafc]'} rounded-[10px] px-[12px] cursor-pointer hover:bg-gray-100 transition-colors z-20`}
                                                 onClick={() => toggleMilestone(group.id)}
                                             >
-                                                <TimelineSegment 
-                                                    isActive={group.isActive}
-                                                    isFirst={milestoneIdx === 0}
-                                                    isLast={milestoneIdx === reconciliation.flatElements.length - 1}
+                                                <TimelineSegment
+                                                    isIncomingActive={isIncomingActive}
+                                                    isOutgoingActive={isOutgoingActive}
+                                                    isFirst={groupIndex === 0}
+                                                    isLast={isLastRenderedGroupNode}
                                                     progressColor={progress.color}
                                                 />
 
-                                                <TimelineDot 
+                                                <TimelineDot
                                                     size="large"
                                                     isActive={group.isActive}
                                                     isLatest={milestoneIdx === reconciliation.latestActiveIndex}
@@ -416,22 +507,31 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                                         className="overflow-hidden ml-[-60px] pl-[60px]"
                                                     >
                                                         <div className="flex flex-col gap-[6px] mt-[8px]">
-                                                            {group.logs.map((log) => {
+                                                            {group.logs.map((log, logIdx) => {
                                                                 const flatElement = reconciliation.flatElements.find(el => el.type === 'log' && el.id === log.id);
                                                                 const idx = reconciliation.flatElements.indexOf(flatElement!);
                                                                 const isLatest = idx === reconciliation.latestActiveIndex;
-                                                                const isLast = idx === reconciliation.flatElements.length - 1;
+                                                                const isLastRenderedLog = (groupIndex === reconciliation.groups.length - 1) && (logIdx === group.logs.length - 1);
+
+                                                                const isIncomingActive = logIdx === 0 
+                                                                    ? (log.isActive && group.isActive) 
+                                                                    : (log.isActive && group.logs[logIdx - 1].isActive);
+
+                                                                const isOutgoingActive = logIdx === group.logs.length - 1
+                                                                    ? (log.isActive && reconciliation.groups[groupIndex + 1]?.isActive || false)
+                                                                    : (log.isActive && group.logs[logIdx + 1]?.isActive || false);
 
                                                                 return (
                                                                     <div key={log.id} className="relative flex flex-col py-[2px] pl-[12px]">
-                                                                        <TimelineSegment 
-                                                                            isActive={log.isActive}
+                                                                        <TimelineSegment
+                                                                            isIncomingActive={isIncomingActive}
+                                                                            isOutgoingActive={isOutgoingActive}
                                                                             isFirst={false}
-                                                                            isLast={isLast}
+                                                                            isLast={isLastRenderedLog}
                                                                             progressColor={progress.color}
                                                                         />
 
-                                                                        <TimelineDot 
+                                                                        <TimelineDot
                                                                             isActive={log.isActive}
                                                                             isLatest={isLatest}
                                                                             glowColor={progress.hex}

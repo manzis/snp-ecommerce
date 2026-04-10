@@ -93,7 +93,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
           {/* Quantity Selector */}
           <div className="relative flex w-[79px] items-center justify-center gap-[10px] rounded-[6px] border border-[#f1f5f9] py-[8px] active:scale-95 transition-all bg-white hover:border-[#3F9733]">
-            <span className="font-titillium text-[14px] text-[#242424]">Qty: {item.quantity}</span>
+            <span className="font-titillium text-[14px] font-semibold text-[#242424]">Qty: {item.quantity}</span>
             <QtyDropDownIcon className="h-[18px] w-[18px] text-[#242424]" />
             <select
               value={item.quantity}

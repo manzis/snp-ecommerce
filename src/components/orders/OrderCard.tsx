@@ -22,6 +22,7 @@ export type OrderStatus =
     | 'OUT_FOR_DELIVERY' 
     | 'DELIVERED' 
     | 'CANCELLED' 
+    | 'RESCHEDULED'
     | 'FAILED';
 
 export interface StatusUpdateLog {
@@ -50,7 +51,7 @@ export interface OrderProps {
 
 export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; iconColor: string; bg: string }> = {
     // Group 1: Neutral/Processing (Confirmed style)
-    PENDING: { text: "Order Pending", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
+    PENDING: { text: "Order Received", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
     CONFIRMED: { text: "Order Confirmed", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
     PROCESSING: { text: "Processing", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
 
@@ -67,6 +68,7 @@ export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; i
     // Group 4: Red (Failed, Cancelled)
     FAILED: { text: "Delivery Failed", color: "text-[#d92d20]", iconColor: "text-[#d92d20]", bg: "bg-gradient-to-t from-[#FCE8E8] to-white" },
     CANCELLED: { text: "Cancelled", color: "text-[#d92d20]", iconColor: "text-[#d92d20]", bg: "bg-gradient-to-t from-[#FCE8E8] to-white" },
+    RESCHEDULED: { text: "Rescheduled", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
 };
 
 const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {

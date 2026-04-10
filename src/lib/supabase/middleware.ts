@@ -37,17 +37,41 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = pathname === '/admin/login';
   const isProtectedApiRoute = pathname.startsWith('/api/admin') && pathname !== '/api/admin/login';
 
-  if (isProtectedAdminRoute && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/admin/login'
-    return NextResponse.redirect(url)
+  // Check role if user exists and it's an admin route
+  let role = 'user';
+  if (user && (isProtectedAdminRoute || isProtectedApiRoute || isAuthRoute)) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    
+    if (profile) {
+      role = profile.role || 'user';
+    }
   }
 
-  if (isProtectedApiRoute && !user) {
-    return NextResponse.json({ error: 'Unauthorized admin user' }, { status: 401 });
+  // Admin Route Protection
+  if (isProtectedAdminRoute) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin/login'
+      return NextResponse.redirect(url)
+    }
+    
+    if (role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/' // Redirect non-admins to home
+      return NextResponse.redirect(url)
+    }
   }
 
-  if (isAuthRoute && user) {
+  if (isProtectedApiRoute && (!user || role !== 'admin')) {
+    return NextResponse.json({ error: 'Unauthorized admin access' }, { status: 401 });
+  }
+
+  // Already logged in as Admin? Redirect away from login page
+  if (isAuthRoute && user && role === 'admin') {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
     return NextResponse.redirect(url)
