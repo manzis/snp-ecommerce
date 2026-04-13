@@ -30,7 +30,7 @@ export default function Breadcrumbs({ path }: { path: BreadcrumbItem[] }) {
             : item.name;
 
           return (
-            <li key={item.href} className="flex items-center gap-[2px]">
+            <li key={`${index}-${item.href}`} className="flex items-center gap-[2px]">
               {!isLast ? (
                 <>
                   <Link

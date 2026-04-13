@@ -15,6 +15,7 @@ interface Product {
   discount: string;
   rating: number;
   image: string;
+  stockStatus?: string;
 }
 
 /**
@@ -31,7 +32,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
       {/* IMAGE & BADGES CONTAINER */}
       <div className="relative w-full aspect-[206/194] flex flex-col justify-end lg:aspect-[250/240] overflow-hidden">
         {/* Optimized Image with Hover Scale Effect */}
-        <div className="relative w-full h-[162px] lg:h-[200px] transition-transform duration-500 ease-out group-hover:scale-110">
+        <div className={`relative w-full h-[162px] lg:h-[200px] transition-transform duration-500 ease-out group-hover:scale-110 ${product.stockStatus === 'out_of_stock' ? 'opacity-40 grayscale' : ''}`}>
           <Image
             src={product.image}
             alt={product.name}
@@ -40,6 +41,16 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
           />
         </div>
+
+        {product.stockStatus === 'out_of_stock' && (
+          <div className="absolute inset-0 z-[15] flex items-center justify-center p-4 pointer-events-none">
+            <div className="w-full bg-red-600/95 py-2 lg:py-3 flex items-center justify-center shadow-2xl transform -rotate-1 border-y border-red-400/30">
+              <span className="font-custom text-[10px] lg:text-[14px] font-bold tracking-[0.25em] text-white uppercase drop-shadow-md">
+                Out of Stock
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Save Badge - Decorative Custom Font */}
         <div className="absolute top-[16px] left-[18px] bg-[#94ff00] px-[3px] py-[1px] rounded-[6px] z-10 flex items-center justify-center">

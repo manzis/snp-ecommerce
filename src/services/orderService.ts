@@ -40,7 +40,7 @@ export function mapStatus(dbStatus: string): OrderStatus {
     case 'out_for_delivery': return 'OUT_FOR_DELIVERY';
     case 'delivered': return 'DELIVERED';
     case 'returned': return 'RETURNED';
-    case 'scheduled': return 'SCHEDULED';
+    case 'shipment_arrived': return 'SHIPMENT_ARRIVED';
     case 'failed': return 'FAILED';
     case 'cancelled': return 'CANCELLED';
     case 'rescheduled': return 'RESCHEDULED';

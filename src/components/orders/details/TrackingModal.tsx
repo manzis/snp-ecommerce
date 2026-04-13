@@ -3,8 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import HelpIcon from '@/components/icons/HelpIcon';
+import CopyIcon from '@/components/icons/CopyIcon';
+import InfoIcon from '@/components/icons/InfoIcon';
 import TickIcon from '@/components/icons/TickIcon';
+import CloseIcon from '@/components/icons/CloseIcon2';
 import { StatusUpdateLog, OrderStatus, STATUS_CONFIG } from '@/components/orders/OrderCard';
 
 interface TrackingModalProps {
@@ -34,7 +36,7 @@ const ChevronIcon = ({ className, rotated }: { className?: string; rotated?: boo
 
 const STATUS_RANK: Record<string, number> = {
     'PENDING': 1, 'CONFIRMED': 2, 'PROCESSING': 3,
-    'SHIPPED': 4, 'IN_TRANSIT': 5, 'SCHEDULED': 6,
+    'SHIPPED': 4, 'IN_TRANSIT': 5, 'SHIPMENT_ARRIVED': 6,
     'OUT_FOR_DELIVERY': 7, 'DELIVERED': 8,
     'RETURNED': 8, 'FAILED': 8, 'CANCELLED': 8,
     'RESCHEDULED': 8
@@ -47,7 +49,7 @@ const GET_PROGRESS_CONFIG = (status: OrderStatus) => {
         case 'PROCESSING': return { color: 'bg-[#308026]', hex: '#308026' };
         case 'SHIPPED': return { color: 'bg-[#308026]', hex: '#308026' };
         case 'IN_TRANSIT': return { color: 'bg-[#A16207]', hex: '#A16207' };
-        case 'SCHEDULED': return { color: 'bg-[#A16207]', hex: '#A16207' };
+        case 'SHIPMENT_ARRIVED': return { color: 'bg-[#A16207]', hex: '#A16207' };
         case 'OUT_FOR_DELIVERY': return { color: 'bg-[#308026]', hex: '#308026' };
         case 'DELIVERED': return { color: 'bg-[#308026]', hex: '#308026' };
         case 'RETURNED': return { color: 'bg-[#A16207]', hex: '#A16207' };
@@ -168,7 +170,7 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
         // Standard sequence for gap-filling (UPPERCASE)
         const standardSequence: OrderStatus[] = [
             'PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED',
-            'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED'
+            'IN_TRANSIT', 'SHIPMENT_ARRIVED', 'OUT_FOR_DELIVERY', 'DELIVERED'
         ];
 
         // 1. Map all actual logs (Convert status to uppercase for consistent lookup)
@@ -189,7 +191,7 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
                 const sRank = STATUS_RANK[s];
                 // Only fill if it's missing (any case) and rank is lower than current
                 if (sRank < currentRank && !allLogs.some(l => l.status === s)) {
-                    
+
                     // Find the timestamp of the actual log that 'triggered' this jump
                     // i.e., the chronologically earliest REAL log that has a rank greater than this virtual one
                     const triggeringLog = [...allLogs]
@@ -205,7 +207,7 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
                         data: {
                             status: s,
                             message: STATUS_CONFIG[s]?.text || s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-                            date: virtualDate 
+                            date: virtualDate
                         },
                         isActive: true,
                         isVirtual: true
@@ -355,7 +357,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                         onClick={onClose}
                         className="flex h-[40px] w-[40px] items-center justify-center rounded-[12px] bg-gray-100 hover:bg-gray-200 transition-colors"
                     >
-                        <HelpIcon className="h-[12px] w-[12px] text-[#242424]" />
+                        <CloseIcon className="h-[20px] w-[20px] text-[#3f3f3f]" />
                     </button>
                 </div>
 
@@ -394,23 +396,23 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                         {trackingNumber || 'Unassigned'}
                                     </span>
                                     <div className="h-[16px] w-[16px] shrink-0">
-                                        <HelpIcon className="h-full w-full text-[#308026]" />
+                                        <CopyIcon className="h-full w-full text-[#308026]" />
                                     </div>
                                 </div>
                             </div>
                         </div>
                         {/* Note Section Integrated */}
                         <div className="w-full px-[16px] mt-[12px] pt-[8px] border-t border-[#e2e8f0]/50">
-                            <p className="font-titillium text-[10px] font-[400] leading-[15px] text-[#626262]">
+                            <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#626262]">
                                 <span className="font-[600]">Note:</span> Career details are only available once the product has been shipped or Dispatch from the warehouse !
                             </p>
                         </div>
                     </div>
 
                     {/* Information Banner */}
-                    <div className="flex w-full items-start gap-[10px] rounded-[12px] bg-[#3f9633] p-[8px_16px] md:items-center">
-                        <div className="mt-[2px] h-[14px] w-[14px] shrink-0 md:mt-0">
-                            <HelpIcon className="h-full w-full text-white" />
+                    <div className="flex w-full items-start gap-[6px] rounded-[12px] bg-[#3f9633] p-[8px_16px] md:items-center">
+                        <div className="mt-[2px] shrink-0 md:mt-0">
+                            <InfoIcon className="h-[16px] w-[16px] text-white" />
                         </div>
                         <span className="flex-1 font-titillium text-[13px] font-[400] leading-[18px] text-[#ffffff]">
                             This is the same tracking information our customer support can access
@@ -431,8 +433,8 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                 {reconciliation.groups.map((group, groupIndex) => {
                                     const isExpanded = expandedMilestones.has(group.id);
                                     const milestoneIdx = reconciliation.flatElements.findIndex(el => el.type === 'milestone' && el.id === group.id);
-                                    
-                                    const isOutgoingActive = isExpanded 
+
+                                    const isOutgoingActive = isExpanded
                                         ? (group.isActive && reconciliation.flatElements[milestoneIdx + 1]?.isActive || false)
                                         : (group.isActive && reconciliation.groups[groupIndex + 1]?.isActive || false);
 
@@ -513,8 +515,8 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                                                 const isLatest = idx === reconciliation.latestActiveIndex;
                                                                 const isLastRenderedLog = (groupIndex === reconciliation.groups.length - 1) && (logIdx === group.logs.length - 1);
 
-                                                                const isIncomingActive = logIdx === 0 
-                                                                    ? (log.isActive && group.isActive) 
+                                                                const isIncomingActive = logIdx === 0
+                                                                    ? (log.isActive && group.isActive)
                                                                     : (log.isActive && group.logs[logIdx - 1].isActive);
 
                                                                 const isOutgoingActive = logIdx === group.logs.length - 1

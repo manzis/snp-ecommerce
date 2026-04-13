@@ -19,6 +19,7 @@ const DEFAULT_MESSAGES: Record<string, string> = {
   cancelled: "Order has been cancelled.",
   returned: "Order return has been processed.",
   failed: "Delivery attempt failed. Please contact support.",
+  shipment_arrived: "Shipment arrived at the delivery hub.",
   rescheduled: "Delivery attempt failed. We have rescheduled your delivery for the next available slot."
 };
 
@@ -34,7 +35,7 @@ export function AdminOrderList({ initialOrders }: AdminOrderListProps) {
 
   const statuses = [
     'pending', 'confirmed', 'processing', 'shipped', 'in_transit',
-    'out_for_delivery', 'delivered', 'returned', 'cancelled', 'failed', 'rescheduled'
+    'shipment_arrived', 'out_for_delivery', 'delivered', 'returned', 'cancelled', 'failed', 'rescheduled'
   ];
 
   const openUpdateModal = (order: OrderProps) => {

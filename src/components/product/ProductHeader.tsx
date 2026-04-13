@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import { useProductSelectionStore } from '@/store/productSelectionStore';
 
 interface ProductHeaderProps {
   brand: string;
@@ -11,10 +14,23 @@ interface ProductHeaderProps {
 const ProductHeader = ({
   brand,
   title,
-  originalPrice,
-  discountedPrice,
-  discountPercentage
+  originalPrice: propsOriginal,
+  discountedPrice: propsDiscounted,
+  discountPercentage: propsPercentage
 }: ProductHeaderProps) => {
+  const { currentPrice, originalPrice } = useProductSelectionStore();
+
+  const cleanPrice = (val: string | number) => String(val).replace(/NPR\s?/g, '').replace(/Rs\.?\s?/ig, '').trim();
+
+  const displayDiscounted = currentPrice ? `RS. ${currentPrice}` : `RS. ${cleanPrice(propsDiscounted)}`;
+  const displayOriginal = originalPrice ? `RS. ${originalPrice}` : `RS. ${cleanPrice(propsOriginal)}`;
+
+  // Calculate dynamic discount
+  let displayPercentage = propsPercentage;
+  if (currentPrice && originalPrice && originalPrice > 0) {
+    const percent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+    displayPercentage = `${percent}%`;
+  }
   return (
     <section className="flex w-full flex-col items-start font-titillium px-[24px] ">
       {/* 
@@ -57,18 +73,18 @@ const ProductHeader = ({
             {/* FRAME 25: Discount Badge */}
             <div className="flex h-[22px] w-[63px] items-center justify-center bg-[#95FF00] rounded-[6px] px-[6px] py-[4px]">
               <span className="font-custom text-[12px] font-normal leading-[14px] text-[#242424] whitespace-nowrap">
-                save {discountPercentage}
+                save {displayPercentage}
               </span>
             </div>
 
             {/* Original Price */}
             <span className="h-[30px] font-titillium text-[28px] font-normal leading-[30px] text-[#979797] tracking-[-0.07em] line-through whitespace-nowrap">
-              {originalPrice}
+              {displayOriginal}
             </span>
 
             {/* Discounted Price */}
             <span className="h-[30px] font-custom text-[28px] lg:text-[32px] font-normal leading-[30px] lg:leading-[32px] bg-[linear-gradient(87.93deg,#318126_10.71%,#33D81D_124.28%)] bg-clip-text text-transparent whitespace-nowrap">
-              {discountedPrice}
+              {displayDiscounted}
             </span>
           </div>
 

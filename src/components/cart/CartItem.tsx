@@ -8,6 +8,7 @@ import HeartIcon from '@/components/icons/HeartIcon';
 import FlashIcon from '@/components/icons/FlashIcon';
 import PackageIcon from '@/components/icons/PackageIcon';
 import QtyDropDownIcon from '@/components/icons/QtyDropDownIcon';
+import ArrowDownSharp from '@/components/icons/ArrowDownSharp';
 import { useCartStore } from '@/store/cartStore';
 import { useToast } from '@/components/ui/ToastProvider';
 import type { CartItemType } from '@/services/cartService';
@@ -76,23 +77,32 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           </div>
 
           <div className="flex items-center gap-[6px]">
-            {item.mrp > 0 && (
-              <span className="font-titillium text-[18px] text-[#8b8e92] line-through tracking-[-1.26px]">
+            {item.mrp > item.price && (
+              <div className="flex items-center text-[#308026] mr-[4px]">
+                <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
+                <span className="font-titillium text-[18px] font-semibold tracking-[-1.26px]">
+                  {Math.round(((item.mrp - item.price) / item.mrp) * 100)}%
+                </span>
+              </div>
+            )}
+            {item.mrp > 0 && item.mrp > item.price && (
+              <span className="font-titillium text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
                 NPR {item.mrp.toLocaleString()}
               </span>
             )}
-            <span className="font-custom text-[18px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
+            <span className="font-custom text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
               NPR {item.price.toLocaleString()}
             </span>
           </div>
 
           <div className="flex flex-row gap-[13px] items-center text-[#8a8e91] font-titillium text-[14px] whitespace-nowrap">
-            {item.selected_size && <span>Size: {item.selected_size}</span>}
-            {item.selected_flavor && <span>Flavour: {item.selected_flavor}</span>}
+            {Boolean(item.selected_size || item.selected_flavor) && (
+              <span>{[item.selected_size, item.selected_flavor].filter(Boolean).join(', ')}</span>
+            )}
           </div>
 
           {/* Quantity Selector */}
-          <div className="relative flex w-[79px] items-center justify-center gap-[10px] rounded-[6px] border border-[#f1f5f9] py-[8px] active:scale-95 transition-all bg-white hover:border-[#3F9733]">
+          <div className="relative flex w-[79px] items-center justify-center gap-[10px] rounded-[6px] border border-[#f1f5f9]  py-[8px] active:scale-95 transition-all hover:border-[#3F9733]">
             <span className="font-titillium text-[14px] font-semibold text-[#242424]">Qty: {item.quantity}</span>
             <QtyDropDownIcon className="h-[18px] w-[18px] text-[#242424]" />
             <select

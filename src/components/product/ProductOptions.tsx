@@ -15,7 +15,7 @@ interface ProductOptionsProps {
   product: Product;
   sizes: ProductSize[];
   flavours: ProductFlavour[];
-  seller: Seller;
+  seller: Seller | null;
 }
 
 const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavours, seller }) => {
@@ -23,8 +23,35 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
   const { showToast } = useToast();
   const router = useRouter();
 
-  const { selectedSize, selectedFlavor, setSizeError, setFlavorError } = useProductSelectionStore();
+  const { selectedSize, selectedFlavorId, setSizeError, setFlavorError, setPrice } = useProductSelectionStore();
   const { addItem } = useCartStore();
+
+  // Handle Dynamic Variant Pricing
+  useEffect(() => {
+    if (!product.product_variants || product.product_variants.length === 0) {
+      // Set base project price
+      const discount = parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10);
+      const original = parseInt((product.original_price || '0').replace(/\D/g, ''), 10);
+      setPrice(discount, original);
+      return;
+    }
+
+    const matchingVariant = product.product_variants.find(v => {
+      const vSizeLabel = product.product_sizes?.find(s => s.id === v.size_id)?.size_label;
+      const matchSize = !selectedSize || vSizeLabel === selectedSize;
+      const matchFlavor = !selectedFlavorId || v.flavour_id === selectedFlavorId;
+      return matchSize && matchFlavor;
+    });
+
+    if (matchingVariant) {
+      setPrice(matchingVariant.discounted_price, matchingVariant.original_price);
+    } else {
+      // Use standard product prices if no specific variant combo is selected/found
+      const discount = parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10);
+      const original = parseInt((product.original_price || '0').replace(/\D/g, ''), 10);
+      setPrice(discount, original);
+    }
+  }, [selectedSize, selectedFlavorId, product, setPrice]);
 
   useEffect(() => {
     useProductSelectionStore.getState().reset();
@@ -34,31 +61,32 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     let isValid = true;
     if (sizes.length > 0 && !selectedSize) {
       setSizeError(true);
-      document.getElementById('size-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       isValid = false;
     }
-    if (flavours.length > 0 && !selectedFlavor) {
+    if (flavours.length > 0 && !selectedFlavorId) {
       setFlavorError(true);
-      if (isValid) {
-        document.getElementById('flavour-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
       isValid = false;
     }
 
-    if (!isValid) return;
+    if (!isValid) {
+      document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return; // <-- Block cart addition
+    }
+
+    const { currentPrice, originalPrice } = useProductSelectionStore.getState();
 
     addItem({
-      id: `${product.id}-${selectedSize || 'none'}-${selectedFlavor || 'none'}`,
+      id: `${product.id}-${selectedSize || 'none'}-${selectedFlavorId || 'none'}`,
       product_id: product.id,
       name: product.name,
       slug: product.slug,
       brand: product.brands?.name || 'Store Product',
-      price: parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
-      mrp: parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
+      price: currentPrice || parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
+      mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
       image: product.images?.[0] || '/images/protein.jpg',
       quantity: 1,
       selected_size: selectedSize,
-      selected_flavor: flavours.find(f => f.id === selectedFlavor)?.flavour_name || selectedFlavor,
+      selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured',
       stock_status: product.stock_status || 'in_stock'
     });
 
@@ -71,7 +99,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     const handleCustomAddToCart = () => executeAddToCart();
     window.addEventListener('requestAddToCart', handleCustomAddToCart);
     return () => window.removeEventListener('requestAddToCart', handleCustomAddToCart);
-  }, [selectedSize, selectedFlavor, product, sizes.length, flavours.length, setSizeError, setFlavorError, addItem, showToast]);
+  }, [selectedSize, selectedFlavorId, product, sizes.length, flavours.length, setSizeError, setFlavorError, addItem, showToast]);
 
   const handleAddToCart = () => {
     if (!isInCart) {
@@ -90,22 +118,22 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         <button
           type="button"
           onClick={handleAddToCart}
-          className="flex-1 h-[60px] rounded-[12px] border border-[#E8E8E8] bg-white text-[#4d4d4d] font-titillium text-[18px] font-semibold transition-all active:scale-[0.98] outline-none"
+          disabled={product.stock_status === 'out_of_stock'}
+          className={`flex-1 h-[60px] rounded-[12px] border border-[#E8E8E8] font-titillium text-[18px] font-semibold transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
         >
-          {isInCart ? "Go to cart" : "Add to cart"}
+          {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
         </button>
         <button
           type="button"
-          className="flex-1 h-[60px] rounded-[12px] bg-[#ffe900] text-[#1e1e1e] font-titillium text-[18px] font-semibold transition-all active:scale-[0.98] outline-none"
+          disabled={product.stock_status === 'out_of_stock'}
+          className={`flex-1 h-[60px] rounded-[12px] font-titillium text-[18px] font-semibold transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
         >
-          Buy Now
+          {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
         </button>
       </div>
       <OfferCard />
 
-
-
-      <DeliveryDetails seller={seller} />
+      <DeliveryDetails seller={seller} stockStatus={product.stock_status} />
     </section>
   );
 };

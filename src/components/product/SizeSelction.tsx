@@ -11,14 +11,7 @@ interface SizeSelectionProps {
 const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
   const { selectedSize, setSize: setSelectedSize, sizeError } = useProductSelectionStore();
 
-  useEffect(() => {
-    if (sizes.length > 0 && !selectedSize) {
-      const firstAvailable = sizes.find(s => s.is_available);
-      if (firstAvailable) {
-        setSelectedSize(firstAvailable.size_label);
-      }
-    }
-  }, [sizes, selectedSize]);
+  // Auto-selection of default size intentionally removed to enforce explicit user selection
 
   return (
     <section id="size-section" className="relative flex flex-col items-start gap-[16px] w-full h-auto min-h-[79px] ">
@@ -28,7 +21,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
           - leading-[18px]: Matching box height for 1:1 verticality
       */}
       <h3 className="h-[18px] whitespace-nowrap text-left font-titillium text-[18px] font-semibold tracking-[-0.02em] text-[#242424] leading-[18px]">
-        Selected Size : <span className="font-normal">{sizes.length === 0 ? 'One Size' : selectedSize}</span>
+        {selectedSize ? `Selected Size: ` : 'Select Size'} <span className="font-normal">{sizes.length === 0 ? 'One Size' : (selectedSize || '')}</span>
       </h3>
 
       {/* 
@@ -94,7 +87,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
         })}
       </div>
       {sizeError && (
-        <span className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
+        <span data-error="true" className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
           Please select a size
         </span>
       )}

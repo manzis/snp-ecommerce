@@ -10,17 +10,9 @@ interface FlavourSelectionProps {
 }
 
 const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
-  const { selectedFlavor: selectedId, setFlavor: setSelectedId, flavorError } = useProductSelectionStore();
+  const { selectedFlavorId: selectedId, setFlavorId: setSelectedId, flavorError } = useProductSelectionStore();
 
-  useEffect(() => {
-    if (flavours.length > 0 && !selectedId) {
-      // Find the first available flavour
-      const firstAvailable = flavours.find(f => f.is_available);
-      if (firstAvailable) {
-        setSelectedId(firstAvailable.id);
-      }
-    }
-  }, [flavours, selectedId]);
+  // Auto-selection of default flavour intentionally removed to enforce explicit user selection
 
   return (
     <div id="flavour-section" className="relative flex flex-col items-start gap-[15px] w-full ">
@@ -52,7 +44,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
 
       {/* Header: Dynamic text based on selection */}
       <h3 className="whitespace-nowrap text-left font-titillium text-[18px] font-semibold tracking-[-0.36px] text-[#242424]">
-        Selected Flavour : <span className="font-normal">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || 'Unflavoured')}</span>
+        {selectedId || flavours.length === 0 ? 'Selected Flavour : ' : 'Select Flavour'} <span className="font-normal">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || '')}</span>
       </h3>
 
       {/* 
@@ -156,7 +148,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
         })}
       </div>
       {flavorError && (
-        <span className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
+        <span data-error="true" className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
           Please select a flavour
         </span>
       )}

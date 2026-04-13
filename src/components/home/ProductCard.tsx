@@ -12,6 +12,7 @@ interface ProductCardProps {
     rating: string;
     image: string;
     slug: string;
+    stockStatus?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -23,11 +24,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     rating,
     image,
     slug,
+    stockStatus,
 }) => {
     return (
         <Link
             href={`/product/${slug}`}
-            className="group relative flex h-[261px] w-full max-w-[199px] flex-shrink-0 flex-col items-center gap-[10px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[8px] transition-all  active:scale-[0.98] md:max-w-full lg:h-[320px] lg:max-w-[250px]"
+            className={`group relative flex h-[261px] w-full max-w-[199px] flex-shrink-0 flex-col items-center gap-[10px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[8px] transition-all active:scale-[0.98] md:max-w-full lg:h-[320px] lg:max-w-[250px] ${stockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
         >
             {/* RATING BADGE (TOP LEFT) */}
             <div className="absolute left-[11px] top-[11px] z-[10] flex items-center justify-center gap-[2px] overflow-hidden rounded-[6px] bg-[#ffe900] px-[8px] py-[6px]">
@@ -50,9 +52,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     src={image}
                     alt={title}
                     fill
-                    className="object-contain p-[8px]"
+                    className={`object-contain p-[8px] transition-transform duration-300 group-hover:scale-105 ${stockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
                     sizes="(max-width: 768px) 199px, 250px"
                 />
+                
+                {stockStatus === 'out_of_stock' && (
+                    <div className="absolute inset-0 z-[11] flex items-center justify-center p-2">
+                        <div className="w-full bg-red-600/95 py-2 flex items-center justify-center shadow-xl transform -rotate-1">
+                            <span className="font-custom text-[11px] font-bold tracking-[0.2em] text-white uppercase drop-shadow-sm">
+                                Out of Stock
+                            </span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* PRODUCT DETAILS BLOCK */}

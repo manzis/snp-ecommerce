@@ -7,32 +7,59 @@ import EyeIcon from '@/components/icons/EyeIcon';
 import AvailabilityPopup from './AvailabilityPopup';
 
 interface AvailabilityProps {
-  stockStatus: 'in_stock' | 'pre_order';
+  stockStatus: 'in_stock' | 'pre_order' | 'out_of_stock';
 }
 
 const Availability: React.FC<AvailabilityProps> = ({ stockStatus }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const getStatusColor = () => {
+    switch (stockStatus) {
+      case 'in_stock':
+      case 'pre_order': return 'bg-[#3F9733]';
+      case 'out_of_stock': return 'bg-red-600';
+      default: return 'bg-gray-600';
+    }
+  };
+
+  const getStatusText = () => {
+    switch (stockStatus) {
+      case 'in_stock': return 'In Stock';
+      case 'pre_order': return 'Pre-Order';
+      case 'out_of_stock': return 'Out of Stock';
+      default: return 'Unavailable';
+    }
+  };
+
+  const getSubText = () => {
+    switch (stockStatus) {
+      case 'in_stock': return 'Get Faster Delivery, 1 to 2 days';
+      case 'pre_order': return 'Available for Pre-Order, Ships in 4 to 7 days';
+      case 'out_of_stock': return 'Restocking soon, Stay tuned';
+      default: return '';
+    }
+  };
 
   return (
     /* Relative wrapper so the Absolute Popup anchors to THIS component */
     <div className="relative w-full max-w-[700px] lg:max-w-none mx-auto lg:mx-0 px-[24px]">
 
       <section
-        className="flex w-full flex-col items-start rounded-[12px] bg-[#FFEA00] overflow-hidden  shrink-0"
+        className={`flex w-full flex-col items-start rounded-[12px] overflow-hidden shrink-0 ${stockStatus === 'out_of_stock' ? 'bg-gray-100' : 'bg-[#FFEA00]'}`}
       >
         {/* FRAME 40: Status & Delivery Info (56px) */}
-        <div className="relative flex  w-full flex-row items-start gap-[10px] rounded-[12px] bg-[#3F9733] p-[10px] shrink-0">
-          <div className="relative  flex-shrink-0">
+        <div className={`relative flex w-full flex-row items-start gap-[10px] rounded-[12px] p-[10px] shrink-0 ${getStatusColor()}`}>
+          <div className="relative flex-shrink-0">
             <InventoryIcon className="h-full w-full text-white" />
           </div>
 
-          <div className="flex  flex-grow flex-row items-start justify-between gap-[12px]">
+          <div className="flex flex-grow flex-row items-start justify-between gap-[12px]">
             <div className="flex flex-col justify-center items-start gap-[2px] ">
               <h3 className="whitespace-nowrap font-titillium text-[20px] font-bold leading-[24px] tracking-[-0.02em] text-white">
-                Availability : <span className="font-semibold">{stockStatus === 'in_stock' ? 'In Stock' : 'Pre-Order'}</span>
+                Availability : <span className="font-semibold">{getStatusText()}</span>
               </h3>
               <p className="whitespace-nowrap font-titillium text-[12px] font-normal leading-[14px] text-white">
-                {stockStatus === 'in_stock' ? 'Get Faster Delivery, 1 to 2 days' : 'Available for Pre-Order, Ships in 4 to 7  days'}
+                {getSubText()}
               </p>
             </div>
 

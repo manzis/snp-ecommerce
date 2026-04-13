@@ -18,7 +18,7 @@ export type OrderStatus =
     | 'SHIPPED' 
     | 'IN_TRANSIT' 
     | 'RETURNED' 
-    | 'SCHEDULED' 
+    | 'SHIPMENT_ARRIVED' 
     | 'OUT_FOR_DELIVERY' 
     | 'DELIVERED' 
     | 'CANCELLED' 
@@ -55,11 +55,11 @@ export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; i
     CONFIRMED: { text: "Order Confirmed", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
     PROCESSING: { text: "Processing", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
 
-    // Group 2: Yellow (Shipped, Transit, Returned, Scheduled)
+    // Group 2: Yellow (Shipped, Transit, Returned, Shipment Arrived)
     SHIPPED: { text: "Shipped", color: "text-[#308026]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F1FFE4] to-white" },
     IN_TRANSIT: { text: "In Transit", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
     RETURNED: { text: "Order Returned", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
-    SCHEDULED: { text: "Scheduled", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
+    SHIPMENT_ARRIVED: { text: "Shipment Arrived", color: "text-[#A16207]", iconColor: "text-[#242424]", bg: "bg-gradient-to-t from-[#F9FFDA] to-white" },
 
     // Group 3: Green (Delivered, Out for Delivery)
     OUT_FOR_DELIVERY: { text: "Out for Delivery", color: "text-[#308026]", iconColor: "text-[#308026]", bg: "bg-[#eaffcc]" },
@@ -76,7 +76,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
     const isDelivered = order.status === 'DELIVERED';
     const isOutForDelivery = order.status === 'OUT_FOR_DELIVERY';
     const isFailedOrCancelled = order.status === 'CANCELLED' || order.status === 'FAILED';
-    const isActiveGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'SCHEDULED', 'RETURNED'].includes(order.status);
+    const isActiveGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'SHIPMENT_ARRIVED', 'RETURNED'].includes(order.status);
     
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);

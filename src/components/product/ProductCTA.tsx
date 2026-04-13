@@ -7,12 +7,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 /**
  * ProductCTA - Final Stable Version
  */
-const ProductCTA = () => {
+const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, isPreview?: boolean }) => {
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const router = useRouter();
+  const isOutOfStock = stockStatus === 'out_of_stock';
 
   useEffect(() => {
+    if (isPreview) {
+      setIsVisible(true);
+      return;
+    }
+
     const handleScroll = () => {
       // Calculate how far the user has scrolled
       const scrollY = window.scrollY;
@@ -72,10 +78,9 @@ const ProductCTA = () => {
             damping: 30,
             mass: 0.8
           }}
-          className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden"
+          className={`${isPreview ? 'absolute' : 'fixed'} bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden`}
           style={{
             paddingBottom: 'env(safe-area-inset-bottom)',
-            position: 'fixed',
             WebkitTransform: 'translateZ(0)',
           }}
         >
@@ -85,10 +90,11 @@ const ProductCTA = () => {
               type="button"
               onClick={handleAddToCart}
               onPointerUp={blurButton}
-              className="relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] bg-[#ffffff] px-[10px] py-[10px] outline-none transition-colors duration-200 active:bg-[#f2f3f5]"
+              disabled={isOutOfStock}
+              className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
             >
               <span className="relative z-[1] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#4d4d4d] whitespace-nowrap">
-                {isInCart ? "Go to cart" : "Add to cart"}
+                {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
               </span>
             </button>
 
@@ -96,10 +102,11 @@ const ProductCTA = () => {
             <button
               type="button"
               onPointerUp={blurButton}
-              className="relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] bg-[#ffe900] px-[10px] py-[10px] z-[2] outline-none transition-colors duration-200 active:bg-[#e6d200]"
+              disabled={isOutOfStock}
+              className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
             >
               <span className="relative z-[3] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#1e1e1e] whitespace-nowrap">
-                Buy Now
+                {isOutOfStock ? "Unavailable" : "Buy Now"}
               </span>
             </button>
           </div>

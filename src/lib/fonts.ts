@@ -1,4 +1,4 @@
-import { Titillium_Web, Inter } from "next/font/google";
+import { Titillium_Web, Inter, Inter_Tight, Rubik } from "next/font/google";
 import localFont from "next/font/local";
 
 export const titillium = Titillium_Web({
@@ -11,6 +11,18 @@ export const titillium = Titillium_Web({
 export const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+export const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-inter-tight",
+  display: "swap",
+});
+
+export const rubik = Rubik({
+  subsets: ["latin"],
+  variable: "--font-rubik",
   display: "swap",
 });
 

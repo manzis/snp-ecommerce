@@ -63,6 +63,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
               rating={product.rating}
               reviewsCount={product.reviews_count}
               productName={product.name}
+              stockStatus={product.stock_status}
+              flavours={product.product_flavours || []}
             />
 
             {/* 
@@ -87,7 +89,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* SPACED COMPONENTS */}
             <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
-              <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers!} />
+              <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers || null} />
               <Availability stockStatus={product.stock_status || 'in_stock'} />
               <ServiceHighlights />
 
@@ -138,7 +140,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </main>
 
 
-      <ProductCTA />
+      <ProductCTA stockStatus={product.stock_status} />
     </article>
   );
 }

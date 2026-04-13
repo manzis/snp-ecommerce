@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import HelpIcon from '@/components/icons/HelpIcon';
+import CopyIcon from '@/components/icons/CopyIcon';
 import PackageIcon from '@/components/icons/PackageIcon';
 import TickIcon from '@/components/icons/TickIcon';
 import { OrderProps, STATUS_CONFIG } from '@/components/orders/OrderCard';
@@ -19,7 +20,7 @@ const GET_PROGRESS_CONFIG = (status: OrderProps['status']) => {
         case 'PROCESSING': return { width: '40%', color: 'bg-[#308026]', label1: 'Processing' };
         case 'SHIPPED': return { width: '50%', color: 'bg-[#308026]', label1: 'Order Shipped', label2: 'Shipped' };
         case 'IN_TRANSIT': return { width: '70%', color: 'bg-[#A16207]', label1: 'Order Confirmed', label2: 'In Transit' };
-        case 'SCHEDULED': return { width: '75%', color: 'bg-[#A16207]', label1: 'Order Confirmed', label2: 'Scheduled' };
+        case 'SHIPMENT_ARRIVED': return { width: '75%', color: 'bg-[#A16207]', label1: 'Order Confirmed', label2: 'Shipment Arrived' };
         case 'OUT_FOR_DELIVERY': return { width: '85%', color: 'bg-[#308026]', label1: 'Order Confirmed', label3: 'Out for Delivery' };
         case 'DELIVERED': return { width: '100%', color: 'bg-[#308026]', label1: 'Order Confirmed', label3: 'Delivered' };
         case 'RETURNED': return { width: '100%', color: 'bg-[#A16207]', label1: 'Order Confirmed', label3: 'Order Returned' };
@@ -60,17 +61,17 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
     const displayUpdateDate = latestUpdate
         ? new Date(latestUpdate.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         : order.dateText.replace(/^.*? on /i, '');
-    const isYellowGroup = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'RETURNED', 'RESCHEDULED'].includes(order.status);
+    const isYellowGroup = ['SHIPPED', 'IN_TRANSIT', 'SHIPMENT_ARRIVED', 'RETURNED', 'RESCHEDULED'].includes(order.status);
     const isRedGroup = ['FAILED', 'CANCELLED'].includes(order.status);
 
     const reachedShipping = order.statusUpdates?.some(log =>
-        ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED'].includes(log.status.toUpperCase())
+        ['SHIPPED', 'IN_TRANSIT', 'SHIPMENT_ARRIVED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED'].includes(log.status.toUpperCase())
     );
     const hideShipping = ['CANCELLED', 'FAILED'].includes(order.status) && !reachedShipping;
 
     // Node States
     const isNode1Active = true;
-    const isNode2Active = ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED', 'RESCHEDULED'].includes(order.status);
+    const isNode2Active = ['SHIPPED', 'IN_TRANSIT', 'SHIPMENT_ARRIVED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED', 'RESCHEDULED'].includes(order.status);
     const isNode3Active = ['OUT_FOR_DELIVERY', 'DELIVERED', 'RETURNED', 'FAILED', 'CANCELLED', 'RESCHEDULED'].includes(order.status);
 
     // Dynamic Timeline Dates
@@ -88,7 +89,7 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
     const topHeaderText = `Ordered on ${order.dateText.replace(/^.*? on /i, '')}`;
 
     const shippingLog = order.statusUpdates?.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).find(l =>
-        ['SHIPPED', 'IN_TRANSIT', 'SCHEDULED', 'OUT_FOR_DELIVERY'].includes(l.status.toUpperCase())
+        ['SHIPPED', 'IN_TRANSIT', 'SHIPMENT_ARRIVED', 'OUT_FOR_DELIVERY'].includes(l.status.toUpperCase())
     );
     const node2Date = shippingLog ? formatTimelineDate(shippingLog.date) : '';
 
@@ -147,7 +148,7 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                         ORDER ID: #{order.shortId}
                     </span>
                     <div className="flex h-[16px] w-[16px] shrink-0 items-center justify-center">
-                        <HelpIcon className="h-full w-full text-[#8a8e91]" />
+                        <CopyIcon className="h-full w-full text-[#8a8e91]" />
                     </div>
                 </div>
 

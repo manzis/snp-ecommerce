@@ -186,11 +186,37 @@ CREATE POLICY "Users can view their own profile" ON profiles FOR SELECT USING (a
 CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
+-- 9.5 USER ADDRESSES TABLE
+CREATE TABLE IF NOT EXISTS user_addresses (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    city VARCHAR(255) NOT NULL,
+    pincode VARCHAR(50) NOT NULL,
+    street VARCHAR(255) NOT NULL,
+    area VARCHAR(255),
+    address_line_1 TEXT NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    type VARCHAR(20) CHECK (type IN ('Home', 'Work', 'Other')) DEFAULT 'Home',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+ALTER TABLE user_addresses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own addresses" ON user_addresses FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own addresses" ON user_addresses FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own addresses" ON user_addresses FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own addresses" ON user_addresses FOR DELETE USING (auth.uid() = user_id);
+
 -- 10. ORDERS TABLE
 DO $$ BEGIN
     CREATE TYPE order_status AS ENUM (
         'pending', 'confirmed', 'processing', 'shipped', 'in_transit', 
-        'out_for_delivery', 'delivered', 'scheduled', 'returned', 'failed', 'cancelled'
+        'out_for_delivery', 'delivered', 'shipment_arrived', 'returned', 'failed', 'cancelled'
     );
 EXCEPTION
     WHEN duplicate_object THEN null;
@@ -203,10 +229,18 @@ CREATE TABLE IF NOT EXISTS orders (
   mrp_amount NUMERIC(10, 2) NOT NULL,
   discount_amount NUMERIC(10, 2) DEFAULT 0,
   shipping_amount NUMERIC(10, 2) DEFAULT 0,
+  discount_on_mrp NUMERIC(10, 2) DEFAULT 0,
+  coupon_discount NUMERIC(10, 2) DEFAULT 0,
+  coupon_code VARCHAR(100),
+  cod_fees NUMERIC(10, 2) DEFAULT 0,
+  tax_amount NUMERIC(10, 2) DEFAULT 0,
   status order_status DEFAULT 'pending' NOT NULL,
   shipping_address JSONB NOT NULL,
   contact_details JSONB NOT NULL,
   payment_method VARCHAR(50) NOT NULL,
+  carrier_name VARCHAR(100),
+  tracking_number VARCHAR(100),
+  status_updates JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -241,12 +275,17 @@ CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 
 -- 12. RPC FUNCTIONS
-CREATE OR REPLACE FUNCTION create_order_v1(
+CREATE OR REPLACE FUNCTION create_order_v2(
   p_user_id UUID,
   p_total_amount NUMERIC,
   p_mrp_amount NUMERIC,
   p_discount_amount NUMERIC,
   p_shipping_amount NUMERIC,
+  p_discount_on_mrp NUMERIC,
+  p_coupon_discount NUMERIC,
+  p_coupon_code VARCHAR,
+  p_cod_fees NUMERIC,
+  p_tax_amount NUMERIC,
   p_shipping_address JSONB,
   p_contact_details JSONB,
   p_payment_method VARCHAR,
@@ -255,14 +294,31 @@ CREATE OR REPLACE FUNCTION create_order_v1(
 DECLARE
   v_order_id UUID;
   v_item JSONB;
+  v_initial_status order_status;
+  v_status_updates JSONB;
 BEGIN
-  -- 1. Insert the order
+  v_initial_status := (CASE WHEN p_payment_method = 'cod' THEN 'pending' ELSE 'confirmed' END)::order_status;
+  
+  -- Create the first status log
+  v_status_updates := jsonb_build_array(
+     jsonb_build_object(
+        'status', v_initial_status,
+        'message', 'Order placed successfully.',
+        'date', (now() AT TIME ZONE 'Asia/Kathmandu')::text
+     )
+  );
+
+  -- 1. Insert the order with extended pricing and updates
   INSERT INTO orders (
     user_id, total_amount, mrp_amount, discount_amount, 
-    shipping_amount, status, shipping_address, contact_details, payment_method
+    shipping_amount, discount_on_mrp, coupon_discount, 
+    coupon_code, cod_fees, tax_amount,
+    status, shipping_address, contact_details, payment_method, status_updates
   ) VALUES (
     p_user_id, p_total_amount, p_mrp_amount, p_discount_amount, 
-    p_shipping_amount, 'pending', p_shipping_address, p_contact_details, p_payment_method
+    p_shipping_amount, p_discount_on_mrp, p_coupon_discount,
+    p_coupon_code, p_cod_fees, p_tax_amount,
+    v_initial_status, p_shipping_address, p_contact_details, p_payment_method, v_status_updates
   ) RETURNING id INTO v_order_id;
 
   -- 2. Insert order items
@@ -285,3 +341,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+CREATE OR REPLACE FUNCTION update_order_status(
+  p_order_id UUID,
+  p_new_status order_status,
+  p_message TEXT
+) RETURNS VOID AS $$
+BEGIN
+  UPDATE orders
+  SET 
+    status = p_new_status,
+    status_updates = status_updates || jsonb_build_object(
+      'status', p_new_status,
+      'message', p_message,
+      'date', (now() AT TIME ZONE 'Asia/Kathmandu')::text
+    )
+  WHERE id = p_order_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 13. STORAGE BUCKETS AND RLS
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Avatar images are publicly accessible" ON storage.objects FOR SELECT USING ( bucket_id = 'avatars' );
+CREATE POLICY "Users can upload avatars" ON storage.objects FOR INSERT WITH CHECK ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
+CREATE POLICY "Users can update their own avatars" ON storage.objects FOR UPDATE USING ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );
+CREATE POLICY "Users can delete their own avatars" ON storage.objects FOR DELETE USING ( bucket_id = 'avatars' AND auth.role() = 'authenticated' );

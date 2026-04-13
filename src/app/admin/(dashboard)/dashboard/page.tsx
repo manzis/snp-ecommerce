@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { fetchAllOrdersAdminAction } from '@/app/actions/orderActions';
 
+import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
+
 export default async function DashboardPage() {
   const result = await fetchAllOrdersAdminAction(1, 10);
   
@@ -8,7 +10,9 @@ export default async function DashboardPage() {
   const recentOrders = result.success ? (result.orders || []).slice(0, 5) : [];
 
   return (
-    <div className="space-y-8">
+    <>
+      <DynamicAdminNav />
+      <div className="space-y-8 p-6">
       <div>
         <h1 className="text-3xl font-black text-[#111827] tracking-tight">System Overview</h1>
         <p className="mt-1 text-sm text-gray-500 font-medium">Welcome to your store's administrative command center.</p>
@@ -80,5 +84,6 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

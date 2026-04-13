@@ -9,13 +9,36 @@ import ArrowIcon from '@/components/icons/ChevronLeftIcon';
 import CheckIcon from '@/components/icons/TickIcon';
 import type { Seller } from '@/services/productService';
 
+// Helper type extended from ProductDetailsProps
 interface DeliveryDetailsProps {
-  seller: Seller;
+  seller: Seller | null;
+  stockStatus?: string;
 }
 
-const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller }) => {
+const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'home' | 'pickup'>('home');
+
+  const getDeliveryText = () => {
+    const today = new Date();
+    
+    if (stockStatus === 'pre_order') {
+      const start = new Date(today);
+      start.setDate(start.getDate() + 4);
+      const end = new Date(today);
+      end.setDate(end.getDate() + 6);
+      
+      const formatMonth = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'short' }).format(d);
+      return `Delivery By ${start.getDate()}${formatMonth(start)} - ${end.getDate()}${formatMonth(end)}`;
+    } else {
+      const delivery = new Date(today);
+      delivery.setDate(delivery.getDate() + 2);
+      
+      const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(delivery);
+      const monthName = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(delivery);
+      return `Delivery By ${delivery.getDate()} ${monthName}, ${dayName}`;
+    }
+  };
 
   return (
     <section className="flex flex-col gap-[18px] w-full max-w-[700px] lg:max-w-none ">
@@ -31,11 +54,6 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller }) => {
           className="relative flex flex-col rounded-[6px] overflow-hidden transition-[height] duration-350 [transition-timing-function:cubic-bezier(0.25,0.1,0.25,1)] border-[1px]"
           style={{
             height: isExpanded ? '116px' : '46px',
-            /* 
-               Logic: 
-               - If expanded: Use the layered gradient (padding-box for fill, border-box for stroke).
-               - If collapsed: Use a simple solid fill and match the border color to the background.
-            */
             borderColor: isExpanded ? 'transparent' : '#EAFFCD',
             background: isExpanded
               ? `linear-gradient(#EAFFCD, #EAFFCD) padding-box, 
@@ -67,10 +85,8 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller }) => {
           {/* Options Row (Visible on Expand) */}
           <div className={`grid w-full transition-all duration-400 [transition-timing-function:cubic-bezier(0.25,0.1,0.25,1)] ${isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
             <div className="overflow-hidden">
-              {/* items-stretch forces children to 70px height, allowing the border to touch top and bottom */}
               <div className="flex flex-row w-full h-[70px] bg-white items-stretch">
 
-                {/* Home Option - items-start keeps checkbox at the top */}
                 <div
                   onClick={() => setDeliveryType('home')}
                   className="flex flex-1 items-start gap-[12px] px-[12px] pt-[18px] cursor-pointer"
@@ -86,7 +102,6 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller }) => {
                   </div>
                 </div>
 
-                {/* Pickup Option - border-l touches full 70px because of items-stretch */}
                 <div
                   onClick={() => setDeliveryType('pickup')}
                   className="flex flex-1 items-start gap-[12px] px-[12px] pt-[18px] border-l border-[#e8e8e8] cursor-pointer"
@@ -112,7 +127,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller }) => {
         <div className="flex items-center gap-[6px] self-stretch rounded-[6px] bg-[#efefef] px-[12px] py-[14px]">
           <VanIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0" />
           <span className="font-titillium text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
-            Delivery By 14 March, Sat
+            {getDeliveryText()}
           </span>
         </div>
 
@@ -121,10 +136,10 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller }) => {
           <StoreIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0 mt-[1px]" />
           <div className="flex flex-col items-start justify-center gap-[4px]">
             <span className="font-titillium text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
-              Fullfilled By {seller.name}
+              Fullfilled By {seller?.name || 'Official Store'}
             </span>
             <span className="font-titillium text-[12px] font-light text-[#242424] opacity-70 leading-[16px]">
-              {seller.is_verified ? 'Authenticity Granted | Genuine Seller' : 'Platform Verified Seller'}
+              {seller?.is_verified ? 'Authenticity Granted | Genuine Seller' : 'Platform Verified Seller'}
             </span>
             <Link
               href="/seller"

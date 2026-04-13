@@ -19,6 +19,19 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
     setMounted(true);
   }, []);
 
+  // Auto-slide logic
+  useEffect(() => {
+    if (!mounted || highlights.length <= 1 || isDragging) return;
+
+    // Only set an interval if the current slide is an image
+    if (highlights[activeTab]?.type === 'image') {
+      const timer = setTimeout(() => {
+        setActiveTab((prev) => (prev + 1) % highlights.length);
+      }, 5000); // 5 second duration for images
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, mounted, highlights, isDragging]);
+
   const handleStart = (e: React.TouchEvent | React.MouseEvent) => {
     setIsDragging(true);
     startX.current = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
@@ -116,7 +129,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
                 `}
               >
                 <Image
-                  src={item.type === 'video' ? (item.poster || '') : item.src}
+                  src={item.type === 'video' ? (item.poster || '/images/highlight1.png') : (item.src || '/images/highlight1.png')}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"

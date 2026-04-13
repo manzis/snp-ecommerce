@@ -7,19 +7,26 @@ import StarIcon from '@/components/icons/GreenStar';
 import ShareIcon from '@/components/icons/Share';
 import WishlistIcon from '@/components/icons/Wishlisht';
 
+import { useProductSelectionStore } from '@/store/productSelectionStore';
+
 type ProductImageProps = {
   images: string[];
   rating: number;
   reviewsCount: string;
   productName?: string;
+  stockStatus?: string;
+  flavours?: any[];
 };
 
-const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }: ProductImageProps) => {
+const ProductImage = ({ images, rating, reviewsCount, productName = "Product", stockStatus, flavours = [] }: ProductImageProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [animateHeart, setAnimateHeart] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // ZUSTAND STORE
+  const { selectedFlavorId } = useProductSelectionStore();
 
   const startX = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
@@ -27,6 +34,26 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const selectedFlavourImage = React.useMemo(() => {
+    if (!selectedFlavorId || !flavours.length) return null;
+    const flavour = flavours.find(f => f.id === selectedFlavorId);
+    return flavour?.image_url || null;
+  }, [selectedFlavorId, flavours]);
+
+  const displayImages = React.useMemo(() => {
+    if (!selectedFlavourImage) return images;
+    // Filter out the selected image if it happens to be in the images array
+    const filtered = images.filter(img => img !== selectedFlavourImage);
+    return [selectedFlavourImage, ...filtered];
+  }, [images, selectedFlavourImage]);
+
+  useEffect(() => {
+    if (selectedFlavourImage) {
+        setIsTransitioning(false);
+        setActiveIndex(0);
+    }
+  }, [selectedFlavourImage]);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -51,14 +78,14 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
 
   const navigate = useCallback((direction: 'next' | 'prev') => {
     if (isTransitioning) return;
-    if (direction === 'next' && activeIndex < images.length - 1) {
+    if (direction === 'next' && activeIndex < displayImages.length - 1) {
       setIsTransitioning(true);
       setActiveIndex((prev) => prev + 1);
     } else if (direction === 'prev' && activeIndex > 0) {
       setIsTransitioning(true);
       setActiveIndex((prev) => prev - 1);
     }
-  }, [activeIndex, images.length, isTransitioning]);
+  }, [activeIndex, displayImages.length, isTransitioning]);
 
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
     isDragging.current = true;
@@ -94,12 +121,12 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
         onTouchEnd={handleEnd}
       >
         <div
-          className="flex h-full w-full transition-transform duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none"
+          className={`flex h-full w-full transition-transform duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none ${stockStatus === 'out_of_stock' ? 'opacity-50 grayscale-[0.3]' : ''}`}
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
           onTransitionEnd={() => setIsTransitioning(false)}
         >
-          {images.map((img, idx) => (
-            <div key={idx} className="relative h-full w-full shrink-0">
+          {displayImages.map((img, idx) => (
+            <div key={`${img}-${idx}`} className="relative h-full w-full shrink-0">
               <Image
                 src={img}
                 alt={productName}
@@ -110,6 +137,19 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product" }:
             </div>
           ))}
         </div>
+
+        {stockStatus === 'out_of_stock' && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none px-[2px]">
+            <div className="w-full bg-white/95 backdrop-blur-[4px] py-8 lg:py-12 flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-y border-[#F0F0F0]/80">
+              <h2 className="font-custom text-[24px] lg:text-[36px] font-bold tracking-[-0.02em] uppercase leading-none bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
+                Out of Stock
+              </h2>
+              <p className="font-titillium text-[12px] lg:text-[14px] font-medium text-[#797979] mt-3 tracking-wide">
+                This product is no longer available!
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Rating Badge - Absolute Positioned */}
         <div className="absolute left-[12px] top-[12px] z-20 flex h-[31px] items-center gap-[10px] rounded-[6px] bg-[#ffe900] px-[8px] py-[6px] shadow-sm">
