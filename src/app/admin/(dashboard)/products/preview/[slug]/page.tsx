@@ -82,7 +82,11 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                   {/* RIGHT COLUMN: DETAILS & MOBILE HIGHLIGHTS */}
                   <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col lg:px-[0] ">
                     <ProductHeader
-                      brand={product.brands?.name || ''}
+                      brand={{
+                        name: product.brands?.name || '',
+                        slug: product.brands?.slug || '',
+                        image_url: product.brands?.image_url
+                      }}
                       title={product.title}
                       originalPrice={product.original_price}
                       discountedPrice={product.discounted_price}

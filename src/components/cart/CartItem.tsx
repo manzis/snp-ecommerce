@@ -19,25 +19,28 @@ interface CartItemProps {
 
 const getDeliveryString = (status?: string) => {
   const today = new Date();
-  const formatOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+  const dateOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+  const weekdayOptions: Intl.DateTimeFormatOptions = { weekday: 'short' };
 
   if (status === 'pre_order') {
     const start = new Date(today);
     start.setDate(today.getDate() + 4);
     const end = new Date(today);
     end.setDate(today.getDate() + 7);
+    const startStr = start.toLocaleDateString('en-US', dateOptions);
+    const endStr = end.toLocaleDateString('en-US', dateOptions);
     return (
       <>
-        Delivery between <span className="font-semibold">{start.toLocaleDateString('en-US', formatOptions)} - {end.toLocaleDateString('en-US', formatOptions)}</span>
+        Delivery between <span className="font-semibold">{startStr} – {endStr}</span>
       </>
     );
   } else {
-    // default to in_stock
     const d = new Date(today);
     d.setDate(today.getDate() + 3);
+    const dateStr = `${d.toLocaleDateString('en-US', dateOptions)}, ${d.toLocaleDateString('en-US', weekdayOptions)}`;
     return (
       <>
-        Delivery By <span className="font-semibold">{d.toLocaleDateString('en-US', formatOptions)}</span>
+        Delivery By <span className="font-semibold">{dateStr}</span>
       </>
     );
   }

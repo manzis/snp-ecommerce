@@ -94,7 +94,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       setSizeError(true);
       isValid = false;
     }
-    if (flavours.length > 0 && !selectedFlavorId) {
+    if (filteredFlavours.length > 0 && !selectedFlavorId) {
       setFlavorError(true);
       isValid = false;
     }
@@ -131,6 +131,41 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     window.addEventListener('requestAddToCart', handleCustomAddToCart);
     return () => window.removeEventListener('requestAddToCart', handleCustomAddToCart);
   }, [selectedSize, selectedFlavorId, product, sizes.length, flavours.length, setSizeError, setFlavorError, addItem, showToast]);
+
+  useEffect(() => {
+    const handleBuyNow = () => {
+      let isValid = true;
+      if (sizes.length > 0 && !selectedSize) { setSizeError(true); isValid = false; }
+      if (filteredFlavours.length > 0 && !selectedFlavorId) { setFlavorError(true); isValid = false; }
+      if (!isValid) {
+        document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      const { currentPrice, originalPrice } = useProductSelectionStore.getState();
+      const itemId = `${product.id}-${selectedSize || 'none'}-${selectedFlavorId || 'none'}`;
+      const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
+      if (!alreadyInCart) {
+        addItem({
+          id: itemId,
+          product_id: product.id,
+          name: product.name,
+          slug: product.slug,
+          brand: product.brands?.name || 'Store Product',
+          price: currentPrice || parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
+          mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
+          image: product.images?.[0] || '/images/protein.jpg',
+          quantity: 1,
+          selected_size: selectedSize,
+          selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured',
+          stock_status: product.stock_status || 'in_stock'
+        });
+        window.dispatchEvent(new CustomEvent('addToCartSuccess'));
+      }
+      window.dispatchEvent(new CustomEvent('buyNowCartSuccess'));
+    };
+    window.addEventListener('requestBuyNow', handleBuyNow);
+    return () => window.removeEventListener('requestBuyNow', handleBuyNow);
+  }, [selectedSize, selectedFlavorId, product, sizes.length, filteredFlavours.length, setSizeError, setFlavorError, addItem, flavours]);
 
   const handleAddToCart = () => {
     if (!isInCart) {

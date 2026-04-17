@@ -34,7 +34,14 @@ export default function OrderCard({
     const productImageUrlValue = order.image;
     const totalItemsCountValue = order.itemsCount;
     const customerNameValue = order.customerName;
-    const customerAddressValue = order.shippingAddress ? `${order.shippingAddress.area || ''}, ${order.shippingAddress.city || ''}` : 'N/A';
+    const customerAddressValue = (() => {
+        const addr = order.shippingAddress;
+        if (!addr) return 'N/A';
+        const details = addr.addressDetails || addr;
+        const city = details.city || '';
+        const area = details.area || details.address_line || details.street || '';
+        return [city, area].filter(Boolean).join(', ') || 'N/A';
+    })();
     const totalAmountValue = `NPR ${order.totalAmount}`;
     const paymentMethodValue = order.paymentMethod?.toUpperCase();
 
@@ -97,17 +104,16 @@ export default function OrderCard({
                 return { bg: 'bg-zinc-100', label: 'Pending', text: 'text-[#3f3f46]' };
         }
     };
-    
+
     const paymentColors = getPaymentStatusColors(order.paymentStatus);
 
     return (
-        <article 
+        <article
             onClick={() => onViewOrder && onViewOrder(order)}
-            className={`flex w-full max-w-[378px] mx-auto flex-col rounded-[12px] relative group transition-all duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] font-rubik tracking-tight hover:shadow-[0_16px_40px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-[2px] border cursor-pointer ${isMenuOpen ? 'z-[60]' : 'z-[1]'} ${
-                isNew 
-                ? 'border-transparent' 
-                : 'bg-white border-gray-50/50 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)]'
-            }`}
+            className={`flex w-full max-w-[378px] mx-auto flex-col rounded-[12px] relative group transition-all duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] font-rubik tracking-tight hover:shadow-[0_16px_40px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-[2px] border cursor-pointer ${isMenuOpen ? 'z-[60]' : 'z-[1]'} ${isNew
+                    ? 'border-transparent'
+                    : 'bg-white border-gray-50/50 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)]'
+                }`}
             style={isNew ? {
                 background: 'linear-gradient(white, white) padding-box, linear-gradient(to bottom, #ffffff, #18181b) border-box',
                 border: '1px solid transparent',

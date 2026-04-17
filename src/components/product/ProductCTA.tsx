@@ -20,30 +20,17 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
     }
 
     const handleScroll = () => {
-      // Calculate how far the user has scrolled
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
-
-      // Detect if user is near the bottom (Footer zone)
-      // 150px is a safe threshold to start hiding before the footer fully appears
       const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
-
-      if (isAtBottom) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
+      setIsVisible(!isAtBottom);
     };
 
-    // Add scroll listener
     window.addEventListener("scroll", handleScroll, { passive: true });
-    
-    // Initial check
     handleScroll();
-
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isPreview]);
 
   useEffect(() => {
     const handleSuccess = () => setIsInCart(true);
@@ -51,12 +38,26 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
     return () => window.removeEventListener('addToCartSuccess', handleSuccess);
   }, []);
 
+  // Buy Now: listen for cart add success triggered by Buy Now path, then redirect
+  useEffect(() => {
+    const handleBuyNowSuccess = () => {
+      router.push('/cart');
+    };
+    window.addEventListener('buyNowCartSuccess', handleBuyNowSuccess);
+    return () => window.removeEventListener('buyNowCartSuccess', handleBuyNowSuccess);
+  }, [router]);
+
   const handleAddToCart = () => {
     if (!isInCart) {
       window.dispatchEvent(new CustomEvent('requestAddToCart'));
     } else {
       router.push('/cart');
     }
+  };
+
+  const handleBuyNow = () => {
+    // Dispatch buy now — ProductOptions handles validation + add, then fires buyNowCartSuccess
+    window.dispatchEvent(new CustomEvent('requestBuyNow'));
   };
 
   const blurButton = (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -68,16 +69,10 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
       {isVisible && (
         <motion.footer
           key="product-cta-bar"
-          /* Premium Slide Animation */
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          transition={{ 
-            type: "spring", 
-            stiffness: 400, 
-            damping: 30,
-            mass: 0.8
-          }}
+          transition={{ type: "spring", stiffness: 400, damping: 30, mass: 0.8 }}
           className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden"
           style={{
             paddingBottom: 'env(safe-area-inset-bottom)',
@@ -101,6 +96,7 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
             {/* Buy Now */}
             <button
               type="button"
+              onClick={handleBuyNow}
               onPointerUp={blurButton}
               disabled={isOutOfStock}
               className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}

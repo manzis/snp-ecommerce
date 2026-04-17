@@ -482,7 +482,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                                         <span className="font-titillium text-[11px] font-[600] text-[#8a8e91]">
                                                             {(() => {
                                                                 if (group.id === 'DELIVERY' && currentStatus === 'CANCELLED') {
-                                                                    return statusUpdates.find(u => u.status === 'CANCELLED')?.message;
+                                                                    return '';
                                                                 }
                                                                 const mStatus = group.id === 'ORDERED' ? 'PENDING' : group.id;
                                                                 const log = statusUpdates.find(u => u.status === mStatus || (group.id === 'ORDERED' && u.status === 'CONFIRMED'));

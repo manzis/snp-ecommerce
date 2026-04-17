@@ -4,6 +4,13 @@ import { createClient } from '@/lib/supabase/server';
 import { fetchUserOrders, createOrder, OrderData, mapToOrderProps } from '@/services/orderService';
 import { revalidatePath } from 'next/cache';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import {
+  sendOrderConfirmationEmail,
+  sendOrderShippedEmail,
+  sendOutForDeliveryEmail,
+  sendOrderCancelledEmail,
+  sendDeliveryFailedEmail,
+} from '@/services/emailService';
 
 /**
  * Server action to place an order
@@ -27,6 +34,11 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
     
     // Revalidate relevant paths
     revalidatePath('/account/orders');
+
+    // Fire-and-forget: send confirmation email
+    sendOrderConfirmationEmail(result.id).catch(err =>
+      console.error('[Email] Confirmation email failed:', err)
+    );
     
     return { success: true, orderId: result.id };
   } catch (error: any) {
@@ -122,6 +134,12 @@ export async function cancelOrderAction(orderId: string, reason: string) {
 
     revalidatePath('/account/orders');
     revalidatePath(`/account/orders/${orderId}`);
+
+    // Fire-and-forget: send cancellation email
+    sendOrderCancelledEmail(orderId, reason).catch(err =>
+      console.error('[Email] Cancellation email failed:', err)
+    );
+
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: cancelOrderAction:', error);
@@ -255,6 +273,26 @@ export async function updateOrderStatusAdminAction(
     revalidatePath(`/admin/orders/${orderId}`);
     revalidatePath('/account/orders');
     revalidatePath(`/account/orders/${orderId}`);
+
+    // Fire-and-forget: send status-specific email
+    const normalizedStatus = newStatus.toLowerCase();
+    if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit') {
+      sendOrderShippedEmail(orderId, message).catch(err =>
+        console.error('[Email] Shipped email failed:', err)
+      );
+    } else if (normalizedStatus === 'out_for_delivery') {
+      sendOutForDeliveryEmail(orderId).catch(err =>
+        console.error('[Email] OFD email failed:', err)
+      );
+    } else if (normalizedStatus === 'failed') {
+      sendDeliveryFailedEmail(orderId, message).catch(err =>
+        console.error('[Email] Failed delivery email failed:', err)
+      );
+    } else if (normalizedStatus === 'cancelled') {
+      sendOrderCancelledEmail(orderId, message).catch(err =>
+        console.error('[Email] Admin cancellation email failed:', err)
+      );
+    }
     
     return { success: true };
   } catch (error: any) {

@@ -21,7 +21,7 @@ const AvailabilityPopup: React.FC<AvailabilityPopupProps> = ({ isOpen, onClose }
         onClick={onClose}
       />
 
-      <div className="absolute bottom-[calc(100%+12px)] right-0 z-[70] flex w-full max-w-[362px] flex-col items-end select-none animate-in fade-in zoom-in-95 slide-in-from-bottom-2 rounded-[8px] duration-200 transition-bounce shadow-smooth  " >
+      <div className="absolute bottom-[calc(100%+12px)] right-[24px] z-[70] flex w-full max-w-[362px] flex-col items-end select-none animate-in fade-in zoom-in-95 slide-in-from-bottom-2 rounded-[8px] duration-200 transition-bounce shadow-smooth  " >
 
         <div className="relative w-full flex flex-col items-start rounded-[8px] border border-[#E8E8E8] bg-white">
 
