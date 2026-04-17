@@ -2,54 +2,73 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import ProductCard from '@/components/search/SearchProductCard';
 import FilterBar, { SelectedFilters } from '@/components/search/FilterBar';
 import Pagination from '@/components/search/Pagination';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import { CATEGORY_THEMES } from '@/lib/CategoryThemes';
-
-// MOCK DATA - Expansion of previous data to demonstrate pagination
-const MOCK_PRODUCTS = [
-  { id: 1, slug: 'omega-3-1', category: 'essentials', brand: 'Naturaltein', name: 'Omega 3 Fish Oil V1', originalPrice: 'RS. 5000', discountedPrice: 'RS. 1890', discount: '20%', rating: 4.3, image: '/images/fishoil.jpg' },
-  { id: 2, slug: 'atom-whey-1', category: 'protein', brand: 'Asitis', name: 'Atom Whey Protein V1', originalPrice: 'RS. 5000', discountedPrice: 'RS. 1890', discount: '20%', rating: 4.3, image: '/images/atom-whey.jpg' },
-  { id: 3, slug: 'creatine-1', category: 'creatine', brand: 'MuscleBlaze', name: 'Creatine Monohydrate', originalPrice: 'RS. 1200', discountedPrice: 'RS. 900', discount: '25%', rating: 4.5, image: '/images/magnesium.jpg' },
-  { id: 4, slug: 'omega-3-2', category: 'essentials', brand: 'GNC', name: 'Triple Strength Fish Oil', originalPrice: 'RS. 3000', discountedPrice: 'RS. 2400', discount: '20%', rating: 4.2, image: '/images/fishoil.jpg' },
-  { id: 5, slug: 'atom-whey-2', category: 'proteins', brand: 'Asitis', name: 'Atom Isolate Protein', originalPrice: 'RS. 7000', discountedPrice: 'RS. 5800', discount: '15%', rating: 4.7, image: '/images/atom-whey.jpg' },
-  { id: 6, slug: 'creatine-2', category: 'creatine', brand: 'Asitis', name: 'Pure Creatine 250g', originalPrice: 'RS. 1000', discountedPrice: 'RS. 850', discount: '15%', rating: 4.4, image: '/images/magnesium.jpg' },
-  { id: 7, slug: 'omega-3-3', category: 'essentials', brand: 'Naturaltein', name: 'Deep Sea Omega 3', originalPrice: 'RS. 4500', discountedPrice: 'RS. 3600', discount: '20%', rating: 4.6, image: '/images/fishoil.jpg' },
-  { id: 8, slug: 'atom-whey-3', category: 'protein', brand: 'MuscleBlaze', name: 'Biozyme Whey Protein', originalPrice: 'RS. 6000', discountedPrice: 'RS. 4800', discount: '20%', rating: 4.5, image: '/images/atom-whey.jpg' },
-  { id: 9, slug: 'creatine-3', category: 'creatine', brand: 'MuscleBlaze', name: 'Creatine HCL Powder', originalPrice: 'RS. 1500', discountedPrice: 'RS. 1300', discount: '10%', rating: 4.3, image: '/images/magnesium.jpg' },
-  { id: 10, slug: 'protein-4', category: 'protein', brand: 'Naturaltein', name: 'Plant Based Protein', originalPrice: 'RS. 4000', discountedPrice: 'RS. 3200', discount: '20%', rating: 4.4, image: '/images/atom-whey.jpg' },
-];
+import { fetchProducts, fetchCategories, fetchCategoryBySlug, Category, Product } from '@/services/productService';
 
 export default function CategoryDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const theme = CATEGORY_THEMES[slug] || CATEGORY_THEMES.essentials;
 
   // 1. STATE MANAGEMENT
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categoryMetadata, setCategoryMetadata] = useState<Category | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isBenefitsExpanded, setIsBenefitsExpanded] = useState(false);
   const [activeFilters, setActiveFilters] = useState<SelectedFilters>({
     categories: [],
     brands: [],
     price: [],
   });
 
+  const theme = useMemo(() => {
+    const normalizedSlug = slug.toLowerCase();
+    // Try original, then trailing 's' removed, then 's' added
+    return CATEGORY_THEMES[normalizedSlug] ||
+      CATEGORY_THEMES[normalizedSlug.replace(/s$/, '')] ||
+      CATEGORY_THEMES[normalizedSlug + 's'] ||
+      CATEGORY_THEMES.essentials;
+  }, [slug]);
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const [productsData, catData] = await Promise.all([
+          fetchProducts({ categorySlug: slug }),
+          fetchCategoryBySlug(slug)
+        ]);
+        setProducts(productsData);
+        setCategoryMetadata(catData);
+      } catch (err) {
+        console.error("Failed to load category data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, [slug]);
+
   const ITEMS_PER_PAGE = 8; // 2 cols x 4 rows
 
   // 2. FILTERING LOGIC
   const filteredProducts = useMemo(() => {
-    let list = MOCK_PRODUCTS.filter(p => p.category === slug);
-    
+    let list = products;
+
     if (activeFilters.brands.length > 0) {
-      list = list.filter(p => activeFilters.brands.includes(p.brand.toLowerCase()));
+      list = list.filter(p => activeFilters.brands.includes(p.brands?.name?.toLowerCase() || ''));
     }
 
     // Price Filtering Logic
     if (activeFilters.price.length > 0) {
       list = list.filter(p => {
-        const priceVal = parseInt(p.discountedPrice.replace(/\D/g, ''));
+        const priceVal = typeof p.discounted_price === 'number' ? p.discounted_price : parseInt(String(p.discounted_price).replace(/\D/g, ''));
         return activeFilters.price.some(range => {
           if (range === '0-1000') return priceVal < 1000;
           if (range === '1000-2000') return priceVal >= 1000 && priceVal <= 2000;
@@ -59,9 +78,9 @@ export default function CategoryDetailPage() {
         });
       });
     }
-    
+
     return list;
-  }, [slug, activeFilters]);
+  }, [products, activeFilters]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -73,66 +92,116 @@ export default function CategoryDetailPage() {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-10 h-10 border-4 border-gray-100 border-t-[#308026] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1440px] bg-white mt-[80px] pb-[60px]">
       {/* FIXED NAV - Animated via template.tsx */}
-      <DynamicPageNav 
-        title={theme.title} 
-        subtitle={`${filteredProducts.length} Products`} 
+      <DynamicPageNav
+        title={categoryMetadata?.name || theme.title}
+        subtitle={`${filteredProducts.length} Products`}
       />
 
       <main className="mx-auto w-full max-w-[410px] lg:px-[48px] lg:max-w-[1440px]">
         {/* HERO SECTION */}
         <section className="px-[24px] py-[24px]" style={{ background: theme.gradient }}>
           <h2 className="font-titillium text-[20px] font-semibold leading-[26px] tracking-[-0.8px]" style={{ color: theme.textColor }}>
-            {theme.title}
+            {categoryMetadata?.name || theme.title}
           </h2>
           <p className="font-titillium text-[16px] font-normal leading-[24px] tracking-[-0.64px] text-white opacity-90">
-            {theme.description}
+            {categoryMetadata?.description || theme.description}
           </p>
         </section>
 
         {/* BENEFITS BAR */}
-        <div className="flex items-center gap-[10px] border-b border-[#f1f5f9] px-[24px] py-[20px]">
-          <span className="flex-1 font-titillium text-[16px] font-semibold text-[#242424]">
-            {theme.benefitLabel}
-          </span>
-          <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] border border-[#eaebf0] bg-white">
-            <DropDownIcon className="h-[16px] w-[16px] text-[#242424]" />
+        <div className="border-b border-[#f1f5f9] bg-white">
+          <button
+            onClick={() => setIsBenefitsExpanded(!isBenefitsExpanded)}
+            className="flex w-full items-center gap-[10px] px-[24px] py-[20px] text-left hover:bg-gray-50 transition-colors"
+          >
+            <span className="flex-1 font-titillium text-[16px] font-semibold text-[#242424]">
+              Benefits of {categoryMetadata?.name || theme.title}
+            </span>
+            <motion.div
+              animate={{ rotate: isBenefitsExpanded ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] border border-[#eaebf0] bg-white"
+            >
+              <DropDownIcon className="h-[16px] w-[16px] text-[#242424]" />
+            </motion.div>
           </button>
+
+          <AnimatePresence>
+            {isBenefitsExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="px-[24px] pb-[20px]">
+                  <p className="font-titillium text-[14px] leading-[22px] text-[#4b5563] py-[16px]">
+                    {categoryMetadata?.benefits || theme.description}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* FILTER BAR - STICKY UNDER NAV */}
         <div className="sticky top-[81px] z-20 bg-white border-b border-[#f1f5f9]">
           <div className="flex items-center px-[24px] py-[16px]">
-             <h3 className="flex-1 font-titillium text-[16px] font-semibold text-[#242424]">All Products</h3>
+            <h3 className="flex-1 font-titillium text-[16px] font-semibold text-[#242424]">All Products</h3>
           </div>
-          <FilterBar 
-            onFilterChange={setActiveFilters} 
-            visibleFilters={['Brand', 'Price']} 
+          <FilterBar
+            onFilterChange={setActiveFilters}
+            visibleFilters={['Brand', 'Price']}
           />
         </div>
 
         {/* PRODUCT GRID */}
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full border-t border-l border-[#e8e8e8]">
+        <section className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 w-full  border-l border-[#e8e8e8]">
           {paginatedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+            />
           ))}
         </section>
 
         {/* PAGINATION SECTION */}
-        <div className="w-full flex justify-center bg-white border-t border-[#e8e8e8]">
-          <Pagination 
-            currentPage={currentPage} 
-            totalPages={totalPages} 
-            onPageChange={setCurrentPage} 
+        <div className="w-full flex justify-center bg-white  border-[#e8e8e8]">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
         </div>
 
         {/* EMPTY STATE */}
-        {filteredProducts.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-[100px] px-[24px] text-center">
-            <p className="font-titillium text-[16px] text-[#979797]">No products found. <br/> Try clearing filters.</p>
+        {!isLoading && filteredProducts.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-[100px] px-[24px] text-center bg-white border-t border-[#e8e8e8]">
+            <div className="w-[64px] h-[64px] bg-[#f9fafb] rounded-full flex items-center justify-center mb-4">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+            </div>
+            <p className="font-titillium text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
+            <p className="font-titillium text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
+            <button
+              onClick={() => window.history.back()}
+              className="px-8 py-3 bg-[#242424] text-white rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
+            >
+              Go Back
+            </button>
           </div>
         )}
       </main>

@@ -1,10 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 export interface Category {
   id: string;
   name: string;
   slug: string;
   image_url?: string;
+  description?: string;
+  benefits?: string;
+  product_count?: number;
+  is_other_category?: boolean;
 }
 
 export interface Brand {
@@ -12,11 +17,37 @@ export interface Brand {
   name: string;
   slug: string;
   image_url?: string;
+  cover_image?: string;
+  rating?: number;
+  total_purchases?: number;
+  description?: string;
+  product_count?: number;
+}
+
+/** Mirrors the public.reviews table schema exactly */
+export interface Review {
+  id: string;
+  product_id: string | null;       // uuid FK → products.id, on delete CASCADE
+  author: string;                   // varchar(255) NOT NULL
+  role: string | null;              // varchar(255) nullable
+  text: string;                     // text NOT NULL
+  rating: number;                   // numeric(2,1) NOT NULL — e.g. 4.5, 5.0
+  image: string | null;             // varchar(1000) nullable
+  media_type?: 'image' | 'video';   // UI-only or DB if added later
+  author_avatar?: string | null;    // New field for reviewer profile photo
+  is_verified: boolean;             // boolean, default false
+  created_at: string;               // timestamptz, auto-set by DB
+  products?: {                      // Nested product data from join
+    title: string;
+    name: string;
+    images?: string[];
+  };
 }
 
 export interface ProductSize {
   id: string;
   size_label: string;
+  image_url?: string;
   is_available: boolean;
 }
 
@@ -53,17 +84,6 @@ export interface ProductInfo {
   other_details: Record<string, string>;
 }
 
-export interface Review {
-  id: string;
-  product_id: string;
-  author: string;
-  role: string | null;
-  text: string;
-  rating: number;
-  image: string | null;
-  is_verified: boolean;
-  created_at: string;
-}
 
 export interface QAPair {
   id: string;
@@ -106,6 +126,7 @@ export interface Product {
     brand_id?: string;
     seller_id?: string;
     stock_count: number;
+    tags?: string[];
     categories?: Category;  // Due to PostgREST relationship mapping
     brands?: Brand;         // Due to PostgREST relationship mapping
     sellers?: Seller;       // Due to PostgREST relationship mapping
@@ -113,6 +134,10 @@ export interface Product {
     product_flavours?: ProductFlavour[];
     product_info?: ProductInfo[] | ProductInfo; 
     product_variants?: ProductVariant[];
+    banner_image1?: string;
+    banner_image2?: string;
+    banner_image3?: string;
+    banner_image4?: string;
 }
 
 
@@ -120,8 +145,6 @@ export interface Product {
  * Update product attributes (Visibility, stock_status, is_draft, etc.)
  */
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<boolean> {
-  console.log(`[productService] Updating product ${id}:`, updates);
-  
   // Filter out non-DB fields before updating
   const dbUpdates = { ...updates };
   const fieldsToStrip = [
@@ -153,35 +176,78 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
 }
 
 /**
- * Fetch all categories
+ * Fetch all categories with product counts
  */
 export async function fetchCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from('categories')
-    .select('*')
+    .select(`
+      *,
+      products:products(count)
+    `)
     .order('name');
     
   if (error) {
     console.error('Error fetching categories:', error);
     return [];
   }
-  return data as Category[];
+
+  // Map the product count from the nested array
+  return (data as any[]).map(cat => ({
+    ...cat,
+    product_count: cat.products?.[0]?.count || 0
+  })) as Category[];
 }
 
-/**
- * Fetch all brands
- */
+export async function fetchCategoryBySlug(slug: string): Promise<Category | null> {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    console.error(`Error fetching category with slug ${slug}:`, error);
+    return null;
+  }
+  return data as Category;
+}
+
 export async function fetchBrands(): Promise<Brand[]> {
   const { data, error } = await supabase
     .from('brands')
-    .select('*')
+    .select(`
+      *,
+      products:products(count)
+    `)
     .order('name');
     
   if (error) {
     console.error('Error fetching brands:', error);
     return [];
   }
-  return data as Brand[];
+
+  return (data as any[]).map(b => ({
+    ...b,
+    product_count: b.products?.[0]?.count || 0
+  })) as Brand[];
+}
+
+/**
+ * Fetch a single brand by slug
+ */
+export async function fetchBrandBySlug(slug: string): Promise<Brand | null> {
+  const { data, error } = await supabase
+    .from('brands')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+    
+  if (error) {
+    console.error(`Error fetching brand ${slug}:`, error);
+    return null;
+  }
+  return data as Brand;
 }
 
 /**
@@ -203,13 +269,16 @@ export async function fetchSellers(): Promise<Seller[]> {
 /**
  * Fetch products with relations, optionally filtered
  */
-export async function fetchProducts(options?: { brandSlug?: string; categorySlug?: string }): Promise<Product[]> {
+export async function fetchProducts(options?: { brandSlug?: string; categorySlug?: string; search?: string }): Promise<Product[]> {
+  const brandPart = options?.brandSlug ? 'brands!inner(*)' : 'brands(*)';
+  const categoryPart = options?.categorySlug ? 'categories!inner(*)' : 'categories(*)';
+
   let query = supabase
     .from('products')
     .select(`
       *,
-      categories (*),
-      brands (*),
+      ${categoryPart},
+      ${brandPart},
       sellers (*),
       product_sizes (*),
       product_flavours (*),
@@ -226,6 +295,10 @@ export async function fetchProducts(options?: { brandSlug?: string; categorySlug
     query = query.eq('categories.slug', options.categorySlug);
   }
 
+  if (options?.search) {
+    query = query.or(`name.ilike.%${options.search}%,title.ilike.%${options.search}%`);
+  }
+
   const { data, error } = await query;
   
   if (error) {
@@ -233,7 +306,12 @@ export async function fetchProducts(options?: { brandSlug?: string; categorySlug
     return [];
   }
   
-  return data as Product[];
+  return (data as any[]).map(p => ({
+    ...p,
+    categories: Array.isArray(p.categories) ? p.categories[0] : (p.categories || null),
+    brands: Array.isArray(p.brands) ? p.brands[0] : (p.brands || null),
+    sellers: Array.isArray(p.sellers) ? p.sellers[0] : (p.sellers || null)
+  })) as Product[];
 }
 
 /**
@@ -246,15 +324,15 @@ export async function fetchProductsPaginated(page: number, pageSize: number, opt
   let query = supabase
     .from('products')
     .select(`
-      *,
-      categories (*),
-      brands (*),
-      sellers (*),
-      product_sizes (*),
-      product_flavours (*),
-      product_info (*),
-      product_variants (*)
-    `, { count: 'exact' });
+      id, slug, name, title, images,
+      original_price, discounted_price, discount_percentage,
+      stock_count, stock_status, is_published, is_draft,
+      rating, reviews_count, created_at,
+      brands (id, name, slug),
+      product_sizes (id, size_label),
+      product_flavours (id, flavour_name),
+      product_variants (id, original_price, discounted_price, stock_count, is_available)
+    `, { count: 'estimated' });
 
   if (options?.brandSlug) {
     query = query.eq('brands.slug', options.brandSlug);
@@ -278,13 +356,45 @@ export async function fetchProductsPaginated(page: number, pageSize: number, opt
   }
   
   return { 
-    products: data as Product[], 
+    products: (data as any[]).map(p => ({
+      ...p,
+      brands: Array.isArray(p.brands) ? p.brands[0] || null : p.brands,
+    })) as Product[], 
     totalCount: count || 0 
   };
 }
 
 /**
  * Fetch a single product tightly coupled with variants
+ */
+export async function fetchProductById(id: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      *,
+      categories (*),
+      brands (*),
+      sellers (*),
+      product_sizes (*),
+      product_flavours (*),
+      product_info (*),
+      product_variants (*, size:product_sizes(*), flavour:product_flavours(*))
+    `)
+    .eq('id', id)
+    .single();
+    
+  if (!data) return null;
+  
+  return {
+    ...data,
+    categories: Array.isArray(data.categories) ? data.categories[0] : (data.categories || null),
+    brands: Array.isArray(data.brands) ? data.brands[0] : (data.brands || null),
+    sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null)
+  } as Product;
+}
+
+/**
+ * Fetch a single product tightly coupled with variants by slug
  */
 export async function fetchProductBySlug(slug: string, options?: { requirePublished?: boolean }): Promise<Product | null> {
   const requirePublished = options?.requirePublished ?? true;
@@ -299,7 +409,7 @@ export async function fetchProductBySlug(slug: string, options?: { requirePublis
       product_sizes (*),
       product_flavours (*),
       product_info (*),
-      product_variants (*)
+      product_variants (*, size:product_sizes(*), flavour:product_flavours(*))
     `)
     .eq('slug', slug);
 
@@ -313,8 +423,15 @@ export async function fetchProductBySlug(slug: string, options?: { requirePublis
     console.error(`Error fetching product ${slug}:`, error);
     return null;
   }
+
+  if (!data) return null;
   
-  return data as Product;
+  return {
+    ...data,
+    categories: Array.isArray(data.categories) ? data.categories[0] : (data.categories || null),
+    brands: Array.isArray(data.brands) ? data.brands[0] : (data.brands || null),
+    sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null)
+  } as Product;
 }
 
 /**
@@ -323,7 +440,7 @@ export async function fetchProductBySlug(slug: string, options?: { requirePublis
 export async function fetchProductReviews(productId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from('reviews')
-    .select('*')
+    .select('*, author_avatar')
     .eq('product_id', productId)
     .order('created_at', { ascending: false });
     
@@ -413,4 +530,166 @@ export async function updateProductVariantPrices(productId: string, variants: Pa
     return false;
   }
   return true;
+}
+
+/**
+ * HOMEPAGE LAYOUT SERVICES
+ */
+
+/**
+ * Fetch products associated with a specific homepage section
+ */
+export async function fetchHomepageProducts(sectionKey?: string): Promise<Product[]> {
+  let query = supabase
+    .from('homepage_products')
+    .select(`
+      product:products (
+        *,
+        categories (*),
+        brands (*)
+      )
+    `)
+    .order('display_order', { ascending: true });
+
+  if (sectionKey) {
+    query = query.eq('section_key', sectionKey);
+  }
+
+  const { data, error } = await query;
+  
+  if (error) {
+    console.error('[productService] Error fetching homepage products:', error);
+    return [];
+  }
+
+  // Format the nested select results back into flat Product array
+  return (data as any[]).map(item => ({
+    ...item.product,
+    categories: Array.isArray(item.product.categories) ? item.product.categories[0] : (item.product.categories || null),
+    brands: Array.isArray(item.product.brands) ? item.product.brands[0] : (item.product.brands || null)
+  })) as Product[];
+}
+
+/**
+ * Update (Replace) products in a specific homepage section
+ */
+export async function updateHomepageProducts(sectionKey: string, productIds: string[]): Promise<boolean> {
+  const adminClient = getSupabaseAdmin();
+  if (!adminClient) {
+    console.error('[productService] Admin client could not be initialized. Check SUPABASE_SERVICE_ROLE_KEY.');
+    // Fall back to standard client if admin is unavailable
+    return await updateHomepageProductsWithClient(supabase, sectionKey, productIds);
+  }
+
+  return await updateHomepageProductsWithClient(adminClient, sectionKey, productIds);
+}
+
+/**
+ * Internal helper to handle the actual update logic with any client
+ */
+async function updateHomepageProductsWithClient(client: any, sectionKey: string, productIds: string[]): Promise<boolean> {
+  // 1. Delete existing assignments for this section
+  const { error: deleteError } = await client
+    .from('homepage_products')
+    .delete()
+    .eq('section_key', sectionKey);
+
+  if (deleteError) {
+    console.error(`[productService] Error clearing section ${sectionKey}:`, deleteError);
+    return false;
+  }
+
+  if (productIds.length === 0) return true;
+
+  // 2. Insert new assignments
+  const newAssignments = productIds.map((pid, index) => ({
+    section_key: sectionKey,
+    product_id: pid,
+    display_order: index
+  }));
+
+  const { error: insertError } = await client
+    .from('homepage_products')
+    .insert(newAssignments);
+
+  if (insertError) {
+    console.error(`[productService] Error updating section ${sectionKey}:`, insertError);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Fetch related products combining same-category and fallback-category products
+ * up to a specified limit.
+ */
+export async function fetchRelatedProducts(
+  baseProductId: string,
+  categoryId: string | null | undefined,
+  limit: number = 10
+): Promise<Product[]> {
+  const resultProducts: Product[] = [];
+
+  // 1. Fetch from the specific category first
+  if (categoryId) {
+    const { data: catData, error: catError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories (*),
+        brands (*),
+        sellers (*),
+        product_sizes (*),
+        product_flavours (*),
+        product_info (*),
+        product_variants (*)
+      `)
+      .eq('is_published', true)
+      .eq('category_id', categoryId)
+      .neq('id', baseProductId)
+      .limit(limit);
+
+    if (!catError && catData) {
+      resultProducts.push(...(catData as any[]));
+    }
+  }
+
+  // 2. If we haven't reached the limit, fetch fallback products from other categories
+  const remaining = limit - resultProducts.length;
+  if (remaining > 0) {
+    let query = supabase
+      .from('products')
+      .select(`
+        *,
+        categories (*),
+        brands (*),
+        sellers (*),
+        product_sizes (*),
+        product_flavours (*),
+        product_info (*),
+        product_variants (*)
+      `)
+      .eq('is_published', true)
+      .neq('id', baseProductId);
+
+    if (categoryId) {
+      query = query.neq('category_id', categoryId);
+    }
+    
+    // Order by created_at descending just as a naive placeholder for "popular/new"
+    query = query.order('created_at', { ascending: false }).limit(remaining);
+
+    const { data: fallbackData, error: fallbackError } = await query;
+    if (!fallbackError && fallbackData) {
+      resultProducts.push(...(fallbackData as any[]));
+    }
+  }
+
+  return resultProducts.map((p) => ({
+    ...p,
+    categories: Array.isArray(p.categories) ? p.categories[0] : (p.categories || null),
+    brands: Array.isArray(p.brands) ? p.brands[0] : (p.brands || null),
+    sellers: Array.isArray(p.sellers) ? p.sellers[0] : (p.sellers || null),
+  })) as Product[];
 }

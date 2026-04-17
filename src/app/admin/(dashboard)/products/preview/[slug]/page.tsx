@@ -6,6 +6,7 @@ import Availability from '@/components/product/Availability';
 import ServiceHighlights from '@/components/product/ServiceHighlight';
 import ProductHighlights from '@/components/product/ProductHighlight';
 import ProductDetails from '@/components/product/ProductDetails';
+import ProductBanners from '@/components/product/ProductBanners';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
@@ -43,9 +44,9 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
       <AuthProvider>
         <CartProvider>
           <AuthModalProvider>
-            <article className="relative h-full w-full overflow-y-auto bg-white custom-scrollbar flex flex-col pt-[50px] pb-[80px] font-titillium">
+            <article className="relative h-full w-full overflow-y-auto bg-white custom-scrollbar flex flex-col pt-0 pb-[80px] font-titillium">
               {/* ADMIN PREVIEW BANNER */}
-              <div className="absolute top-0 left-0 right-0 z-[60] bg-indigo-600 text-white px-4 py-3 flex items-center justify-between text-[13px] font-medium font-rubik shadow-md">
+              <div className="sticky top-0 left-0 right-0 z-[110] bg-indigo-600 text-white px-4 py-3 flex items-center justify-between text-[13px] font-medium font-rubik shadow-md">
                 <div className="flex items-center gap-2">
                   <span className="flex h-2 w-2 rounded-full bg-white animate-pulse"></span>
                   ADMIN PREVIEW MODE
@@ -101,6 +102,16 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                         <ProductDetails product={product} />
                       </div>
                       <div className="lg:hidden">
+                        <ProductBanners 
+                          banners={[
+                            product.banner_image1, 
+                            product.banner_image2,
+                            product.banner_image3,
+                            product.banner_image4
+                          ]} 
+                        />
+                      </div>
+                      <div className="lg:hidden">
                         <ReviewsSection reviews={reviews} />
                       </div>
                       <div className="lg:hidden">
@@ -115,6 +126,16 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
 
                 <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
                   <ProductDetails product={product} />
+                </div>
+                <div className="hidden lg:block">
+                  <ProductBanners 
+                    banners={[
+                      product.banner_image1, 
+                      product.banner_image2,
+                      product.banner_image3,
+                      product.banner_image4
+                    ]} 
+                  />
                 </div>
                 <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
                   <ReviewsSection reviews={reviews} />

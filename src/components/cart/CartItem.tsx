@@ -87,11 +87,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             )}
             {item.mrp > 0 && item.mrp > item.price && (
               <span className="font-titillium text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
-                NPR {item.mrp.toLocaleString()}
+                Rs. {item.mrp.toLocaleString()}
               </span>
             )}
             <span className="font-custom text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
-              NPR {item.price.toLocaleString()}
+              Rs. {item.price.toLocaleString()}
             </span>
           </div>
 

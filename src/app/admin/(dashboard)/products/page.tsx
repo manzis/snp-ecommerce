@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import ProductPageNav from '@/components/admin/products/ProductPageNav';
+import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import DashboardProductCard from '@/components/admin/products/ProductCard';
 import ProductTableView from '@/components/admin/products/ProductTableView';
 import Pagination from '@/components/admin/products/Pagination';
 import UpdatePriceModal from '@/components/admin/products/UpdatePriceModal';
 import { fetchProductsPaginated, Product, deleteProduct } from '@/services/productService';
 import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
+import ProductFilters from '@/components/admin/products/ProductFilters';
 import { updateProductAction, deleteProductAction, duplicateProductAction } from '@/app/actions/productActions';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 
 const PAGE_SIZE = 8;
 
@@ -20,10 +22,11 @@ export default function ProductsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const { showToast } = useAdminToast();
+
   // Selection State
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  
+
   // Pricing Modal State
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
   const [selectedProductForPrice, setSelectedProductForPrice] = useState<Product | null>(null);
@@ -54,7 +57,7 @@ export default function ProductsPage() {
 
   // Selection Handlers
   const handleToggleSelect = (id: string) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -72,8 +75,18 @@ export default function ProductsPage() {
     const res = await updateProductAction(id, updates);
     if (res.success) {
       setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+      
+      let message = 'Product updated successfully.';
+      if (updates.is_published !== undefined) {
+          message = updates.is_published ? 'Product published live.' : 'Product hidden from store.';
+      } else if (updates.is_draft !== undefined) {
+          message = updates.is_draft ? 'Product moved to drafts.' : 'Product removed from drafts.';
+      } else if (updates.stock_status !== undefined) {
+          message = `Stock status updated to ${updates.stock_status.replace(/_/g, ' ')}.`;
+      }
+      showToast(message, 'success');
     } else {
-      alert(`Failed to update product: ${res.message}`);
+      showToast(`Failed to update product: ${res.message}`, 'error');
     }
   };
 
@@ -83,8 +96,9 @@ export default function ProductsPage() {
       if (res.success) {
         setProducts(prev => prev.filter(p => p.id !== id));
         setTotalCount(prev => prev - 1);
+        showToast('Product deleted successfully.', 'success');
       } else {
-        alert(res.message);
+        showToast(res.message, 'error');
       }
     }
   };
@@ -93,8 +107,9 @@ export default function ProductsPage() {
     const res = await duplicateProductAction(id);
     if (res.success) {
       loadProducts();
+      showToast('Product duplicated successfully.', 'success');
     } else {
-      alert(res.message);
+      showToast(res.message, 'error');
     }
   };
 
@@ -107,16 +122,19 @@ export default function ProductsPage() {
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
       <DynamicAdminNav />
       {/* Contextual Secondary Navigation */}
-      <ProductPageNav
+      <AdminSubNav
+        showViewMode
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        searchPlaceholder="Search products..."
         onSearch={(query) => {
           setSearchQuery(query);
           setCurrentPage(1); // Reset to first page on new search
         }}
+        filterDropdown={<ProductFilters />}
       />
 
-      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[100px]">
+      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[200px]">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-[400px] gap-4">
             <div className="w-10 h-10 border-4 border-gray-100 border-t-[#242424] rounded-full animate-spin"></div>
@@ -138,10 +156,7 @@ export default function ProductsPage() {
             </div>
 
             {viewMode === 'grid' ? (
-              <motion.div
-                layout
-                className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              >
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <AnimatePresence mode="popLayout">
                   {products.map((product) => (
                     <motion.div
@@ -167,7 +182,7 @@ export default function ProductsPage() {
                     </motion.div>
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             ) : (
               <ProductTableView
                 products={products}
@@ -215,9 +230,9 @@ export default function ProductsPage() {
             setSelectedProductForPrice(null);
           }}
           onSuccess={(updatedVariants) => {
-            setProducts(prev => prev.map(p => 
-              p.id === selectedProductForPrice.id 
-                ? { ...p, product_variants: updatedVariants as any } 
+            setProducts(prev => prev.map(p =>
+              p.id === selectedProductForPrice.id
+                ? { ...p, product_variants: updatedVariants as any }
                 : p
             ));
           }}

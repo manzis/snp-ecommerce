@@ -34,7 +34,7 @@ export default function PriceDetails({
                     {/* MRP */}
                     <div className="flex w-full items-center justify-between border-b border-[#f1f5f9] p-[18px_13px]">
                         <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424]">MRP</span>
-                        <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424] text-right">NPR {mrp}</span>
+                        <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424] text-right">Rs. {mrp}</span>
                     </div>
 
                     {/* Discounts (Expandable) */}
@@ -52,7 +52,7 @@ export default function PriceDetails({
                                     <CaretDownIcon className="w-4 h-4 text-[#8a8e91]" />
                                 </motion.div>
                             </div>
-                            <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#308026] text-right">- NPR {discount}</span>
+                            <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#308026] text-right">- Rs. {discount}</span>
                         </button>
 
                         <AnimatePresence initial={false}>
@@ -67,7 +67,7 @@ export default function PriceDetails({
                                     <div className="flex flex-col gap-[12px] px-[24px] pb-[12px] pt-[12px]">
                                         <div className="flex items-center justify-between">
                                             <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Discount on MRP</span>
-                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">- NPR {discountOnMrp || discount}</span>
+                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">- Rs. {discountOnMrp || discount}</span>
                                         </div>
                                         {couponDiscount > 0 && (
                                             <div className="flex items-center justify-between">
@@ -75,7 +75,7 @@ export default function PriceDetails({
                                                     <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Coupon Savings</span>
                                                     {couponCode && <span className="text-[10px] text-[#308026] font-bold">Code: {couponCode}</span>}
                                                 </div>
-                                                <span className="font-titillium text-[14px] font-[400] text-[#308026]">- NPR {couponDiscount}</span>
+                                                <span className="font-titillium text-[14px] font-[400] text-[#308026]">- Rs. {couponDiscount}</span>
                                             </div>
                                         )}
                                     </div>
@@ -99,7 +99,7 @@ export default function PriceDetails({
                                     <CaretDownIcon className="w-4 h-4 text-[#8a8e91]" />
                                 </motion.div>
                             </div>
-                            <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424] text-right">+ NPR {shipping + codFees + taxAmount}</span>
+                            <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424] text-right">+ Rs. {shipping + codFees + taxAmount}</span>
                         </button>
 
                         <AnimatePresence initial={false}>
@@ -114,12 +114,12 @@ export default function PriceDetails({
                                     <div className="flex flex-col gap-[12px] px-[24px] pb-[12px] pt-[12px]">
                                         <div className="flex items-center justify-between">
                                             <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Shipping Fees</span>
-                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">+ NPR {shipping}</span>
+                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Rs. {shipping}</span>
                                         </div>
                                         {codFees > 0 && (
                                             <div className="flex items-center justify-between">
                                                 <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Cash on Delivery Fee</span>
-                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">+ NPR {codFees}</span>
+                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Rs. {codFees}</span>
                                             </div>
                                         )}
                                         {taxAmount > 0 && (
@@ -137,7 +137,7 @@ export default function PriceDetails({
                     {/* Total Amount */}
                     <div className="flex w-full items-center justify-between p-[18px_13px] h-[54px]">
                         <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424]">Total Amount</span>
-                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424]">NPR {total}</span>
+                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424]">Rs. {total}</span>
                     </div>
                 </div>
 

@@ -42,7 +42,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* DISCOUNT BADGE (TOP RIGHT) */}
             <div className="absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[6px] py-[2px]">
                 <span className="font-custom text-[10px] font-normal leading-[14px] text-[#242424]">
-                    save {discountPercentage}
+                    save {discountPercentage}%
                 </span>
             </div>
 
@@ -83,10 +83,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <div className="flex items-start gap-[6px] self-stretch">
                         <div className="flex flex-1 shrink-0 items-center gap-[6px]">
                             <span className="font-titillium text-[16px] font-normal leading-[22px] tracking-[-1.12px] text-[#979797] line-through">
-                                {originalPrice}
+                                Rs. {originalPrice}
                             </span>
                             <span className="bg-[linear-gradient(68.09deg,#308026,#32d71d)] bg-clip-text font-custom text-[16px] font-normal leading-[22px] text-transparent">
-                                {discountedPrice}
+                                Rs. {discountedPrice}
                             </span>
                         </div>
                     </div>

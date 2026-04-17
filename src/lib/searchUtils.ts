@@ -1,3 +1,5 @@
+import { Product } from '@/services/productService';
+
 export const getLevenshteinDistance = (a: string, b: string): number => {
   const matrix = Array.from({ length: a.length + 1 }, () =>
     Array.from({ length: b.length + 1 }, (_, i) => i)
@@ -13,28 +15,46 @@ export const getLevenshteinDistance = (a: string, b: string): number => {
   return matrix[a.length][b.length];
 };
 
-export const getAutocorrectSuggestion = (query: string, database: string[]): string | null => {
+/**
+ * Scrapes metadata (brands, categories, names, tags) out of the entire product catalogue 
+ * and fuzzily checks if the user's latest word is a typo of a highly indexed keyword.
+ */
+export const getAutocorrectSuggestion = (query: string, products: Product[]): string | null => {
   const words = query.toLowerCase().split(/\s+/);
   const lastWord = words[words.length - 1];
   if (lastWord.length < 3) return null;
 
-  // Extract all unique words from database to find the closest match
-  const dbWords = Array.from(new Set(database.flatMap(item => item.toLowerCase().split(/\s+/))));
-  
+  // Build the live contextual dictionary
+  const dictionarySet = new Set<string>();
+
+  products.forEach(p => {
+    if (p.brands?.name) p.brands.name.toLowerCase().split(/\s+/).forEach(w => dictionarySet.add(w));
+    if (p.categories?.name) p.categories.name.toLowerCase().split(/\s+/).forEach(w => dictionarySet.add(w));
+    if (p.name) p.name.toLowerCase().split(/\s+/).forEach(w => dictionarySet.add(w));
+    if (p.title) p.title.toLowerCase().split(/\s+/).forEach(w => dictionarySet.add(w));
+    if (p.tags) p.tags.forEach(t => dictionarySet.add(t.toLowerCase()));
+  });
+
+  const dbWords = Array.from(dictionarySet);
+
   let bestMatch = null;
-  let minDistance = 3; // Max threshold for a typo
+  let minDistance = 3; // Max threshold for a typo (e.g. creatin -> creatine distance = 1)
 
   for (const dbWord of dbWords) {
-    const distance = getLevenshteinDistance(lastWord, dbWord);
-    if (distance > 0 && distance < minDistance) {
-      minDistance = distance;
-      bestMatch = dbWord;
+    // Only attempt corrections on words roughly the same length to avoid straying
+    if (Math.abs(dbWord.length - lastWord.length) <= 2) {
+      const distance = getLevenshteinDistance(lastWord, dbWord);
+      
+      if (distance > 0 && distance < minDistance) {
+        minDistance = distance;
+        bestMatch = dbWord;
+      }
     }
   }
 
   if (bestMatch) {
     words[words.length - 1] = bestMatch;
-    return words.join(' ');
+    return words.join(' '); // Returns the entire queried phrasing but with autocorrected last word!
   }
   return null;
 };

@@ -23,7 +23,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
   const { showToast } = useToast();
   const router = useRouter();
 
-  const { selectedSize, selectedFlavorId, setSizeError, setFlavorError, setPrice } = useProductSelectionStore();
+  const { selectedSize, selectedFlavorId, setSizeError, setFlavorError, setFlavorId, setPrice } = useProductSelectionStore();
   const { addItem } = useCartStore();
 
   // Handle Dynamic Variant Pricing
@@ -56,6 +56,37 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
   useEffect(() => {
     useProductSelectionStore.getState().reset();
   }, [product.id]);
+
+  const filteredFlavours = React.useMemo(() => {
+    if (!product.product_variants || product.product_variants.length === 0) return flavours;
+    if (!selectedSize) return flavours; // Without a size, we leave flavours purely available
+
+    const selectedSizeObj = sizes.find(s => s.size_label === selectedSize);
+    if (!selectedSizeObj) return flavours;
+
+    // Scan variants mapped uniquely to this exact Size 
+    // And that are structurally set as "available"
+    const validVariantRows = product.product_variants.filter(
+      v => v.size_id === selectedSizeObj.id && v.is_available !== false
+    );
+
+    const validFlavourIds = validVariantRows.map(v => v.flavour_id);
+
+    // Limit down main flavours only to those represented in validVariantRows
+    return flavours.filter(f => validFlavourIds.includes(f.id));
+  }, [product.product_variants, flavours, sizes, selectedSize]);
+
+  useEffect(() => {
+    // If the currently selected flavour ceases to exist in the filtered map (e.g user switched size dropping flavour pool)
+    if (selectedFlavorId && filteredFlavours.length > 0) {
+      const isStillValid = filteredFlavours.some(f => f.id === selectedFlavorId);
+      if (!isStillValid) {
+        setFlavorId(filteredFlavours[0].id); // Auto-force nearest valid item
+      }
+    } else if (filteredFlavours.length === 0 && selectedFlavorId !== null) {
+      setFlavorId(null); // Size mapping dictates 'No Flavour'
+    }
+  }, [filteredFlavours, selectedFlavorId, setFlavorId]);
 
   const executeAddToCart = () => {
     let isValid = true;
@@ -111,7 +142,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
 
   return (
     <section className="relative flex w-full lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0 px-[24px]">
-      <FlavourSelection flavours={flavours} />
+      <FlavourSelection flavours={filteredFlavours} />
       <SizeSelection sizes={sizes} />
       {/* Desktop Only CTA */}
       <div className="hidden lg:flex w-full flex-row gap-[16px] mt-[-10px]">
@@ -131,6 +162,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
           {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
         </button>
       </div>
+      
       <OfferCard />
 
       <DeliveryDetails seller={seller} stockStatus={product.stock_status} />

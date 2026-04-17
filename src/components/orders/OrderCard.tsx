@@ -47,6 +47,27 @@ export interface OrderProps {
     statusUpdates?: StatusUpdateLog[];
     carrierName?: string;
     trackingNumber?: string;
+    // Admin specific data
+    customerName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
+    shippingAddress?: any;
+    totalAmount?: number;
+    paymentMethod?: string;
+    paymentStatus?: string;
+    amountPaid?: number;
+    createdAt?: string;
+    itemsCount?: number;
+    // Granular Pricing
+    mrp_amount?: number;
+    discount_amount?: number;
+    shipping_amount?: number;
+    discount_on_mrp?: number;
+    coupon_discount?: number;
+    coupon_code?: string | null;
+    cod_fees?: number;
+    tax_amount?: number;
+    order_items?: any[];
 }
 
 export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; iconColor: string; bg: string }> = {

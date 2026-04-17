@@ -7,18 +7,8 @@ import SearchIcon from '@/components/icons/SearchIcon';
 import SearchCloseIcon from '@/components/icons/SearchCloseIcon';
 import SearchSuggestions from './SearchSuggestion';
 import { getAutocorrectSuggestion } from '@/lib/searchUtils';
-
-const PRODUCT_DATABASE = [
-  "Asitis Atom Whey Protein",
-  "Asitis Atom Whey Protein Concentrate",
-  "Asitis Creatine Monohydrate",
-  "Asitis Fish Oil",
-  "Atom Whey Protein 1kg",
-  "MuscleBlaze Biozyme Whey",
-  "Optimum Nutrition Gold Standard",
-  "Naturaltein Whey Protein",
-  "Ultimate Nutrition Prostar"
-];
+import { performSearch } from '@/lib/searchLogic';
+import { fetchProducts, Product } from '@/services/productService';
 
 interface SearchNavbarProps {
   onSearch: (term: string) => void;
@@ -28,11 +18,17 @@ interface SearchNavbarProps {
 const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery }) => {
   const [inputValue, setInputValue] = useState(currentQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const autofocus = searchParams.get('autofocus');
+
+  useEffect(() => {
+    // Load database on mount for autocomplete context
+    fetchProducts().then(setProducts);
+  }, []);
 
   useEffect(() => {
     setInputValue(currentQuery);
@@ -56,30 +52,25 @@ const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery }) =
 
   const filteredSuggestions = useMemo(() => {
     const q = inputValue.toLowerCase().trim();
-    if (!q) return [];
+    if (!q || products.length === 0) return [];
 
     const results: string[] = [];
     
     // 1. Check for Autocorrect (Priority 1)
-    const corrected = getAutocorrectSuggestion(q, PRODUCT_DATABASE);
+    const corrected = getAutocorrectSuggestion(q, products);
     if (corrected && corrected !== q) {
       results.push(corrected);
     }
 
-    // 2. Filter DB matches
-    const matches = PRODUCT_DATABASE.filter(item => 
-      item.toLowerCase().includes(q) || (corrected && item.toLowerCase().includes(corrected))
-    ).sort((a, b) => {
-      const aStart = a.toLowerCase().startsWith(q);
-      const bStart = b.toLowerCase().startsWith(q);
-      if (aStart && !bStart) return -1;
-      return 1;
-    });
+    // 2. Filter using advanced hierarchical logic
+    const searchQuery = corrected || q;
+    const rankedProducts = performSearch(searchQuery, products);
+    const matches = rankedProducts.map(p => p.title || p.name);
 
     // Combine and deduplicate
     const finalSet = new Set([...results, ...matches]);
     return Array.from(finalSet).slice(0, 8); // Max 8 suggestions
-  }, [inputValue]);
+  }, [inputValue, products]);
 
   const handleAction = (term: string) => {
     setInputValue(term);

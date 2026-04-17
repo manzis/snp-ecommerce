@@ -1,13 +1,82 @@
-import React from 'react';
-import ChevronDownIcon from '@/components/icons/CaretDownIcon';
-import MultiImageUpload from '@/components/admin/products/MultiImageUpload';
+import React, { useState } from 'react';
 import AdminDropdown from '@/components/admin/shared/AdminDropdown';
+import MultiImageUpload from '@/components/admin/products/MultiImageUpload';
 import { ErrorText } from './shared';
+import CategoryModal from '@/components/admin/categories/CategoryModal';
+import BrandModal from '@/components/admin/brands/BrandModal';
+import SellerModal from '@/components/admin/sellers/SellerModal';
+import { createCategoryAction } from '@/app/actions/categoryActions';
+import { createBrandAction } from '@/app/actions/brandActions';
+import { createSellerAction } from '@/app/actions/sellerActions';
+import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 
-export default function ProductInfoTab({ formData, setFormData, categories, brands, sellers, showErrors, errors }: any) {
+export default function ProductInfoTab({ formData, setFormData, categories, brands, sellers, showErrors, errors, onRefreshMetadata }: any) {
+    const { showAdminToast } = useAdminToast();
+    const [showCategoryModal, setShowCategoryModal] = useState(false);
+    const [showBrandModal, setShowBrandModal] = useState(false);
+    const [showSellerModal, setShowSellerModal] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleCreateCategory = async (id: string | null, data: any) => {
+        setIsSaving(true);
+        try {
+            const res = await createCategoryAction(data);
+            if (res.success) {
+                showAdminToast('Category created successfully', 'success');
+                await onRefreshMetadata();
+                setFormData({ ...formData, category_id: res.data.id });
+                setShowCategoryModal(false);
+            } else {
+                showAdminToast(res.message || 'Failed to create category', 'error');
+            }
+        } catch (err) {
+            showAdminToast('An error occurred', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCreateBrand = async (id: string | null, data: any) => {
+        setIsSaving(true);
+        try {
+            const res = await createBrandAction(data);
+            if (res.success) {
+                showAdminToast('Brand created successfully', 'success');
+                await onRefreshMetadata();
+                setFormData({ ...formData, brand_id: res.data.id });
+                setShowBrandModal(false);
+            } else {
+                showAdminToast(res.message || 'Failed to create brand', 'error');
+            }
+        } catch (err) {
+            showAdminToast('An error occurred', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleCreateSeller = async (id: string | null, data: any) => {
+        setIsSaving(true);
+        try {
+            const res = await createSellerAction(data);
+            if (res.success) {
+                showAdminToast('Seller created successfully', 'success');
+                await onRefreshMetadata();
+                setFormData({ ...formData, seller_id: res.data.id });
+                setShowSellerModal(false);
+            } else {
+                showAdminToast(res.message || 'Failed to create seller', 'error');
+            }
+        } catch (err) {
+            showAdminToast('An error occurred', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-10 max-w-4xl">
-            {/* 1. Product Name - Full Width */}
+            {/* ... existing sections ... */}
             <section className="space-y-6">
                 <h3 className="text-[15px] font-medium text-[#242424] tracking-tight">Product info</h3>
                 <div className="flex flex-col gap-2">
@@ -49,7 +118,6 @@ export default function ProductInfoTab({ formData, setFormData, categories, bran
                 </div>
             </section>
 
-            {/* 1.5. Base Pricing Section */}
             <section className="space-y-6">
                 <div className="flex items-center justify-between">
                     <h3 className="text-[15px] font-medium text-[#242424] tracking-tight">Base Pricing</h3>
@@ -84,7 +152,6 @@ export default function ProductInfoTab({ formData, setFormData, categories, bran
                 </div>
             </section>
 
-            {/* 2. Category, Brand and Seller Section */}
             <section className="space-y-6">
                 <h3 className="text-[15px] font-medium text-[#242424] tracking-tight">Vendor and Classification</h3>
                 <div className="bg-gray-50/80 border border-gray-100 p-6 rounded-2xl">
@@ -102,7 +169,7 @@ export default function ProductInfoTab({ formData, setFormData, categories, bran
                             placeholder="Select Category"
                             error="Category is required"
                             showError={showErrors && formData.category_id === ''}
-                            onCreateNew={() => console.log('Create Category clicked')}
+                            onCreateNew={() => setShowCategoryModal(true)}
                             createNewLabel="Create Category"
                         />
 
@@ -119,7 +186,7 @@ export default function ProductInfoTab({ formData, setFormData, categories, bran
                             placeholder="Select Brand"
                             error="Brand is mandatory"
                             showError={showErrors && formData.brand_id === ''}
-                            onCreateNew={() => console.log('Create Brand clicked')}
+                            onCreateNew={() => setShowBrandModal(true)}
                             createNewLabel="Create Brand"
                         />
 
@@ -137,14 +204,13 @@ export default function ProductInfoTab({ formData, setFormData, categories, bran
                             placeholder="Select Seller"
                             error="Seller info is mandatory"
                             showError={showErrors && formData.seller_id === ''}
-                            onCreateNew={() => console.log('Create Seller clicked')}
+                            onCreateNew={() => setShowSellerModal(true)}
                             createNewLabel="Create Seller"
                         />
                     </div>
                 </div>
             </section>
 
-            {/* 3. Product Gallery */}
             <section className="space-y-6">
                 <h3 className="text-[15px] font-medium text-[#242424] tracking-tight">Image Gallery</h3>
                 <div className="flex flex-col gap-4">
@@ -162,6 +228,26 @@ export default function ProductInfoTab({ formData, setFormData, categories, bran
                     )}
                 </div>
             </section>
+
+            {/* Inline Creation Modals */}
+            <CategoryModal 
+                isOpen={showCategoryModal}
+                onClose={() => setShowCategoryModal(false)}
+                onSave={handleCreateCategory}
+                isSaving={isSaving}
+            />
+            <BrandModal 
+                isOpen={showBrandModal}
+                onClose={() => setShowBrandModal(false)}
+                onSave={handleCreateBrand}
+                isSaving={isSaving}
+            />
+            <SellerModal 
+                isOpen={showSellerModal}
+                onClose={() => setShowSellerModal(false)}
+                onSave={handleCreateSeller}
+                isSaving={isSaving}
+            />
         </div>
     );
 }

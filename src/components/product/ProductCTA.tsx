@@ -78,7 +78,7 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
             damping: 30,
             mass: 0.8
           }}
-          className={`${isPreview ? 'absolute' : 'fixed'} bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden`}
+          className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden"
           style={{
             paddingBottom: 'env(safe-area-inset-bottom)',
             WebkitTransform: 'translateZ(0)',

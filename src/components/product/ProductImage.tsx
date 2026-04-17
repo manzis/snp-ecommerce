@@ -6,6 +6,7 @@ import ActionButton from './ActionButton';
 import StarIcon from '@/components/icons/GreenStar';
 import ShareIcon from '@/components/icons/Share';
 import WishlistIcon from '@/components/icons/Wishlisht';
+import MediaLightbox, { LightboxMedia } from '@/components/ui/MediaLightBox';
 
 import { useProductSelectionStore } from '@/store/productSelectionStore';
 
@@ -24,9 +25,10 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [animateHeart, setAnimateHeart] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // ZUSTAND STORE
-  const { selectedFlavorId } = useProductSelectionStore();
+  const { activeVariantImage } = useProductSelectionStore();
 
   const startX = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
@@ -35,11 +37,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
     setMounted(true);
   }, []);
 
-  const selectedFlavourImage = React.useMemo(() => {
-    if (!selectedFlavorId || !flavours.length) return null;
-    const flavour = flavours.find(f => f.id === selectedFlavorId);
-    return flavour?.image_url || null;
-  }, [selectedFlavorId, flavours]);
+  const selectedFlavourImage = activeVariantImage;
 
   const displayImages = React.useMemo(() => {
     if (!selectedFlavourImage) return images;
@@ -50,8 +48,8 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
 
   useEffect(() => {
     if (selectedFlavourImage) {
-        setIsTransitioning(false);
-        setActiveIndex(0);
+      setIsTransitioning(false);
+      setActiveIndex(0);
     }
   }, [selectedFlavourImage]);
 
@@ -97,13 +95,17 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
     isDragging.current = false;
     const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
     const diff = startX.current - clientX;
+    
     if (Math.abs(diff) > 35) {
       if (diff > 0) navigate('next');
       else navigate('prev');
+    } else if (Math.abs(diff) < 5) {
+      // Treat as click if barely moved
+      setIsLightboxOpen(true);
     }
   };
 
-  if (!mounted) return <div className="w-full h-[320px] lg:h-[560px] bg-white rounded-[6px]" />;
+  if (!mounted) return <div className="w-full h-[320px] lg:h-[560px] bg-white" />;
 
   return (
     <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[24px] relative select-none ">
@@ -113,7 +115,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
            - Mobile: h-[318px] (Exact Token)
            - Desktop: lg:h-[560px] (Increased for Premium Layout)
         */
-        className="relative h-[340px] lg:h-[560px] w-full overflow-hidden rounded-[6px] bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5] p-[8px]"
+        className="relative h-[350px] lg:h-[560px] w-full overflow-hidden bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5]"
         onMouseDown={handleStart}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
@@ -131,7 +133,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
                 src={img}
                 alt={productName}
                 fill
-                className="object-contain lg:object-cover"
+                className="object-cover lg:object-cover"
                 priority={idx === 0}
               />
             </div>
@@ -152,7 +154,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         )}
 
         {/* Rating Badge - Absolute Positioned */}
-        <div className="absolute left-[12px] top-[12px] z-20 flex h-[31px] items-center gap-[10px] rounded-[6px] bg-[#ffe900] px-[8px] py-[6px] shadow-sm">
+        <div className="absolute left-[0px] bottom-[0px] z-20 flex h-[31px] items-center gap-[10px] bg-[#ffe900] px-[8px] py-[6px] shadow-sm">
           <div className="flex gap-[2px] items-center shrink-0">
             <StarIcon className="w-[13px] h-[13px] text-[#242424]" />
             <span className="font-titillium text-[14px] font-[600] text-[#242424] ml-1">{rating}</span>
@@ -204,6 +206,13 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
           />
         ))}
       </div>
+
+      <MediaLightbox 
+        isOpen={isLightboxOpen}
+        media={displayImages.map(img => ({ type: 'image', url: img, alt: productName }))}
+        initialIndex={activeIndex}
+        onClose={() => setIsLightboxOpen(false)}
+      />
     </div>
   );
 };

@@ -61,21 +61,45 @@ export function mapToOrderProps(order: any): OrderProps {
   const dateText = `${order.status === 'delivered' ? 'Delivered' : order.status === 'cancelled' ? 'Cancelled' : 'Ordered'} On ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
   return {
-    id: order.id, // Full UUID for routing
-    shortId: order.id.split('-')[0].toUpperCase(), // Short ID for display
+    id: order.id,
+    shortId: order.id.split('-')[0].toUpperCase(),
     status: mapStatus(order.status),
     dateText,
-    brand: product.brand_name || 'SNP Nutrition',
-    title: product.name || 'Product Details',
+    brand: product.brands?.name || product.brand_name || 'SNP Nutrition',
+    title: product.name || 'Product',
     image: product.images?.[0] || '/images/product.png',
     size: firstItem.selected_size || 'Standard',
     flavour: firstItem.selected_flavor || 'Default',
     extraItemsCount: Math.max(0, (order.order_items?.length || 0) - 1),
     isCancellable: order.status === 'pending' || order.status === 'confirmed',
-    cancellationReason: order.cancellation_reason || undefined,
     statusUpdates: order.status_updates || [],
     carrierName: order.carrier_name || undefined,
     trackingNumber: order.tracking_number || undefined,
+    // Admin specific data
+    customerName: order.shipping_address?.addressDetails?.first_name 
+        ? `${order.shipping_address.addressDetails.first_name} ${order.shipping_address.addressDetails.last_name || ''}`.trim()
+        : (order.shipping_address?.first_name 
+            ? `${order.shipping_address.first_name} ${order.shipping_address.last_name || ''}`.trim()
+            : order.contact_details?.full_name || (order.contact_details?.value?.includes('@') ? order.contact_details.value.split('@')[0] : 'Guest Customer')),
+    customerEmail: order.shipping_address?.addressDetails?.email || order.contact_details?.email || (order.contact_details?.value?.includes('@') ? order.contact_details.value : null),
+    customerPhone: order.shipping_address?.addressDetails?.phone || order.contact_details?.phone || (!order.contact_details?.value?.includes('@') ? order.contact_details?.value : null),
+    shippingAddress: order.shipping_address,
+    totalAmount: order.total_amount,
+    paymentMethod: order.payment_method,
+    paymentStatus: order.payment_status,
+    amountPaid: order.amount_paid ? Number(order.amount_paid) : 0,
+    createdAt: order.created_at,
+    itemsCount: order.order_items?.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0) || 0,
+    // Granular Pricing
+    mrp_amount: order.mrp_amount,
+    discount_amount: order.discount_amount,
+    shipping_amount: order.shipping_amount,
+    discount_on_mrp: order.discount_on_mrp,
+    coupon_discount: order.coupon_discount,
+    coupon_code: order.coupon_code,
+    cod_fees: order.cod_fees,
+    tax_amount: order.tax_amount,
+    order_items: order.order_items || [],
   };
 }
 

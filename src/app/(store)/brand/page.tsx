@@ -1,30 +1,55 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
-import BrandCard, { Brand } from '@/components/brands/BrandCard';
+import BrandCard from '@/components/brands/BrandCard';
 import ArrowDownIcon from '@/components/icons/CaretDownIcon';
-
-const POPULAR_BRANDS: Brand[] = [
-  { id: 1, slug: 'muscleblaze', name: 'MUSCLEBLAZE', logo: '/images/brands/muscleblaze.png', rating: '4.3', reviews: '24.5K+', totalProducts: 129 },
-  { id: 2, slug: 'asitis-nutrition', name: 'ASITIS NUTRITION', logo: '/images/brands/asitis.png', rating: '4.3', reviews: '18.2K+', totalProducts: 84 },
-  { id: 3, slug: 'optimum-nutrition', name: 'OPTIMUM NUTRITION', logo: '/images/brands/on.png', rating: '4.8', reviews: '30K+', totalProducts: 210 },
-];
-
-const ALL_BRANDS_DATA: Brand[] = [
-  { id: 4, slug: 'optimum-nutrition', name: 'OPTIMUM NUTRITION', logo: '/images/brands/on.png', rating: '4.8', totalProducts: 210 },
-  { id: 5, slug: 'carbamide-forte', name: 'CARBAMIDE FORTE', logo: '/images/brands/cf.png', rating: '4.2', totalProducts: 156 },
-  { id: 6, slug: 'dymatize', name: 'DYMATIZE', logo: '/images/brands/dym.png', rating: '4.7', totalProducts: 92 },
-  { id: 7, slug: 'gnc', name: 'GNC', logo: '/images/brands/gnc.png', rating: '4.4', totalProducts: 320 },
-  { id: 8, slug: 'myprotein', name: 'MYPROTEIN', logo: '/images/brands/myp.png', rating: '4.6', totalProducts: 412 },
-  { id: 9, slug: 'rule-1', name: 'RULE 1', logo: '/images/brands/r1.png', rating: '4.5', totalProducts: 78 },
-];
+import { fetchBrands, Brand as DBBrand } from '@/services/productService';
+import { BRAND_THEMES } from '@/lib/BrandThemes';
 
 export default function BrandsPage() {
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [brands, setBrands] = React.useState<DBBrand[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [visibleCount, setVisibleCount] = React.useState(4);
+
+  React.useEffect(() => {
+    fetchBrands().then(data => {
+      setBrands(data);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const POPULAR_BRANDS = brands.filter(b => (b.rating || 0) >= 4.5).slice(0, 3);
+  const ALL_BRANDS_DATA = brands;
 
   const handleShowMore = () => {
     setVisibleCount((prev) => Math.min(prev + 4, ALL_BRANDS_DATA.length));
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-10 h-10 border-4 border-gray-100 border-t-[#308026] rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  const mapToUIBrand = (b: DBBrand) => {
+    const slug = b.slug.toLowerCase();
+    const theme = BRAND_THEMES[slug] || BRAND_THEMES[slug.replace(/-/g, '')] || BRAND_THEMES.default;
+
+    return {
+      uiBrand: {
+        id: Number(b.id) || 0,
+        slug: b.slug,
+        name: b.name,
+        logo: b.image_url || '/images/brands/brand-logo.png',
+        rating: b.rating?.toString() || '4.5',
+        reviews: '10K+', // Placeholder until stats table is added
+        totalProducts: b.product_count || 0
+      },
+      colors: theme.cardColors
+    };
   };
 
   return (
@@ -38,9 +63,10 @@ export default function BrandsPage() {
             Popular Brands
           </h2>
           <div className="no-scrollbar flex w-full gap-[12px] overflow-x-auto pb-[4px]">
-            {POPULAR_BRANDS.map((brand) => (
-              <BrandCard key={brand.id} brand={brand} layout="popular" />
-            ))}
+            {POPULAR_BRANDS.map((brand) => {
+              const { uiBrand, colors } = mapToUIBrand(brand);
+              return <BrandCard key={brand.id} brand={uiBrand} colors={colors} layout="popular" />;
+            })}
           </div>
         </section>
 
@@ -51,9 +77,10 @@ export default function BrandsPage() {
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-[12px] gap-y-[24px]">
-            {ALL_BRANDS_DATA.slice(0, visibleCount).map((brand) => (
-              <BrandCard key={brand.id} brand={brand} layout="grid" />
-            ))}
+            {ALL_BRANDS_DATA.slice(0, visibleCount).map((brand) => {
+              const { uiBrand, colors } = mapToUIBrand(brand);
+              return <BrandCard key={brand.id} brand={uiBrand} colors={colors} layout="grid" />;
+            })}
           </div>
 
           {/* SHOW MORE BUTTON */}

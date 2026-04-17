@@ -3,6 +3,7 @@ import AdminHeader from '@/components/admin/layout/AdminHeader';
 import Breadcrumb from '@/components/layout/AdminBreadcrumb';
 import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminMobileNav from '@/components/admin/layout/AdminMobileNav';
+import RealtimeOrderListener from '@/components/admin/layout/RealtimeOrderListener';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -23,6 +24,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Bottom Navigation */}
       <AdminMobileNav />
+
+      {/* Real-time Event Handlers */}
+      <RealtimeOrderListener />
     </div>
   );
 }

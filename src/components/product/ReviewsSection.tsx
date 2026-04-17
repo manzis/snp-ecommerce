@@ -28,10 +28,18 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Map reviews into the format the Lightbox expects
   const lightboxMedia: LightboxMedia[] = reviews.map(review => ({
-    type: 'image',
+    type: review.image?.match(/\.(mp4|webm|mov|ogg)$/i) ? 'video' : 'image',
     url: review.image || '/images/default-review.png',
     alt: `Review by ${review.author}`
   }));
@@ -69,57 +77,99 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                   <div className="px-[12px] py-[24px] text-sm text-[#797979]">No reviews yet. Be the first to review!</div>
                 ) : reviews.map((review, index) => {
                   const theme = themes[index % themes.length];
+                  const isVideo = review.image?.match(/\.(mp4|webm|mov|ogg)$/i);
+
                   return (
                     <motion.div
                       key={review.id}
                       initial="hidden"
                       whileInView="visible"
+                      whileHover="hover"
                       viewport={{ once: true, amount: 0.6 }}
-                      onClick={() => handleOpenLightbox(index)} // Opens dedicated Lightbox
-                      className="relative flex h-[290px] w-[225px] flex-shrink-0 flex-col rounded-[8px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden bg-white cursor-pointer active:scale-[0.98] transition-transform"
+                      onClick={() => handleOpenLightbox(index)}
+                      className="relative flex h-[290px] w-[225px] flex-shrink-0 flex-col rounded-[8px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden bg-white cursor-pointer transition-transform"
                     >
-                      {/* 1. Base Layer: Product Image */}
-                      <div className="relative h-full w-full rounded-[6px] overflow-hidden">
-                        <Image
-                          src={review.image || '/images/default-review.png'}
-                          alt="Reviewed Product"
-                          fill
-                          className="object-cover"
-                          sizes="225px"
-                        />
+                      {/* 1. Base Layer: Content Media (Photo/Video) */}
+                      <div className="relative h-full w-full rounded-[6px] overflow-hidden bg-gray-50">
+                        {isVideo ? (
+                          <video
+                            src={review.image!}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            autoPlay
+                            loop
+                          />
+                        ) : (
+                          <Image
+                            src={review.image || '/images/default-review.png'}
+                            alt="Reviewed Product"
+                            fill
+                            className="object-cover"
+                            sizes="225px"
+                          />
+                        )}
+                        {/* Video Indicator */}
+                        {isVideo && (
+                          <div className="absolute top-2 left-2 z-30 bg-black/40 backdrop-blur-md rounded-full p-1.5 border border-white/20">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
 
                       {/* 2. Top Layer: Rating Badge */}
-                      <div className="absolute right-[8px] top-[8px] z-20 flex h-[26px] w-[62px] items-center justify-center gap-[2px] rounded-[4px] bg-white px-[4px] py-[4px] shadow-sm pointer-events-none">
-                        <StarIcon className="h-[14px] w-[14px]" />
-                        <div className="font-titillium text-[12px] font-semibold text-[#242424]">
-                          {review.rating}<span className="font-normal opacity-60">/5.0</span>
+                      <div className="absolute right-[8px] top-[8px] z-20 flex h-[26px] items-center justify-center gap-[4px] rounded-[6px] bg-white/90 backdrop-blur-md px-[8px] py-[4px] shadow-[0_2px_10px_rgba(0,0,0,0.08)] pointer-events-none">
+                        <StarIcon className="h-[12px] w-[12px]" />
+                        <div className="font-titillium text-[11px] font-bold text-[#242424]">
+                          {Number(review.rating).toFixed(1)}
                         </div>
                       </div>
 
-                      {/* 3. Bouncy Animated Text Overlay */}
+                      {/* 3. Smooth Interactive Text Overlay */}
                       <motion.div
                         variants={{
-                          hidden: { y: "150%" },
-                          visible: { y: 0 }
+                          hidden: { y: "150%", opacity: 0 },
+                          visible: { 
+                            y: [0, 0, 120, 120, 0],
+                            opacity: [1, 1, 0, 0, 1],
+                            transition: {
+                              times: [0, 0.65, 0.7, 0.95, 1],
+                              duration: 7,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }
+                          },
+                          hover: { 
+                            y: 0, 
+                            opacity: 1,
+                            transition: { duration: 0.3, ease: "easeOut" }
+                          }
                         }}
-                        transition={{
-                          delay: 1.2,
-                          type: "spring",
-                          stiffness: 140,
-                          damping: 12,
-                          mass: 0.8
-                        }}
-                        className={`absolute bottom-[2px] left-[2px] right-[2px] z-10 flex flex-col gap-[6px] p-[12px_12px_8px_12px] rounded-[6px] overflow-hidden pointer-events-none ${theme.bg}`}
+                        className={`absolute bottom-[2px] left-[2px] right-[2px] z-10 flex flex-col gap-[6px] p-[12px_12px_12px_12px] rounded-[6px] overflow-hidden pointer-events-none ${theme.bg}`}
                       >
                         <div className="flex flex-col items-center justify-center gap-[8px] self-stretch text-center relative z-10">
-                          <span className={`font-custom text-[14px] leading-[18px] tracking-[0.1px] bg-clip-text text-transparent ${theme.text}`}>
+                          <span 
+                            className={`font-custom text-[14px] leading-[18px] tracking-[0.1px] bg-clip-text text-transparent line-clamp-2 ${theme.text}`}
+                            style={{ maskImage: 'linear-gradient(to bottom, black 80%, rgba(0,0,0,0.5) 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 80%, rgba(0,0,0,0.5) 100%)' }}
+                          >
                             {review.text}
                           </span>
-                          <div className="flex flex-col items-center gap-[4px]">
-                            <span className={`font-titillium text-[10px] leading-[12px] tracking-[0.1px] ${theme.author}`}>
-                              {review.author} | {review.role}
-                            </span>
+                          <div className="flex flex-col items-center gap-[6px]">
+                            <div className="flex items-center gap-[6px]">
+                              {/* Author Avatar in Overlay */}
+                              <div className="w-[18px] h-[18px] rounded-full overflow-hidden relative border border-black/5 bg-black/10 flex items-center justify-center text-[8px] font-bold">
+                                {review.author_avatar ? (
+                                  <Image src={review.author_avatar} alt="" fill className="object-cover" />
+                                ) : (
+                                  <span className={theme.author}>{review.author?.charAt(0)}</span>
+                                )}
+                              </div>
+                              <span className={`font-titillium text-[10px] leading-[12px] tracking-[0.1px] font-bold ${theme.author}`}>
+                                {review.author}
+                              </span>
+                            </div>
                             <div className="flex items-center gap-[2px]">
                               <VerifiedIcon className="h-[10px] w-[10px]" />
                               <span className={`font-titillium text-[8px] font-semibold leading-[7px] ${theme.verified}`}>

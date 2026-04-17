@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import CloseIcon from '@/components/icons/SearchCloseIcon'; 
 import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon'; 
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 export interface LightboxMedia {
   type: 'image' | 'video';
@@ -100,14 +101,37 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               {currentMedia && (
-                <Image 
-                  src={currentMedia.url} 
-                  alt={currentMedia.alt || "Media Preview"} 
-                  fill 
-                  className="object-contain"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  priority
-                />
+                currentMedia.type === 'video' ? (
+                  <video
+                    src={currentMedia.url}
+                    className="w-full h-full object-contain"
+                    controls
+                    autoPlay
+                    playsInline
+                  />
+                ) : (
+                  <TransformWrapper
+                    initialScale={1}
+                    minScale={1}
+                    maxScale={5}
+                    centerOnInit
+                    wheel={{ step: 0.1 }}
+                    doubleClick={{ step: 0.5 }}
+                  >
+                    <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                      <div className="relative w-full h-full max-w-[800px] max-h-[85vh] aspect-square flex items-center justify-center cursor-zoom-in">
+                        <Image 
+                          src={currentMedia.url} 
+                          alt={currentMedia.alt || "Media Preview"} 
+                          fill 
+                          className="object-contain pointer-events-none"
+                          sizes="(max-width: 768px) 100vw, 800px"
+                          priority
+                        />
+                      </div>
+                    </TransformComponent>
+                  </TransformWrapper>
+                )
               )}
             </motion.div>
 

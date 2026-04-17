@@ -161,6 +161,8 @@ export async function createProductAction(productData: any) {
       has_variants,
       temp_sizes,
       temp_flavours,
+      product_flavours,
+      product_sizes,
       stock_count: providedStock,
       ...mainFields 
     } = productData;
@@ -254,14 +256,18 @@ export async function createProductAction(productData: any) {
         insertedFlavours?.forEach(f => { flavourMap[f.flavour_name] = f.id; });
       }
 
-      // Insert Sizes ensuring product_id
+      // Insert Sizes ensuring product_id and image_url
       const sizeMap: Record<string, string> = {};
       if (uniqueSizes.length > 0) {
-        const sizeData = uniqueSizes.map(label => ({
-          product_id: productId,
-          size_label: label,
-          is_available: true
-        }));
+        const sizeData = uniqueSizes.map(label => {
+          const firstVariantWithImage = variantsToProcess.find((v: any) => (v.size_label === label || v.size?.size_label === label) && (v.image_url || v.size?.image_url));
+          return {
+            product_id: productId,
+            size_label: label,
+            image_url: firstVariantWithImage?.image_url || firstVariantWithImage?.size?.image_url || null,
+            is_available: true
+          };
+        });
         const { data: insertedSizes, error: sError } = await finalClient
           .from('product_sizes')
           .insert(sizeData)
@@ -320,6 +326,7 @@ export async function createProductAction(productData: any) {
       const reviewsToInsert = reviews.map((r: any) => ({
         product_id: productId,
         author: r.author,
+        author_avatar: r.author_avatar,
         role: r.role || 'Verified Buyer',
         text: r.text,
         rating: r.rating || 5,
@@ -453,6 +460,7 @@ export async function duplicateProductAction(id: string) {
       })),
       reviews: original.reviews?.map((r: any) => ({
         author: r.author,
+        author_avatar: r.author_avatar,
         role: r.role,
         text: r.text,
         rating: r.rating
@@ -474,5 +482,211 @@ export async function duplicateProductAction(id: string) {
   } catch (error: any) {
     console.error('Action Error: duplicateProductAction:', error);
     return { success: false, message: error.message || 'Failed to duplicate product.' };
+  }
+}
+/**
+ * Server action to update a product and all its relations (deep update)
+ */
+export async function updateProductDeepAction(id: string, productData: any) {
+  const supabase = await createClient();
+  
+  // 1. Verify Admin Role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return { success: false, message: 'Forbidden. Admin access required.' };
+  }
+
+  try {
+    const adminClient = getSupabaseAdmin();
+    const finalClient = adminClient || supabase;
+
+    // 2. Prepare product fields
+    const { 
+      product_variants, 
+      product_info, 
+      categories, 
+      brands, 
+      sellers,
+      qa,
+      reviews,
+      tags,
+      slug: providedSlug,
+      name,
+      hasManuallyEditedSlug,
+      has_variants,
+      temp_sizes,
+      temp_flavours,
+      product_flavours,
+      product_sizes,
+      stock_count: providedStock,
+      id: productIdInData,
+      created_at,
+      roles,
+      ...mainFields 
+    } = productData;
+
+    // 2a. Auto-calculate discount percentage
+    const oPrice = Number(mainFields.original_price) || 0;
+    const dPrice = Number(mainFields.discounted_price) || 0;
+    const calculatedDiscount = (oPrice > 0 && oPrice > dPrice) 
+        ? Math.round(((oPrice - dPrice) / oPrice) * 100).toString() 
+        : '0';
+
+    // 3. Update Main Product
+    const { data: updatedProduct, error: productError } = await finalClient
+      .from('products')
+      .update({
+        ...mainFields,
+        discount_percentage: calculatedDiscount,
+        name,
+        slug: providedSlug,
+        stock_count: providedStock || 0,
+        tags: tags || []
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (productError) throw productError;
+
+    const productId = id;
+
+    // 4. Sequential Deletion of existing relations to maintain clean state
+    await Promise.all([
+      finalClient.from('product_variants').delete().eq('product_id', productId),
+      finalClient.from('product_info').delete().eq('product_id', productId),
+      finalClient.from('product_qa').delete().eq('product_id', productId),
+      finalClient.from('reviews').delete().eq('product_id', productId),
+      finalClient.from('product_sizes').delete().eq('product_id', productId),
+      finalClient.from('product_flavours').delete().eq('product_id', productId),
+    ]);
+
+    // 5. Resolve and Insert Variants (same logic as create)
+    const variantsToProcess = (product_variants && product_variants.length > 0) 
+      ? product_variants 
+      : [{
+          size_label: null,
+          flavour_name: null,
+          original_price: mainFields.original_price,
+          discounted_price: mainFields.discounted_price,
+          stock_count: providedStock || 0,
+          is_available: true
+        }];
+
+    if (variantsToProcess.length > 0) {
+      const uniqueFlavours = Array.from(new Set(variantsToProcess.map((v: any) => v.flavour_name || v.flavour?.flavour_name))).filter(Boolean) as string[];
+      const uniqueSizes = Array.from(new Set(variantsToProcess.map((v: any) => v.size_label || v.size?.size_label))).filter(Boolean) as string[];
+
+      const flavourMap: Record<string, string> = {};
+      if (uniqueFlavours.length > 0) {
+        const flavourData = uniqueFlavours.map(name => {
+          const firstVariantWithImage = variantsToProcess.find((v: any) => (v.flavour_name === name || v.flavour?.flavour_name === name) && (v.image_url || v.flavour?.image_url));
+          return {
+            product_id: productId,
+            flavour_name: name,
+            image_url: firstVariantWithImage?.image_url || firstVariantWithImage?.flavour?.image_url || '',
+            is_available: true
+          };
+        });
+        const { data: insertedFlavours, error: fError } = await finalClient
+          .from('product_flavours')
+          .insert(flavourData)
+          .select();
+        if (fError) throw new Error(`Flavor Error: ${fError.message}`);
+        insertedFlavours?.forEach(f => { flavourMap[f.flavour_name] = f.id; });
+      }
+
+      const sizeMap: Record<string, string> = {};
+      if (uniqueSizes.length > 0) {
+        const sizeData = uniqueSizes.map(label => {
+          const firstVariantWithImage = variantsToProcess.find((v: any) => (v.size_label === label || v.size?.size_label === label) && (v.image_url || v.size?.image_url));
+          return {
+            product_id: productId,
+            size_label: label,
+            image_url: firstVariantWithImage?.image_url || firstVariantWithImage?.size?.image_url || null,
+            is_available: true
+          };
+        });
+        const { data: insertedSizes, error: sError } = await finalClient
+          .from('product_sizes')
+          .insert(sizeData)
+          .select();
+        if (sError) throw new Error(`Size Error: ${sError.message}`);
+        insertedSizes?.forEach(s => { sizeMap[s.size_label] = s.id; });
+      }
+
+      const variantsToInsert = variantsToProcess.map((v: any) => {
+          const sLabel = v.size_label || v.size?.size_label;
+          const fName = v.flavour_name || v.flavour?.flavour_name;
+          return {
+            product_id: productId,
+            size_id: sLabel ? sizeMap[sLabel] : null,
+            flavour_id: fName ? flavourMap[fName] : null,
+            original_price: v.original_price,
+            discounted_price: v.discounted_price,
+            stock_count: v.stock_count || 0,
+            is_available: v.is_available ?? true
+          };
+      });
+
+      const { error: variantError } = await finalClient
+        .from('product_variants')
+        .insert(variantsToInsert);
+      
+      if (variantError) throw new Error(`Variant Error: ${variantError.message}`);
+    }
+
+    // 6. Insert Product Info
+    if (product_info) {
+      const infoData = Array.isArray(product_info) ? product_info[0] : product_info;
+      const { id: _, product_id: __, ...cleanInfo } = infoData;
+      const { error: infoError } = await finalClient
+        .from('product_info')
+        .insert([{ ...cleanInfo, product_id: productId }]);
+      if (infoError) console.error('Error updating product info:', infoError);
+    }
+
+    // 7. Insert QA
+    if (qa && qa.length > 0) {
+      const qaToInsert = qa.map((q: any) => ({
+        product_id: productId,
+        question: q.question,
+        answer: q.answer,
+        author: q.author || 'Admin'
+      }));
+      await finalClient.from('product_qa').insert(qaToInsert);
+    }
+
+    // 8. Insert Reviews
+    if (reviews && reviews.length > 0) {
+      const reviewsToInsert = reviews.map((r: any) => ({
+        product_id: productId,
+        author: r.author,
+        author_avatar: r.author_avatar,
+        role: r.role || 'Verified Buyer',
+        text: r.text,
+        rating: r.rating || 5,
+        is_verified: true
+      }));
+      await finalClient.from('reviews').insert(reviewsToInsert);
+    }
+
+    // 9. Revalidate cache
+    revalidatePath('/admin/products');
+    revalidatePath(`/admin/products/edit/${id}`);
+    revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
+
+    return { success: true, data: updatedProduct };
+  } catch (error: any) {
+    console.error('Action Error: updateProductDeepAction:', error);
+    return { success: false, message: error.message || 'Failed to update product.' };
   }
 }

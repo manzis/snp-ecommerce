@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useOrderNotifications } from '@/hooks/useOrderNotifications';
 import Image from 'next/image';
 
 // Icon imports
@@ -36,7 +37,7 @@ const MORE_MENU_ITEMS = [
     { label: 'Categories', icon: ProductsIcon, href: '/admin/categories' },
     { label: 'Brands', icon: ProductsIcon, href: '/admin/brands' }, // Using same icon for now or check for BrandIcon
     { label: 'Customers', icon: CustomersIcon, href: '/admin/customers' },
-    { label: 'Reports', icon: AnalyticsIcon, href: '/admin/analytics' },
+    { label: 'Sellers', icon: AnalyticsIcon, href: '/admin/sellers' },
     { label: 'Layouts', icon: LayoutsIcon, href: '/admin/layouts' },
     { label: 'Coupons', icon: PreferencesIcon, href: '/admin/abandoned-cart' }, // Map correctly
     { label: 'Reviews', icon: PreferencesIcon, href: '/admin/reviews' },
@@ -50,6 +51,7 @@ const AdminMobileNav: React.FC = () => {
     const router = useRouter();
     const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const { newOrderCount } = useOrderNotifications();
 
     const activeIndex = useMemo(() => {
         const index = NAV_ITEMS.findIndex(item => {
@@ -77,6 +79,10 @@ const AdminMobileNav: React.FC = () => {
             console.error('Failed to log out', error);
         }
     };
+
+    const isPreviewMode = pathname.includes('/preview/');
+
+    if (isPreviewMode) return null;
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[160] flex flex-col items-center pointer-events-none md:hidden transition-all duration-300">
@@ -259,6 +265,11 @@ const AdminMobileNav: React.FC = () => {
                         >
                             <div className={`relative h-[22px] w-[22px] flex items-center justify-center transition-transform duration-200 ${isActive ? 'scale-107' : 'scale-100 group-active:scale-95'}`}>
                                 <Icon className={`h-full w-full ${isActive ? 'text-[#18181b]' : 'text-[#71717a]'}`} />
+                                {item.label === 'Orders' && newOrderCount > 0 && (
+                                    <div className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-[#242424] text-white text-[11px] font-bold rounded-full flex items-center justify-center border-white border-[1px] px-0.5">
+                                        {newOrderCount}
+                                    </div>
+                                )}
                             </div>
                             <span className={`relative text-[10.5px] font-rubik font-medium leading-[14px] tracking-tight  transition-colors duration-200 ${isActive ? 'text-[#18181b]' : 'text-[#71717a]'}`}>
                                 {item.label}

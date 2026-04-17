@@ -96,7 +96,7 @@ export default function AdminDropdown({
             >
                 <div className="flex items-center gap-3 overflow-hidden">
                     {selectedOption?.image ? (
-                        <div className="relative w-5 h-5 rounded-full overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                        <div className="relative w-5 h-5 rounded-[6px] overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                             <Image src={selectedOption.image} alt="" fill className="object-contain p-0.5" />
                         </div>
                     ) : selectedOption && (
@@ -163,8 +163,8 @@ export default function AdminDropdown({
                                             ${value === option.id ? 'bg-gray-50 text-[#242424] font-medium' : 'text-[#4d4d4d] hover:bg-gray-50 hover:text-[#242424]'}
                                         `}
                                     >
-                                        <div className="flex items-center gap-3 overflow-hidden">
-                                            <div className="relative w-7 h-7 rounded-full overflow-hidden bg-white border border-gray-100 shrink-0 shadow-sm">
+                                        <div className="flex items-center gap-3 ">
+                                            <div className="relative w-7 h-7 rounded-[6px] overflow-hidden bg-white border border-gray-100 shrink-0 s">
                                                 {option.image ? (
                                                     <Image src={option.image} alt="" fill className="object-contain p-1" />
                                                 ) : (

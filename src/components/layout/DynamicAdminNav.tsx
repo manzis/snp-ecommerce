@@ -16,12 +16,44 @@ import Link from 'next/link';
 /**
  * Mobile action menu items based on pathname.
  */
-const MOBILE_ACTIONS: Record<string, { label: string; icon: any; href: string }[]> = {
+const MOBILE_ACTIONS: Record<string, { label: string; icon: any; href?: string; triggerModal?: boolean }[]> = {
     '/admin/products': [
         { label: 'Create Product', icon: PlusIcon, href: '/admin/products/add' },
         { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
         { label: 'Categories', icon: CategoryIcon, href: '/admin/categories' },
         { label: 'Brands', icon: BrandIcon, href: '/admin/brands' },
+    ],
+    '/admin/orders': [
+        { label: 'Create Order', icon: PlusIcon, href: '/admin/orders/create' },
+        { label: 'Export Orders', icon: SettingsIcon, href: '/admin/export/orders' },
+        { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
+    ],
+    '/admin/customers': [
+        { label: 'Add Customer', icon: PlusIcon, href: '/admin/customers/add' },
+        { label: 'Export List', icon: SettingsIcon, href: '/admin/export/customers' },
+    ],
+    '/admin/reviews': [
+        { label: 'Add Review', icon: PlusIcon, triggerModal: true },
+        { label: 'Review Settings', icon: SettingsIcon, href: '/admin/settings/reviews' },
+        { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
+    ],
+    '/admin/qa': [
+        { label: 'Add QA', icon: PlusIcon, triggerModal: true },
+        { label: 'QA Settings', icon: SettingsIcon, href: '/admin/settings/qa' },
+        { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
+    ],
+    '/admin/categories': [
+        { label: 'Add Category', icon: PlusIcon, triggerModal: true },
+        { label: 'Category Settings', icon: SettingsIcon, href: '/admin/settings/categories' },
+    ],
+    '/admin/brands': [
+        { label: 'Add Brand', icon: PlusIcon, triggerModal: true },
+        { label: 'Brand Settings', icon: SettingsIcon, href: '/admin/settings/brands' },
+    ],
+    '/admin/sellers': [
+        { label: 'Add Seller', icon: PlusIcon, triggerModal: true },
+        { label: 'Seller Settings', icon: SettingsIcon, href: '/admin/settings/sellers' },
+        { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
     ],
     'default': [
         { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
@@ -44,6 +76,7 @@ const TITLE_MAP: Record<string, string> = {
     '/admin/abandoned-cart': 'Abandoned Carts',
     '/admin/reviews': 'Reviews',
     '/admin/qa': 'Question & Answers',
+    '/admin/sellers': 'Sellers',
     '/admin/settings/store': 'Store Settings',
     '/admin/layouts': 'Layouts',
     '/admin/settings': 'System Settings',
@@ -51,11 +84,29 @@ const TITLE_MAP: Record<string, string> = {
     '/admin/profile': 'My Profile',
 };
 
+/**
+ * Primary desktop actions based on pathname.
+ */
+const PRIMARY_ACTIONS: Record<string, { label: string; href?: string; type: 'link' | 'modal' }> = {
+    '/admin/products': { label: 'Add Product', href: '/admin/products/add', type: 'link' },
+    '/admin/orders': { label: 'Create Order', href: '/admin/orders/create', type: 'link' },
+    '/admin/customers': { label: 'Create Customer', href: '/admin/customers/add', type: 'link' },
+    '/admin/reviews': { label: 'Create Review', type: 'modal' },
+    '/admin/qa': { label: 'Create QA', type: 'modal' },
+    '/admin/categories': { label: 'Create Category', type: 'modal' },
+    '/admin/brands': { label: 'Create Brand', type: 'modal' },
+    '/admin/sellers': { label: 'Create Seller', type: 'modal' },
+};
+
+import AdminModal from '@/components/admin/shared/AdminModal';
+
 interface DynamicAdminNavProps {
     children?: React.ReactNode;
+    onPrimaryAction?: () => void;
+    overrideTitle?: string;
 }
 
-const DynamicAdminNav = ({ children }: DynamicAdminNavProps) => {
+const DynamicAdminNav = ({ children, onPrimaryAction, overrideTitle }: DynamicAdminNavProps) => {
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,27 +118,38 @@ const DynamicAdminNav = ({ children }: DynamicAdminNavProps) => {
 
     // Get actions for the current page
     const actions = MOBILE_ACTIONS[pathname] || MOBILE_ACTIONS['default'];
+    const primaryAction = PRIMARY_ACTIONS[pathname];
 
     // Mapping for buttons based on path
     const renderActions = () => {
         return (
             <div className="flex items-center gap-2">
-                {/* Desktop Primary Actions (e.g., Add Product) */}
-                {pathname === '/admin/products' && (
-                    <Link 
-                        href="/admin/products/add"
-                        className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
-                    >
-                        <PlusIcon className="w-[16px] h-[16px]" />
-                        Add Product
-                    </Link>
+                {/* Desktop Primary Actions */}
+                {primaryAction && (
+                    primaryAction.type === 'link' ? (
+                        <Link 
+                            href={primaryAction.href!}
+                            className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
+                        >
+                            <PlusIcon className="w-[16px] h-[16px]" />
+                            {primaryAction.label}
+                        </Link>
+                    ) : (
+                        <button 
+                            onClick={() => onPrimaryAction?.()}
+                            className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
+                        >
+                            <PlusIcon className="w-[16px] h-[16px]" />
+                            {primaryAction.label}
+                        </button>
+                    )
                 )}
 
                 {/* Unified Dynamic Action Menu */}
                 <div className="relative flex items-center">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className={`p-[6px] rounded-[10px] md:rounded-[12px] transition-all duration-300 ${isMenuOpen ? 'bg-[#242424] text-white scale-105' : 'hover:bg-[#f4f4f5] text-[#71717a]'} active:scale-[0.98] focus:outline-none`}
+                        className={`p-[6px] rounded-[10px] md:rounded-[12px] transition-all duration-300 ${isMenuOpen ? 'bg-[#242424] text-white scale-105' : 'hover:bg-zinc-100 text-[#71717a]'} active:scale-[0.98] focus:outline-none`}
                         title="Options"
                     >
                         <DotsHorizontalIcon className="w-[20px] h-[20px] md:w-[22px] md:h-[22px]" />
@@ -113,12 +175,27 @@ const DynamicAdminNav = ({ children }: DynamicAdminNavProps) => {
                                 >
                                     {actions.map((item) => {
                                         const Icon = item.icon;
+                                        if (item.triggerModal) {
+                                            return (
+                                                <button
+                                                    key={item.label}
+                                                    onClick={() => {
+                                                        setIsMenuOpen(false);
+                                                        onPrimaryAction?.();
+                                                    }}
+                                                    className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-regular text-[#242424] hover:bg-zinc-100 transition-colors"
+                                                >
+                                                    <Icon className="w-[18px] h-[18px] text-[#71717a]" />
+                                                    {item.label}
+                                                </button>
+                                            );
+                                        }
                                         return (
                                             <Link
                                                 key={item.label}
-                                                href={item.href}
+                                                href={item.href!}
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl  text-[13.5px] font-regular text-[#242424] hover:bg-gray-50 transition-colors"
+                                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl  text-[13.5px] font-regular text-[#242424] hover:bg-zinc-100 transition-colors"
                                             >
                                                 <Icon className="w-[18px] h-[18px] text-[#71717a]" />
                                                 {item.label}
@@ -159,10 +236,9 @@ const DynamicAdminNav = ({ children }: DynamicAdminNavProps) => {
                             <ArrowLeftIcon className="md:w-6 md:h-6 w-5 h-5" />
                         </button>
                         <div className="flex flex-col gap-[0px]">
-                            <h1 className=" md:text-[24px] text-[18px] font-regular text-[#242424] tracking-tight font-rubik">
-                                {title}
+                            <h1 className="md:text-[24px] text-[18px] font-regular text-[#242424] tracking-tight font-rubik truncate max-w-[200px] md:max-w-[400px] lg:max-w-[600px]">
+                                {overrideTitle || title}
                             </h1>
-
                         </div>
                     </div>
                     <div className="flex items-center gap-2">

@@ -8,9 +8,11 @@ import Availability from '@/components/product/Availability';
 import ServiceHighlights from '@/components/product/ServiceHighlight';
 import ProductHighlights from '@/components/product/ProductHighlight';
 import ProductDetails from '@/components/product/ProductDetails';
+import ProductBanners from '@/components/product/ProductBanners';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
+import FeaturedProductsSection from '@/components/product/FeaturedProductsSection';
 
 import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService';
 import { notFound } from 'next/navigation';
@@ -72,15 +74,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 - hidden: Hidden on mobile/tablet
                 - lg:block: Visible only on desktop laptops
             */}
-            <div className="hidden lg:block">
-              <ProductHighlights highlights={product.highlights || []} />
-            </div>
+            {product.highlights && product.highlights.length > 0 && (
+              <div className="hidden lg:block">
+                <ProductHighlights highlights={product.highlights} />
+              </div>
+            )}
           </div>
 
           {/* RIGHT COLUMN: DETAILS & MOBILE HIGHLIGHTS */}
           <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col lg:px-[0] ">
             <ProductHeader
-              brand={product.brands?.name || ''}
+              brand={{
+                name: product.brands?.name || '',
+                slug: product.brands?.slug || '',
+                image_url: product.brands?.image_url
+              }}
               title={product.title}
               originalPrice={product.original_price}
               discountedPrice={product.discounted_price}
@@ -98,11 +106,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
                    - block: Visible on mobile (maintaining vertical order)
                    - lg:hidden: Removed from DOM flow on desktop
                */}
-              <div className="lg:hidden">
-                <ProductHighlights highlights={product.highlights || []} />
-              </div>
+              {product.highlights && product.highlights.length > 0 && (
+                <div className="lg:hidden">
+                  <ProductHighlights highlights={product.highlights} />
+                </div>
+              )}
               <div className="lg:hidden ">
                 <ProductDetails product={product} />
+              </div>
+              <div className="lg:hidden">
+                <ProductBanners 
+                  banners={[
+                    product.banner_image1, 
+                    product.banner_image2,
+                    product.banner_image3,
+                    product.banner_image4
+                  ]} 
+                />
               </div>
               <div className="lg:hidden ">
                 <ReviewsSection reviews={reviews} />
@@ -115,7 +135,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <WhyChooseUs />
               </div>
 
-              <div className="lg:hidden ">
+              <div className="lg:hidden pb-[10px]">
+                <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
               </div>
             </div>
 
@@ -126,6 +147,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
           <ProductDetails product={product} />
         </div>
+        <div className="hidden lg:block">
+          <ProductBanners 
+            banners={[
+              product.banner_image1, 
+              product.banner_image2,
+              product.banner_image3,
+              product.banner_image4
+            ]} 
+          />
+        </div>
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
           <ReviewsSection reviews={reviews} />
         </div>
@@ -135,7 +166,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="hidden lg:block lg:mt-[28px] ">
           <WhyChooseUs />
         </div>
-
+        <div className="hidden lg:block lg:mt-[28px] lg:mb-[40px]">
+          <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
+        </div>
 
       </main>
 

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useOrderNotifications } from '@/hooks/useOrderNotifications';
 
 // Asset handling rule: Icons imported from @/components/icons/
 import DashboardIcon from '@/components/icons/DashboardIcon';
@@ -95,9 +96,10 @@ interface NavItemProps {
     onClick: (href: string) => void;
     activeStyles: string;
     inactiveStyles: string;
+    badgeCount?: number;
 }
 
-const NavItem = memo(({ item, isActive, isCollapsed, onClick, activeStyles, inactiveStyles }: NavItemProps) => {
+const NavItem = memo(({ item, isActive, isCollapsed, onClick, activeStyles, inactiveStyles, badgeCount }: NavItemProps) => {
     const Icon = item.icon;
     return (
         <li className="w-full relative">
@@ -109,9 +111,21 @@ const NavItem = memo(({ item, isActive, isCollapsed, onClick, activeStyles, inac
                 aria-current={isActive ? 'page' : undefined}
             >
                 {isActive && <ActiveIndicator isCollapsed={isCollapsed} />}
-                <Icon className={`w-[16px] h-[16px] shrink-0 transition-colors duration-200 ${isActive ? 'text-[#242424]' : 'text-[#3f3f46]'}`} />
+                <div className="relative">
+                    <Icon className={`w-[16px] h-[16px] shrink-0 transition-colors duration-200 ${isActive ? 'text-[#242424]' : 'text-[#3f3f46]'}`} />
+                    {isCollapsed && badgeCount ? badgeCount > 0 && (
+                        <div className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] bg-[#242424] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-white border-[1px] px-0.5" />
+                    ) : null}
+                </div>
                 {!isCollapsed && (
-                    <span className="font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px] truncate">{item.name}</span>
+                    <div className="flex items-center justify-between flex-1 min-w-0">
+                        <span className="font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px] truncate">{item.name}</span>
+                        {badgeCount ? badgeCount > 0 && (
+                            <span className="bg-[#242424] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full min-w-[20px] text-center">
+                                {badgeCount}
+                            </span>
+                        ) : null}
+                    </div>
                 )}
             </Link>
         </li>
@@ -127,6 +141,7 @@ export default function AdminSidebar() {
     const [optimisticActivePath, setOptimisticActivePath] = useState(pathname);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { newOrderCount } = useOrderNotifications();
 
 
     // Synchronize optimistic state with true application state
@@ -309,6 +324,7 @@ export default function AdminSidebar() {
                                         onClick={handleLinkClick}
                                         activeStyles={activeStyles}
                                         inactiveStyles={inactiveStyles}
+                                        badgeCount={item.name === 'Orders' ? newOrderCount : undefined}
                                     />
                                 ))}
 

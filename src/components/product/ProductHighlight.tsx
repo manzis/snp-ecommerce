@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import MediaLightbox from '@/components/ui/MediaLightBox';
 
 import type { ProductHighlightItem } from '@/services/productService';
 
@@ -13,6 +14,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
   const [activeTab, setActiveTab] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const startX = useRef<number>(0);
 
   useEffect(() => {
@@ -45,11 +47,14 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
     if (Math.abs(diff) > 50 && highlights.length > 0) {
       if (diff > 0 && activeTab < highlights.length - 1) setActiveTab(prev => prev + 1);
       else if (diff < 0 && activeTab > 0) setActiveTab(prev => prev - 1);
+    } else if (Math.abs(diff) < 5) {
+      setIsLightboxOpen(true);
     }
     setIsDragging(false);
   };
 
-  if (!mounted || highlights.length === 0) return <div className="w-full h-[485px] bg-[#F9F9F9] rounded-[8px]" />;
+  if (highlights.length === 0) return null;
+  if (!mounted) return <div className="w-full h-[485px] bg-[#f9fafb] rounded-[8px]" />;
 
   return (
     <section className="relative mx-auto flex w-full max-w-[362px] md:max-w-none flex-col items-start gap-[24px] lg:mx-0 select-none">
@@ -151,6 +156,13 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
           })}
         </div>
       </div>
+
+      <MediaLightbox 
+        isOpen={isLightboxOpen}
+        media={highlights.map((h, i) => ({ type: h.type as 'image' | 'video', url: h.src, alt: h.alt || `Highlight ${i + 1}` }))}
+        initialIndex={activeTab}
+        onClose={() => setIsLightboxOpen(false)}
+      />
     </section>
   );
 };

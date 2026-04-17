@@ -6,20 +6,17 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import RedirectIcon from '@/components/icons/RedirectIcon';
 
-const BRANDS = [
-    { name: 'Optimum Nutrition', slug: 'optimum-nutrition', logo: '/images/brands/on.png' },
-    { name: 'MuscleBlaze', slug: 'muscleblaze', logo: '/images/brands/muscleblaze.png' },
-    { name: 'MyProtein', slug: 'myprotein', logo: '/images/brands/muscleblaze.png' },
-    { name: 'Dymatize', slug: 'dymatize', logo: '/images/brands/muscleblaze.png' },
-    { name: 'MuscleTech', slug: 'muscletech', logo: '/images/brands/muscleblaze.png' },
-    { name: 'GNC', slug: 'gnc', logo: '/images/brands/muscleblaze.png' },
-    { name: 'Rule 1', slug: 'rule-1', logo: '/images/brands/muscleblaze.png' },
-    { name: 'Cellucor', slug: 'cellucor', logo: '/images/brands/muscleblaze.png' },
-    { name: 'Scivation', slug: 'scivation', logo: '/images/brands/muscleblaze.png' },
-    { name: 'Ultimate Nutrition', slug: 'ultimate-nutrition', logo: '/images/brands/muscleblaze.png' },
-];
+interface BrandProp {
+    name: string;
+    slug: string;
+    logo: string;
+}
 
-const Brands: React.FC = () => {
+interface BrandsProps {
+    brands?: BrandProp[];
+}
+
+const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: 'left' | 'right') => {
@@ -57,7 +54,7 @@ const Brands: React.FC = () => {
                     ref={scrollRef}
                     className="no-scrollbar flex gap-[12px] overflow-x-auto scroll-smooth pb-[24px] pt-[12px] md:gap-[20px] lg:gap-[24px]"
                 >
-                    {BRANDS.map((brand) => (
+                    {brands.map((brand) => (
                         <motion.div
                             key={`home-brand-list-${brand.slug}`}
                             whileHover={{ y: -8 }}
@@ -68,7 +65,7 @@ const Brands: React.FC = () => {
                                 href={`/brand/${brand.slug}`}
                                 className="group flex flex-col items-center gap-[12px] md:gap-[16px]"
                             >
-                                <div className="relative flex h-[110px] w-[105px] items-center justify-center overflow-hidden rounded-[16px] border-[1.5px] border-[#f1f5f9] bg-[#fafafa] transition-all duration-300 group-hover:border-[#308026] group-hover:bg-white group-hover:shadow-lg md:h-[130px] md:w-[130px] lg:h-[180px] lg:w-[180px]">
+                                <div className="relative flex h-[105px] w-[100px] items-center justify-center overflow-hidden rounded-[16px] border-[1.5px] border-[#f1f5f9] bg-[#fafafa] transition-all duration-300 group-hover:border-[#308026] group-hover:bg-white group-hover:shadow-lg md:h-[130px] md:w-[130px] lg:h-[180px] lg:w-[180px]">
                                     <Image
                                         src={brand.logo}
                                         alt={brand.name}

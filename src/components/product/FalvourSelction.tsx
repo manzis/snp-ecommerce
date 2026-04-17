@@ -10,7 +10,7 @@ interface FlavourSelectionProps {
 }
 
 const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
-  const { selectedFlavorId: selectedId, setFlavorId: setSelectedId, flavorError } = useProductSelectionStore();
+  const { selectedFlavorId: selectedId, setFlavorId: setSelectedId, setActiveVariantImage, flavorError } = useProductSelectionStore();
 
   // Auto-selection of default flavour intentionally removed to enforce explicit user selection
 
@@ -73,7 +73,12 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
               key={item.id}
               type="button"
               disabled={!item.is_available}
-              onClick={() => setSelectedId(item.id)}
+              onClick={() => {
+                setSelectedId(item.id);
+                if (item.image_url) {
+                   setActiveVariantImage(item.image_url);
+                }
+              }}
               /* 
                  FRAME 8: MAIN CARD
                  - Locked at 85px x 105px

@@ -114,28 +114,16 @@ export default function ProductActionMenu({
                         className="absolute right-0 top-[calc(100%+8px)] w-[180px] md:w-[190px] bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_1px_0_rgba(0,0,0,0.1)] z-[110] py-1.5 px-1.5"
                     >
                         {/* Edit */}
-                        <button
-                            onClick={(e) => handleAction(e, () => { })}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors"
+                        <Link
+                            href={`/admin/products/edit/${fullProduct.id}`}
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#71717a]">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
                             <span>Edit Details</span>
-                        </button>
-
-                        {/* Preview */}
-                        <Link
-                            href={`/admin/products/preview/${fullProduct?.slug}`}
-                            onClick={(e) => { e.stopPropagation(); setIsOpen(false); onOpenChange?.(false); }}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors"
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#71717a]">
-                                <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                                <circle cx="12" cy="12" r="3" />
-                            </svg>
-                            <span>Preview</span>
                         </Link>
+
 
                         {/* Conditional Visibility Toggle */}
                         <button
@@ -143,7 +131,7 @@ export default function ProductActionMenu({
                                 is_published: !isPublished || isDraft,
                                 is_draft: false
                             }))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <VisibilityIcon className="w-4 h-4 text-[#71717a]" />
                             <span>{isPublished && !isDraft ? 'Hide from Store' : 'Publish Live'}</span>
@@ -155,7 +143,7 @@ export default function ProductActionMenu({
                             onMouseEnter={() => setActiveSubmenu('availability')}
                             onMouseLeave={() => setActiveSubmenu(null)}
                         >
-                            <button className="w-full flex items-center justify-between px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors">
+                            <button className="w-full flex items-center justify-between px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors">
                                 <div className="flex items-center gap-3">
                                     <InventoryIcon className="w-4 h-4 text-[#71717a]" />
                                     <span>Stock Status</span>
@@ -177,7 +165,7 @@ export default function ProductActionMenu({
                                             <button
                                                 key={option.value}
                                                 onClick={(e) => handleAction(e, () => onUpdate({ stock_status: option.value as any }))}
-                                                className="w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-[#242424] hover:bg-gray-50 transition-colors"
+                                                className="w-full flex items-center justify-between px-3 py-1.5 text-[13px] text-[#242424] hover:bg-zinc-100 transition-colors"
                                             >
                                                 <span>{option.label}</span>
                                                 {stockStatus === option.value && <CheckIcon className="w-3 h-3 text-green-500" />}
@@ -191,7 +179,7 @@ export default function ProductActionMenu({
                         {/* Update Price */}
                         <button
                             onClick={(e) => handleAction(e, onUpdatePrice)}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors border-t border-gray-50 mt-1 pt-2"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors border-t border-gray-50 mt-1 pt-2"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#71717a]">
                                 <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
@@ -204,7 +192,7 @@ export default function ProductActionMenu({
                         {/* Move to Draft */}
                         <button
                             onClick={(e) => handleAction(e, () => onUpdate({ is_draft: !isDraft, is_published: isDraft ? isPublished : false }))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <StatusIcon className="w-4 h-4 text-[#71717a]" />
                             <span>{isDraft ? 'Remove from Draft' : 'Move to Drafts'}</span>
@@ -213,7 +201,7 @@ export default function ProductActionMenu({
                         {/* Duplicate */}
                         <button
                             onClick={(e) => handleAction(e, onDuplicate)}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-gray-50 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#71717a]">
                                 <rect width="13" height="13" x="9" y="9" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -226,7 +214,7 @@ export default function ProductActionMenu({
                         {/* Delete */}
                         <button
                             onClick={(e) => handleAction(e, onDelete)}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#ef4444] hover:bg-red-50 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#ef4444] hover:bg-red-50/80 transition-colors"
                         >
                             <TrashIcon className="w-4 h-4" />
                             <span>Delete Product</span>

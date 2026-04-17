@@ -3,12 +3,14 @@ import { create } from 'zustand';
 interface ProductSelectionState {
   selectedSize: string | null;
   selectedFlavorId: string | null;
+  activeVariantImage: string | null;
   currentPrice: number | null;
   originalPrice: number | null;
   sizeError: boolean;
   flavorError: boolean;
   setSize: (size: string | null) => void;
   setFlavorId: (id: string | null) => void;
+  setActiveVariantImage: (url: string | null) => void;
   setPrice: (discounted: number | null, original: number | null) => void;
   setSizeError: (error: boolean) => void;
   setFlavorError: (error: boolean) => void;
@@ -18,18 +20,21 @@ interface ProductSelectionState {
 export const useProductSelectionStore = create<ProductSelectionState>()((set) => ({
   selectedSize: null,
   selectedFlavorId: null,
+  activeVariantImage: null,
   currentPrice: null,
   originalPrice: null,
   sizeError: false,
   flavorError: false,
   setSize: (size) => set({ selectedSize: size, sizeError: false }),
   setFlavorId: (id) => set({ selectedFlavorId: id, flavorError: false }),
+  setActiveVariantImage: (url) => set({ activeVariantImage: url }),
   setPrice: (discounted, original) => set({ currentPrice: discounted, originalPrice: original }),
   setSizeError: (error) => set({ sizeError: error }),
   setFlavorError: (error) => set({ flavorError: error }),
   reset: () => set({ 
     selectedSize: null, 
     selectedFlavorId: null, 
+    activeVariantImage: null,
     currentPrice: null, 
     originalPrice: null, 
     sizeError: false, 

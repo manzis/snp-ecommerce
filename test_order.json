@@ -1,0 +1,31 @@
+[
+  {
+    "contact_details": {
+      "value": "manjishupadhaya@gmail.com",
+      "marketing": true
+    },
+    "shipping_address": {
+      "option": "pickup",
+      "addressId": "b72acaaa-428e-4567-97da-21882e8e1423",
+      "shippingPrice": 100,
+      "addressDetails": {
+        "id": "b72acaaa-428e-4567-97da-21882e8e1423",
+        "area": "Near MB Brick Industry",
+        "city": "Tilottama",
+        "type": "Home",
+        "email": "manjishupadhaya@gmail.com",
+        "phone": "9807553740",
+        "street": "Manglapur-Kanchi Bazar Road",
+        "pincode": "32903",
+        "user_id": "da56bb5c-b4ca-44ee-97a8-3646124a4e47",
+        "latitude": 27.5966244,
+        "last_name": "Upadhaya",
+        "longitude": 83.5092013,
+        "created_at": "2026-04-15T18:10:45.614416+00:00",
+        "first_name": "Manjish ",
+        "updated_at": "2026-04-15T18:10:45.614416+00:00",
+        "address_line_1": "Manglapur-Kanchi Bazar Road, Tilottama-10, Tilottama, Rupandehi, Lumbini Province, 32903, Nepal"
+      }
+    }
+  }
+]

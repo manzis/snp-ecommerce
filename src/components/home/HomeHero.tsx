@@ -4,7 +4,11 @@ import Link from 'next/link';
 import ArrowRightIcon from '@/components/icons/RedirectIcon';
 import TodaysDeals from './TodaysDeals';
 
-const HomeHero: React.FC = () => {
+interface HomeHeroProps {
+    deals?: any[]; // Using any[] to match the Deal interface used in TodaysDeals
+}
+
+const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
     return (
         <section className="relative w-full overflow-hidden bg-white">
             <div className="relative mx-auto flex h-[656px] w-full items-end rounded-br-[32px] lg:h-[820px]">
@@ -61,7 +65,7 @@ const HomeHero: React.FC = () => {
 
                     {/* DESKTOP WIDGET: TODAYS DEALS */}
                     <div className="hidden  lg:absolute lg:right-[64px] lg:bottom-[80px]">
-                        <TodaysDeals isHeroWidget={true} />
+                        <TodaysDeals isHeroWidget={true} deals={deals} />
                     </div>
                 </div>
             </div>

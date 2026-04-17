@@ -1,11 +1,18 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { updateOrderStatusAdminAction } from '@/app/actions/orderActions';
 import { OrderProps } from '@/components/orders/OrderCard';
+import DashboardOrderCard from '@/components/admin/orders/OrderCard';
+import OrderActionMenu from '@/components/admin/orders/OrderActionMenu';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminOrderListProps {
   initialOrders: OrderProps[];
+  lastSeenAt?: string;
+  viewMode?: 'grid' | 'list';
+  onViewDetails?: (order: OrderProps) => void;
+  onUpdateStatus?: (order: OrderProps) => void;
+  onUpdatePaymentStatus?: (order: OrderProps) => void;
+  onDeleteOrder?: (order: OrderProps) => void;
 }
 
 const DEFAULT_MESSAGES: Record<string, string> = {
@@ -23,10 +30,23 @@ const DEFAULT_MESSAGES: Record<string, string> = {
   rescheduled: "Delivery attempt failed. We have rescheduled your delivery for the next available slot."
 };
 
-export function AdminOrderList({ initialOrders }: AdminOrderListProps) {
+export function AdminOrderList({
+  initialOrders,
+  lastSeenAt,
+  viewMode = 'list',
+  onViewDetails,
+  onUpdateStatus,
+  onUpdatePaymentStatus,
+  onDeleteOrder
+}: AdminOrderListProps) {
   const [orders, setOrders] = useState<OrderProps[]>(initialOrders);
   const [updating, setUpdating] = useState<string | null>(null);
-  
+
+  // Sync when parent refreshes data (e.g. pagination)
+  useEffect(() => {
+    setOrders(initialOrders);
+  }, [initialOrders]);
+
   // Modal state
   const [showModal, setShowModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -53,17 +73,16 @@ export function AdminOrderList({ initialOrders }: AdminOrderListProps) {
 
   const handleStatusUpdate = async () => {
     if (!selectedOrderId || !targetStatus) return;
-    
+
     setUpdating(selectedOrderId);
     setShowModal(false);
 
     try {
       const result = await updateOrderStatusAdminAction(selectedOrderId, targetStatus, statusMessage);
       if (result.success) {
-        setOrders(prev => prev.map(o => 
+        setOrders(prev => prev.map(o =>
           o.id === selectedOrderId ? { ...o, status: targetStatus.toUpperCase() as any } : o
         ));
-        console.log(`Order ${selectedOrderId.split('-')[0]} updated to ${targetStatus}`);
       } else {
         alert(result.message || 'Failed to update order');
       }
@@ -75,59 +94,150 @@ export function AdminOrderList({ initialOrders }: AdminOrderListProps) {
     }
   };
 
+  if (viewMode === 'grid') {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {orders.map((order) => (
+          <DashboardOrderCard
+            key={order.id}
+            order={order}
+            isNew={lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false}
+            onViewOrder={onViewDetails}
+            onUpdateStatus={onUpdateStatus || openUpdateModal}
+            onUpdatePaymentStatus={onUpdatePaymentStatus}
+            onDeleteOrder={onDeleteOrder}
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto relative">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+    <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] font-rubik">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-gray-50 bg-[#fafafa]">
+            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Order</th>
+            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Customer</th>
+            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Status</th>
+            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider text-right">Amount</th>
+            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider text-center">Action</th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {orders.map((order) => (
-            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
-                #{order.shortId}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <div className="flex flex-col">
-                  <span className="font-medium">{order.title}</span>
-                  <span className="text-xs text-gray-500">{order.brand}</span>
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                  ${order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' : 
-                    order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 
-                    order.status === 'PROCESSING' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                  {order.status}
-                </span>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {order.dateText.replace('Ordered On ', '')}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button
-                  onClick={() => openUpdateModal(order)}
-                  disabled={updating === order.id}
-                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-bold rounded shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all active:scale-95 disabled:opacity-50"
+        <tbody className="divide-y divide-gray-50">
+          <AnimatePresence mode="popLayout">
+            {orders.map((order) => {
+              const isNew = lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false;
+
+              const getStatusColors = (status?: string) => {
+                const s = status?.toUpperCase();
+                switch (s) {
+                  case 'DELIVERED': return { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-100' };
+                  case 'OUT_FOR_DELIVERY': return { bg: 'bg-[#f9fafb]', text: 'text-green-700', border: 'border-[#f5f5f5]' };
+                  case 'IN_TRANSIT': case 'RESCHEDULED': return { bg: 'bg-[#fefce8]', text: 'text-[#854d0e]', border: 'border-[#fef9c3]' };
+                  case 'CANCELLED': case 'FAILED': return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-100' };
+                  default: return { bg: 'bg-[#f9fafb]', text: 'text-[#71717a]', border: 'border-[#f5f5f5]' };
+                }
+              };
+
+              const getPaymentStatusColors = (status?: string) => {
+                switch (status?.toLowerCase()) {
+                  case 'paid': return { bg: 'bg-green-100', label: 'Paid', text: 'text-green-800' };
+                  case 'partially_paid': return { bg: 'bg-[#fef08a]', label: 'Part. Paid', text: 'text-[#854d0e]' };
+                  case 'pending': default: return { bg: 'bg-zinc-100', label: 'Pending', text: 'text-[#3f3f46]' };
+                }
+              };
+
+              const statusColors = getStatusColors(order.status);
+              const paymentColors = getPaymentStatusColors(order.paymentStatus);
+
+              return (
+                <motion.tr
+                  key={order.id}
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className={`group hover:bg-[#fafafa] transition-colors duration-200 ${isNew ? 'bg-[#fcfcfd]' : ''}`}
                 >
-                  {updating === order.id ? 'Updating...' : 'Update Status'}
-                </button>
-              </td>
-            </tr>
-          ))}
-          {orders.length === 0 && (
-            <tr>
-              <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
-                No orders found.
-              </td>
-            </tr>
-          )}
+                  {/* ORDER ID & DATE */}
+                  <td className="py-4 px-4 min-w-[200px]">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-[14px] font-medium text-[#242424] uppercase tracking-wider">
+                          #{order.shortId}
+                        </h3>
+                        {isNew && (
+                          <span className="flex h-[18px] px-[6px] py-[2px] justify-center items-center bg-[#242424] text-white rounded-[4px] text-[9px] font-bold tracking-widest animate-pulse">
+                            NEW
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[12px] text-[#a1a1aa] font-regular">
+                        {order.dateText.replace('Ordered On ', '')}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* CUSTOMER & ITEMS */}
+                  <td className="py-4 px-4 min-w-[240px]">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-[14px] font-medium text-[#242424] truncate max-w-[200px] md:max-w-[240px]">
+                        {order.customerName}
+                      </span>
+                      <span className="text-[12px] font-regular text-[#71717a] truncate max-w-[240px]">
+                        {order.title} {order.extraItemsCount > 0 && <span className="text-[#a1a1aa] italic">+{order.extraItemsCount} more items</span>}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* STATUS */}
+                  <td className="py-4 px-4 whitespace-nowrap">
+                    <div className="flex gap-2">
+                      <div className={`px-2 py-0.5 rounded-full border text-[10px] font-medium uppercase tracking-tight ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
+                        {order.status}
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* AMOUNT & PAYMENT */}
+                  <td className="py-4 px-4 text-right">
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-[14px] font-semibold text-[#242424]">
+                        NPR {order.totalAmount}
+                      </span>
+                      <div className="flex gap-1.5 items-center mt-0.5">
+                        <span className={`text-[10px] font-medium uppercase tracking-widest ${paymentColors.text}`}>
+                          {paymentColors.label}
+                        </span>
+                        <span className="text-[10px] text-[#a1a1aa]">· {order.paymentMethod?.toUpperCase()}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* ACTIONS */}
+                  <td className="py-4 px-4">
+                    <div className="flex justify-center">
+                      <OrderActionMenu
+                        order={order}
+                        onViewOrder={onViewDetails}
+                        onUpdateStatus={onUpdateStatus || openUpdateModal}
+                        onUpdatePaymentStatus={onUpdatePaymentStatus}
+                        onDeleteOrder={onDeleteOrder}
+                      />
+                    </div>
+                  </td>
+                </motion.tr>
+              );
+            })}
+            {orders.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-10 px-4 text-center text-[#71717a] text-[14px]">
+                  No orders found.
+                </td>
+              </tr>
+            )}
+          </AnimatePresence>
         </tbody>
       </table>
 
@@ -148,7 +258,7 @@ export function AdminOrderList({ initialOrders }: AdminOrderListProps) {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Select New Status</label>
-                  <select 
+                  <select
                     className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none"
                     value={targetStatus}
                     onChange={(e) => handleStatusChange(e.target.value)}
@@ -159,7 +269,7 @@ export function AdminOrderList({ initialOrders }: AdminOrderListProps) {
                   </select>
                   <p className="text-[10px] text-gray-500 mt-1">Note: You can update to the same status to add a new progress log.</p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1.5">Update Message</label>
                   <textarea

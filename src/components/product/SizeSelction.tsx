@@ -9,7 +9,7 @@ interface SizeSelectionProps {
 }
 
 const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
-  const { selectedSize, setSize: setSelectedSize, sizeError } = useProductSelectionStore();
+  const { selectedSize, setSize: setSelectedSize, setActiveVariantImage, sizeError } = useProductSelectionStore();
 
   // Auto-selection of default size intentionally removed to enforce explicit user selection
 
@@ -48,7 +48,12 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
               key={sizeObj.id}
               type="button"
               disabled={!sizeObj.is_available}
-              onClick={() => setSelectedSize(sizeObj.size_label)}
+              onClick={() => {
+                setSelectedSize(sizeObj.size_label);
+                if (sizeObj.image_url) {
+                   setActiveVariantImage(sizeObj.image_url);
+                }
+              }}
               /* 
               */
               className={`

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { uploadFileAction } from '@/app/actions/storageActions';
+import { supabase } from '@/lib/supabase/client';
 import Image from 'next/image';
 
 interface ImageUploadProps {
@@ -29,26 +29,43 @@ export default function ImageUpload({
         if (!file) return;
 
         setIsUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', path);
-        formData.append('bucket', bucket);
 
         try {
-            const res = await uploadFileAction(formData);
-            if (res.success && res.url) {
-                onChange(res.url);
-            } else {
-                alert(`Upload failed: ${res.message}`);
+            // Prepare unique filename
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+            const filePath = `${path}/${fileName}`;
+
+            // Direct client-side upload to Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from(bucket)
+                .upload(filePath, file, {
+                    upsert: true,
+                    contentType: file.type,
+                });
+
+            if (uploadError) {
+                console.error('Supabase Storage Error:', uploadError);
+                throw new Error(uploadError.message);
             }
-        } catch (error) {
+
+            // Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from(bucket)
+                .getPublicUrl(filePath);
+
+            onChange(publicUrl);
+        } catch (error: any) {
             console.error('Image upload error:', error);
-            alert('An unexpected error occurred during upload.');
+            alert(`Upload failed: ${error.message || 'An unexpected error occurred'}`);
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
+
+    const isVideo = value?.match(/\.(mp4|webm|mov|ogg)$/i) || value?.includes('video');
+    const isValidMedia = typeof value === 'string' && value.trim() !== '' && value !== 'undefined' && value !== 'null';
 
     return (
         <div className={`flex flex-col gap-2 ${className} font-rubik`}>
@@ -57,28 +74,39 @@ export default function ImageUpload({
             <div 
                 onClick={() => fileInputRef.current?.click()}
                 className={`relative group cursor-pointer border-2 border-dashed rounded-xl transition-all flex flex-col items-center justify-center overflow-hidden
-                    ${value ? 'border-gray-100 h-48' : 'border-gray-200 hover:border-gray-300 h-32 bg-gray-50/50'}
+                    ${isValidMedia ? 'border-gray-100 h-48' : 'border-gray-200 hover:border-gray-300 h-32 bg-gray-50/50'}
                     ${isUploading ? 'opacity-70 pointer-events-none' : ''}`}
             >
                 <input 
                     type="file" 
                     className="hidden" 
-                    accept="image/*"
+                    accept="image/*,video/*"
                     ref={fileInputRef}
                     onChange={handleFileChange}
                 />
 
-                {value ? (
+                {isValidMedia ? (
                     <>
-                        <Image 
-                            src={value} 
-                            alt="Preview" 
-                            fill 
-                            className="object-cover transition-transform group-hover:scale-105" 
-                        />
+                        {isVideo ? (
+                            <video 
+                                src={value} 
+                                className="w-full h-full object-cover"
+                                muted
+                                playsInline
+                                onMouseOver={e => (e.target as HTMLVideoElement).play()}
+                                onMouseOut={e => (e.target as HTMLVideoElement).pause()}
+                            />
+                        ) : (
+                            <Image 
+                                src={value} 
+                                alt="Preview" 
+                                fill 
+                                className="object-cover transition-transform group-hover:scale-105" 
+                            />
+                        )}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <span className="text-white text-[12px] font-medium px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                                Change Image
+                                Change Media
                             </span>
                         </div>
                     </>
@@ -89,7 +117,7 @@ export default function ImageUpload({
                         </div>
                         <div className="text-center">
                             <p className="text-[12.5px] font-regular text-zinc-400">Click to upload</p>
-                            <p className="text-[11px] text-[#71717a] mt-0.5">JPG, PNG or WEBP (Max 5MB)</p>
+                            <p className="text-[11px] text-[#71717a] mt-0.5">Image or Video (Max 50MB)</p>
                         </div>
                     </div>
                 )}

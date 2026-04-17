@@ -7,6 +7,7 @@ import ProductActionMenu from "./ProductActionMenu";
 import UpdatePriceModal from "./UpdatePriceModal";
 import { Product } from "@/services/productService";
 import { updateProductAction, deleteProductAction, duplicateProductAction } from "@/app/actions/productActions";
+import { useAdminToast } from "@/components/admin/ui/AdminToastProvider";
 
 interface DashboardProductCardProps {
     id?: string;
@@ -38,6 +39,7 @@ export default function DashboardProductCard({
     const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
     const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
     const [localProduct, setLocalProduct] = useState<Product | undefined>(fullProduct);
+    const { showAdminToast } = useAdminToast();
 
     // Sync local state if prop changes (e.g. from parent refresh)
     React.useEffect(() => {
@@ -54,8 +56,17 @@ export default function DashboardProductCard({
                     ...updates
                 });
             }
+            let message = 'Product updated successfully.';
+            if (updates.is_published !== undefined) {
+                message = updates.is_published ? 'Product published live.' : 'Product hidden from store.';
+            } else if (updates.is_draft !== undefined) {
+                message = updates.is_draft ? 'Product moved to drafts.' : 'Product removed from drafts.';
+            } else if (updates.stock_status !== undefined) {
+                message = `Stock status updated to ${updates.stock_status.replace(/_/g, ' ')}.`;
+            }
+            showAdminToast(message, 'success');
         } else {
-            alert(`Failed to update product: ${res.message}`);
+            showAdminToast(`Failed to update product: ${res.message}`, 'error');
         }
     };
 
@@ -63,9 +74,10 @@ export default function DashboardProductCard({
         if (confirm(`Are you sure you want to delete ${title}?`)) {
             const res = await deleteProductAction(id);
             if (res.success) {
-                window.location.reload();
+                showAdminToast('Product deleted successfully.', 'success');
+                setTimeout(() => window.location.reload(), 1000);
             } else {
-                alert(res.message);
+                showAdminToast(res.message, 'error');
             }
         }
     };
@@ -73,14 +85,15 @@ export default function DashboardProductCard({
     const handleDuplicate = async () => {
         const res = await duplicateProductAction(id);
         if (res.success) {
-            window.location.reload();
+            showAdminToast('Product duplicated successfully.', 'success');
+            setTimeout(() => window.location.reload(), 1000);
         } else {
-            alert(res.message);
+            showAdminToast(res.message, 'error');
         }
     };
 
     return (
-        <article className={`flex w-full max-w-[378px] md:border-1 md:border-gray-100 mx-auto flex-col p-[12px] gap-[12px] justify-end items-start bg-[#ffffff] rounded-[12px] relative group shadow-[0_8px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:translate-y-[-2px] transition-all duration-[400ms] ease-in-out font-rubik tracking-tight ${isActionMenuOpen ? 'z-[60]' : 'z-[1]'}`}>
+        <article className={`flex w-full max-w-[378px] mx-auto flex-col p-[12px] gap-[12px] justify-end items-start bg-white rounded-[12px] relative group transition-all duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] font-rubik tracking-tight shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-[2px] border border-gray-50/50 ${isActionMenuOpen ? 'z-[60]' : 'z-[1]'}`}>
             <Link href={`/admin/products/preview/${localProduct?.slug || id}`} className="flex min-w-[0px] flex-col gap-[16px] items-start self-stretch shrink-0 relative cursor-pointer">
 
                 {/* --- Top Section: Image & Main Details --- */}
@@ -134,30 +147,17 @@ export default function DashboardProductCard({
 
                         {/* Pricing */}
                         <div className="flex gap-[8px] items-center self-stretch shrink-0 relative z-[9]">
-                            {/* Prioritize local variant price if available, fallback to props */}
-                            {localProduct?.product_variants?.[0] ? (
-                                <>
-                                    {localProduct.product_variants[0].original_price && localProduct.product_variants[0].original_price > (localProduct.product_variants[0].discounted_price || 0) && (
-                                        <span className="text-[13px] md:text-[12px] font-regular text-[#71717a] line-through whitespace-nowrap relative z-[10]">
-                                            NPR {localProduct.product_variants[0].original_price}
-                                        </span>
-                                    )}
-                                    <span className="text-[15px] md:text-[14px] font-semibold text-[#242424] whitespace-nowrap relative z-[11]">
-                                        NPR {localProduct.product_variants[0].discounted_price}
+                            {/* Strictly use the base pricing established in the Products table */}
+                            <>
+                                {((localProduct?.original_price && Number(localProduct.original_price) > Number(localProduct?.discounted_price || 0)) || (originalPrice && originalPrice !== currentPrice)) && (
+                                    <span className="text-[13px] md:text-[12px] font-regular text-[#71717a] line-through whitespace-nowrap relative z-[10]">
+                                        {localProduct?.original_price ? `NPR ${localProduct.original_price}` : originalPrice}
                                     </span>
-                                </>
-                            ) : (
-                                <>
-                                    {originalPrice && originalPrice !== currentPrice && (
-                                        <span className="text-[13px] md:text-[12px] font-regular text-[#71717a] line-through whitespace-nowrap relative z-[10]">
-                                            {originalPrice}
-                                        </span>
-                                    )}
-                                    <span className="text-[15px] md:text-[14px] font-semibold text-[#242424] whitespace-nowrap relative z-[11]">
-                                        {currentPrice}
-                                    </span>
-                                </>
-                            )}
+                                )}
+                                <span className="text-[15px] md:text-[14px] font-semibold text-[#242424] whitespace-nowrap relative z-[11]">
+                                    {localProduct?.discounted_price ? `NPR ${localProduct.discounted_price}` : currentPrice}
+                                </span>
+                            </>
                         </div>
                     </div>
                 </div>

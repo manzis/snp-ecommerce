@@ -124,7 +124,7 @@ export default function UpdatePriceModal({
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: "100%", opacity: 0 }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="relative w-full max-w-2xl bg-white shadow-2xl flex flex-col max-h-[75dvh] rounded-t-[24px]"
+                        className="relative w-full max-w-2xl bg-white shadow-2xl flex flex-col max-h-[75dvh] lg:max-h-[50dvh] rounded-t-[24px] md:rounded-[12px] "
                     >
                         {/* Floating Close Button (Outside) */}
                         <button
@@ -251,7 +251,7 @@ export default function UpdatePriceModal({
                         </div>
 
                         {/* Footer */}
-                        <div className="p-8 pb-10 md:pb-8 border-t border-gray-100 bg-white flex items-center gap-4 font-rubik sticky bottom-0 z-10">
+                        <div className="p-8 pb-10 md:pb-8 border-t border-gray-100 bg-white flex items-center gap-4 font-rubik sticky bottom-0 z-10 md:rounded-b-[12px]">
                             <button
                                 onClick={onClose}
                                 className="flex-1 md:flex-none md:px-8 py-4 md:py-3 text-[14px] font-medium text-[#71717a] hover:text-[#242424] bg-gray-50 md:bg-transparent rounded-2xl transition-all active:scale-95"

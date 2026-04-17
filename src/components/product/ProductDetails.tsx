@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import MediaLightbox from '@/components/ui/MediaLightBox';
 import type { Product } from '@/services/productService';
 
 type TabID = 'description' | 'ingredients' | 'manufacturer' | 'other';
@@ -13,6 +14,7 @@ interface ProductDetailsProps {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [activeTab, setActiveTab] = useState<TabID>('description');
   const [mounted, setMounted] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // Fix hydration and potential URL construction issues during SSR
   useEffect(() => {
@@ -81,14 +83,24 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
           {activeTab === 'description' && (
             <div className="w-full font-titillium text-[16px] font-normal leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
-              <p>{info?.description || 'No description available for this product.'}</p>
+              {info?.description ? (
+                <div 
+                  className="font-titillium text-[16px] leading-[24px] text-[#242424] prose-sm max-w-none [&_*]:!font-titillium [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1"
+                  dangerouslySetInnerHTML={{ __html: info.description }} 
+                />
+              ) : (
+                <p>No description available for this product.</p>
+              )}
             </div>
           )}
 
           {activeTab === 'ingredients' && (
             <div className="w-full flex justify-center animate-in fade-in zoom-in-95 duration-500">
               {/* IMAGE: Using local public folder path to avoid URL errors */}
-              <div className="relative box-content w-full h-[362px] rounded-[8px] border-[4px] border-white shadow-[0_4px_6px_0_rgba(16,24,40,0.1)] overflow-hidden">
+              <div 
+                className="relative box-content w-full h-[362px] rounded-[8px] border-[4px] border-white shadow-[0_4px_6px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer"
+                onClick={() => setIsLightboxOpen(true)}
+              >
                 <Image
                   src={info?.ingredients_image || "/images/ingredients.png"}
                   alt="Product Ingredients"
@@ -140,6 +152,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           )}
         </div>
       </div>
+
+      <MediaLightbox 
+        isOpen={isLightboxOpen}
+        media={[{ type: 'image', url: info?.ingredients_image || "/images/ingredients.png", alt: "Ingredients" }]}
+        initialIndex={0}
+        onClose={() => setIsLightboxOpen(false)}
+      />
     </section>
   );
 };

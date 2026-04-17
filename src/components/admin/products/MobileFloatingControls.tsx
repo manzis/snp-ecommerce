@@ -9,6 +9,7 @@ interface MobileFloatingControlsProps {
     onNext: () => void;
     onSave: () => void;
     onDiscard: () => void;
+    mode?: 'create' | 'edit';
 }
 
 export default function MobileFloatingControls({
@@ -16,7 +17,8 @@ export default function MobileFloatingControls({
     tabs,
     onNext,
     onSave,
-    onDiscard
+    onDiscard,
+    mode = 'create'
 }: MobileFloatingControlsProps) {
     const isLastTab = activeTab === tabs[tabs.length - 1].id;
 
@@ -36,7 +38,7 @@ export default function MobileFloatingControls({
                     {isLastTab ? (
                         <>
                             <SaveIcon className="w-3.5 h-3.5" />
-                            <span>Create</span>
+                            <span>{mode === 'edit' ? 'Save Changes' : 'Create'}</span>
                         </>
                     ) : (
                         <>

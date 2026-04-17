@@ -12,6 +12,7 @@ interface FinalizeProductModalProps {
     formData: any;
     setFormData: (data: any) => void;
     isSaving: boolean;
+    mode?: 'create' | 'edit';
 }
 
 export default function FinalizeProductModal({
@@ -20,7 +21,8 @@ export default function FinalizeProductModal({
     onFinalize,
     formData,
     setFormData,
-    isSaving
+    isSaving,
+    mode = 'create'
 }: FinalizeProductModalProps) {
     return (
         <AnimatePresence>
@@ -51,7 +53,9 @@ export default function FinalizeProductModal({
                         {/* Modal Header */}
                         <div className="px-8 pb-4 flex items-center justify-between">
                             <div>
-                                <h2 className="text-[20px] font-medium text-[#242424] tracking-tight">Finalize Product</h2>
+                                <h2 className="text-[20px] font-medium text-[#242424] tracking-tight">
+                                    {mode === 'edit' ? 'Review & Update' : 'Finalize Product'}
+                                </h2>
                                 <p className="text-[13px] text-[#71717a] mt-0.5 font-regular">Review visibility and inventory before publishing.</p>
                             </div>
                             <button
@@ -88,7 +92,7 @@ export default function FinalizeProductModal({
                                 {isSaving ? (
                                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : (
-                                    "Confirm & Create Product"
+                                    mode === 'edit' ? "Save Changes" : "Confirm & Create Product"
                                 )}
                             </button>
                         </div>

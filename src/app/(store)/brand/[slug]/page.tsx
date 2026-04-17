@@ -1,63 +1,50 @@
-'use client';
-
-import React, { useState, useMemo } from 'react';
+import { fetchBrandBySlug, fetchProducts } from '@/services/productService';
+import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import ProductCard from '@/components/search/SearchProductCard';
-import Pagination from '@/components/search/Pagination';
-import BrandFilterBar from '@/components/brands/BrandFilterBar';
-import DropDownIcon from '@/components/icons/DropDownIcon';
+import { BRAND_THEMES } from '@/lib/BrandThemes';
+import BackButton from '@/components/ui/BackButton';
 
-/**
- * BRAND DETAILS PAGE - PRODUCTION READY
- * 
- * FIXES:
- * 1. URL Error: Reverted external URLs to local paths per Asset Rule.
- * 2. Logo Shrink: Used 'flex-none' + explicit 'w-[71px]' + 'h-[71px]' to prevent vertical line collapse.
- * 3. Nav Overlap: Applied 'pt-[81px]' to the main wrapper.
- * 4. Scaling: Banner height scales from 82px to 300px.
- */
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-const BRAND_INFO = {
-  name: 'Muscleblaze',
-  description: '(MB) is a leading Indian sports nutrition and bodybuilding supplement brand founded in 2012, specializing in high-quality products like whey protein, creatine, and mass gainers.',
-  banner: '/images/brands/brand-banner.jpg', // Asset Rule: Local Path
-  logo: '/images/brands/brand-logo.png',     // Asset Rule: Local Path
-  rating: '4.5',
-  purchases: '25.2K+',
-  totalProducts: 118
-};
+export default async function BrandDetailPage(props: Props) {
+  const params = await props.params;
+  const brand = await fetchBrandBySlug(params.slug);
 
-const MOCK_PRODUCTS = [
-  { id: 1, slug: 'mb-whey-1', category: 'proteins', brand: 'Naturaltein', name: 'Naturaltein omega 3 - fish', originalPrice: 'RS. 5000', discountedPrice: 'RS. 1890', discount: '20%', rating: 4.3, image: '/images/product-1.png' },
-  { id: 2, slug: 'mb-creatine-1', category: 'creatine', brand: 'Asitis', name: 'Asitsi atom whey protein', originalPrice: 'RS. 5000', discountedPrice: 'RS. 1890', discount: '20%', rating: 4.3, image: '/images/product-2.png' },
-];
+  if (!brand) {
+    notFound();
+  }
 
-export default function BrandDetailPage() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const ITEMS_PER_PAGE = 8;
+  const products = await fetchProducts({ brandSlug: params.slug });
+  const theme = BRAND_THEMES[params.slug.toLowerCase()] ||
+    BRAND_THEMES[params.slug.toLowerCase().replace(/-/g, '')] ||
+    BRAND_THEMES.default;
 
-  const filteredProducts = useMemo(() => {
-    if (!selectedCategory) return MOCK_PRODUCTS;
-    return MOCK_PRODUCTS.filter(p => p.category === selectedCategory);
-  }, [selectedCategory]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
-  const paginatedItems = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  // Map database brand fields to UI structure
+  const brandInfo = {
+    name: brand.name,
+    description: brand.description || `Explore high-quality products from ${brand.name}.`,
+    banner: brand.cover_image || theme.banner,
+    logo: brand.image_url || '/images/brands/brand-logo.png',
+    rating: brand.rating?.toString() || '4.5',
+    purchases: brand.total_purchases?.toLocaleString() || '0',
+    totalProducts: products.length,
+    colors: theme.cardColors,
+    bgColor: theme.bgColor,
+    accentColor: theme.accentColor
+  };
 
   return (
     <div className="min-h-screen mx-auto w-full  bg-white mt-[80px] pb-[60px]">
-      {/* 1. FIXED NAVIGATION (81px height) */}
-      <DynamicPageNav title={BRAND_INFO.name} subtitle={`${BRAND_INFO.totalProducts} Products`} />
+      <DynamicPageNav title={brandInfo.name} subtitle={`${brandInfo.totalProducts} Products`} />
 
-      {/* 2. MAIN WRAPPER: pt-[81px] ensures content starts below fixed nav */}
       <div className=" flex flex-col w-full  lg:items-center ">
-
-        {/* BANNER - FULL WIDTH OF CONTAINER */}
-        <header className="relative w-full h-[90px] lg:h-[300px] shrink-0">
+        <header className="relative w-full h-[140px] lg:h-[300px] shrink-0">
           <Image
-            src={BRAND_INFO.banner}
+            src={brandInfo.banner}
             alt="Brand Banner"
             fill
             priority
@@ -67,38 +54,38 @@ export default function BrandDetailPage() {
         </header>
 
         <main className="w-full lg:max-w-[1280px] lg:mt-[24px] ">
-
-          <section className="flex flex-col  items-start gap-[12px] bg-[#f6faf6] px-[24px] py-[24px] lg:flex-row lg:items-center  lg:gap-[32px] w-full lg:rounded-[12px] ">
-
-            {/* LOGO CONTAINER: flex-none ensures width is NEVER compromised */}
-            <div className="flex-none relative w-[80px] h-[80px] lg:w-[120px] lg:h-[120px] rounded-[12px] overflow-hidden border border-[#f1f5f9] bg-white flex items-center lg:border-none justify-center">
+          <section
+            className="flex flex-col items-start gap-[12px] px-[24px] py-[24px] lg:flex-row lg:items-center lg:gap-[32px] w-full"
+            style={{ backgroundColor: brandInfo.bgColor }}
+          >
+            <div className="flex-none relative w-[80px] h-[80px] lg:w-[120px] lg:h-[120px] overflow-hidden border border-[#f1f5f9] bg-white flex items-center lg:border-none justify-center">
               <Image
-                src={BRAND_INFO.logo}
+                src={brandInfo.logo}
                 alt="Brand Logo"
                 fill
-                className="object-contain p-[2px] rounded-[12px]"
+                className="object-contain p-[2px]"
                 sizes="(max-width: 1024px) 75px, 120px"
               />
             </div>
 
-            {/* BRAND DESCRIPTION */}
             <div className="flex flex-col gap-[8px] flex-1 min-w-0 ">
-              <h1 className="font-titillium text-[18px] lg:text-[28px] font-semibold tracking-[-0.72px] text-[#242424] leading-[26px]">
-                {BRAND_INFO.name}
+              <h1
+                className="font-titillium text-[18px] lg:text-[28px] font-semibold tracking-[-0.72px] leading-[26px]"
+                style={{ color: brandInfo.accentColor }}
+              >
+                {brandInfo.name}
               </h1>
               <div className="font-titillium text-[13px] lg:text-[16px] leading-[20px] lg:leading-[24px] tracking-[-0.52px] text-[#1e1e1e] max-w-[850px]">
-                <span className="underline font-medium">MuscleBlaze</span>
-                {BRAND_INFO.description.replace('MuscleBlaze', '').trim()}
+                {brandInfo.description}
               </div>
             </div>
           </section>
 
-          {/* 4. STATS BAR */}
           <section className="flex w-full border-y border-t border-b border-[#f1f5f9] bg-white">
             {[
-              { label: 'Rating', value: BRAND_INFO.rating },
-              { label: 'Purchases', value: BRAND_INFO.purchases },
-              { label: 'Total Products', value: BRAND_INFO.totalProducts }
+              { label: 'Rating', value: brandInfo.rating },
+              { label: 'Purchases', value: brandInfo.purchases },
+              { label: 'Total Products', value: brandInfo.totalProducts }
             ].map((stat, idx) => (
               <div
                 key={stat.label}
@@ -114,30 +101,34 @@ export default function BrandDetailPage() {
             ))}
           </section>
 
-          {/* 5. EXPLORE SECTION */}
           <div className="flex items-center gap-[10px]  border-[#f1f5f9] px-[24px] py-[24px] bg-white">
             <span className="flex-1 font-titillium text-[16px] lg:text-[20px] font-semibold text-[#242424] tracking-[-0.64px] leading-[26px]">
               Explore Brand & Products
             </span>
-            <button className="flex-none flex h-[32px] w-[32px] items-center justify-center rounded-[6px] border border-[#eaebf0] bg-white active:scale-90 transition-transform">
-              <DropDownIcon className="h-[16px] w-[16px] text-[#242424]" />
-            </button>
           </div>
 
-          {/* 6. FILTER BAR */}
-          <BrandFilterBar onCategoryChange={setSelectedCategory} selectedCategory={selectedCategory} />
-
-          {/* 7. PRODUCT GRID */}
-          <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full border-t border-l border-[#e8e8e8] bg-white overflow-hidden">
-            {paginatedItems.map((product) => (
+          <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full border-t border-l border-[#f1f5f9] bg-white overflow-hidden">
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </section>
 
-          {/* 8. PAGINATION */}
-          <div className="bg-white py-[40px]  border-[#e8e8e8] flex justify-center pb-[60px]">
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-          </div>
+          {products.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-[100px] px-[24px] text-center bg-white ">
+              <div className="w-[64px] h-[64px] bg-[#f9fafb] rounded-full flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+              </div>
+              <p className="font-titillium text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
+              <p className="font-titillium text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
+              <BackButton
+                className="px-8 py-3 bg-[#242424] text-white rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
+              >
+                Go Back
+              </BackButton>
+            </div>
+          )}
         </main>
       </div>
     </div>

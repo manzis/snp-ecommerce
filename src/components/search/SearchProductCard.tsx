@@ -5,18 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
 
-interface Product {
-  id: number;
-  slug: string; // Required for dynamic routing
-  brand: string;
-  name: string;
-  originalPrice: string;
-  discountedPrice: string;
-  discount: string;
-  rating: number;
-  image: string;
-  stockStatus?: string;
-}
+import { Product } from '@/services/productService';
 
 /**
  * ProductCard component for search results.
@@ -25,24 +14,22 @@ interface Product {
  */
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   return (
-    <Link 
+    <Link
       href={`/product/${product.slug}`}
-      className="group flex flex-col w-full bg-white relative transition-all active:scale-[0.98] border-r border-b border-[#e8e8e8] hover:bg-[#fafafa] cursor-pointer"
+      className={`group relative flex w-full flex-col gap-[4px] border-r border-b border-[#e8e8e8] bg-white transition-all active:scale-[0.98] lg:gap-0 ${product.stock_status === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
     >
       {/* IMAGE & BADGES CONTAINER */}
-      <div className="relative w-full aspect-[206/194] flex flex-col justify-end lg:aspect-[250/240] overflow-hidden">
+      <div className="relative w-full aspect-[200/200] flex flex-col justify-end lg:aspect-[250/240] overflow-hidden">
         {/* Optimized Image with Hover Scale Effect */}
-        <div className={`relative w-full h-[162px] lg:h-[200px] transition-transform duration-500 ease-out group-hover:scale-110 ${product.stockStatus === 'out_of_stock' ? 'opacity-40 grayscale' : ''}`}>
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-          />
-        </div>
+        <Image
+          src={product.images?.[0] || '/images/protein.jpg'}
+          alt={product.title}
+          fill
+          className={`object-contain p-[20px] lg:p-[20px] transition-transform duration-300 group-hover:scale-105 ${product.stock_status === 'out_of_stock' ? 'opacity-40' : ''}`}
+          sizes="(max-width: 1024px) 150px, 300px"
+        />
 
-        {product.stockStatus === 'out_of_stock' && (
+        {product.stock_status === 'out_of_stock' && (
           <div className="absolute inset-0 z-[15] flex items-center justify-center p-4 pointer-events-none">
             <div className="w-full bg-red-600/95 py-2 lg:py-3 flex items-center justify-center shadow-2xl transform -rotate-1 border-y border-red-400/30">
               <span className="font-custom text-[10px] lg:text-[14px] font-bold tracking-[0.25em] text-white uppercase drop-shadow-md">
@@ -53,14 +40,14 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         )}
 
         {/* Save Badge - Decorative Custom Font */}
-        <div className="absolute top-[16px] left-[18px] bg-[#94ff00] px-[3px] py-[1px] rounded-[6px] z-10 flex items-center justify-center">
-          <span className="font-custom text-[7px] lg:text-[10px] font-normal leading-[14px] text-[#242424] whitespace-nowrap uppercase">
-            save {product.discount}
+        <div className="absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[8px] py-[4px] lg:px-[10px]">
+          <span className="font-custom text-[10px] lg:text-[13px] font-normal leading-[14px] text-[#242424]">
+            save {product.discount_percentage}%
           </span>
         </div>
 
         {/* Rating Badge - Titillium Font */}
-        <div className="absolute top-[13px] right-[18px] bg-[#ffe900] px-[8px] py-[6px] rounded-[6px] overflow-hidden flex items-center gap-[2px] z-10">
+        <div className="absolute top-[11px] left-[11px] bg-[#ffe900] px-[8px] py-[6px] rounded-[6px] overflow-hidden flex items-center gap-[2px] z-10">
           <StarIcon className="w-[10px] h-[10px] text-[#242424]" />
           <span className="font-titillium text-[10px] lg:text-[12px] font-semibold leading-[10px] text-[#242424]">
             {product.rating}
@@ -72,13 +59,13 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
       <div className="flex flex-col gap-[8px] px-[16px] py-[8px] pb-[16px] lg:px-[24px] lg:py-[20px] lg:gap-[12px]">
         <div className="flex flex-col gap-[2px] lg:gap-[4px]">
           {/* Brand Name - Subtle Metadata */}
-          <span className="font-titillium text-[10px] lg:text-[13px] font-normal leading-[14px] text-[#bebebe]">
-            {product.brand}
+          <span className="font-titillium text-[10px] lg:text-[13px] font-normal leading-[14px] text-[#979797] uppercase">
+            {product.brands?.name || ''}
           </span>
-          
+
           {/* Product Title - Custom Font for Branding */}
-          <h3 className="font-custom text-[13px] lg:text-[16px] font-normal leading-[16px] lg:leading-[22px] tracking-[0.2px] text-[#242424] line-clamp-1 lg:line-clamp-2 group-hover:text-[#308026] transition-colors">
-            {product.name}
+          <h3 className="font-titillium text-[13px] lg:text-[20px] font-semibold leading-[18px] lg:leading-[24px] tracking-[0.2px] text-[#242424] lg:h-[48px] overflow-hidden line-clamp-2">
+            {product.title}
           </h3>
         </div>
 
@@ -86,12 +73,12 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         <div className="flex items-center gap-[6px] lg:gap-[10px]">
           {/* Original Price - Strikethrough */}
           <span className="font-titillium text-[16px] lg:text-[18px] font-normal leading-[22px] text-[#979797] line-through tracking-[-1.12px]">
-            {product.originalPrice}
+            Rs. {product.original_price}
           </span>
-          
+
           {/* Discounted Price - Custom Font + Brand Green Gradient */}
           <span className="font-custom text-[17px] lg:text-[20px] font-normal leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
-            {product.discountedPrice}
+            Rs. {product.discounted_price}
           </span>
         </div>
       </div>

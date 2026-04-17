@@ -4,26 +4,26 @@ import React from 'react';
 import Image from 'next/image';
 
 interface Product {
-  id: number;
+  id: string | number;
   brand: string;
   name: string;
   image: string;
 }
 
-const PRODUCTS: Product[] = [
-  { id: 1, brand: 'Naturaltein', name: 'Naturaltein omega 3 - fish', image: '/images/product-1.png' },
-  { id: 2, brand: 'Naturaltein', name: 'Naturaltein omega 3 - fish', image: '/images/product-2.png' },
-  { id: 3, brand: 'Naturaltein', name: 'Naturaltein omega 3 - fish', image: '/images/product-3.png' },
-];
+interface PopularProductsProps {
+  products?: Product[];
+}
 
-const PopularProducts: React.FC = () => {
+const PopularProducts: React.FC<PopularProductsProps> = ({ products = [] }) => {
+  if (products.length === 0) return null;
+
   return (
     <section className="flex flex-col gap-[20px] self-stretch border-t border-[#f1f5f9] py-[24px] px-[24px]">
       <h3 className="font-titillium text-[16px] font-semibold leading-[20px] text-[#242424]">
         Popular Products:
       </h3>
       <div className="no-scrollbar flex w-full gap-[16px] overflow-x-auto pb-[4px]">
-        {PRODUCTS.map((product) => (
+        {products.map((product) => (
           <div
             key={product.id}
             className="flex w-[141px] shrink-0 flex-col overflow-hidden rounded-[12px] border border-[#f1f5f9] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]"

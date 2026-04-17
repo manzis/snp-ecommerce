@@ -106,22 +106,72 @@ export default function ProductDetailsTab({ formData, setFormData, showErrors, e
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label className="text-[12.5px] font-regular text-[#242424]">Manufacture Info (JSON)</label>
-                <textarea
-                    rows={3}
-                    onChange={(e) => {
-                        try {
-                            if (e.target.value.trim() === '') {
-                                updateInfo('manufacture_info', {});
-                            } else {
-                                updateInfo('manufacture_info', JSON.parse(e.target.value));
-                            }
-                        } catch { }
-                    }}
-                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-mono placeholder:text-zinc-400 placeholder:font-regular focus:border-black outline-none transition-all"
-                    placeholder='{"country": "India", "licence": "..."}'
-                />
+            <div className="flex flex-col gap-8 pb-4 border-b border-gray-100">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-[14px] font-semibold text-[#242424]">Product Page Banners (All after Product Details)</label>
+                    <p className="text-[11px] text-[#A1A1AA] font-regular leading-snug">
+                        Upload up to 4 banners. All 4 will appear together after the product details section.
+                    </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <ImageUpload
+                        label="Banner 1"
+                        value={formData.banner_image1}
+                        onChange={(url) => setFormData({ ...formData, banner_image1: url })}
+                        path={`products/${formData.slug || 'new-product'}/banners`}
+                    />
+                    <ImageUpload
+                        label="Banner 2"
+                        value={formData.banner_image2}
+                        onChange={(url) => setFormData({ ...formData, banner_image2: url })}
+                        path={`products/${formData.slug || 'new-product'}/banners`}
+                    />
+                    <ImageUpload
+                        label="Banner 3"
+                        value={formData.banner_image3}
+                        onChange={(url) => setFormData({ ...formData, banner_image3: url })}
+                        path={`products/${formData.slug || 'new-product'}/banners`}
+                    />
+                    <ImageUpload
+                        label="Banner 4"
+                        value={formData.banner_image4}
+                        onChange={(url) => setFormData({ ...formData, banner_image4: url })}
+                        path={`products/${formData.slug || 'new-product'}/banners`}
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="flex flex-col gap-2">
+                    <label className="text-[12.5px] font-regular text-[#242424]">Product Rating (0.0 - 5.0)</label>
+                    <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={formData.rating || 0}
+                        onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) })}
+                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] focus:border-black outline-none transition-all font-medium"
+                        placeholder="e.g. 4.5"
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label className="text-[12.5px] font-regular text-[#242424]">Manufacture Info (JSON)</label>
+                    <textarea
+                        rows={1}
+                        onChange={(e) => {
+                            try {
+                                if (e.target.value.trim() === '') {
+                                    updateInfo('manufacture_info', {});
+                                } else {
+                                    updateInfo('manufacture_info', JSON.parse(e.target.value));
+                                }
+                            } catch { }
+                        }}
+                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-mono placeholder:text-zinc-400 placeholder:font-regular focus:border-black outline-none transition-all"
+                        placeholder='{"country": "India", "licence": "..."}'
+                    />
+                </div>
             </div>
         </div>
     );

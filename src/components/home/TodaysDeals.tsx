@@ -14,17 +14,17 @@ interface Deal {
     image: string;
 }
 
-const DEALS: Deal[] = [
-    { id: '1', brand: 'Naturltein', title: 'Asitsi atom whey protein', originalPrice: 'RS. 5000', discountedPrice: 'rS. 1890', discount: '20%', image: '/images/deal.png' },
-    { id: '2', brand: 'Naturltein', title: 'Asitsi atom whey protein', originalPrice: 'RS. 5000', discountedPrice: 'rS. 1890', discount: '20%', image: '/images/deal.png' },
-    { id: '3', brand: 'Naturltein', title: 'Asitsi atom whey protein', originalPrice: 'RS. 5000', discountedPrice: 'rS. 1890', discount: '20%', image: '/images/deal.png' },
-];
-
 interface TodaysDealsProps {
     isHeroWidget?: boolean;
+    deals?: Deal[];
 }
 
-const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false }) => {
+const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false, deals = [] }) => {
+    // If no deals provided, don't render or show placeholder
+    if (deals.length === 0) return null;
+    
+    // Ensure we have at least 3 deals for the layout, otherwise repeat or slice
+    const displayDeals = deals.length >= 3 ? deals : [...deals, ...deals, ...deals].slice(0, 3);
     return (
         <section
             className={`relative mx-auto w-full bg-[linear-gradient(180deg,#eaffe8,#d6ff9c)]  
@@ -82,14 +82,14 @@ const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false }) => {
                     </div>
 
                     <div className="flex-[0.7]">
-                        <DealCard deal={DEALS[2]} isWide className="h-full w-full" />
+                        <DealCard deal={displayDeals[2]} isWide className="h-full w-full" />
                     </div>
                 </div>
 
                 {/* ROW 1: TWO VERTICAL CARDS */}
                 <div className={`flex gap-[6px] w-full ${isHeroWidget ? 'h-[280px] gap-[10px]' : 'h-[240px] lg:gap-[16px] lg:h-[420px]'}`}>
-                    <DealCard deal={DEALS[0]} className={isHeroWidget ? 'flex-1' : 'w-[190px] lg:w-1/2'} />
-                    <DealCard deal={DEALS[1]} className="flex-1" />
+                    <DealCard deal={displayDeals[0]} className={isHeroWidget ? 'flex-1' : 'w-[190px] lg:w-1/2'} />
+                    <DealCard deal={displayDeals[1]} className="flex-1" />
                 </div>
 
             </div>
@@ -111,7 +111,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
         >
             {/* DISCOUNT BADGE */}
             <div className={`absolute top-[10px] z-10 flex h-[21px] w-[54px] items-center justify-center rounded-[6px] bg-[#94ff00] px-[6px] py-[2px] ${isWide ? 'right-[12px]' : 'right-[8px]'}`}>
-                <span className="font-custom text-[10px] font-normal leading-[14px] text-[#242424]">save {deal.discount}</span>
+                <span className="font-custom text-[10px] font-normal leading-[14px] text-[#242424]">save {deal.discount}%</span>
             </div>
 
             {/* IMAGE CONTAINER */}
@@ -125,12 +125,19 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
                     <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#bebebe]">{deal.brand}</span>
                     <h3 className="line-clamp-2 font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c] lg:text-[16px] lg:leading-[20px]">{deal.title}</h3>
                 </div>
-                <div className="mt-[8px] flex items-center gap-[6px]">
-                    <span className="font-titillium text-[16px] font-normal leading-[22px] tracking-[-1.12px] text-[#979797] line-through">{deal.originalPrice}</span>
-                    <span className="bg-[linear-gradient(68.09deg,#308026,#32d71d)] bg-clip-text font-custom text-[16px] font-normal leading-[22px] text-transparent lg:text-[20px]">{deal.discountedPrice}</span>
-                </div>
+                <div className="flex items-center gap-[6px] lg:gap-[10px]">
+              {/* Original Price - Strikethrough */}
+              <span className="font-titillium text-[16px] lg:text-[18px] font-normal leading-[22px] text-[#979797] line-through tracking-[-1.12px]">
+                Rs. {deal.originalPrice}
+              </span>
+              
+              {/* Discounted Price - Custom Font + Brand Green Gradient */}
+              <span className="font-custom text-[17px] lg:text-[20px] font-normal leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
+                Rs. {deal.discountedPrice}
+              </span>
             </div>
-        </Link>
+        </div>
+    </Link>
     );
 };
 

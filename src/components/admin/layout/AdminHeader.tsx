@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthService } from '@/services/auth.service';
 
@@ -20,8 +20,13 @@ import BackArrowIcon from '@/components/icons/BackArrowIcon';
 
 
 export default function AdminHeader() {
+    const pathname = usePathname();
     const router = useRouter();
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+
+    const isPreviewMode = pathname.includes('/preview/');
+
+    if (isPreviewMode) return null;
 
     const handleLogout = async () => {
         try {
@@ -34,7 +39,7 @@ export default function AdminHeader() {
     };
 
     return (
-        <header className="hidden md:flex h-14 bg-white items-center justify-between px-[10px] z-[80] rounded-[12px] relative">
+        <header className="hidden md:flex h-14 bg-white items-center justify-between px-[10px] z-[130] rounded-[12px] relative">
             {/* Left Section: Utility Icons */}
             <div className="flex items-center gap-1 shrink-0">
                 <div className="text-xl font-bold text-gray-900 md:hidden mr-2">
@@ -137,7 +142,7 @@ export default function AdminHeader() {
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                     transition={{ duration: 0.15, ease: "easeOut" }}
-                                    className="absolute right-0 top-[calc(100%+8px)] w-48 bg-white border border-[#e4e4e7] rounded-[12px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] z-[70] overflow-hidden p-1 flex flex-col gap-1"
+                                    className="absolute right-0 top-[calc(100%+8px)] w-48 bg-white border border-[#e4e4e7] rounded-[12px] shadow-[0_8px_30px_rgb(0,0,0,0.08)] z-[140] overflow-hidden p-1 flex flex-col gap-1"
                                 >
                                     <div className="px-3 py-2 pb-1">
                                         <p className="text-[13px] font-medium text-[#242424] truncate">Bright Nepcare</p>

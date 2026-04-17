@@ -31,7 +31,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
         <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
           <span className="font-titillium text-[16px] text-[#242424]">MRP</span>
           <span className="font-titillium text-[16px] text-[#242424] text-right">
-            NPR {totalMRP.toLocaleString()}
+            Rs. {totalMRP.toLocaleString()}
           </span>
         </div>
 
@@ -52,7 +52,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
               </motion.div>
             </div>
             <span className="font-titillium text-[16px] text-[#242424] text-right">
-              - NPR {totalDiscount.toLocaleString()}
+              - Rs. {totalDiscount.toLocaleString()}
             </span>
           </div>
 
@@ -70,7 +70,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                   <div className="flex justify-between items-center">
                     <span className="font-titillium text-[15px] text-[#242424] opacity-60">Discount on MRP</span>
                     <span className="font-titillium text-[15px] font-medium text-[#308026]">
-                      - NPR {itemDiscount.toLocaleString()}
+                      - Rs. {itemDiscount.toLocaleString()}
                     </span>
                   </div>
 
@@ -83,7 +83,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                         </span>
                       </div>
                       <span className="font-titillium text-[15px] font-medium text-[#308026]">
-                        - NPR {couponDiscount.toLocaleString()}
+                        - Rs. {couponDiscount.toLocaleString()}
                       </span>
                     </div>
                   )}
@@ -101,7 +101,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
           <div className="flex justify-between items-center px-[24px] py-[18px]">
             <span className="font-titillium text-[16px] font-semibold text-[#242424]"> Sub Total Amount</span>
             <span className="font-titillium text-[18px] font-bold text-[#242424]">
-              NPR {finalPrice.toLocaleString()}
+              Rs. {finalPrice.toLocaleString()}
             </span>
           </div>
         </div>
@@ -111,7 +111,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
       <div className="px-[24px] pb-[16px]">
         <div className="flex items-center justify-center rounded-[12px] bg-[#eaffcc] py-[14px]">
           <span className="font-titillium text-[16px] tracking-[-0.64px] text-[#242424]">
-            You will save NPR {totalDiscount.toLocaleString()} on this order
+            You will save Rs. {totalDiscount.toLocaleString()} on this order
           </span>
         </div>
       </div>

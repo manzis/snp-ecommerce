@@ -51,8 +51,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
               {mrpAmount}
             </span>
             <div className="flex items-center font-custom text-[20px] text-[#242424] leading-[22px]">
-              <span className="mr-1">NPR</span>
-              {totalAmount.replace('NPR ', '').split('').map((char, index) => (
+              <span className="mr-1">Rs.</span>
+              {totalAmount.replace(/NPR\s?|Rs\.?\s?/ig, '').split('').map((char, index) => (
                 <div key={index} className="relative overflow-hidden h-[22px] min-w-[11px] flex justify-center">
                   <AnimatePresence mode="popLayout">
                     <motion.span

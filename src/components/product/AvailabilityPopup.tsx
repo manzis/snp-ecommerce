@@ -17,7 +17,7 @@ const AvailabilityPopup: React.FC<AvailabilityPopupProps> = ({ isOpen, onClose }
     <>
       {/* Invisible backdrop for "Click Outside" closure */}
       <div
-        className="fixed inset-0 z-[60] bg-transparent px-[24px]"
+        className="fixed inset-0 z-[60] bg-transparent "
         onClick={onClose}
       />
 
