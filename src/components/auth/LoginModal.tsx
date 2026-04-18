@@ -27,7 +27,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     const [step, setStep] = useState<'login' | 'otp'>('login');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [statusMsg, setStatusMsg] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false);
 
     const inputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
 
@@ -44,7 +45,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             return;
         }
         setError(null);
-        setIsLoading(true);
+        setIsSending(true);
 
         // OPTIMISTIC TRANSITION: Switch to OTP view immediately to feel "faster"
         // Most users have high confidence in their email/phone being correct.
@@ -68,11 +69,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             }
 
             console.log("OTP Sent");
-            setIsLoading(false);
+            setIsSending(false);
             showToast("OTP sent successfully!", "success");
         } catch (err: any) {
             console.log("Login Failed");
-            setIsLoading(false);
+            setIsSending(false);
             setStep('login'); // Revert if failed
             showToast(err?.message || "Failed to send OTP", "error");
         }
@@ -113,7 +114,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             showToast("Please enter all 6 digits", "error");
             return;
         }
-        setIsLoading(true);
+        setIsVerifying(true);
         const otpString = otp.join('');
         console.log("Verifying:", otpString);
 
@@ -143,12 +144,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             console.log("Login Failed");
             showToast(err?.message || "Invalid OTP", "error");
         } finally {
-            setIsLoading(false);
+            setIsVerifying(false);
         }
     };
 
     const handleGoogleLogin = async () => {
-        setIsLoading(true);
+        setIsSending(true);
         try {
             const supabase = createClient();
             const { error: googleError } = await supabase.auth.signInWithOAuth({
@@ -161,7 +162,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         } catch (err: any) {
             console.error("Google Login Failed", err);
             showToast(err?.message || "Google Login Failed", "error");
-            setIsLoading(false);
+            setIsSending(false);
         }
     };
 
@@ -241,8 +242,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-[12px]">
-                                    <button disabled={isLoading} onClick={handleSendOtp} className="flex h-[48px] w-full items-center justify-center rounded-[12px] bg-[#ffe900] text-[16px] font-[600] text-[#242424] transition-all hover:bg-[#ebd700] active:scale-[0.98] disabled:opacity-70">
-                                        {isLoading ? "Processing..." : "Send OTP"}
+                                    <button disabled={isSending} onClick={handleSendOtp} className="flex h-[48px] w-full items-center justify-center rounded-[12px] bg-[#ffe900] text-[16px] font-[600] text-[#242424] transition-all hover:bg-[#ebd700] active:scale-[0.98] disabled:opacity-70">
+                                        {isSending ? "Processing..." : "Send OTP"}
                                     </button>
                                     <p className="text-[14px] leading-[22px] text-[#68727d] text-left">Note : This email will be used to login to website</p>
                                 </div>
@@ -251,7 +252,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 <span className="text-[12px] font-[600] text-[#7b838d] tracking-widest">OR LOGIN WITH</span>
                                 <div className="flex gap-[10px] w-full max-w-[250px]">
                                     <button className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50"><WhatsappIcon className="w-[18px] h-[18px]" /><span className="text-[16px] font-[600] text-[#575757]">Whatsapp</span></button>
-                                    <button disabled={isLoading} onClick={handleGoogleLogin} className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70"><GoogleIcon className="w-[18px] h-[18px]" /><span className="text-[16px] font-[600] text-[#575757]">Google</span></button>
+                                    <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70"><GoogleIcon className="w-[18px] h-[18px]" /><span className="text-[16px] font-[600] text-[#575757]">Google</span></button>
                                 </div>
                             </div>
                         </motion.div>
@@ -311,11 +312,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 </div>
                                 <div className="flex flex-col gap-[12px] items-center">
                                     <button
-                                        disabled={isLoading}
+                                        disabled={isVerifying}
                                         onClick={handleVerifyOtp}
                                         className="flex h-[48px] w-full items-center justify-center rounded-[12px] bg-[#ffe900] text-[16px] font-[600] text-[#242424] transition-all hover:bg-[#ebd700] active:scale-[0.98] disabled:opacity-70"
                                     >
-                                        {isLoading ? "Verifying..." : "Verify OTP Now"}
+                                        {isVerifying ? "Verifying..." : "Verify OTP Now"}
                                     </button>
                                     <button
                                         onClick={handleResendOtp}
