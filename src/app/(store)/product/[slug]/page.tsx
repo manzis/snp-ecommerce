@@ -16,9 +16,21 @@ import FeaturedProductsSection from '@/components/product/FeaturedProductsSectio
 
 import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
+}
+
+// ASYNC WRAPPERS FOR STREAMING
+async function ReviewsWrapper({ productId }: { productId: string }) {
+  const reviews = await fetchProductReviews(productId);
+  return <ReviewsSection reviews={reviews} />;
+}
+
+async function QAWrapper({ productId }: { productId: string }) {
+  const qaPairs = await fetchProductQA(productId);
+  return <QuestionsAndAnswers qaPairs={qaPairs} />;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
@@ -29,10 +41,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const [reviews, qaPairs] = await Promise.all([
-    fetchProductReviews(product.id),
-    fetchProductQA(product.id)
-  ]);
+  const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
+    <div className="w-full px-[24px] py-4 animate-pulse">
+      <div className={`w-full bg-gray-50 rounded-[12px]`} style={{ height }} />
+    </div>
+  );
 
   const breadcrumbPath = [
     { name: "Supplements", href: "/supplements" },
@@ -125,10 +138,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 />
               </div>
               <div className="lg:hidden ">
-                <ReviewsSection reviews={reviews} />
+                <Suspense fallback={<SectionSkeleton height="200px" />}>
+                  <ReviewsWrapper productId={product.id} />
+                </Suspense>
               </div>
               <div className="lg:hidden ">
-                <QuestionsAndAnswers qaPairs={qaPairs} />
+                <Suspense fallback={<SectionSkeleton height="150px" />}>
+                  <QAWrapper productId={product.id} />
+                </Suspense>
               </div>
 
               <div className="lg:hidden ">
@@ -136,7 +153,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
 
               <div className="lg:hidden pb-[10px]">
-                <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
+                <Suspense fallback={<SectionSkeleton height="300px" />}>
+                  <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
+                </Suspense>
               </div>
             </div>
 
@@ -158,16 +177,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
           />
         </div>
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <ReviewsSection reviews={reviews} />
+          <Suspense fallback={<SectionSkeleton height="300px" />}>
+            <ReviewsWrapper productId={product.id} />
+          </Suspense>
         </div>
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <QuestionsAndAnswers qaPairs={qaPairs} />
+          <Suspense fallback={<SectionSkeleton height="200px" />}>
+            <QAWrapper productId={product.id} />
+          </Suspense>
         </div>
         <div className="hidden lg:block lg:mt-[28px] ">
           <WhyChooseUs />
         </div>
         <div className="hidden lg:block lg:mt-[28px] lg:mb-[40px]">
-          <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
+          <Suspense fallback={<SectionSkeleton height="400px" />}>
+            <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
+          </Suspense>
         </div>
 
       </main>

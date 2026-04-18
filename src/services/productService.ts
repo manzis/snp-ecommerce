@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { cache } from 'react';
 
 export interface Category {
   id: string;
@@ -396,7 +397,7 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 /**
  * Fetch a single product tightly coupled with variants by slug
  */
-export async function fetchProductBySlug(slug: string, options?: { requirePublished?: boolean }): Promise<Product | null> {
+export const fetchProductBySlug = cache(async function(slug: string, options?: { requirePublished?: boolean }): Promise<Product | null> {
   const requirePublished = options?.requirePublished ?? true;
   
   let query = supabase
@@ -432,12 +433,12 @@ export async function fetchProductBySlug(slug: string, options?: { requirePublis
     brands: Array.isArray(data.brands) ? data.brands[0] : (data.brands || null),
     sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null)
   } as Product;
-}
+});
 
 /**
  * Fetch reviews for a specific product
  */
-export async function fetchProductReviews(productId: string): Promise<Review[]> {
+export const fetchProductReviews = cache(async function(productId: string): Promise<Review[]> {
   const { data, error } = await supabase
     .from('reviews')
     .select('*, author_avatar')
@@ -449,12 +450,12 @@ export async function fetchProductReviews(productId: string): Promise<Review[]> 
     return [];
   }
   return data as Review[];
-}
+});
 
 /**
  * Fetch QA for a specific product
  */
-export async function fetchProductQA(productId: string): Promise<QAPair[]> {
+export const fetchProductQA = cache(async function(productId: string): Promise<QAPair[]> {
   const { data, error } = await supabase
     .from('product_qa')
     .select('*')
@@ -466,7 +467,7 @@ export async function fetchProductQA(productId: string): Promise<QAPair[]> {
     return [];
   }
   return data as QAPair[];
-}
+});
 
 /**
  * Update product stock status
@@ -624,7 +625,7 @@ async function updateHomepageProductsWithClient(client: any, sectionKey: string,
  * Fetch related products combining same-category and fallback-category products
  * up to a specified limit.
  */
-export async function fetchRelatedProducts(
+export const fetchRelatedProducts = cache(async function(
   baseProductId: string,
   categoryId: string | null | undefined,
   limit: number = 10
@@ -692,4 +693,4 @@ export async function fetchRelatedProducts(
     brands: Array.isArray(p.brands) ? p.brands[0] : (p.brands || null),
     sellers: Array.isArray(p.sellers) ? p.sellers[0] : (p.sellers || null),
   })) as Product[];
-}
+});
