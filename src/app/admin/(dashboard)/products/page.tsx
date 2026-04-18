@@ -22,7 +22,7 @@ export default function ProductsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const { showToast } = useAdminToast();
+  const { showAdminToast } = useAdminToast();
 
   // Selection State
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -84,9 +84,9 @@ export default function ProductsPage() {
       } else if (updates.stock_status !== undefined) {
           message = `Stock status updated to ${updates.stock_status.replace(/_/g, ' ')}.`;
       }
-      showToast(message, 'success');
+      showAdminToast(message, 'success');
     } else {
-      showToast(`Failed to update product: ${res.message}`, 'error');
+      showAdminToast(`Failed to update product: ${res.message}`, 'error');
     }
   };
 
@@ -96,9 +96,9 @@ export default function ProductsPage() {
       if (res.success) {
         setProducts(prev => prev.filter(p => p.id !== id));
         setTotalCount(prev => prev - 1);
-        showToast('Product deleted successfully.', 'success');
+        showAdminToast('Product deleted successfully.', 'success');
       } else {
-        showToast(res.message, 'error');
+        showAdminToast(res.message, 'error');
       }
     }
   };
@@ -107,9 +107,9 @@ export default function ProductsPage() {
     const res = await duplicateProductAction(id);
     if (res.success) {
       loadProducts();
-      showToast('Product duplicated successfully.', 'success');
+      showAdminToast('Product duplicated successfully.', 'success');
     } else {
-      showToast(res.message, 'error');
+      showAdminToast(res.message, 'error');
     }
   };
 

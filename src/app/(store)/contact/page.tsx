@@ -1,104 +1,206 @@
 "use client";
 
-import React, { useState } from 'react';
-import MailIcon from '@/components/icons/MailIcon';
-import WhatsappIcon from '@/components/icons/WhatsAppIcon2';
+import React, { useState } from "react";
+import DynamicPageNav from "@/components/layout/DynamicPageNav";
 
 export default function ContactPage() {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [status, setStatus] = useState<string | null>(null);
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        message: "",
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setStatus("🚀 Thank you! We have received your message and will get back to you shortly.");
-            setTimeout(() => setStatus(null), 5000);
-        }, 1500);
+        // Connect to Supabase or API service here
+        console.log("Form submitted:", formData);
     };
 
     return (
-        <main className="min-h-screen bg-[#fcfff8] font-titillium pt-[40px] pb-[120px] px-[16px]">
-            <div className="max-w-[1000px] mx-auto w-full flex flex-col gap-[40px]">
-                
-                {/* Header */}
-                <div className="flex flex-col gap-[16px] text-center lg:text-left pt-[20px]">
-                    <div className="inline-flex items-center justify-center lg:justify-start gap-[8px] text-[#3f9633]">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                        <span className="font-semibold text-[14px] tracking-widest uppercase">Get In Touch</span>
-                    </div>
-                    <h1 className="text-[40px] lg:text-[48px] font-custom text-[#242424] leading-tight">
-                        We'd love to hear <br className="hidden lg:block" /> from you.
-                    </h1>
-                    <p className="text-[#68727d] text-[16px] lg:text-[18px] max-w-[500px]">
-                        Have a question about our supplements, your order, or just need fitness advice? Drop us a message!
-                    </p>
-                </div>
+        <>
+            {/* Top Navigation */}
+            <DynamicPageNav title="Contact Us" />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-[40px]">
-                    
-                    {/* Contact Form */}
-                    <div className="bg-white p-[32px] rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-[#f1f5f9]">
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-[20px]">
-                            <div className="flex flex-col gap-[8px]">
-                                <label className="text-[14px] font-semibold text-[#242424]">Full Name</label>
-                                <input required type="text" placeholder="John Doe" className="h-[54px] rounded-[12px] border border-[#eaebf0] px-[16px] outline-none transition-all focus:border-[#3f9633] focus:ring-1 focus:ring-[#3f9633] bg-transparent text-[#242424]" />
-                            </div>
-                            <div className="flex flex-col gap-[8px]">
-                                <label className="text-[14px] font-semibold text-[#242424]">Email Address</label>
-                                <input required type="email" placeholder="john@example.com" className="h-[54px] rounded-[12px] border border-[#eaebf0] px-[16px] outline-none transition-all focus:border-[#3f9633] focus:ring-1 focus:ring-[#3f9633] bg-transparent text-[#242424]" />
-                            </div>
-                            <div className="flex flex-col gap-[8px]">
-                                <label className="text-[14px] font-semibold text-[#242424]">Your Message</label>
-                                <textarea required rows={4} placeholder="How can we help?" className="rounded-[12px] border border-[#eaebf0] p-[16px] outline-none transition-all focus:border-[#3f9633] focus:ring-1 focus:ring-[#3f9633] bg-transparent text-[#242424] resize-none"></textarea>
-                            </div>
-                            <button disabled={isSubmitting} type="submit" className="mt-[10px] h-[54px] rounded-[12px] bg-[linear-gradient(135deg,#3f9633_0%,#87c03d_100%)] text-white font-semibold text-[16px] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-70 flex items-center justify-center">
-                                {isSubmitting ? "Sending..." : "Send Message"}
+            {/* Main Content Wrapper */}
+            <main className="flex flex-col w-full max-w-[410px] lg:max-w-[1200px] mx-auto gap-[12px] relative pt-[81px] pb-[40px] bg-[#F7FAF6]">
+
+                {/* --- HERO SECTION --- */}
+                <section className="flex flex-col  pb-[12px] items-start self-stretch relative z-[1]">
+                    <div className="flex px-[24px] py-[36px] flex-col gap-[16px] items-center self-stretch bg-[#3f9633]  relative z-[2] ">
+
+                        <div className="flex w-full max-w-[288px] lg:max-w-[600px] flex-col gap-[8px] items-center relative z-[3]">
+                            <span className="flex justify-center text-[14px] font-[600] leading-[18px] text-[#ffffff] whitespace-nowrap uppercase tracking-wider">
+                                GET IN TOUCH
+                            </span>
+                            <h1 className="flex justify-center text-[30px] font-custom lg:text-[42px] font-[400] leading-[40px] lg:leading-[50px] text-[#ffffff] text-center font-['DK_Jalebi',sans-serif]">
+                                We’d Love to hear<br />From You
+                            </h1>
+                            <p className="flex justify-center text-[14px] lg:text-[16px] font-[400] leading-[20px] lg:leading-[24px] text-[#ddffd8] text-center max-w-[400px]">
+                                Have a questions about delivery, supplements or orders do let us know to assist you best
+                            </p>
+                        </div>
+
+                        <div className="flex gap-[8px] items-start relative z-[7] mt-[8px]">
+                            <button className="flex px-[10px] py-[4px] gap-[4px] justify-center items-center bg-[#ffffff] hover:bg-[#f3f4f6] transition-colors duration-[200ms] rounded-[100px]">
+                                <span className="text-[16px] font-[600] leading-[26px] text-[#242424] tracking-[-0.03px] whitespace-nowrap">
+                                    Report
+                                </span>
                             </button>
-                            {status && <p className="text-[#3f9633] text-center font-medium mt-[4px]">{status}</p>}
-                        </form>
-                    </div>
-
-                    {/* Contact Info Cards */}
-                    <div className="flex flex-col gap-[20px]">
-                        
-                        <div className="bg-[#f0fdf4] border border-[#bbf7d0] p-[32px] rounded-[24px] flex flex-col gap-[16px]">
-                            <div className="w-[48px] h-[48px] rounded-full bg-[#dcfce7] text-[#166534] flex items-center justify-center">
-                                <MailIcon className="w-[20px] h-[20px]" />
-                            </div>
-                            <div className="flex flex-col gap-[4px]">
-                                <h3 className="font-bold text-[20px] text-[#242424]">Chat to Sales</h3>
-                                <p className="text-[#68727d] text-[15px]">Speak to our friendly team.</p>
-                                <a href="mailto:sales@supplementnepal.com" className="mt-[8px] font-semibold text-[#3f9633] hover:underline">sales@supplementnepal.com</a>
-                            </div>
-                        </div>
-
-                        <div className="bg-[#fffbeb] border border-[#fde68a] p-[32px] rounded-[24px] flex flex-col gap-[16px]">
-                            <div className="w-[48px] h-[48px] rounded-full bg-[#fef3c7] text-[#92400e] flex items-center justify-center">
-                                <WhatsappIcon className="w-[24px] h-[24px]" />
-                            </div>
-                            <div className="flex flex-col gap-[4px]">
-                                <h3 className="font-bold text-[20px] text-[#242424]">Call Us</h3>
-                                <p className="text-[#68727d] text-[15px]">Mon-Fri from 8am to 5pm.</p>
-                                <a href="tel:+9779800000000" className="mt-[8px] font-semibold text-[#b45309] hover:underline">+977 980-000-0000</a>
-                            </div>
-                        </div>
-
-                        <div className="bg-[#f8fafc] border border-[#e2e8f0] p-[32px] rounded-[24px] flex flex-col gap-[16px]">
-                            <div className="w-[48px] h-[48px] rounded-full bg-[#e2e8f0] text-[#475569] flex items-center justify-center">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            </div>
-                            <div className="flex flex-col gap-[4px]">
-                                <h3 className="font-bold text-[20px] text-[#242424]">Visit Us</h3>
-                                <p className="text-[#68727d] text-[15px]">Visit our office HQ.</p>
-                                <p className="mt-[8px] font-semibold text-[#475569]">Kathmandu, Nepal <br /> 44600</p>
-                            </div>
+                            <button className="flex px-[14px] py-[4px] gap-[4px] justify-center items-center bg-[#eaffcc] hover:bg-[#d8f7a1] transition-colors duration-[200ms] rounded-[100px]">
+                                <svg className="w-[15px] h-[15px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="#242424" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                                <span className="text-[16px] font-[600] leading-[26px] text-[#242424] tracking-[-0.03px] whitespace-nowrap">
+                                    Live Chat
+                                </span>
+                            </button>
                         </div>
 
                     </div>
+                </section>
+
+                {/* --- DESKTOP GRID WRAPPER --- */}
+                <div className="flex flex-col lg:flex-row items-start w-full gap-[24px] lg:px-[12px]">
+
+                    {/* --- FORM SECTION --- */}
+                    <section className="flex  lg:px-[0px] w-full lg:w-[60%] items-center self-stretch relative z-[13]">
+                        <div className="flex py-[24px] px-[24px]  px-24px flex-col gap-[30px] items-start grow bg-[#ffffff] relative z-[14]">
+
+                            <div className="flex  items-center self-stretch relative z-[16]">
+                                <h2 className="text-[18px] font-[700] leading-[27px] tracking-[-0.07px] bg-clip-text text-transparent bg-[linear-gradient(46.44deg,#242424,#7d857b)] whitespace-nowrap">
+                                    Submit a Message
+                                </h2>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="flex flex-col w-full gap-[12px] relative z-[18]">
+                                <div className="flex  flex-col gap-[20px] items-start self-stretch relative z-[19]">
+
+                                    {/* Full Name Input */}
+                                    <div className="flex flex-col gap-[8px] items-start self-stretch relative z-[20]">
+                                        <label htmlFor="fullName" className="text-[12px] font-[600] leading-[14px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Full Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="fullName"
+                                            name="fullName"
+                                            value={formData.fullName}
+                                            onChange={handleChange}
+                                            placeholder="Ram prasad"
+                                            required
+                                            className="flex w-full px-[12px] py-[16px] items-center self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[400] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms]"
+                                        />
+                                    </div>
+
+                                    {/* Email Input */}
+                                    <div className="flex flex-col gap-[8px] items-start self-stretch relative z-[25]">
+                                        <label htmlFor="email" className="text-[12px] font-[600] leading-[14px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Email address
+                                        </label>
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            placeholder="yourmail@mail.com"
+                                            required
+                                            className="flex w-full px-[12px] py-[16px] items-center self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[400] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms]"
+                                        />
+                                    </div>
+
+                                    {/* Message Input */}
+                                    <div className="flex flex-col gap-[8px] items-start self-stretch relative z-[30]">
+                                        <label htmlFor="message" className="text-[12px] font-[600] leading-[14px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Your Message
+                                        </label>
+                                        <textarea
+                                            id="message"
+                                            name="message"
+                                            value={formData.message}
+                                            onChange={handleChange}
+                                            placeholder="How can we help?"
+                                            required
+                                            className="flex w-full h-[158px] px-[12px] py-[16px] items-start self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[400] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms] resize-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Submit Action */}
+                                <div className="flex px-[24px] pt-[12px] flex-col gap-[12px] items-start self-stretch relative z-[35]">
+                                    <button
+                                        type="submit"
+                                        className="flex py-[12px] justify-center items-center self-stretch bg-[#ffe900] hover:bg-[#ebd700] rounded-[12px] transition-colors duration-[200ms] ease-in-out"
+                                    >
+                                        <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Send Message
+                                        </span>
+                                    </button>
+                                    <p className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] text-center lg:text-left">
+                                        We will get back your message as soon as possible
+                                    </p>
+                                </div>
+                            </form>
+
+                        </div>
+                    </section>
+
+                    {/* --- CONTACT INFO SECTION --- */}
+                    <section className="flex  lg:px-[0px] w-full lg:w-[40%] flex-col items-start self-stretch relative z-[39]">
+                        <div className="flex  lg:h-auto min-h-[358px]   flex-col gap-[8px] justify-center items-start self-stretch relative z-[40]">
+                            <div className="flex flex-col gap-[1px] items-start self-stretch grow  bg-[#F7FAF6] overflow-hidden relative z-[41]">
+
+                                {/* Chat to Sales Card */}
+                                <div className="flex px-[20px] py-[24px] flex-col gap-[10px] items-start self-stretch bg-[#ffffff] relative z-[43]">
+                                    <div className="w-[40px] h-[39px] shrink-0 bg-[#efefef] rounded-[12px] flex items-center justify-center relative z-[45]">
+                                        <svg className="w-[20px] h-[20px] text-[#3f9633]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                            <polyline points="22,6 12,13 2,6" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col items-start self-stretch relative z-[48]">
+                                        <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Chat to sales
+                                        </h3>
+                                        <p className="text-[12px] font-[300] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
+                                            Speak to our friendly team
+                                        </p>
+                                        <a href="mailto:sales@supplymentnepal.com" className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] hover:text-[#3f9633] transition-colors duration-[150ms] whitespace-nowrap mt-[4px]">
+                                            sales@supplymentnepal.com
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {/* Call Us Card */}
+                                <div className="flex px-[20px] py-[24px] flex-col gap-[10px] items-start self-stretch bg-[#ffffff] relative z-[53]">
+                                    <div className="w-[40px] h-[39px] shrink-0 bg-[#efefef] rounded-[12px] flex items-center justify-center relative z-[55]">
+                                        <svg className="w-[20px] h-[20px] text-[#3f9633]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l1.84-1.84a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col items-start self-stretch relative z-[57]">
+                                        <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Call Us
+                                        </h3>
+                                        <p className="text-[12px] font-[300] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
+                                            Mon to Fri From 10am to 5pm
+                                        </p>
+                                        <a href="tel:+9779767609390" className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] hover:text-[#3f9633] transition-colors duration-[150ms] whitespace-nowrap mt-[4px]">
+                                            +977 9767609390
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </section>
+
                 </div>
-            </div>
-        </main>
+            </main>
+        </>
     );
 }

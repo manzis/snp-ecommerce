@@ -15,7 +15,7 @@ import QuickLinksNav from './QuicklinksNav';
 const Footer = () => {
   const pathname = usePathname();
 
-  if (pathname?.startsWith('/checkout') || pathname?.startsWith('/cart')) {
+  if (pathname?.startsWith('/checkout') || pathname?.startsWith('/cart') || pathname?.startsWith('/track-order')) {
     return null;
   }
 

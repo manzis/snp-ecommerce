@@ -10,12 +10,13 @@ import PackageIcon2 from '@/components/icons/PackageIcon2';
 import CategoryIcon from '@/components/icons/CategoryIcon';
 import ContactUsIcon from '@/components/icons/ContactUsIcon';
 import AccountIcon from '@/components/icons/AccountIcon';
+import ProductIcon from '@/components/icons/ProductIcon';
 import { useCart } from '@/context/CartContext';
 import { useUIStore } from '@/store/uiStore';
 
 const NAV_ITEMS = [
     { label: 'Home', icon: PackageIcon2, href: '/' },
-    { label: 'Products', icon: AccountIcon, href: '/products' },
+    { label: 'Products', icon: ProductIcon, href: '/products' },
     { label: 'Categories', icon: CategoryIcon, href: '/category' },
     { label: 'Contact', icon: ContactUsIcon, href: '/contact' },
     { label: 'Account', icon: AccountIcon, href: '/account' },

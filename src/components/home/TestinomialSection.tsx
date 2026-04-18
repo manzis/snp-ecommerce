@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import StarIcon from '@/components/icons/StarIcon';
+import StarIcon from '@/components/icons/StarIcon3';
 import ArrowRightIcon from '@/components/icons/RedirectIcon';
 
 interface Testimonial {
@@ -13,10 +13,10 @@ interface Testimonial {
 }
 
 const TESTIMONIALS: Testimonial[] = [
-    { id: '1', name: 'Manjish Upadhaya', role: 'Fitness Trainer', avatar: '/images/avatar-1.png', date: '2025-04-27', rating: 5, mediaUrl: '/videos/video-highlight.mp4', type: 'video' },
-    { id: '2', name: 'Manjish Upadhaya', role: 'Fitness Trainer', avatar: '/images/avatar-1.png', date: '2025-04-27', rating: 5, headline: '“Exceeded My Limitations', content: 'I havent expected this level of supplement business in nepal”', type: 'text' },
-    { id: '3', name: 'Sushant KC', role: 'Athlete', avatar: '/images/avatar-1.png', date: '2025-04-28', rating: 5, headline: 'Best in the game', content: 'Quality is top notch, highly recommend to everyone.', type: 'text' },
-    { id: '4', name: 'Sushant KC', role: 'Athlete', avatar: '/images/avatar-1.png', date: '2025-04-28', rating: 5, mediaUrl: '/images/athelete.jpg', type: 'image' }
+    { id: '1', name: 'Manjish Upadhaya', role: 'Fitness Trainer', avatar: '/images/athelete-2.png', date: '2025-04-27', rating: 5, mediaUrl: '/videos/video-highlight.mp4', type: 'video' },
+    { id: '2', name: 'Sharaddha Sharma', role: 'Fitness Trainer', avatar: '/images/avatar-1.png', date: '2025-04-27', rating: 5, headline: '“Exceeded My Limitations', content: 'I havent expected this level of supplement business in nepal”', type: 'text' },
+    { id: '3', name: 'Kapan Sharma', role: 'Athlete', avatar: '/images/athelete4.jpg', date: '2025-04-28', rating: 5, headline: 'Best in the game', content: 'Quality is top notch, highly recommend to everyone.', type: 'text' },
+    { id: '4', name: 'Nilam Pandey', role: 'Athlete', avatar: '/images/athelete1.jpg', date: '2025-04-28', rating: 5, mediaUrl: '/images/athelete4.jpg', type: 'image' }
 ];
 
 const TestimonialSection: React.FC = () => {
@@ -67,7 +67,7 @@ const TestimonialSection: React.FC = () => {
 
                 {/* Image 3 (Center) */}
                 <motion.div animate={{ y: [0, -12, 0], rotate: [0, 3, 0] }} transition={floatingTransition(1)} className="absolute left-[196px] top-[26.03px] h-[89px] w-[82px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[130px] lg:top-[35px] lg:left-[340px]">
-                    <Image src="/images/athelete.jpg" alt="Athlete" fill className="object-cover" />
+                    <Image src="/images/athelete4.jpg" alt="Athlete" fill className="object-cover" />
                 </motion.div>
 
                 {/* Image 4 */}
@@ -81,7 +81,7 @@ const TestimonialSection: React.FC = () => {
                     transition={floatingTransition(2)}
                     className="absolute left-[390px] top-[25.25px] h-[90.56px] w-[76.86px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[115px] lg:h-[135px] lg:top-[35px] lg:left-[680px]"
                 >
-                    <Image src="/images/athelete-2.png" alt="Athlete" fill className="object-cover" />
+                    <Image src="/images/athelete4.jpg" alt="Athlete" fill className="object-cover" />
                     {/* 20% Edge Blur Mask */}
                     <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_left,black_0%,transparent_30%)]" />
                 </motion.div>

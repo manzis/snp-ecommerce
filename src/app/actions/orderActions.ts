@@ -13,6 +13,67 @@ import {
 } from '@/services/emailService';
 
 /**
+ * PUBLIC server action to track an order by short ID (no auth required)
+ * The short ID is the first segment of the UUID (uppercase), e.g. "5A2B3C4D"
+ */
+export async function trackOrderByIdAction(shortId: string) {
+  if (!shortId || shortId.trim().length < 4) {
+    return { success: false, message: 'Please enter a valid Order ID.' };
+  }
+
+  const adminClient = getSupabaseAdmin();
+  const supabase = adminClient ?? (await createClient());
+
+  try {
+    // Clean input: strip '#', 'SNP-', whitespace, keep only hex chars, max 8
+    const cleaned = shortId.replace(/[^A-Fa-f0-9]/g, '').toLowerCase().slice(0, 8);
+    if (cleaned.length < 4) return { success: false, message: 'Please enter at least 4 characters of the Order ID.' };
+
+    // Build UUID range bounds (pad with 0s for lower, fs for upper)
+    const lowerPrefix = cleaned.padEnd(8, '0');
+    const upperPrefix = cleaned.padEnd(8, 'f');
+    const lowerBound = `${lowerPrefix}-0000-0000-0000-000000000000`;
+    const upperBound = `${upperPrefix}-ffff-ffff-ffff-ffffffffffff`;
+
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        id, total_amount, mrp_amount, status, payment_method, created_at,
+        status_updates, carrier_name, tracking_number,
+        shipping_address, contact_details,
+        discount_amount, shipping_amount, discount_on_mrp, coupon_discount,
+        coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        order_items (
+          id, quantity, price, mrp, selected_size, selected_flavor,
+          products (name, images, brands (name))
+        )
+      `)
+      .gte('id', lowerBound)
+      .lte('id', upperBound)
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return { success: false, message: 'No order found with this ID. Please check and try again.' };
+
+    // Resolve address if needed
+    if (data?.shipping_address?.addressId && !data.shipping_address.addressDetails) {
+      const { data: addressData } = await supabase
+        .from('user_addresses')
+        .select('*')
+        .eq('id', data.shipping_address.addressId)
+        .single();
+      if (addressData) data.shipping_address.addressDetails = addressData;
+    }
+
+    return { success: true, order: mapToOrderProps(data as any) };
+  } catch (error: any) {
+    console.error('Action Error: trackOrderByIdAction:', error);
+    return { success: false, message: error.message || 'Failed to fetch order.' };
+  }
+}
+
+/**
  * Server action to place an order
  */
 export async function placeOrderAction(orderData: OrderData, items: any[]) {

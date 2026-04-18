@@ -9,13 +9,13 @@ const FeatureBanners: React.FC = () => {
             id: 1,
             image: '/images/banner-1.png',
             buttonBg: 'bg-[#3f9633]',
-            href: '/shop'
+            href: '/products'
         },
         {
             id: 2,
             image: '/images/banner-2.png',
             buttonBg: 'bg-[#337596]',
-            href: '/shop'
+            href: '/products'
         }
     ];
 
@@ -35,7 +35,7 @@ const FeatureBanners: React.FC = () => {
                 </h2>
 
                 <p className="max-w-[362px] font-titillium text-[16px] font-[300] leading-[22px] text-[#242424] lg:max-w-[600px] lg:text-[18px]">
-                    Learns whey professional trainers and fitness athletes choose us over others
+                    Learns why professional trainers and fitness athletes choose us over others
                 </p>
             </div>
 

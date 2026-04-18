@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import BankingIcon from '@/components/icons/BankingIcon';
-import ArrowUpIcon from '@/components/icons/RightArrowIcon'; // Reusing for trend
+import ArrowUpIcon from '@/components/icons/CaretUpIcon'; // Reusing for trend
 
 const FINANCE_STATS = [
     { label: 'Total Revenue', value: 'रु 45,280.00', trend: '+12.5%', color: 'text-green-600' },
