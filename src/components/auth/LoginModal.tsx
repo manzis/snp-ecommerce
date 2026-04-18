@@ -46,6 +46,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         setError(null);
         setIsLoading(true);
 
+        // OPTIMISTIC TRANSITION: Switch to OTP view immediately to feel "faster"
+        // Most users have high confidence in their email/phone being correct.
+        setStep('otp');
+
         const supabase = createClient();
         const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
@@ -65,11 +69,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
 
             console.log("OTP Sent");
             setIsLoading(false);
-            setStep('otp');
             showToast("OTP sent successfully!", "success");
         } catch (err: any) {
             console.log("Login Failed");
             setIsLoading(false);
+            setStep('login'); // Revert if failed
             showToast(err?.message || "Failed to send OTP", "error");
         }
     };
@@ -216,7 +220,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             </section>
 
             <section className={`relative z-10 bg-white w-full lg:w-[450px] rounded-t-[32px] lg:rounded-[24px] flex flex-col p-[36px_24px_32px_24px] lg:p-[36px] lg:justify-center gap-[30px] shadow-lg lg:shadow-none overflow-hidden  ${isPage ? 'h-auto rounded-none' : 'h-full '} `}>
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     {step === 'login' ? (
                         <motion.div key="login-form" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="flex flex-col gap-[30px]">
                             <header className="flex flex-col gap-[10px] text-left">
