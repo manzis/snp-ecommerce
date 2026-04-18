@@ -51,7 +51,14 @@ const WidgetCard = ({ deal, className, isWide }: { deal: Deal; className: string
             <span className="font-custom text-[8px] text-[#242424]">save {deal.discount}%</span>
         </div>
         <div className={`relative flex items-center justify-center shrink-0 ${isWide ? 'w-[70px] h-full' : 'w-full flex-1'}`}>
-            <Image src={deal.image} alt={deal.title} fill className="object-contain p-[4px]" />
+            <Image 
+                src={deal.image} 
+                alt={deal.title} 
+                fill 
+                priority
+                sizes={isWide ? "70px" : "200px"}
+                className="object-contain p-[4px]" 
+            />
         </div>
         <div className={`flex flex-col justify-center bg-[#f7faf6] rounded-[10px] px-[8px] ${isWide ? 'flex-1 h-full py-[4px]' : 'w-full py-[8px]'}`}>
             <span className="font-titillium text-[8px] text-[#bebebe] uppercase">{deal.brand}</span>

@@ -13,7 +13,7 @@ const STORAGE_KEY = 'snp_recent_searches';
 const MAX_RECENT_ITEMS = 6;
 
 
-import { fetchProducts, Product } from '@/services/productService';
+import { fetchProducts, fetchBrands, Product, Brand } from '@/services/productService';
 
 function SearchPageContent() {
   const [query, setQuery] = useState('');
@@ -22,6 +22,7 @@ function SearchPageContent() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeFilters, setActiveFilters] = useState<SelectedFilters>({
     categories: [],
@@ -39,6 +40,9 @@ function SearchPageContent() {
       setAllProducts(all);
       setPopularProducts(all.slice(0, 5));
     });
+
+    // Fetch brands for RecommendedBrands
+    fetchBrands().then(setBrands);
   }, []);
 
   // Utilize Omni-Search Engine natively on Client-side instead of rigid Postgres iLike
@@ -137,13 +141,21 @@ function SearchPageContent() {
               onSearch={handleSearch}
               onClear={clearRecent}
             />
-            <RecommendedBrands />
+            <RecommendedBrands 
+              brands={brands.slice(0, 8).map(b => ({
+                id: b.id,
+                name: b.name,
+                image: b.image_url || '/images/brands/muscleblaze.png',
+                slug: b.slug
+              }))} 
+            />
             <PopularProducts 
               products={popularProducts.map(p => ({
                 id: p.id,
                 brand: p.brands?.name || '',
                 name: p.title,
-                image: p.images?.[0] || '/images/protein.jpg'
+                image: p.images?.[0] || '/images/protein.jpg',
+                slug: p.slug
               }))} 
             />
           </div>

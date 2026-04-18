@@ -26,7 +26,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           alt={product.title}
           fill
           className={`object-contain p-[20px] lg:p-[20px] transition-transform duration-300 group-hover:scale-105 ${product.stock_status === 'out_of_stock' ? 'opacity-40' : ''}`}
-          sizes="(max-width: 1024px) 150px, 300px"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px"
         />
 
         {product.stock_status === 'out_of_stock' && (

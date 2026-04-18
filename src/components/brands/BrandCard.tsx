@@ -41,7 +41,7 @@ const BrandCard: React.FC<BrandCardProps> = ({ brand, layout, colors }) => {
           alt={brand.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
-          sizes={isPopular ? "147px" : "50vw"}
+          sizes={isPopular ? "150px" : "(max-width: 768px) 50vw, 200px"}
         />
 
         <div

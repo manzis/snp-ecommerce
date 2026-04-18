@@ -172,11 +172,19 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
           <ActionButton
             label="Share"
             onClick={handleShare}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             icon={<ShareIcon className="w-full h-full text-[#242424]" />}
           />
           <ActionButton
             label="Wishlist"
             onClick={handleWishlist}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             icon={
               <div className={`transition-transform duration-200 ${animateHeart ? 'scale-110' : 'scale-100'}`}>
                 <WishlistIcon

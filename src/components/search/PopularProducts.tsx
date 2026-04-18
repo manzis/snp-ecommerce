@@ -1,13 +1,13 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface Product {
   id: string | number;
   brand: string;
   name: string;
   image: string;
+  slug: string;
 }
 
 interface PopularProductsProps {
@@ -24,9 +24,10 @@ const PopularProducts: React.FC<PopularProductsProps> = ({ products = [] }) => {
       </h3>
       <div className="no-scrollbar flex w-full gap-[16px] overflow-x-auto pb-[4px]">
         {products.map((product) => (
-          <div
+          <Link
             key={product.id}
-            className="flex w-[141px] shrink-0 flex-col overflow-hidden rounded-[12px] border border-[#f1f5f9] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]"
+            href={`/product/${product.slug}`}
+            className="flex w-[141px] shrink-0 flex-col overflow-hidden rounded-[12px] border border-[#f1f5f9] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] transition-all"
           >
             {/* Image Container */}
             <div className="relative h-[120px] w-full px-[10px]">
@@ -49,7 +50,7 @@ const PopularProducts: React.FC<PopularProductsProps> = ({ products = [] }) => {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

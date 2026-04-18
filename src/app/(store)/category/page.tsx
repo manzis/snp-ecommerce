@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import CategoryCard from '@/components/categories/CategoryCard';
@@ -8,24 +6,8 @@ import { fetchCategories, Category } from '@/services/productService';
 
 import { CATEGORY_THEMES } from '@/lib/CategoryThemes';
 
-export default function CategoriesPage() {
-  const [categories, setCategories] = React.useState<Category[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    fetchCategories().then(data => {
-      setCategories(data);
-      setIsLoading(false);
-    });
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-10 h-10 border-4 border-gray-100 border-t-[#308026] rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+export default async function CategoriesPage() {
+  const categories = await fetchCategories();
 
   const totalCount = categories.length;
   const mainCategories = categories.filter(c => !c.is_other_category);

@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -31,7 +29,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, count, image, slug, 
           alt={title}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"
-          sizes="(max-width: 410px) 172px, 300px"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 300px"
         />
       </div>
 
