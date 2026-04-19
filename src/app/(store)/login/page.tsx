@@ -22,7 +22,7 @@ export default async function Page() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
-        redirect('/profile');
+        redirect('/account');
     }
 
     return <LoginModal isPage={true} />;

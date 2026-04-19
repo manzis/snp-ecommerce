@@ -173,7 +173,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             
             showToast("Logged in successfully!", "success");
             closeLogin();
-            router.push('/');
+            router.push('/account');
         } catch (err: any) {
             console.log("Login Failed");
             showToast(err?.message || "Invalid OTP", "error");
