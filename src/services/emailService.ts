@@ -11,8 +11,11 @@ import {
   outForDeliveryTemplate,
   orderCancelledTemplate,
   deliveryFailedTemplate,
+  adminOrderReceivedTemplate,
   type OrderEmailData,
 } from './emailTemplates';
+
+const ADMIN_EMAIL = 'brightnepcare@gmail.com';
 
 // ─── Gmail Transport ─────────────────────────────────────────────────
 
@@ -137,6 +140,14 @@ export async function sendOrderConfirmationEmail(orderId: string): Promise<void>
 
   const html = orderConfirmationTemplate(data);
   await sendEmail(data.customerEmail, `Order Confirmed — #${data.shortId}`, html);
+}
+
+export async function sendAdminOrderReceivedEmail(orderId: string): Promise<void> {
+  const data = await fetchOrderEmailData(orderId);
+  if (!data) return;
+
+  const html = adminOrderReceivedTemplate(data);
+  await sendEmail(ADMIN_EMAIL, `New Order Received — #${data.shortId}`, html);
 }
 
 export async function sendOrderShippedEmail(orderId: string, statusMessage?: string): Promise<void> {

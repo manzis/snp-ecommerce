@@ -21,16 +21,46 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     const { showToast } = useToast();
     const router = useRouter();
 
-    // State Management
-    const [identifier, setIdentifier] = useState('');
+    // State Management initialized with persistence check
+    const [identifier, setIdentifier] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('auth_identifier') || '';
+        }
+        return '';
+    });
     const [error, setError] = useState<string | null>(null);
-    const [step, setStep] = useState<'login' | 'otp'>('login');
+    const [step, setStep] = useState<'login' | 'otp'>(() => {
+        if (typeof window !== 'undefined') {
+            return (localStorage.getItem('auth_step') as 'login' | 'otp') || 'login';
+        }
+        return 'login';
+    });
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [statusMsg, setStatusMsg] = useState<string | null>(null);
     const [isSending, setIsSending] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
 
     const inputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
+
+    // Sync state to localStorage
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('auth_identifier', identifier);
+            localStorage.setItem('auth_step', step);
+        }
+    }, [identifier, step]);
+
+    // Resend Cooldown Timer
+    React.useEffect(() => {
+        let timer: any;
+        if (resendCooldown > 0) {
+            timer = setInterval(() => {
+                setResendCooldown(prev => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [resendCooldown]);
 
     // Logic: Validation
     const validateIdentifier = (val: string) => {
@@ -137,6 +167,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             if (verifyError) throw verifyError;
 
             console.log("OTP Verified");
+            // Clear persistence on success
+            localStorage.removeItem('auth_identifier');
+            localStorage.removeItem('auth_step');
+            
             showToast("Logged in successfully!", "success");
             closeLogin();
             router.push('/');
@@ -152,10 +186,15 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         setIsSending(true);
         try {
             const supabase = createClient();
+            // Get base URL for redirects (production or development)
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                           (typeof window !== 'undefined' ? window.location.origin : '');
+            const redirectUrl = `${siteUrl.replace(/\/$/, '')}/auth/callback`;
+
             const { error: googleError } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: redirectUrl,
                 },
             });
             if (googleError) throw googleError;
@@ -221,9 +260,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             </section>
 
             <section className={`relative z-10 bg-white w-full lg:w-[450px] rounded-t-[32px] lg:rounded-[24px] flex flex-col p-[36px_24px_32px_24px] lg:p-[36px] lg:justify-center gap-[30px] shadow-lg lg:shadow-none overflow-hidden  ${isPage ? 'h-auto rounded-none' : 'h-full '} `}>
-                <AnimatePresence>
+                <AnimatePresence mode="wait" initial={false}>
                     {step === 'login' ? (
-                        <motion.div key="login-form" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="flex flex-col gap-[30px]">
+                        <motion.div 
+                            key="login-form" 
+                            initial={{ y: 20, opacity: 0 }} 
+                            animate={{ y: 0, opacity: 1 }} 
+                            exit={{ y: -20, opacity: 0 }} 
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            className="flex flex-col gap-[30px]"
+                        >
                             <header className="flex flex-col gap-[10px] text-left">
                                 <h1 className="text-[24px] font-[700] leading-[36px] tracking-[-0.1px] bg-[linear-gradient(46.44deg,#242424,#7d857b)] bg-clip-text text-transparent">Login to get Started</h1>
                             </header>
@@ -259,22 +305,29 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                     ) : (
                         <motion.div
                             key="otp-form"
-                            initial={{ x: 20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: -20, opacity: 0 }}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
                             className="flex flex-col gap-[30px] pt-[10px] lg:pt-0"
                         >
                             <header className="flex flex-col gap-[10px] ">
                                 {/* Navigation Action Row */}
                                 <div className="flex items-center gap-[6px]">
                                     <button
-                                        onClick={() => setStep('login')}
+                                        onClick={() => {
+                                            setStep('login');
+                                            localStorage.removeItem('auth_step');
+                                        }}
                                         className="flex items-center justify-center  h-[28px] rounded-full hover:bg-gray-100 transition-colors"
                                     >
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                                     </button>
                                     <button
-                                        onClick={() => setStep('login')}
+                                        onClick={() => {
+                                            setStep('login');
+                                            localStorage.removeItem('auth_step');
+                                        }}
                                         className="text-[14px] font-semibold text-[#242424] hover:underline bg-transparent border-none outline-none cursor-pointer"
                                     >
                                         Go back
@@ -319,10 +372,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                         {isVerifying ? "Verifying..." : "Verify OTP Now"}
                                     </button>
                                     <button
-                                        onClick={handleResendOtp}
-                                        className="text-[14px] font-semibold text-[#242424] hover:underline bg-transparent border-none outline-none cursor-pointer"
+                                        disabled={resendCooldown > 0}
+                                        onClick={() => {
+                                            handleResendOtp();
+                                            setResendCooldown(60); // 60 seconds cooldown
+                                        }}
+                                        className={`text-[14px] font-semibold text-[#242424] hover:underline bg-transparent border-none outline-none cursor-pointer disabled:text-[#68727d] disabled:no-underline`}
                                     >
-                                        Resend Code
+                                        {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Code"}
                                     </button>
                                     {statusMsg && <span className="text-[#308026] text-[12px] font-titillium animate-pulse">{statusMsg}</span>}
                                 </div>

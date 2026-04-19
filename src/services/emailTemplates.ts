@@ -77,6 +77,37 @@ function baseLayout(content: string, preheader: string = ''): string {
 </html>`;
 }
 
+function adminBaseLayout(content: string, preheader: string = ''): string {
+  return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>${STORE_NAME} Admin</title>
+</head>
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#000000;">
+  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;">${preheader}</div>` : ''}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;">
+    <tr>
+      <td align="center" style="padding:40px 10px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e5e7eb;overflow:hidden;">
+          ${content}
+        </table>
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin-top:20px;">
+          <tr>
+            <td style="padding:16px;text-align:center;border-top:1px solid #eeeeee;">
+              <p style="margin:0;font-size:11px;color:#999999;text-transform:uppercase;letter-spacing:1px;">Internal Site Management Notification — ${STORE_NAME}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
 function statusBanner(bgColor: string, iconEmoji: string, title: string, subtitle: string): string {
   return `<tr>
     <td style="background:${bgColor};padding:32px 24px;text-align:center;">
@@ -325,6 +356,104 @@ export function orderCancelledTemplate(data: OrderEmailData): string {
   ].join('');
 
   return baseLayout(content, `Order #${data.shortId} cancelled — ${STORE_NAME}`);
+}
+
+export function adminOrderReceivedTemplate(data: OrderEmailData): string {
+  const dateStr = new Date().toLocaleString('en-US', { 
+    month: 'short', day: 'numeric', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit' 
+  });
+  
+  const itemsHtml = data.items.map(item => {
+    const meta = [item.size, item.flavor].filter(Boolean).join(' • ');
+    return `<tr>
+      <td style="padding:15px;border-bottom:1px solid #222222;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            ${item.image ? `<td width="64" style="vertical-align:top;padding-right:15px;">
+              <img src="${item.image}" width="64" height="64" alt="${item.name}" style="object-fit:cover;display:block;border:1px solid #333333;" />
+            </td>` : ''}
+            <td style="vertical-align:top;">
+              <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:#ffffff;text-transform:uppercase;">${item.name}</p>
+              ${meta ? `<p style="margin:0 0 4px;font-size:12px;color:#a1a1aa;">${meta}</p>` : ''}
+              <p style="margin:0;font-size:12px;color:#666666;">QTY: ${item.quantity} • UNIT PRICE: NPR ${item.price.toLocaleString()}</p>
+            </td>
+            <td align="right" style="vertical-align:top;white-space:nowrap;">
+              <span style="font-size:14px;font-weight:700;color:#ffffff;">NPR ${(item.price * item.quantity).toLocaleString()}</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const addr = data.shippingAddress;
+  const addressLine = [addr.area, addr.city].filter(Boolean).join(', ');
+
+  const content = `
+    <tr>
+      <td style="background:#000000;padding:40px 30px;text-align:left;">
+        <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-1px;">New Order Received</h1>
+        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.7);font-weight:500;">Order #${data.shortId} has been successfully placed by a customer.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:25px 30px;border-bottom:1px solid #f3f4f6;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td>
+              <p style="margin:0 0 5px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Order Date & Time</p>
+              <p style="margin:0;font-size:14px;color:#000000;font-weight:700;">${dateStr}</p>
+            </td>
+            <td align="right">
+              <p style="margin:0 0 5px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Payment Method</p>
+              <p style="margin:0;font-size:14px;color:#000000;font-weight:700;">${data.paymentMethod?.toUpperCase() || 'N/A'}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:30px 30px 10px;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Customer & Shipping</p>
+        <div style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;">
+          <p style="margin:0 0 5px;font-size:15px;font-weight:700;color:#000000;">${data.customerName}</p>
+          <p style="margin:0 0 5px;font-size:13px;color:#6b7280;">${data.customerEmail}</p>
+          <p style="margin:0 0 5px;font-size:13px;color:#6b7280;">${addressLine || 'N/A'}</p>
+          ${addr.address ? `<p style="margin:0 0 5px;font-size:13px;color:#6b7280;">${addr.address}</p>` : ''}
+          ${addr.phone ? `<p style="margin:0;font-size:13px;color:#6b7280;">Phone: ${addr.phone}</p>` : ''}
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 30px 0;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Order Items</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #f3f4f6;">
+          ${itemsHtml.replace(/#222222/g, '#f3f4f6').replace(/#ffffff/g, '#000000').replace(/#a1a1aa/g, '#6b7280').replace(/#333333/g, '#eeeeee')}
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 30px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;">
+          ${data.mrpAmount ? `<tr><td style="padding:5px 0;font-size:13px;color:#9ca3af;">MRP Total</td><td align="right" style="padding:5px 0;font-size:13px;color:#9ca3af;">NPR ${data.mrpAmount.toLocaleString()}</td></tr>` : ''}
+          ${data.discountAmount ? `<tr><td style="padding:5px 0;font-size:13px;color:#ef4444;">Total Discount</td><td align="right" style="padding:5px 0;font-size:13px;color:#ef4444;">- NPR ${data.discountAmount.toLocaleString()}</td></tr>` : ''}
+          ${data.shippingAmount !== undefined ? `<tr><td style="padding:5px 0;font-size:13px;color:#9ca3af;">Shipping</td><td align="right" style="padding:5px 0;font-size:13px;color:#9ca3af;">NPR ${data.shippingAmount.toLocaleString()}</td></tr>` : ''}
+          <tr>
+            <td style="padding:15px 0 0;font-size:16px;font-weight:700;color:#000000;border-top:1px solid #eeeeee;text-transform:uppercase;">Grand Total</td>
+            <td align="right" style="padding:15px 0 0;font-size:20px;font-weight:900;color:#000000;border-top:1px solid #eeeeee;">NPR ${data.totalAmount.toLocaleString()}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:10px 30px 40px;" align="center">
+        <a href="${process.env.STORE_URL || 'https://snpnutrition.com'}/admin/orders" style="display:block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:18px;text-transform:uppercase;letter-spacing:1px;">View Order In Dashboard</a>
+      </td>
+    </tr>
+  `;
+
+  return adminBaseLayout(content, `New order #${data.shortId} received — ${STORE_NAME} Admin`);
 }
 
 export function deliveryFailedTemplate(data: OrderEmailData): string {

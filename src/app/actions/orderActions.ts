@@ -10,6 +10,7 @@ import {
   sendOutForDeliveryEmail,
   sendOrderCancelledEmail,
   sendDeliveryFailedEmail,
+  sendAdminOrderReceivedEmail,
 } from '@/services/emailService';
 
 /**
@@ -97,9 +98,14 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
     // Revalidate relevant paths
     revalidatePath('/account/orders');
 
-    // Fire-and-forget: send confirmation email
+    // Fire-and-forget: send confirmation emails
     sendOrderConfirmationEmail(result.id).catch(err =>
       console.error('[Email] Confirmation email failed:', err)
+    );
+    
+    // Notify admin
+    sendAdminOrderReceivedEmail(result.id).catch(err =>
+      console.error('[Email] Admin notification failed:', err)
     );
     
     return { success: true, orderId: result.id };
