@@ -13,15 +13,19 @@ interface DeliveryMethodSelectorProps {
   methods: DeliveryMethod[];
   selectedMethodId: string;
   onSelect: (id: string) => void;
+  hasError?: boolean;
 }
 
 const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
   methods,
   selectedMethodId,
   onSelect,
+  hasError = false,
 }) => {
   return (
-    <div className="flex flex-col rounded-[12px] border border-[#eaebf0] overflow-hidden bg-white">
+    <div className={`flex flex-col rounded-[12px] border transition-all duration-200 overflow-hidden bg-white ${
+      hasError ? 'border-[#e11717] bg-[#fff5f5]' : 'border-[#eaebf0]'
+    }`}>
       {/* HEADER */}
       <div className="p-[12px_16px] bg-[#fafbfb] border-b border-[#f1f5f9]">
         <span className="font-titillium text-[18px] font-semibold text-[#242424]">Choose Delivery Options</span>

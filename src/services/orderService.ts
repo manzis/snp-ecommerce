@@ -15,6 +15,8 @@ export interface OrderData {
   shipping_address: any;
   contact_details: any;
   payment_method: string;
+  payment_screenshot_url?: string | null;
+  payment_remarks?: string | null;
 }
 
 export interface OrderItemData {
@@ -100,6 +102,8 @@ export function mapToOrderProps(order: any): OrderProps {
     cod_fees: order.cod_fees,
     tax_amount: order.tax_amount,
     order_items: order.order_items || [],
+    payment_screenshot_url: order.payment_screenshot_url,
+    payment_remarks: order.payment_remarks,
   };
 }
 
@@ -116,7 +120,7 @@ export async function createOrder(orderData: OrderData, items: any[]) {
     selected_flavor: item.selected_flavor
   }));
 
-  const { data, error } = await supabase.rpc('create_order_v2', {
+  const { data, error } = await supabase.rpc('create_order_v3', {
     p_user_id: orderData.user_id,
     p_total_amount: orderData.total_amount,
     p_mrp_amount: orderData.mrp_amount,
@@ -130,6 +134,8 @@ export async function createOrder(orderData: OrderData, items: any[]) {
     p_shipping_address: orderData.shipping_address,
     p_contact_details: orderData.contact_details,
     p_payment_method: orderData.payment_method,
+    p_payment_screenshot_url: orderData.payment_screenshot_url || null,
+    p_payment_remarks: orderData.payment_remarks || null,
     p_items: formattedItems
   });
 

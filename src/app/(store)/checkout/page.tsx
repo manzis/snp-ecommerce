@@ -12,6 +12,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useCheckoutStore } from '@/store/checkoutStore';
 import { validateCoupon } from '@/services/couponService';
 import { placeOrderAction } from '@/app/actions/orderActions';
+import { uploadFileAction } from '@/app/actions/storageActions';
 import { supabase } from '@/lib/supabase/client';
 import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
 
@@ -19,9 +20,6 @@ export default function CheckoutPage() {
   // 0. AVOID HYDRATION MISMATCH FOR LOCALSTORAGE
   const [isMounted, setIsMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // 1. STATE MANAGEMENT
   const activeStep = useCheckoutStore((state) => state.activeStep);
@@ -55,10 +53,32 @@ export default function CheckoutPage() {
 
   // Validation error triggers
   const [contactError, setContactError] = useState<string | null>(null);
+  const [deliveryError, setDeliveryError] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   // 2. REFS FOR UX (Smooth Scroll)
   const deliveryRef = useRef<HTMLDivElement>(null);
   const paymentsRef = useRef<HTMLDivElement>(null);
+  const [qrData, setQrData] = useState<{ qrFile: File | null; qrRemarks: string }>({ qrFile: null, qrRemarks: 'Shopping Payment' });
+
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Reset selections on fresh entry to ensure no stale data from old checkouts
+    const isNewCheckout = !sessionStorage.getItem('checkout_initiated');
+    if (isNewCheckout) {
+      useCheckoutStore.getState().clearSelections();
+      sessionStorage.setItem('checkout_initiated', 'true');
+    }
+  }, []);
+
+  // Monitor cart items - if cart becomes empty, reset checkout state completely
+  useEffect(() => {
+    if (isMounted && items.length === 0) {
+      resetCheckout();
+      sessionStorage.removeItem('checkout_initiated');
+    }
+  }, [items.length, isMounted, resetCheckout]);
 
   // 3. HANDLERS
   const handleContactConfirm = (data: { value: string; marketing: boolean }) => {
@@ -71,6 +91,7 @@ export default function CheckoutPage() {
   const handleDeliveryConfirm = (address: any, option: string) => {
     const shippingPrice = option === 'home' ? 150 : 100;
     setDeliveryData({ addressId: address.id, option, shippingPrice, addressDetails: address });
+    setDeliveryError(null);
     setCompletedSteps((prev) => [...new Set([...prev, 'delivery'])]);
     setActiveStep('payments');
   };
@@ -102,13 +123,13 @@ export default function CheckoutPage() {
     setActiveStep(activeStep === step ? null : step);
   };
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = async (overrideQrData?: { qrFile?: File | null; qrRemarks?: string }) => {
     if (items.length === 0) {
       alert("Your cart is empty");
       return;
     }
 
-    // GATEKEEPER 0: Auth
+    // ... Auth and Step validations ...
     let currentUserId = userId;
     if (!currentUserId) {
       const { data: { user } } = await supabase.auth.getUser();
@@ -119,30 +140,72 @@ export default function CheckoutPage() {
       currentUserId = user.id;
     }
 
-    // GATEKEEPER 1: Contact
-    if (!contactData.value || contactData.value.trim() === '') {
-      setContactError("Required: Please fill contact details");
+    // 1. Validate Contact - If missing or not confirmed, go to contact step and stop
+    if (!contactData.value || contactData.value.trim() === '' || !completedSteps.includes('contact')) {
+      setContactError("Required: Please confirm your contact details");
       setActiveStep('contact');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    // Ensure contact is marked as completed if valid
+    if (!completedSteps.includes('contact')) {
+      setCompletedSteps(prev => [...new Set([...prev, 'contact'])]);
+    }
 
-    // GATEKEEPER 2: Delivery
-    if (!deliveryData) {
+    // 2. Validate Delivery - If missing, go to delivery step and stop
+    if (!deliveryData || !completedSteps.includes('delivery')) {
+      setDeliveryError("Please complete delivery details to continue");
       setActiveStep('delivery');
       deliveryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    // GATEKEEPER 3: Payment
+    // 3. Validate Payments - If missing, go to payments step and stop
     if (!selectedPaymentId) {
+      setPaymentError("Choose a payment method to continue");
       setActiveStep('payments');
       paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
+    // NEW: Block unintegrated methods (Removed 'qr' from here)
+    const unavailableMethods = ['cards', 'netbanking', 'wallets'];
+    if (unavailableMethods.includes(selectedPaymentId)) {
+      alert("This payment method is currently undergoing maintenance. Please choose another method.");
+      setActiveStep('payments');
+      return;
+    }
+
     setIsProcessing(true);
     try {
+      const finalQrData = overrideQrData || qrData;
+      let paymentScreenshotUrl = null;
+      
+      // Handle QR Screenshot Upload & Validation
+      if (selectedPaymentId === 'qr') {
+        if (!finalQrData.qrFile) {
+          setPaymentError("Please upload payment receipt to continue");
+          setActiveStep('payments');
+          setIsProcessing(false);
+          paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', finalQrData.qrFile);
+        formData.append('bucket', 'payment-proofs');
+        formData.append('path', `orders/${currentUserId}`);
+        
+        const uploadRes = await uploadFileAction(formData);
+        if (uploadRes.success) {
+          paymentScreenshotUrl = uploadRes.url;
+        } else {
+          setPaymentError("Screenshot upload failed. Please try again.");
+          setIsProcessing(false);
+          return;
+        }
+      }
+
       const result = await placeOrderAction({
         user_id: currentUserId,
         total_amount: finalTotal,
@@ -156,12 +219,15 @@ export default function CheckoutPage() {
         tax_amount: 0,
         shipping_address: deliveryData,
         contact_details: contactData,
-        payment_method: selectedPaymentId
+        payment_method: selectedPaymentId,
+        payment_screenshot_url: paymentScreenshotUrl,
+        payment_remarks: finalQrData?.qrRemarks || null
       }, items);
 
       if (result.success) {
         await clearCart();
         resetCheckout();
+        sessionStorage.removeItem('checkout_initiated');
         router.push(`/checkout/success?orderId=${result.orderId}`);
       } else {
         alert(result.message || "Failed to place order. Please try again.");
@@ -199,6 +265,13 @@ export default function CheckoutPage() {
   const codCharge = selectedPaymentId === 'cod' ? 13 : 0;
   const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - couponDiscount, [subtotal, shippingCharge, codCharge, couponDiscount]);
 
+  const mainButtonText = useMemo(() => {
+    if (isProcessing) return "Processing...";
+    if (!completedSteps.includes('contact')) return "Continue";
+    if (!completedSteps.includes('delivery')) return "Continue";
+    return "Place Order";
+  }, [isProcessing, completedSteps]);
+
   if (!isMounted) return null;
 
   return (
@@ -230,6 +303,8 @@ export default function CheckoutPage() {
               isConfirmed={completedSteps.includes('contact')}
               onConfirm={handleContactConfirm}
               onToggle={() => handleToggle('contact')}
+              initialValue={contactData.value}
+              initialMarketing={contactData.marketing}
               externalError={contactError}
             />
 
@@ -244,6 +319,7 @@ export default function CheckoutPage() {
                 onToggle={() => {
                   if (completedSteps.includes('contact')) handleToggle('delivery');
                 }}
+                externalError={deliveryError}
               />
             </div>
 
@@ -254,11 +330,18 @@ export default function CheckoutPage() {
                 isConfirmed={!!selectedPaymentId}
                 disabled={!completedSteps.includes('delivery')}
                 selectedId={selectedPaymentId}
-                onSelect={handlePaymentSelect}
+                onSelect={(id) => {
+                  setSelectedPaymentId(id);
+                  setPaymentError(null);
+                }}
                 onToggle={() => {
                   if (completedSteps.includes('delivery')) handleToggle('payments');
                 }}
                 onPlaceOrder={handlePlaceOrder}
+                onQrDataChange={(data) => setQrData({ qrFile: data.file, qrRemarks: data.remarks })}
+                initialQrData={{ file: qrData.qrFile, remarks: qrData.qrRemarks }}
+                hasQrError={selectedPaymentId === 'qr' && !!paymentError}
+                externalError={paymentError}
               />
             </div>
           </div>
@@ -272,7 +355,7 @@ export default function CheckoutPage() {
                 isStatic={true}
                 totalAmount={`NPR ${finalTotal.toLocaleString()}`}
                 mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
-                buttonText={isProcessing ? "Processing..." : "Place Order"}
+                buttonText={mainButtonText}
                 onCheckout={handlePlaceOrder}
               />
             </div>
@@ -286,7 +369,7 @@ export default function CheckoutPage() {
       <CartCheckoutBar
         totalAmount={`NPR ${finalTotal.toLocaleString()}`}
         mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
-        buttonText={isProcessing ? "Processing..." : "Place Order"}
+        buttonText={mainButtonText}
         onCheckout={handlePlaceOrder}
       />
     </div>

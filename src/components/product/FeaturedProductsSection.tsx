@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchRelatedProducts } from '@/services/productService';
+import { fetchRelatedProducts } from '@/services/productService.server';
 import FeaturedProductCard from './FeatureProductCard';
 
 interface FeaturedProductsSectionProps {

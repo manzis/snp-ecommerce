@@ -9,13 +9,23 @@ import SaveIcon from '@/components/icons/Wishlisht';
 
 interface QrPaymentDetailsProps {
   onVerify: (data: { file: File | null; remarks: string }) => void;
+  onChange?: (data: { file: File | null; remarks: string }) => void;
+  initialFile?: File | null;
+  initialRemarks?: string;
+  hasError?: boolean;
 }
 
-const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ onVerify }) => {
+const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ 
+  onVerify, 
+  onChange,
+  initialFile = null,
+  initialRemarks = 'Shopping Payment',
+  hasError = false
+}) => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
-  const [remarks, setRemarks] = useState('Shopping Payment');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [remarks, setRemarks] = useState(initialRemarks);
+  const [selectedFile, setSelectedFile] = useState<File | null>(initialFile);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,10 +55,16 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ onVerify }) => {
   // 2. Handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
       setError(null);
+      if (onChange) onChange({ file, remarks });
     }
   };
+
+  useEffect(() => {
+    if (onChange) onChange({ file: selectedFile, remarks });
+  }, [remarks]);
 
   const handleVerify = () => {
     if (!selectedFile) {
@@ -140,7 +156,11 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ onVerify }) => {
         <button
           onClick={() => fileInputRef.current?.click()}
           className={`flex w-full h-[56px] items-center justify-between px-[16px] rounded-[12px] border-[1.5px] border-dashed transition-all duration-200 ${
-            selectedFile ? 'border-[#308026] bg-[#f7faf6]' : 'border-[#e2e8f0] bg-white'
+            selectedFile 
+              ? 'border-[#308026] bg-[#f7faf6]' 
+              : hasError 
+                ? 'border-[#e11717] bg-[#fff5f5]' 
+                : 'border-[#e2e8f0] bg-white'
           }`}
         >
           <div className="flex items-center gap-[10px] overflow-hidden">
@@ -160,9 +180,14 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ onVerify }) => {
           className="hidden" 
           accept="image/*,.pdf"
         />
-        <p className="font-titillium text-[13px] text-[#838383] px-1">
-          Upload a statement receipt (PNG, JPG or PDF)
-        </p>
+        <div className="flex justify-between items-center px-1">
+          <p className="font-titillium text-[13px] text-[#838383]">
+            Upload a statement receipt (PNG, JPG or PDF)
+          </p>
+          {hasError && !selectedFile && (
+            <span className="text-[#e11717] font-semibold text-[12px]">Please upload screenshot</span>
+          )}
+        </div>
       </div>
 
       {/* Remarks Input */}
@@ -171,7 +196,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ onVerify }) => {
           <input
             type="text"
             placeholder="Remarks Eg: Shopping Payment"
-            value=""
+            value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
             className="w-full font-titillium text-[16px] text-[#242424] outline-none bg-transparent"
           />

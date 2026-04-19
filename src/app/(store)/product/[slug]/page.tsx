@@ -14,7 +14,7 @@ import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
 import FeaturedProductsSection from '@/components/product/FeaturedProductsSection';
 
-import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService';
+import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -33,19 +33,31 @@ async function QAWrapper({ productId }: { productId: string }) {
   return <QuestionsAndAnswers qaPairs={qaPairs} />;
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params;
+const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
+  <div className="w-full px-[24px] py-4 animate-pulse">
+    <div className={`w-full bg-gray-50 rounded-[12px]`} style={{ height }} />
+  </div>
+);
+
+const ProductPageSkeleton = () => (
+  <div className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 animate-pulse">
+    <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
+      <div className="w-full max-w-[700px] lg:w-[58%] aspect-square bg-gray-50 rounded-[20px]" />
+      <div className="w-full max-w-[700px] lg:w-[38%] flex flex-col gap-6">
+        <div className="h-10 w-3/4 bg-gray-50 rounded" />
+        <div className="h-6 w-1/4 bg-gray-50 rounded" />
+        <div className="h-[200px] w-full bg-gray-50 rounded" />
+      </div>
+    </div>
+  </div>
+);
+
+async function ProductContent({ slug }: { slug: string }) {
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
-
-  const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
-    <div className="w-full px-[24px] py-4 animate-pulse">
-      <div className={`w-full bg-gray-50 rounded-[12px]`} style={{ height }} />
-    </div>
-  );
 
   const breadcrumbPath = [
     { name: "Supplements", href: "/supplements" },
@@ -55,8 +67,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ];
 
   return (
-    <article className="relative min-h-screen ">
-      {/* FIXED HEADER SECTION */}
+    <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04) ">
         <div className="mx-auto w-full">
           <ProductNav />
@@ -66,12 +77,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </header>
 
-      {/* MAIN CONTENT AREA */}
       <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 ">
-
         <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
-
-          {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS (Desktop Only for Highlights) */}
+          {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS */}
           <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] lg:sticky lg:top-[160px] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">
             <ProductImage
               images={product.images || []}
@@ -81,12 +89,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
               stockStatus={product.stock_status}
               flavours={product.product_flavours || []}
             />
-
-            {/* 
-                DESKTOP EXCLUSIVE: Product Highlights 
-                - hidden: Hidden on mobile/tablet
-                - lg:block: Visible only on desktop laptops
-            */}
             {product.highlights && product.highlights.length > 0 && (
               <div className="hidden lg:block">
                 <ProductHighlights highlights={product.highlights} />
@@ -94,7 +96,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
 
-          {/* RIGHT COLUMN: DETAILS & MOBILE HIGHLIGHTS */}
+          {/* RIGHT COLUMN: DETAILS */}
           <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col lg:px-[0] ">
             <ProductHeader
               brand={{
@@ -107,18 +109,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               discountedPrice={product.discounted_price}
               discountPercentage={product.discount_percentage}
             />
-
-            {/* SPACED COMPONENTS */}
             <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
               <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers || null} />
               <Availability stockStatus={product.stock_status || 'in_stock'} />
               <ServiceHighlights />
-
-              {/* 
-                   MOBILE/TABLET EXCLUSIVE: Product Highlights
-                   - block: Visible on mobile (maintaining vertical order)
-                   - lg:hidden: Removed from DOM flow on desktop
-               */}
               {product.highlights && product.highlights.length > 0 && (
                 <div className="lg:hidden">
                   <ProductHighlights highlights={product.highlights} />
@@ -147,19 +141,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   <QAWrapper productId={product.id} />
                 </Suspense>
               </div>
-
               <div className="lg:hidden ">
                 <WhyChooseUs />
               </div>
-
               <div className="lg:hidden pb-[10px]">
                 <Suspense fallback={<SectionSkeleton height="300px" />}>
                   <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
                 </Suspense>
               </div>
             </div>
-
-
           </div>
         </div>
 
@@ -194,11 +184,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
           </Suspense>
         </div>
-
       </main>
-
-
       <ProductCTA stockStatus={product.stock_status} />
+    </>
+  );
+}
+
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { slug } = await params;
+
+  return (
+    <article className="relative min-h-screen ">
+      <Suspense fallback={
+        <>
+          <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5]">
+            <ProductNav />
+          </header>
+          <ProductPageSkeleton />
+        </>
+      }>
+        <ProductContent slug={slug} />
+      </Suspense>
     </article>
   );
 }

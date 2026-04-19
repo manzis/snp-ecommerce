@@ -6,9 +6,8 @@ import { AuthModalProvider } from '@/context/AuthModalContext'; // Import Provid
 import { AuthProvider } from '@/context/AuthContext'; // Import new AuthProvider
 import { CartProvider } from '@/context/CartContext';
 import LoginModal from '@/components/auth/LoginModal'; // Import Component
-import HomeBottomNav from "@/components/home/HomeBottomNav";
-import Footer from '@/components/layout/footer';
 import { titillium, inter, customFont } from "@/lib/fonts";
+import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElements";
 
 export const metadata: Metadata = {
   title: "SNP Store | Premium Supplements",
@@ -71,9 +70,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   {children}
                 </main>
 
-                {/* Global UI Components */}
-                <HomeBottomNav key="global-bottom-nav" />
-                <Footer key="global-footer" />
+                {/* Conditional Global UI Components (hides on login/signup) */}
+                <ConditionalLayoutElements />
 
                 {/* The Modal lives here at the bottom of the body */}
                 <LoginModal key="global-login-modal" />

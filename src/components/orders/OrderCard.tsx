@@ -68,6 +68,8 @@ export interface OrderProps {
     cod_fees?: number;
     tax_amount?: number;
     order_items?: any[];
+    payment_screenshot_url?: string;
+    payment_remarks?: string;
 }
 
 export const STATUS_CONFIG: Record<OrderStatus, { text: string; color: string; iconColor: string; bg: string }> = {

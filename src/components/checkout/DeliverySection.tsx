@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import AddressSelector from './AddressSelector';
@@ -18,6 +18,7 @@ interface DeliverySectionProps {
   userId: string;
   onConfirm: (address: UserAddress, option: string) => void;
   onToggle: () => void;
+  externalError?: string | null;
 }
 
 
@@ -34,14 +35,23 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
   userId,
   onConfirm,
   onToggle,
+  externalError
 }) => {
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState('');
-  const [deliveryOption, setDeliveryOption] = useState('home');
+  const [deliveryOption, setDeliveryOption] = useState<string>('home');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    if (externalError) {
+      setErrorMessage(externalError);
+    }
+  }, [externalError]);
+
 
   React.useEffect(() => {
     fetchUserAddressesAction().then(res => {
@@ -53,8 +63,20 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
   }, []);
 
   const handleConfirm = () => {
+    setErrorMessage(null);
     const addr = addresses.find(a => a.id === selectedAddressId);
-    if (addr) onConfirm(addr, deliveryOption);
+    
+    if (!addr) {
+      setErrorMessage("Please select or add a delivery address.");
+      return;
+    }
+
+    if (!deliveryOption) {
+      setErrorMessage("Please select a delivery method to continue.");
+      return;
+    }
+
+    onConfirm(addr, deliveryOption);
   };
 
   const handleModalSuccess = (addr: UserAddress) => {
@@ -147,8 +169,26 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
               <DeliveryMethodSelector 
                 methods={DELIVERY_METHODS}
                 selectedMethodId={deliveryOption}
-                onSelect={setDeliveryOption}
+                hasError={!!errorMessage && !deliveryOption}
+                onSelect={(id) => {
+                  setDeliveryOption(id);
+                  setErrorMessage(null);
+                }}
               />
+
+              {/* Validation Error Message */}
+              <AnimatePresence>
+                {errorMessage && (
+                  <motion.p
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="text-[12px] font-semibold text-[#ef4444] px-[2px]"
+                  >
+                    {errorMessage}
+                  </motion.p>
+                )}
+              </AnimatePresence>
 
               {/* CONFIRM BUTTON */}
               <button 

@@ -26,6 +26,7 @@ interface CheckoutState {
   setDeliveryData: (data: DeliveryData | null) => void;
   setSelectedPaymentId: (id: string | null) => void;
   reset: () => void;
+  clearSelections: () => void;
 }
 
 export const useCheckoutStore = create<CheckoutState>()(
@@ -50,6 +51,13 @@ export const useCheckoutStore = create<CheckoutState>()(
         activeStep: 'contact',
         completedSteps: [],
         contactData: { value: '', marketing: true },
+        deliveryData: null,
+        selectedPaymentId: null
+      }),
+
+      clearSelections: () => set({
+        activeStep: 'contact',
+        completedSteps: [],
         deliveryData: null,
         selectedPaymentId: null
       }),

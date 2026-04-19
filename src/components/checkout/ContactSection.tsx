@@ -11,6 +11,8 @@ interface ContactSectionProps {
   isConfirmed: boolean;
   onConfirm: (data: { value: string; marketing: boolean }) => void;
   onToggle: () => void;
+  initialValue?: string;
+  initialMarketing?: boolean;
   externalError?: string | null;
 }
 
@@ -19,12 +21,29 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   isConfirmed,
   onConfirm,
   onToggle,
+  initialValue = '',
+  initialMarketing = true,
   externalError
 }) => {
   const [inputValue, setInputValue] = useState('');
-  const [isMarketing, setIsMarketing] = useState(true);
+  const [isMarketing, setIsMarketing] = useState(initialMarketing);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [shakeTrigger, setShakeTrigger] = useState(0);
+
+  // Sync with initial store data precisely
+  useEffect(() => {
+    if (initialValue) {
+      // Remove +977 for display if it's a mobile number
+      const cleanValue = initialValue.startsWith('+977 ') 
+        ? initialValue.replace('+977 ', '') 
+        : initialValue;
+      setInputValue(cleanValue);
+    }
+  }, [initialValue]);
+
+  useEffect(() => {
+    setIsMarketing(initialMarketing);
+  }, [initialMarketing]);
 
   useEffect(() => {
     if (externalError) {

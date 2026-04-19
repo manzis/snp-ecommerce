@@ -121,6 +121,7 @@ export default function OrderDetailsPage() {
                             discount={orderData?.discount_amount}
                             shipping={orderData?.shipping_amount}
                             method={orderData?.payment_method}
+                            paymentStatus={orderData?.payment_status}
                             discountOnMrp={orderData?.discount_on_mrp}
                             couponDiscount={orderData?.coupon_discount}
                             couponCode={orderData?.coupon_code}

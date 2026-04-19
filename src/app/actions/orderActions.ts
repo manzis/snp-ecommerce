@@ -43,6 +43,7 @@ export async function trackOrderByIdAction(shortId: string) {
         shipping_address, contact_details,
         discount_amount, shipping_amount, discount_on_mrp, coupon_discount,
         coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        payment_screenshot_url, payment_remarks,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
           products (name, images, brands (name))
@@ -243,6 +244,7 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
         shipping_address, contact_details,
         discount_amount, shipping_amount, discount_on_mrp, coupon_discount, 
         coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        payment_screenshot_url, payment_remarks,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
           products (name, images, brands (name))

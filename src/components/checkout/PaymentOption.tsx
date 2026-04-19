@@ -12,6 +12,7 @@ interface PaymentOptionProps {
   isActive: boolean;
   onSelect: (id: string) => void;
   children?: React.ReactNode;
+  error?: string;
 }
 
 const PaymentOption: React.FC<PaymentOptionProps> = ({
@@ -21,7 +22,8 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
   isPopular,
   isActive,
   onSelect,
-  children
+  children,
+  error
 }) => {
   // GRADIENT TOKENS (Preserved exactly)
   const activeGradient = 'linear-gradient(30deg, #FCFFFA 40%, #eaffcc 100%)';
@@ -91,7 +93,14 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
             }}
             className="overflow-hidden"
           >
-            <div className="mt-[16px] pb-[12px] px-[2px]">
+            <div className="mt-[16px] pb-[12px] px-[2px] flex flex-col gap-3">
+              {error && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-lg">
+                  <span className="text-[11px] font-medium text-red-600">
+                    {error}
+                  </span>
+                </div>
+              )}
               {/* Internal container to ensure content fades in smoothly */}
               <motion.div
                 initial={{ y: -10, opacity: 0 }}

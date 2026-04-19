@@ -9,6 +9,7 @@ interface PriceDetailsProps {
     discount: number;
     shipping: number;
     method: string;
+    paymentStatus?: string;
     // Granular breakdown
     discountOnMrp?: number;
     couponDiscount?: number;
@@ -18,7 +19,7 @@ interface PriceDetailsProps {
 }
 
 export default function PriceDetails({
-    total, mrp, discount, shipping, method,
+    total, mrp, discount, shipping, method, paymentStatus = 'pending',
     discountOnMrp = 0, couponDiscount = 0, couponCode, codFees = 0, taxAmount = 0
 }: PriceDetailsProps) {
     const [isDiscountsExpanded, setIsDiscountsExpanded] = useState(false);
@@ -144,10 +145,24 @@ export default function PriceDetails({
                 {/* Payment Method Banner */}
                 <div className="flex w-full flex-col items-start pt-[4px] gap-[10px]">
                     <div className="flex w-full items-center justify-between rounded-[12px] bg-[#eaffcc] p-[18px_16px]">
-                        <span className="font-titillium text-[16px] font-[600] leading-[18px] tracking-[-0.64px] text-[#242424]">
-                            Paid By
-                        </span>
-                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424] capitalize font-titillium">
+                        <div className="flex items-center gap-[8px]">
+                            <span className="font-titillium text-[16px] font-[600] leading-[18px] tracking-[-0.64px] text-[#242424]">
+                                Paid By
+                            </span>
+                            {/* Payment Status Tag */}
+                            <div className={`flex items-center h-[20px] px-[8px] rounded-[6px] border ${
+                                paymentStatus?.toLowerCase() === 'paid' 
+                                    ? 'bg-[#308026]/10 border-[#308026]/20 text-[#308026]' 
+                                    : paymentStatus?.toLowerCase() === 'partially_paid'
+                                    ? 'bg-[#A16207]/10 border-[#A16207]/20 text-[#A16207]'
+                                    : 'bg-[#71717a]/10 border-[#71717a]/20 text-[#71717a]'
+                            }`}>
+                                <span className="text-[10px] font-bold uppercase tracking-wider leading-none">
+                                    {paymentStatus?.replace(/_/g, ' ') || 'Pending'}
+                                </span>
+                            </div>
+                        </div>
+                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424] capitalize">
                             {method?.replace(/_/g, ' ')}
                         </span>
                     </div>

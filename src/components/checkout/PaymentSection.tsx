@@ -12,6 +12,8 @@ import PaymentOption from './PaymentOption';
 import CodPaymentDetails from './CodPaymentDetails';
 import WalletPaymentDetails from './WalletPaymentDetails';
 import QrPaymentDetails from './QRPaymentDetails';
+import CardPaymentDetails from './CardPaymentDetails';
+import NetbankingPaymentDetails from './NetbankingPaymentDetails';
 
 interface PaymentSectionProps {
   isOpen: boolean;
@@ -20,7 +22,11 @@ interface PaymentSectionProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onToggle: () => void;
-  onPlaceOrder: () => void;
+  onPlaceOrder: (data?: { qrFile?: File | null; qrRemarks?: string }) => void;
+  onQrDataChange?: (data: { file: File | null; remarks: string }) => void;
+  initialQrData?: { file: File | null; remarks: string };
+  hasQrError?: boolean;
+  externalError?: string | null;
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({
@@ -30,7 +36,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   selectedId,
   onSelect,
   onToggle,
-  onPlaceOrder
+  onPlaceOrder,
+  onQrDataChange,
+  initialQrData,
+  hasQrError = false,
+  externalError
 }) => {
   return (
     <div className={`main-container mx-auto flex w-full max-w-[412px] flex-col items-start bg-white border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${
@@ -84,9 +94,27 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   Online Payments
                 </span>
                 <div className="flex flex-col gap-[12px]">
-                  <PaymentOption id="cards" label="Credit/Debit Cards" icon={<CreditCardIcon />} isActive={selectedId === 'cards'} onSelect={onSelect} />
+                  <PaymentOption 
+                    id="cards" 
+                    label="Credit/Debit Cards" 
+                    icon={<CreditCardIcon />} 
+                    isActive={selectedId === 'cards'} 
+                    onSelect={onSelect}
+                    error="This payment method is currently unavailable"
+                  >
+                    <CardPaymentDetails />
+                  </PaymentOption>
                   
-                  <PaymentOption id="netbanking" label="Net Banking" icon={<NetBankingIcon />} isActive={selectedId === 'netbanking'} onSelect={onSelect} />
+                  <PaymentOption 
+                    id="netbanking" 
+                    label="Net Banking" 
+                    icon={<NetBankingIcon />} 
+                    isActive={selectedId === 'netbanking'} 
+                    onSelect={onSelect}
+                    error="This payment method is currently unavailable"
+                  >
+                    <NetbankingPaymentDetails />
+                  </PaymentOption>
                   
                   <PaymentOption 
                     id="wallets" 
@@ -95,8 +123,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     isPopular={true} 
                     isActive={selectedId === 'wallets'} 
                     onSelect={onSelect}
+                    error="This payment method is currently unavailable"
                   >
-                    <WalletPaymentDetails onPlaceOrder={onPlaceOrder} />
+                    <WalletPaymentDetails onPlaceOrder={() => onPlaceOrder()} />
                   </PaymentOption>
                 </div>
               </div>
@@ -108,19 +137,22 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </span>
                 <div className="flex flex-col gap-[12px]">
                   <PaymentOption 
-      id="qr" 
-      label="Pay Via QR" 
-      icon={<QRIcon />} 
-      isActive={selectedId === 'qr'} 
-      onSelect={onSelect}
-    >
-      <QrPaymentDetails 
-        onVerify={(data) => {
-          console.log("Verifying QR Payment:", data);
-          onPlaceOrder(); // Triggers the main checkout flow logic
-        }} 
-      />
-    </PaymentOption>
+                    id="qr" 
+                    label="Pay Via QR" 
+                    icon={<QRIcon />} 
+                    isActive={selectedId === 'qr'} 
+                    onSelect={onSelect}
+                  >
+                    <QrPaymentDetails 
+                      initialFile={initialQrData?.file}
+                      initialRemarks={initialQrData?.remarks}
+                      onChange={onQrDataChange}
+                      hasError={hasQrError}
+                      onVerify={(data) => {
+                        onPlaceOrder({ qrFile: data.file, qrRemarks: data.remarks });
+                      }} 
+                    />
+                  </PaymentOption>
                   
                   {/* PAY ON DELIVERY - Swapped CodIcon for next/image */}
                   <PaymentOption 
@@ -144,6 +176,20 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                   </PaymentOption>
                 </div>
               </div>
+
+              {/* Validation Error Message for Payment */}
+              <AnimatePresence>
+                {externalError && !selectedId && (
+                  <motion.p
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="text-[12px] font-semibold text-[#ef4444] px-[2px] mt-[-12px] mb-[12px]"
+                  >
+                    {externalError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}

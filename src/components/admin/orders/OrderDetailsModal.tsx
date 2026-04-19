@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface OrderDetailsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    order: OrderProps | null;
+    order: (OrderProps & { payment_screenshot_url?: string; payment_remarks?: string }) | null;
     onUpdateStatus?: (order: OrderProps) => void;
     onCancelOrder?: (order: OrderProps) => void;
 }
@@ -427,6 +427,51 @@ export default function OrderDetailsModal({
                         </div>
                     </div>
                 </section>
+                
+                {/* Section 3.5: Payment Proof (Visible for QR) */}
+                {order.paymentMethod?.toLowerCase() === 'qr' && (
+                    <section className="space-y-6">
+                        <div className="flex items-center gap-3">
+                            <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">QR Payment Proof</h4>
+                            <div className="h-px flex-1 bg-gray-100" />
+                        </div>
+                        <div className="border border-dotted border-gray-300 rounded-[6px] overflow-hidden bg-zinc-50/10 p-5 space-y-4">
+                            {order.payment_screenshot_url ? (
+                                <div className="space-y-3">
+                                    <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm group">
+                                        <Image
+                                            src={order.payment_screenshot_url}
+                                            alt="Payment Receipt"
+                                            fill
+                                            className="object-contain p-2"
+                                        />
+                                        <a 
+                                            href={order.payment_screenshot_url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <span className="px-3 py-1.5 bg-white shadow-md rounded-lg text-[11px] font-bold uppercase tracking-wider text-black">View Full Size</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="py-4 text-center border border-dashed border-gray-200 rounded-lg">
+                                    <p className="text-[12px] text-[#a1a1aa]">No screenshot uploaded.</p>
+                                </div>
+                            )}
+
+                            {order.payment_remarks && (
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Customer Remarks</label>
+                                    <p className="text-[13px] text-black bg-white p-3 rounded-lg border border-gray-100 leading-relaxed shadow-sm italic">
+                                        "{order.payment_remarks}"
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                )}
 
                 {/* Section 4: Customer Logistics */}
                 <section className="space-y-6">
