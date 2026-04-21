@@ -27,11 +27,7 @@ html.initial-loading body {
 html.viewport-ready body {
   opacity: 1;
   visibility: visible;
-  /* 
-     NOTE: We removed 'transition: opacity' from here. 
-     Page-to-page fades are now handled EXCLUSIVELY by your template.tsx. 
-     This eliminates the 'double-flash' during navigation.
-  */
+  transition: opacity 0.3s ease-in;
 }
 
 @layer base {
@@ -59,9 +55,10 @@ html.viewport-ready body {
   @media (min-width: 768px) {
 
     /* Bypass the "hide body" logic on desktop for better LCP performance */
-    html.initial-loading body {
-      opacity: 1;
-      visibility: visible;
+    html.initial-loading body,
+    html body {
+      opacity: 1 !important;
+      visibility: visible !important;
     }
 
     body {

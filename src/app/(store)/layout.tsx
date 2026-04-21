@@ -35,33 +35,54 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var designWidth = 410;
-                function setViewport() {
-                  var w = window.screen.width;
-                  var content = w < designWidth 
-                    ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no'
-                    : 'width=device-width, initial-scale=1';
-                  
-                  var meta = document.querySelector('meta[name="viewport"]');
-                  if (!meta) {
-                    meta = document.createElement('meta');
-                    meta.name = 'viewport';
-                    meta.id = 'manual-viewport';
-                    document.head.appendChild(meta);
+                try {
+                  var designWidth = 410;
+                  function setViewport() {
+                    var w = window.screen.width;
+                    var content = w < designWidth 
+                      ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no'
+                      : 'width=device-width, initial-scale=1';
+                    
+                    var meta = document.querySelector('meta[name="viewport"]');
+                    if (!meta) {
+                      meta = document.createElement('meta');
+                      meta.name = 'viewport';
+                      meta.id = 'manual-viewport';
+                      document.head.appendChild(meta);
+                    }
+                    meta.content = content;
                   }
-                  meta.content = content;
-                }
-                setViewport();
-                var observer = new MutationObserver(function(mutations) {
-                  mutations.forEach(function(mutation) {
-                    mutation.addedNodes.forEach(function(node) {
-                      if (node.name === 'viewport') { setViewport(); }
+                  setViewport();
+                  
+                  // Reveal Safety Timeout: Ensure site shows even if observer fails
+                  var revealTimeout = setTimeout(function() {
+                    document.documentElement.classList.add('viewport-ready');
+                    document.documentElement.classList.remove('initial-loading');
+                  }, 2000);
+
+                  var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                      mutation.addedNodes.forEach(function(node) {
+                        if (node.name === 'viewport') { 
+                          setViewport();
+                          clearTimeout(revealTimeout);
+                          document.documentElement.classList.add('viewport-ready');
+                          document.documentElement.classList.remove('initial-loading');
+                        }
+                      });
                     });
                   });
-                });
-                observer.observe(document.head, { childList: true });
-                document.documentElement.classList.add('viewport-ready');
-                document.documentElement.classList.remove('initial-loading');
+                  observer.observe(document.head, { childList: true });
+                  
+                  // Initial reveal if script gets this far
+                  document.documentElement.classList.add('viewport-ready');
+                  document.documentElement.classList.remove('initial-loading');
+                  clearTimeout(revealTimeout);
+                } catch (e) {
+                  console.error('Viewport script error:', e);
+                  document.documentElement.classList.remove('initial-loading');
+                  document.documentElement.classList.add('viewport-ready');
+                }
               })();
             `,
           }}
