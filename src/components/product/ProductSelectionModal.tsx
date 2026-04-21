@@ -9,19 +9,34 @@ import SearchIcon from '@/components/icons/SearchIcon';
 import { fetchProducts, Product } from '@/services/productService';
 import ProductVariantPicker from './ProductVariantPicker';
 
+interface VariantInfo {
+  size: string | null;
+  flavor: string | null;
+  price: number;
+  mrp: number;
+}
+
 interface ProductSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (product: Product, variantInfo: { size: string | null, flavor: string | null, price: number, mrp: number }) => void;
+  onSelect: (product: Product, variantInfo: VariantInfo) => void;
+  onSelectBulk?: (product: Product, selections: VariantInfo[]) => void;
+  initialSearch?: string;
+  bulkCount?: number;
+  mainProduct?: Product;
 }
 
 export default function ProductSelectionModal({
   isOpen,
   onClose,
-  onSelect
+  onSelect,
+  onSelectBulk,
+  initialSearch = '',
+  bulkCount = 0,
+  mainProduct
 }: ProductSelectionModalProps) {
   const [mounted, setMounted] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -29,21 +44,33 @@ export default function ProductSelectionModal({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedFlavorId, setSelectedFlavorId] = useState<string | null>(null);
+  
+  // Bulk state
+  const [bulkSelections, setBulkSelections] = useState<VariantInfo[]>([]);
 
   useEffect(() => {
     setMounted(true);
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      loadProducts('');
+      setSearch(initialSearch);
+      setBulkSelections([]);
+      
+      if (bulkCount > 0 && mainProduct) {
+        setProducts([mainProduct]);
+        setExpandedId(mainProduct.id);
+      } else {
+        loadProducts(initialSearch);
+      }
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, initialSearch, bulkCount, mainProduct]);
 
   const loadProducts = async (query: string) => {
+    if (bulkCount > 0) return; // Don't load if in bulk mode
     setIsLoading(true);
     try {
       const data = await fetchProducts({ search: query });
@@ -57,10 +84,10 @@ export default function ProductSelectionModal({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (isOpen) loadProducts(search);
+      if (isOpen && bulkCount === 0) loadProducts(search);
     }, 300);
     return () => clearTimeout(timer);
-  }, [search, isOpen]);
+  }, [search, isOpen, bulkCount]);
 
   // Reset and Auto-select when expanding/changing product
   useEffect(() => {
@@ -106,7 +133,16 @@ export default function ProductSelectionModal({
           >
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
-              <h3 className="text-[18px] font-bold text-[#242424]">Select Product Choice</h3>
+              <div className="flex flex-col">
+                <h3 className="text-[18px] font-bold text-[#242424]">
+                    {bulkCount > 0 ? `Choose Items for Pack of ${bulkCount}` : 'Select Product Choice'}
+                </h3>
+                {bulkCount > 0 && (
+                    <span className="text-[12px] text-[#318126] font-bold uppercase">
+                        Item {bulkSelections.length + 1} of {bulkCount}
+                    </span>
+                )}
+              </div>
               <button 
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-[#71717a]"
@@ -115,19 +151,21 @@ export default function ProductSelectionModal({
               </button>
             </div>
 
-            {/* Search Bar */}
-            <div className="px-6 py-4 bg-white border-b border-gray-50">
-                <div className="relative flex items-center h-[48px] bg-[#f4f4f5] rounded-[12px] px-3 border border-transparent focus-within:border-[#318126] transition-all">
-                    <SearchIcon className="w-5 h-5 text-[#71717a] mr-2" />
-                    <input 
-                        type="text" 
-                        placeholder="Search products..." 
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="flex-1 bg-transparent text-[16px] text-[#242424] outline-none placeholder:text-[#a1a1aa]"
-                    />
+            {/* Search Bar - Hidden in Bulk Mode */}
+            {bulkCount === 0 && (
+                <div className="px-6 py-4 bg-white border-b border-gray-50">
+                    <div className="relative flex items-center h-[48px] bg-[#f4f4f5] rounded-[12px] px-3 border border-transparent focus-within:border-[#318126] transition-all">
+                        <SearchIcon className="w-5 h-5 text-[#71717a] mr-2" />
+                        <input 
+                            type="text" 
+                            placeholder="Search products..." 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="flex-1 bg-transparent text-[16px] text-[#242424] outline-none placeholder:text-[#a1a1aa]"
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Product List */}
             <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
@@ -165,7 +203,7 @@ export default function ProductSelectionModal({
                       >
                         <div 
                            className="flex items-center gap-4 p-3 cursor-pointer"
-                           onClick={() => setExpandedId(isExpanded ? null : product.id)}
+                           onClick={() => bulkCount === 0 && setExpandedId(isExpanded ? null : product.id)}
                         >
                             <div className="w-[56px] h-[56px] rounded-[12px] bg-[#FAFAFA] flex items-center justify-center p-1 border border-zinc-100 relative shrink-0">
                                 {product.images?.[0] && (
@@ -181,11 +219,13 @@ export default function ProductSelectionModal({
                                     )}
                                 </div>
                             </div>
-                            <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="#71717A" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                            </div>
+                            {bulkCount === 0 && (
+                                <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5 7.5L10 12.5L15 7.5" stroke="#71717A" strokeWidth="1.67" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                            )}
                         </div>
 
                         {isExpanded && (
@@ -203,22 +243,53 @@ export default function ProductSelectionModal({
                                     onFlavorSelect={setSelectedFlavorId}
                                 />
 
-                                <button 
-                                    onClick={() => {
-                                        const flavorName = product.product_flavours?.find(f => f.id === selectedFlavorId)?.flavour_name || null;
-                                        onSelect(product, {
-                                            size: selectedSize,
-                                            flavor: flavorName,
-                                            price: currentPrice,
-                                            mrp: originalPrice
-                                        });
-                                        onClose();
-                                    }}
-                                    disabled={(product.product_sizes?.length || 0) > 0 && !selectedSize || (product.product_flavours?.length || 0) > 0 && !selectedFlavorId}
-                                    className="w-full h-[44px] rounded-[10px] bg-[#318126] text-white font-bold text-[15px] hover:bg-[#2a6e20] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Select Choices
-                                </button>
+                                <div className="flex flex-col gap-3">
+                                    {bulkCount > 0 && bulkSelections.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mb-2">
+                                            {bulkSelections.map((sel, idx) => (
+                                                <div key={idx} className="bg-[#f0fff4] text-[#318126] text-[11px] font-bold px-2 py-1 rounded-md border border-[#318126]/10 flex items-center gap-1">
+                                                    <span>Item {idx + 1}: {sel.flavor || 'Reg'}, {sel.size || 'One Size'}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <button 
+                                        onClick={() => {
+                                            const flavorName = product.product_flavours?.find(f => f.id === selectedFlavorId)?.flavour_name || null;
+                                            const variantInfo = {
+                                                size: selectedSize,
+                                                flavor: flavorName,
+                                                price: currentPrice,
+                                                mrp: originalPrice
+                                            };
+
+                                            if (bulkCount > 0) {
+                                                const newSelections = [...bulkSelections, variantInfo];
+                                                if (newSelections.length === bulkCount) {
+                                                    onSelectBulk?.(product, newSelections);
+                                                    onClose();
+                                                } else {
+                                                    setBulkSelections(newSelections);
+                                                    // Reset picker for next item
+                                                    const firstFlavor = product.product_flavours?.find(f => f.is_available);
+                                                    setSelectedFlavorId(firstFlavor?.id || null);
+                                                    const firstSize = product.product_sizes?.find(s => s.is_available);
+                                                    setSelectedSize(firstSize?.size_label || null);
+                                                }
+                                            } else {
+                                                onSelect(product, variantInfo);
+                                                onClose();
+                                            }
+                                        }}
+                                        disabled={(product.product_sizes?.length || 0) > 0 && !selectedSize || (product.product_flavours?.length || 0) > 0 && !selectedFlavorId}
+                                        className="w-full h-[44px] rounded-[10px] bg-[#318126] text-white font-bold text-[15px] hover:bg-[#2a6e20] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {bulkCount > 0 
+                                            ? (bulkSelections.length + 1 === bulkCount ? 'Confirm & Add Pack' : `Confirm Item ${bulkSelections.length + 1} Selection`)
+                                            : 'Select Choices'
+                                        }
+                                    </button>
+                                </div>
                             </motion.div>
                         )}
                       </div>

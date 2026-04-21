@@ -220,12 +220,12 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         </button>
       </div>
       
+      <OfferCard />
+
       <BundleDealCard 
         mainProduct={product}
         currentProductImage={product.images?.[0]} 
       />
-
-      <OfferCard />
 
       <DeliveryDetails seller={seller} stockStatus={product.stock_status} />
     </section>

@@ -14,11 +14,16 @@ import { useProductSelectionStore } from '@/store/productSelectionStore';
 import CartIcon from '@/components/icons/CartIcon';
 import { getCartItemId, CartItemType } from '@/services/cartService';
 
-
-
 interface BundleDealCardProps {
   mainProduct?: Product;
   currentProductImage?: string;
+}
+
+interface VariantInfo {
+  size: string | null;
+  flavor: string | null;
+  price: number;
+  mrp: number;
 }
 
 interface SelectedProduct {
@@ -50,21 +55,19 @@ const SavingsBadge = ({ text, type = 'saved' }: { text: string, type?: 'saved' |
       className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap z-10"
     >
       <div className="relative min-h-[20px]">
-        <span 
-          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border block transition-all ${
-            type === 'saved' 
-              ? 'bg-gradient-to-r from-[#f0fff4] to-[#f0fff4] border-[#318126]/10 text-[#318126]' 
+        <span
+          className={`text-[10px] font-bold px-2 py-0.5 rounded-md border block transition-all ${type === 'saved'
+              ? 'bg-gradient-to-r from-[#f0fff4] to-[#f0fff4] border-[#318126]/10 text-[#318126]'
               : 'bg-white/80 border-dashed border-zinc-200 text-[#71717a]'
-          }`}
+            }`}
         >
           {text}
         </span>
-        {/* Particle explosion rendered only for 'saved' type on client */}
         {particles.map((p, i) => (
           <motion.div
             key={i}
             initial={{ scale: 0, x: 0, y: 0 }}
-            animate={{ 
+            animate={{
               scale: [0, p.scale, 0],
               x: p.x,
               y: p.y,
@@ -82,22 +85,24 @@ const SavingsBadge = ({ text, type = 'saved' }: { text: string, type?: 'saved' |
 const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentProductImage }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingBulkQty, setPendingBulkQty] = useState<'buy2' | 'buy3' | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
-  const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
+
   const { addItem } = useCartStore();
   const { showToast } = useToast();
-  const { 
-    selectedSize, 
-    selectedFlavorId, 
-    currentPrice: storePrice, 
+  const {
+    selectedSize,
+    selectedFlavorId,
+    currentPrice: storePrice,
     originalPrice: storeMrp,
     setSizeError,
     setFlavorError,
     sizeError,
-    flavorError 
+    flavorError
   } = useProductSelectionStore();
 
-  const handleSelectProduct = (product: Product, variantInfo: { size: string | null, flavor: string | null, price: number, mrp: number }) => {
+  const handleSelectProduct = (product: Product, variantInfo: VariantInfo) => {
     if (selectedProducts.length < 2) {
       setSelectedProducts([...selectedProducts, {
         product,
@@ -107,169 +112,193 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
     setIsModalOpen(false);
   };
 
+  const handleSelectBulk = (product: Product, selections: VariantInfo[]) => {
+    if (pendingBulkQty) {
+      setLoadingBundle(pendingBulkQty);
+      executeBundleAddition(pendingBulkQty, selections);
+      setPendingBulkQty(null);
+      setIsModalOpen(false);
+    }
+  };
+
   const removeProduct = (index: number) => {
     setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
   };
 
-  const totalDiscount = selectedProducts.length === 1 ? 20 : selectedProducts.length === 2 ? 50 : 0;
+  const interactiveDiscount = selectedProducts.length === 1 ? 20 : selectedProducts.length === 2 ? 50 : 0;
   const itemsPrice = selectedProducts.reduce((sum, p) => sum + p.price, 0);
   const itemsMRP = selectedProducts.reduce((sum, p) => sum + p.mrp, 0);
 
   const basePrice = mainProduct ? parseInt((mainProduct.discounted_price || '0').replace(/\D/g, ''), 10) : 0;
   const baseMrp = mainProduct ? parseInt((mainProduct.original_price || '0').replace(/\D/g, ''), 10) : 0;
 
-  const currentPrice = (storePrice || basePrice) + itemsPrice - totalDiscount;
+  const currentPriceRaw = (storePrice || basePrice) + itemsPrice - interactiveDiscount;
+  const displayPrice = selectedProducts.length === 0 ? currentPriceRaw - 100 : currentPriceRaw;
   const totalMRPValue = (storeMrp || baseMrp) + itemsMRP;
 
-  const handleAddBundleToCart = () => {
-    if (!mainProduct) return;
-
-    // 1. Validation for Main Product (same as ProductOptions.tsx)
+  const validateMainProduct = (isQtyBundle = false) => {
+    if (!mainProduct) return false;
     let isValid = true;
     if ((mainProduct.product_sizes?.length || 0) > 0 && !selectedSize) {
-      setSizeError(true);
+      if (!isQtyBundle) setSizeError(true);
       isValid = false;
     }
     if ((mainProduct.product_flavours?.length || 0) > 0 && !selectedFlavorId) {
-      setFlavorError(true);
+      if (!isQtyBundle) setFlavorError(true);
       isValid = false;
     }
 
-    if (!isValid) {
-      // Small delay to let React render the error state before scrolling
+    if (!isValid && !isQtyBundle) {
       setTimeout(() => {
         document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 10);
+    }
+    return isValid;
+  };
+
+  const handleAddBundleToCart = (type: 'interactive' | 'buy2' | 'buy3') => {
+    if (!mainProduct) return;
+
+    // For quantity bundles, open ProductSelectionModal in bulk mode
+    if (type === 'buy2' || type === 'buy3') {
+      setPendingBulkQty(type);
+      setIsModalOpen(true);
       return;
     }
 
-    const mainFlavorName = mainProduct.product_flavours?.find(f => f.id === selectedFlavorId)?.flavour_name || 'Regular';
-    const bundleId = `bundle_${Date.now()}`;
+    if (type === 'interactive' && !validateMainProduct()) return;
 
-    const mainItem = {
-      product_id: mainProduct.id,
-      selected_size: selectedSize,
-      selected_flavor: mainFlavorName,
-      bundle_id: bundleId,
-      bundle_discount: totalDiscount
-    };
-
-
-    const bundleItems: CartItemType[] = [];
-
-    // 1. Prepare Main Product
-    bundleItems.push({
-      id: getCartItemId(mainItem),
-      ...mainItem,
-      name: mainProduct.name,
-      slug: mainProduct.slug,
-      brand: mainProduct.brands?.name || 'Store Product',
-      price: storePrice || basePrice, // Full price
-      mrp: storeMrp || baseMrp,
-      image: currentProductImage || mainProduct.images?.[0] || '',
-      quantity: 1,
-      stock_status: mainProduct.stock_status || 'in_stock',
-      bundle_discount: totalDiscount // Global bundle discount stored here
-    });
-
-    // 2. Prepare Selected Products
-    selectedProducts.forEach((p) => {
-      const subItem = {
-        product_id: p.product.id,
-        selected_size: p.size,
-        selected_flavor: p.flavor || 'Unflavored',
-        bundle_id: bundleId
-      };
-      
-      bundleItems.push({
-        id: getCartItemId(subItem),
-        ...subItem,
-        name: p.product.name,
-        slug: p.product.slug,
-        brand: p.product.brands?.name || 'Store Product',
-        price: p.price,
-        mrp: p.mrp,
-        image: p.product.images?.[0] || '',
-        quantity: 1,
-        stock_status: p.product.stock_status || 'in_stock',
-        bundle_discount: 0 // Secondary items have no individual discount
-      });
-    });
-
-
-    // 3. Add entire bundle batch at once
-    const { addItemsBatch } = useCartStore.getState();
-    addItemsBatch(bundleItems);
-
-
-
-    setIsAddedToCart(true);
-    showToast(`Bundle added to cart! Total: Rs. ${currentPrice}`, "success");
-    
-    // Auto reset "added" state after 3 seconds
-    setTimeout(() => setIsAddedToCart(false), 3000);
+    setLoadingBundle(type);
+    executeBundleAddition(type);
   };
+
+  const executeBundleAddition = (type: 'interactive' | 'buy2' | 'buy3', selectionsOverride?: VariantInfo[]) => {
+    if (!mainProduct) return;
+
+    const bundleId = `bundle_${Date.now()}`;
+    const { addItemsBatch } = useCartStore.getState();
+
+    let bundleItems: CartItemType[] = [];
+    let discount = 0;
+    let finalPrice = 0;
+
+    if (type === 'interactive') {
+      const activeFlavor = mainProduct.product_flavours?.find(f => f.id === selectedFlavorId)?.flavour_name || 'Regular';
+      discount = interactiveDiscount;
+      finalPrice = currentPriceRaw;
+
+      bundleItems.push({
+        id: getCartItemId({ product_id: mainProduct.id, selected_size: selectedSize, selected_flavor: activeFlavor, bundle_id: bundleId }),
+        product_id: mainProduct.id,
+        selected_size: selectedSize,
+        selected_flavor: activeFlavor,
+        bundle_id: bundleId,
+        bundle_discount: discount,
+        name: mainProduct.name,
+        slug: mainProduct.slug,
+        brand: mainProduct.brands?.name || 'Store Product',
+        price: storePrice || basePrice,
+        mrp: storeMrp || baseMrp,
+        image: currentProductImage || mainProduct.images?.[0] || '',
+        quantity: 1,
+        stock_status: mainProduct.stock_status || 'in_stock'
+      });
+
+      selectedProducts.forEach(p => {
+        const subItemData = { product_id: p.product.id, selected_size: p.size, selected_flavor: p.flavor || 'Unflavored', bundle_id: bundleId };
+        bundleItems.push({
+          id: getCartItemId(subItemData),
+          ...subItemData,
+          name: p.product.name,
+          slug: p.product.slug,
+          brand: p.product.brands?.name || 'Store Product',
+          price: p.price,
+          mrp: p.mrp,
+          image: p.product.images?.[0] || '',
+          quantity: 1,
+          stock_status: p.product.stock_status || 'in_stock',
+          bundle_discount: 0
+        });
+      });
+    } else {
+      // Handle Buy 2/3 Pack with potential different variants per item
+      const selections = selectionsOverride || [];
+      discount = type === 'buy2' ? 50 : 100;
+
+      finalPrice = selections.reduce((sum, s) => sum + s.price, 0) - discount;
+
+      selections.forEach((s, i) => {
+        const itemData = { product_id: mainProduct.id, selected_size: s.size, selected_flavor: s.flavor || 'Regular', bundle_id: bundleId };
+        bundleItems.push({
+          id: getCartItemId(itemData) + `_${i}`,
+          ...itemData,
+          name: mainProduct.name,
+          slug: mainProduct.slug,
+          brand: mainProduct.brands?.name || 'Store Product',
+          price: s.price,
+          mrp: s.mrp,
+          image: currentProductImage || mainProduct.images?.[0] || '',
+          quantity: 1,
+          stock_status: mainProduct.stock_status || 'in_stock',
+          bundle_discount: i === 0 ? discount : 0
+        });
+      });
+    }
+
+    addItemsBatch(bundleItems);
+    showToast(`Bundle added to cart! Total: Rs. ${finalPrice}`, "success");
+
+    setTimeout(() => setLoadingBundle(null), 2000);
+  };
+
+  const buy2PriceMin = ((storePrice || basePrice) * 2) - 50;
+  const buy3PriceMin = ((storePrice || basePrice) * 3) - 100;
 
   return (
     <div
-      className="w-full max-w-[700px] flex flex-col rounded-[16px] overflow-hidden border border-[#E8E8E8] font-titillium"
-      style={{
-        background: 'linear-gradient(87.93deg, #318126 10.71%, #33D81D 124.28%)'
-      }}
+      className="w-full max-w-[700px] flex flex-col rounded-[16px] overflow-hidden  font-titillium"
+      style={{ background: 'linear-gradient(87.93deg, #318126 10.71%, #33D81D 124.28%)' }}
     >
-      {/* Header with Brand Gradient */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full h-[52px] px-5 flex items-center justify-between text-white transition-all active:opacity-90 relative"
       >
         <div className="flex items-center gap-3">
           <div className="relative w-[24px] h-[24px] flex items-center justify-center">
-            <Image
-              src="/images/icons/options.png"
-              alt="options"
-              width={24}
-              height={24}
-              className="object-contain"
-            />
+            <Image src="/images/icons/options.png" alt="options" width={24} height={24} className="object-contain" />
           </div>
           <span className="text-[16px] font-semibold">Apply offers for maximum savings</span>
         </div>
-        <motion.div
-          animate={{ rotate: isExpanded ? 90 : 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        >
+        <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
           <ChevronLeftIcon className="w-5 h-5 text-white" />
         </motion.div>
       </button>
 
-      {/* Body with Light Theme */}
       <AnimatePresence>
         {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="p-[8px] flex flex-col gap-4 bg-[#FAFAFA] rounded-t-[12px]">
-              {/* Main Price matched with ProductHeader pricing style */}
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <div className="p-[8px] flex flex-col gap-2 bg-[#FAFAFA] rounded-t-[12px]">
+
               <div className="flex items-baseline gap-2 px-3 pt-2">
-                <h2 className="text-[24px] font-bold bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent">
-                  Buy at Rs. {currentPrice}
+                <h2 className="text-[24px] font-bold bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent leading-none">
+                  Buy at Rs. {displayPrice}
                 </h2>
                 <span className="text-[16px] text-[#71717a] line-through">
                   Rs. {totalMRPValue}
                 </span>
               </div>
 
-              {/* Section 1: Buy More Save More */}
+              {/* Mix & Match Section */}
               <div className="bg-white rounded-[12px] p-[16px] flex flex-col gap-3 border border-[#F0F0F0]">
                 <div className="flex items-center justify-between">
-                  <span className="text-[14px] font-medium text-[#71717a]">Buy More Save More</span>
+                  <span className="text-[14px] font-medium text-[#71717a]">Mix & Match Bundle</span>
                   <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => {
+                      setPendingBulkQty(null);
+                      setIsModalOpen(true);
+                    }}
                     disabled={selectedProducts.length >= 2}
-                    className="text-[#318126] text-[15px] font-bold hover:underline disabled:text-gray-300 disabled:no-underline"
+                    className="text-[#318126] text-[15px] font-bold hover:underline disabled:text-gray-300 disabled:no-underline transition-colors"
                   >
                     Add Item
                   </button>
@@ -294,54 +323,36 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                   </div>
                 </div>
 
-                {/* Item Connection UI */}
                 <div className="flex items-center gap-4 mt-2 overflow-x-auto pb-10 no-scrollbar">
-                  {/* Fixed First Item (Current Product) */}
                   <div className="flex flex-col items-center gap-1 shrink-0 relative">
                     <div className="w-[60px] h-[60px] bg-white rounded-[12px] border border-zinc-200 p-1 flex items-center justify-center relative shrink-0">
-                        {currentProductImage && (
-                        <Image src={currentProductImage} alt="current product" width={48} height={48} className="object-contain" />
-                        )}
-                        <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200">
+                      {currentProductImage && <Image src={currentProductImage} alt="main" width={48} height={48} className="object-contain" />}
+                      <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200">
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                        </div>
-                        {selectedProducts.length === 0 && (
-                        <SavingsBadge text="Current" type="available" />
-                        )}
+                      </div>
+                      {selectedProducts.length === 0 && <SavingsBadge text="Current" type="available" />}
                     </div>
                     {((sizeError && !selectedSize) || (flavorError && !selectedFlavorId)) && (
-                        <motion.span 
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-red-500 font-bold"
-                        >
-                            Select Variant
-                        </motion.span>
+                      <motion.span initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-red-500 font-bold">
+                        Select Variant
+                      </motion.span>
                     )}
                   </div>
 
                   <div className="shrink-0 h-[2px] w-[16px] bg-[#E8E8E8]" />
 
-                  {/* Second Slot */}
+                  {/* Slot 1 */}
                   <div
-                    onClick={!selectedProducts[0] ? () => setIsModalOpen(true) : undefined}
+                    onClick={!selectedProducts[0] ? () => { setPendingBulkQty(null); setIsModalOpen(true); } : undefined}
                     className={`w-[60px] h-[60px] rounded-[12px] relative shrink-0 transition-colors ${!selectedProducts[0] ? 'cursor-pointer hover:bg-[#FAFAFA]' : 'bg-white border border-zinc-200'}`}
-                    style={!selectedProducts[0] ? {
-                      backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23E8E8E8' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")`
-                    } : {}}
+                    style={!selectedProducts[0] ? { backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23E8E8E8' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")` } : {}}
                   >
                     <div className="w-full h-full p-1 flex items-center justify-center">
                       {selectedProducts[0] ? (
                         <>
                           <SavingsBadge text="Rs. 20 Saved" type="saved" />
-                          <Image src={selectedProducts[0].product.images[0]} alt={selectedProducts[0].product.name} width={48} height={48} className="object-contain" />
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeProduct(0);
-                            }}
-                            className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transform hover:scale-110 transition-transform"
-                          >
+                          <Image src={selectedProducts[0].product.images[0]} alt="p1" width={48} height={48} className="object-contain" />
+                          <button onClick={(e) => { e.stopPropagation(); removeProduct(0); }} className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transition-transform hover:scale-110">
                             <CloseIcon className="w-2.5 h-2.5" />
                           </button>
                         </>
@@ -356,26 +367,18 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
 
                   <div className="shrink-0 h-[2px] w-[16px] bg-[#E8E8E8]" />
 
-                  {/* Third Slot */}
+                  {/* Slot 2 */}
                   <div
-                    onClick={!selectedProducts[1] ? () => setIsModalOpen(true) : undefined}
+                    onClick={!selectedProducts[1] ? () => { setPendingBulkQty(null); setIsModalOpen(true); } : undefined}
                     className={`w-[60px] h-[60px] rounded-[12px] relative shrink-0 transition-colors ${!selectedProducts[1] ? 'cursor-pointer hover:bg-[#FAFAFA]' : 'bg-white border border-zinc-200'}`}
-                    style={!selectedProducts[1] ? {
-                      backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23E8E8E8' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")`
-                    } : {}}
+                    style={!selectedProducts[1] ? { backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23E8E8E8' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")` } : {}}
                   >
                     <div className="w-full h-full p-1 flex items-center justify-center">
                       {selectedProducts[1] ? (
                         <>
                           <SavingsBadge text="Rs. 50 Saved" type="saved" />
-                          <Image src={selectedProducts[1].product.images[0]} alt={selectedProducts[1].product.name} width={48} height={48} className="object-contain" />
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeProduct(1);
-                            }}
-                            className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transform hover:scale-110 transition-transform"
-                          >
+                          <Image src={selectedProducts[1].product.images[0]} alt="p2" width={48} height={48} className="object-contain" />
+                          <button onClick={(e) => { e.stopPropagation(); removeProduct(1); }} className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transition-transform hover:scale-110">
                             <CloseIcon className="w-2.5 h-2.5" />
                           </button>
                         </>
@@ -387,28 +390,92 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       )}
                     </div>
                   </div>
-
-
                 </div>
 
-                {/* Add to Cart Button for Bundle */}
                 <button
-                  onClick={handleAddBundleToCart}
-                  className={`w-full h-[52px] rounded-[14px] border border-[#E8E8E8] flex items-center justify-center gap-2 group transition-all active:scale-[0.98] mt-2 overflow-hidden relative ${isAddedToCart ? 'bg-[#f0fff4] border-[#318126]' : 'bg-gradient-to-r from-white via-white to-[#f0fff4]/50 hover:border-[#318126]'}`}
+                  onClick={() => handleAddBundleToCart('interactive')}
+                  disabled={loadingBundle !== null}
+                  className={`w-full h-[52px] rounded-[14px] border border-[#E8E8E8] flex items-center justify-center gap-2 group transition-all active:scale-[0.98] mt-2 overflow-hidden relative ${loadingBundle === 'interactive' ? 'bg-[#f0fff4] border-[#318126]' : 'bg-gradient-to-r from-white via-white to-[#f0fff4]/50 hover:border-[#318126]'}`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shine-once" />
-                  <CartIcon className={`w-5 h-5 transition-colors ${isAddedToCart ? 'text-[#318126]' : 'text-[#4d4d4d]'}`} />
-                  <span className={`text-[15px] font-bold transition-colors ${isAddedToCart ? 'text-[#318126]' : 'text-[#4d4d4d]'}`}>
-                    {isAddedToCart ? 'Bundle Added!' : 'Add Bundle to Cart'}
+                  <CartIcon className={`w-5 h-5 transition-colors ${loadingBundle === 'interactive' ? 'text-[#318126]' : 'text-[#4d4d4d]'}`} />
+                  <span className={`text-[15px] font-bold transition-colors ${loadingBundle === 'interactive' ? 'text-[#318126]' : 'text-[#4d4d4d]'}`}>
+                    {loadingBundle === 'interactive' ? 'Bundle Added!' : 'Add Bundle to Cart'}
                   </span>
                 </button>
+              </div>
+
+              {/* Quantity Presets Section */}
+              <div className="bg-white rounded-[12px] p-[16px] flex flex-col gap-3 border border-[#F0F0F0]">
+                <div className="flex flex-col gap-3">
+                  {/* Buy 2 Pack */}
+                  <div className="flex items-center justify-between p-3 rounded-[12px] border border-[#F4F4F5] bg-[#FCFCFD] group hover:border-[#318126]/20 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-10 w-10 flex items-center justify-center bg-white rounded-lg border border-zinc-100 p-0.5 shrink-0">
+                        {currentProductImage && <Image src={currentProductImage} alt="q2" width={32} height={32} className="object-contain" />}
+                        <div className="absolute -top-1.5 -right-1.5 bg-[#242424] text-white text-[9px] font-semibold h-4 w-4 rounded-full flex items-center justify-center shadow-sm">2</div>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[14px] font-bold text-[#242424]">Buy 2 Pack</span>
+                        <span className="text-[11px] text-[#318126] font-bold text-nowrap">Save Rs. 50</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="text-right">
+                        <div className="text-[14px] font-semibold text-[#242424]">Rs. {buy2PriceMin}</div>
+                        <div className="text-[10px] text-[#a1a1aa] line-through leading-none">Rs. {(storeMrp || baseMrp) * 2}</div>
+                      </div>
+                      <button
+                        onClick={() => handleAddBundleToCart('buy2')}
+                        disabled={loadingBundle !== null}
+                        className={`h-9 px-4 rounded-lg font-bold text-[12px] transition-all active:scale-95 ${loadingBundle === 'buy2' ? 'bg-[#318126] text-white' : 'bg-[#242424] text-white hover:bg-[#318126]'}`}
+                      >
+                        {loadingBundle === 'buy2' ? 'Added' : 'Add'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Buy 3 Pack */}
+                  <div className="flex items-center justify-between p-3 rounded-[12px] border border-[#F4F4F5] bg-[#FCFCFD] group hover:border-[#318126]/20 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-10 w-10 flex items-center justify-center bg-white rounded-lg border border-zinc-100 p-0.5 shrink-0">
+                        {currentProductImage && <Image src={currentProductImage} alt="q3" width={32} height={32} className="object-contain" />}
+                        <div className="absolute -top-1.5 -right-1.5 bg-[#242424] text-white text-[9px] font-semibold h-4 w-4 rounded-full flex items-center justify-center shadow-sm">3</div>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[14px] font-bold text-[#242424]">Buy 3 Pack</span>
+                        <span className="text-[11px] text-[#318126] font-bold text-nowrap">Save Rs. 100</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="text-right">
+                        <div className="text-[14px] font-semibold text-[#242424]">Rs. {buy3PriceMin}</div>
+                        <div className="text-[10px] text-[#a1a1aa] line-through leading-none">Rs. {(storeMrp || baseMrp) * 3}</div>
+                      </div>
+                      <button
+                        onClick={() => handleAddBundleToCart('buy3')}
+                        disabled={loadingBundle !== null}
+                        className={`h-9 px-4 rounded-lg font-bold text-[12px] transition-all active:scale-95 ${loadingBundle === 'buy3' ? 'bg-[#318126] text-white' : 'bg-[#242424] text-white hover:bg-[#318126]'}`}
+                      >
+                        {loadingBundle === 'buy3' ? 'Added' : 'Add'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <ProductSelectionModal
               isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
+              onClose={() => {
+                setIsModalOpen(false);
+                setPendingBulkQty(null);
+              }}
               onSelect={handleSelectProduct}
+              onSelectBulk={handleSelectBulk}
+              bulkCount={pendingBulkQty === 'buy2' ? 2 : pendingBulkQty === 'buy3' ? 3 : 0}
+              mainProduct={mainProduct}
+              initialSearch={pendingBulkQty ? '' : ''}
             />
           </motion.div>
         )}
