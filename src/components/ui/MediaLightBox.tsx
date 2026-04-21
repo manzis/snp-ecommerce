@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import CloseIcon from '@/components/icons/SearchCloseIcon'; 
-import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon'; 
+import CloseIcon from '@/components/icons/SearchCloseIcon';
+import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 export interface LightboxMedia {
@@ -20,13 +21,18 @@ interface MediaLightboxProps {
   onClose: () => void;
 }
 
-const MediaLightbox: React.FC<MediaLightboxProps> = ({ 
-  isOpen, 
-  media, 
-  initialIndex = 0, 
-  onClose 
+const MediaLightbox: React.FC<MediaLightboxProps> = ({
+  isOpen,
+  media,
+  initialIndex = 0,
+  onClose
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) setCurrentIndex(initialIndex);
@@ -54,7 +60,9 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
 
   const currentMedia = media[currentIndex];
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -62,7 +70,7 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md"
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md"
           onClick={onClose}
         >
           {/* HEADER AREA */}
@@ -70,9 +78,9 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
             <span className="font-titillium text-[14px] font-semibold text-white tracking-[1px] opacity-70">
               {media.length > 1 ? `${currentIndex + 1} / ${media.length}` : ''}
             </span>
-            
+
             {/* CLOSE BUTTON: Just the large white cross, no background */}
-            <button 
+            <button
               onClick={(e) => { e.stopPropagation(); onClose(); }}
               className="pointer-events-auto flex items-center justify-center transition-all active:scale-90 outline-none"
             >
@@ -81,19 +89,19 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
           </div>
 
           <div className="relative flex h-full w-full items-center justify-center">
-            
+
             {/* PREV BUTTON: Rounded 10px, closer to center */}
             {media.length > 1 && currentIndex > 0 && (
-              <button 
+              <button
                 onClick={handlePrev}
                 className="absolute left-[25px] z-50 flex h-[45px] w-[45px] items-center justify-center rounded-[12px] bg-[#ffffff]/[80%] shadow-[0_10px_20px_rgba(0,0,0,0.3)] text-[#242424] active:scale-90 transition-transform outline-none"
               >
-                <ChevronLeftIcon className='rotate-180'  />
+                <ChevronLeftIcon className='rotate-180' />
               </button>
             )}
 
             {/* MAIN IMAGE DISPLAY */}
-            <motion.div 
+            <motion.div
               key={currentIndex}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -120,10 +128,10 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
                   >
                     <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }} contentStyle={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                       <div className="relative w-full h-full max-w-[800px] max-h-[85vh] aspect-square flex items-center justify-center cursor-zoom-in">
-                        <Image 
-                          src={currentMedia.url} 
-                          alt={currentMedia.alt || "Media Preview"} 
-                          fill 
+                        <Image
+                          src={currentMedia.url}
+                          alt={currentMedia.alt || "Media Preview"}
+                          fill
                           className="object-contain pointer-events-none"
                           sizes="(max-width: 768px) 100vw, 800px"
                           priority
@@ -137,7 +145,7 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
 
             {/* NEXT BUTTON: Rounded 10px, closer to center */}
             {media.length > 1 && currentIndex < media.length - 1 && (
-              <button 
+              <button
                 onClick={handleNext}
                 className="absolute right-[25px] z-50 flex h-[45px] w-[45px] items-center justify-center rounded-[12px] bg-[#ffffff]/[80%] shadow-[0_10px_20px_rgba(0,0,0,0.3)] text-[#242424] active:scale-90 transition-transform outline-none"
               >
@@ -146,11 +154,12 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
                 </div>
               </button>
             )}
-            
+
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

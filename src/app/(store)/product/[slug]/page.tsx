@@ -122,7 +122,7 @@ async function ProductContent({ slug }: { slug: string }) {
       <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 ">
         <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
           {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS */}
-          <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] lg:sticky lg:top-[160px] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">
+          <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">
             <ProductImage
               images={product.images || []}
               rating={product.rating}
@@ -136,6 +136,16 @@ async function ProductContent({ slug }: { slug: string }) {
                 <ProductHighlights highlights={product.highlights} />
               </div>
             )}
+            {/* ProductDetails: Desktop only in left column */}
+            <div className="hidden lg:block">
+              <ProductDetails product={product} />
+            </div>
+            {/* Reviews: Desktop only in left column */}
+            <div className="hidden lg:block">
+              <Suspense fallback={<SectionSkeleton height="200px" />}>
+                <ReviewsWrapper productId={product.id} />
+              </Suspense>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: DETAILS */}
@@ -160,50 +170,25 @@ async function ProductContent({ slug }: { slug: string }) {
                   <ProductHighlights highlights={product.highlights} />
                 </div>
               )}
-              <div className="lg:hidden ">
+              <div className="w-full lg:hidden">
                 <ProductDetails product={product} />
               </div>
-              <div className="lg:hidden">
-                <LegacyProductBanners
-                  banners={[
-                    product.banner_image1,
-                    product.banner_image2,
-                    product.banner_image3,
-                    product.banner_image4
-                  ]}
-                />
-              </div>
-              <div className="lg:hidden ">
+              <div className="w-full lg:hidden">
                 <Suspense fallback={<SectionSkeleton height="200px" />}>
                   <ReviewsWrapper productId={product.id} />
                 </Suspense>
               </div>
-              <div className="lg:hidden ">
+              <div className="w-full">
                 <Suspense fallback={<SectionSkeleton height="150px" />}>
                   <QAWrapper productId={product.id} />
-                </Suspense>
-              </div>
-              <div className="lg:hidden">
-                <ProductBanners
-                  linkedBanners={product.product_banners}
-                />
-              </div>
-              <div className="lg:hidden ">
-                <WhyChooseUs />
-              </div>
-              <div className="lg:hidden pb-[10px]">
-                <Suspense fallback={<SectionSkeleton height="300px" />}>
-                  <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
                 </Suspense>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <ProductDetails product={product} />
-        </div>
-        <div className="hidden lg:block mt-12 mb-12 lg:px-[24px]">
+        {/* FULL-WIDTH SECTIONS: Below the two-column grid */}
+        <div className="w-full mt-[32px] lg:mt-[48px] lg:px-[24px]">
           <LegacyProductBanners
             banners={[
               product.banner_image1,
@@ -213,25 +198,13 @@ async function ProductContent({ slug }: { slug: string }) {
             ]}
           />
         </div>
-        <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <Suspense fallback={<SectionSkeleton height="300px" />}>
-            <ReviewsWrapper productId={product.id} />
-          </Suspense>
+        <div className="w-full mt-[32px] lg:mt-[48px]">
+          <ProductBanners linkedBanners={product.product_banners} />
         </div>
-        <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-          <Suspense fallback={<SectionSkeleton height="200px" />}>
-            <QAWrapper productId={product.id} />
-          </Suspense>
-        </div>
-        <div className="hidden lg:block">
-          <ProductBanners
-            linkedBanners={product.product_banners}
-          />
-        </div>
-        <div className="hidden lg:block lg:mt-[28px] ">
+        <div className="w-full mt-[32px] lg:mt-[48px]">
           <WhyChooseUs />
         </div>
-        <div className="hidden lg:block lg:mt-[28px] lg:mb-[40px]">
+        <div className="w-full mt-[32px] lg:mt-[48px] pb-[40px]">
           <Suspense fallback={<SectionSkeleton height="400px" />}>
             <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
           </Suspense>
