@@ -46,6 +46,7 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
     const [categories, setCategories] = useState<Category[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
     const [sellers, setSellers] = useState<Seller[]>([]);
+    const [allBanners, setAllBanners] = useState<any[]>([]);
 
     const defaultFormData = {
         name: '',
@@ -75,6 +76,7 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
         reviews: [],
         qa: [],
         tags: [],
+        linked_banner_ids: [],
         temp_sizes: '',
         temp_flavours: '',
         hasManuallyEditedSlug: mode === 'edit',
@@ -88,14 +90,17 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
     const [errors, setErrors] = useState<any>({});
 
     const loadMetadata = async () => {
-        const [catData, brandData, sellerData] = await Promise.all([
+        const { fetchBanners } = await import('@/services/bannerService');
+        const [catData, brandData, sellerData, bannerData] = await Promise.all([
             fetchCategories(),
             fetchBrands(),
-            fetchSellers()
+            fetchSellers(),
+            fetchBanners()
         ]);
         setCategories(catData || []);
         setBrands(brandData || []);
         setSellers(sellerData || []);
+        setAllBanners(bannerData || []);
     };
 
     useEffect(() => {
@@ -122,6 +127,7 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
                     ...initialData,
                     product_info: initialData.product_info?.[0] || initialData.product_info || defaultFormData.product_info,
                     product_variants: normalizedVariants,
+                    linked_banner_ids: initialData.product_banners?.map((pb: any) => pb.banner_id) || [],
                     hasManuallyEditedSlug: true,
                     has_variants: normalizedVariants.some((v: any) => 
                         !!v.size_id || 
@@ -427,6 +433,7 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
                                     <ProductDetailsTab
                                         formData={formData}
                                         setFormData={setFormData}
+                                        banners={allBanners}
                                         showErrors={showErrors}
                                         errors={errors}
                                     />

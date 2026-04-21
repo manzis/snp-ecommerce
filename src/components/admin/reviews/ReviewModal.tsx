@@ -42,6 +42,8 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
         image: '',
         author_avatar: '',
         is_verified: false,
+        is_featured_home: false,
+        home_title: '',
     });
 
     // Multi-select product IDs (editing = single product from existing row)
@@ -90,10 +92,12 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
                     image: review.image || '',
                     author_avatar: review.author_avatar || '',
                     is_verified: review.is_verified || false,
+                    is_featured_home: review.is_featured_home || false,
+                    home_title: review.home_title || '',
                 });
                 setSelectedProductIds(review.product_id ? [review.product_id] : []);
             } else {
-                setForm({ author: '', role: '', text: '', rating: 5, image: '', author_avatar: '', is_verified: false });
+                setForm({ author: '', role: '', text: '', rating: 5, image: '', author_avatar: '', is_verified: false, is_featured_home: false, home_title: '' });
                 setSelectedProductIds(initialProductIds || []);
             }
             initializedRef.current = true;
@@ -127,6 +131,8 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
             image: form.image || null,
             author_avatar: form.author_avatar || null,
             is_verified: form.is_verified,
+            is_featured_home: form.is_featured_home,
+            home_title: form.home_title || null,
             // product_id will be set per-row in the action
         };
 
@@ -344,6 +350,37 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
                         <span className={`absolute top-[2px] left-[2px] w-[20px] h-[20px] rounded-full bg-white transition-transform duration-200 ${form.is_verified ? 'translate-x-[20px]' : ''}`} />
                     </button>
                 </div>
+
+                {/* Featured Home toggle */}
+                <div className="flex items-center justify-between py-1 border-t border-gray-100 pt-4 mt-2">
+                    <div>
+                        <p className="text-[14px] font-medium text-[#242424]">Use in Home page</p>
+                        <p className="text-[12px] text-[#a1a1aa]">Feature this review prominently on the homepage</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setForm({ ...form, is_featured_home: !form.is_featured_home })}
+                        className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-200 focus:outline-none ${form.is_featured_home ? 'bg-[#308026]' : 'bg-gray-200'}`}
+                    >
+                        <span className={`absolute top-[2px] left-[2px] w-[20px] h-[20px] rounded-full bg-white transition-transform duration-200 ${form.is_featured_home ? 'translate-x-[20px]' : ''}`} />
+                    </button>
+                </div>
+
+                {/* Conditional Home Title */}
+                {form.is_featured_home && (
+                    <div className="flex flex-col gap-2 p-4 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl mt-[-8px]">
+                        <label className="text-[13px] font-medium text-[#334155]">Home Page Title (Required for text reviews)</label>
+                        <input
+                            value={form.home_title}
+                            onChange={(e) => setForm({ ...form, home_title: e.target.value })}
+                            placeholder="e.g. Exceeded My Limitations"
+                            className="w-full bg-white border border-gray-200 rounded-lg px-4 py-3 text-[14px] focus:border-[#308026] focus:ring-1 focus:ring-[#308026]/20 transition-all outline-none"
+                        />
+                        <p className="text-[12px] text-[#64748b]">
+                            Media reviews (video/image) will purely show the visual content on the home page without this title.
+                        </p>
+                    </div>
+                )}
             </div>
         </AdminModal>
     );

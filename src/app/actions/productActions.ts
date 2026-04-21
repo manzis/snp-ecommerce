@@ -164,6 +164,8 @@ export async function createProductAction(productData: any) {
       product_flavours,
       product_sizes,
       stock_count: providedStock,
+      linked_banner_ids,
+      product_banners, // Exclude this too
       ...mainFields 
     } = productData;
 
@@ -345,6 +347,18 @@ export async function createProductAction(productData: any) {
         .update({ tags })
         .eq('id', productId);
       if (tagError) console.error('Error updating tags:', tagError);
+    }
+
+    // 8a. Handle Linked Banners
+    if (linked_banner_ids && linked_banner_ids.length > 0) {
+      const bannerLinks = linked_banner_ids.map((bannerId: string) => ({
+        product_id: productId,
+        banner_id: bannerId
+      }));
+      const { error: bannerError } = await finalClient
+        .from('product_banners')
+        .insert(bannerLinks);
+      if (bannerError) console.error('Error linking banners:', bannerError);
     }
 
     // 9. Revalidate cache
@@ -530,6 +544,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
       id: productIdInData,
       created_at,
       roles,
+      linked_banner_ids,
+      product_banners, // Exclude relational field
       ...mainFields 
     } = productData;
 
@@ -677,6 +693,16 @@ export async function updateProductDeepAction(id: string, productData: any) {
         is_verified: true
       }));
       await finalClient.from('reviews').insert(reviewsToInsert);
+    }
+
+    // 8a. Sync Linked Banners
+    await finalClient.from('product_banners').delete().eq('product_id', productId);
+    if (linked_banner_ids && linked_banner_ids.length > 0) {
+      const bannerLinks = linked_banner_ids.map((bannerId: string) => ({
+        product_id: productId,
+        banner_id: bannerId
+      }));
+      await finalClient.from('product_banners').insert(bannerLinks);
     }
 
     // 9. Revalidate cache

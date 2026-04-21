@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import DynamicPageNav from "@/components/layout/DynamicPageNav";
+import { submitContactFormAction } from "@/app/actions/contactActions";
+import { useToast } from "@/components/ui/ToastProvider";
+import { Loader2 } from "lucide-react";
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({
@@ -10,14 +13,31 @@ export default function ContactPage() {
         message: "",
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showToast } = useToast();
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Connect to Supabase or API service here
-        console.log("Form submitted:", formData);
+        setIsSubmitting(true);
+        
+        try {
+            const result = await submitContactFormAction(formData);
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                setFormData({ fullName: "", email: "", message: "" });
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast("Failed to send message. Please try again.", 'error');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -134,10 +154,18 @@ export default function ContactPage() {
                                 <div className="flex px-[24px] pt-[12px] flex-col gap-[12px] items-start self-stretch relative z-[35]">
                                     <button
                                         type="submit"
-                                        className="flex py-[12px] justify-center items-center self-stretch bg-[#ffe900] hover:bg-[#ebd700] rounded-[12px] transition-colors duration-[200ms] ease-in-out"
+                                        disabled={isSubmitting}
+                                        className="flex py-[12px] justify-center items-center self-stretch bg-[#ffe900] hover:bg-[#ebd700] disabled:bg-[#f3f4f6] disabled:text-[#9ca3af] disabled:cursor-not-allowed rounded-[12px] transition-all duration-[200ms] ease-in-out"
                                     >
-                                        <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-                                            Send Message
+                                        <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.24px] whitespace-nowrap flex items-center gap-2">
+                                            {isSubmitting ? (
+                                                <>
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    Sending...
+                                                </>
+                                            ) : (
+                                                "Send Message"
+                                            )}
                                         </span>
                                     </button>
                                     <p className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] text-center lg:text-left">

@@ -71,19 +71,25 @@ const Footer = () => {
               </button>
             </form>
 
-            {/* Social Links - FIXED: Added exact w/h so they never clip */}
-            <nav className="flex gap-[12px] items-start self-stretch shrink-0">
-              <Link href="#" className="flex gap-[6px] items-center shrink-0 group">
-                <div className="w-[20px] h-[20px] flex items-center justify-center"><FacebookIcon className="w-full h-full text-white" /></div>
-                <span className="font-titillium text-[16px] leading-[18px] text-white underline group-hover:text-[#bdff60] transition-colors">Facebook</span>
+            {/* Social Links - UI Optimized for perfect alignment and zero clipping */}
+            <nav className="flex flex-wrap gap-x-5 gap-y-3 items-center self-stretch shrink-0">
+              <Link href="https://www.facebook.com/supplynp" target="_blank" rel="noopener noreferrer" className="flex gap-1.5 items-center shrink-0 group">
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <FacebookIcon className="w-full h-full text-white group-hover:text-[#bdff60] transition-colors" />
+                </div>
+                <span className="font-titillium text-[16px] leading-none text-white underline group-hover:text-[#bdff60] transition-colors">Facebook</span>
               </Link>
-              <Link href="#" className="flex gap-[6px] items-center shrink-0 group">
-                <div className="w-[20px] h-[20px] flex items-center justify-center"><InstagramIcon className="w-full h-full text-white" /></div>
-                <span className="font-titillium text-[16px] leading-[18px] text-white underline group-hover:text-[#bdff60] transition-colors">Instagram</span>
+              <Link href="https://www.instagram.com/supply_np/" target="_blank" rel="noopener noreferrer" className="flex gap-1.5 items-center shrink-0 group">
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <InstagramIcon className="w-full h-full text-white group-hover:text-[#bdff60] transition-colors" />
+                </div>
+                <span className="font-titillium text-[16px] leading-none text-white underline group-hover:text-[#bdff60] transition-colors">Instagram</span>
               </Link>
-              <Link href="#" className="flex gap-[6px] items-center shrink-0 group">
-                <div className="w-[20px] h-[20px] flex items-center justify-center"><WhatsAppIcon className="w-full h-full text-white" /></div>
-                <span className="font-titillium text-[16px] leading-[18px] text-white underline group-hover:text-[#bdff60] transition-colors">Whatsapp</span>
+              <Link href="https://wa.me/9779767609390" target="_blank" rel="noopener noreferrer" className="flex gap-1.5 items-center shrink-0 group">
+                <div className="w-4 h-4 flex items-center justify-center shrink-0">
+                  <WhatsAppIcon className="w-full h-full text-white group-hover:text-[#bdff60] transition-colors" />
+                </div>
+                <span className="font-titillium text-[16px] leading-none text-white underline group-hover:text-[#bdff60] transition-colors">Whatsapp</span>
               </Link>
             </nav>
           </div>

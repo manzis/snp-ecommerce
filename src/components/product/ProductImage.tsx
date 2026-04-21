@@ -31,6 +31,8 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   const { activeVariantImage } = useProductSelectionStore();
 
   const startX = useRef<number>(0);
+  const startY = useRef<number>(0);
+  const startTime = useRef<number>(0);
   const isDragging = useRef<boolean>(false);
 
   useEffect(() => {
@@ -87,20 +89,31 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
 
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
     isDragging.current = true;
-    startX.current = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    startTime.current = Date.now();
+    const touch = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
+    startX.current = touch.clientX;
+    startY.current = touch.clientY;
   };
 
   const handleEnd = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
-    const diff = startX.current - clientX;
     
-    if (Math.abs(diff) > 35) {
-      if (diff > 0) navigate('next');
+    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'changedTouches' in e ? e.changedTouches[0].clientY : (e as React.MouseEvent).clientY;
+    
+    const diffX = startX.current - clientX;
+    const diffY = startY.current - clientY;
+    const elapsedTime = Date.now() - startTime.current;
+    
+    // 1. Navigation logic (Horizontal Swipes)
+    if (Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
+      if (diffX > 0) navigate('next');
       else navigate('prev');
-    } else if (Math.abs(diff) < 5) {
-      // Treat as click if barely moved
+    } 
+    // 2. Lightbox logic (Intentional Taps Only)
+    // Criteria: Fast click (< 250ms) AND minimal movement on BOTH axes (< 10px)
+    else if (elapsedTime < 250 && Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
       setIsLightboxOpen(true);
     }
   };

@@ -6,20 +6,24 @@ import { motion } from 'framer-motion';
 import StarIcon from '@/components/icons/StarIcon3';
 import ArrowRightIcon from '@/components/icons/RedirectIcon';
 
-interface Testimonial {
-    id: string; name: string; role: string; avatar: string;
-    date: string; rating: number; content?: string;
-    headline?: string; mediaUrl?: string; type: 'text' | 'image' | 'video';
+interface PartialReview {
+    id: string;
+    author: string;
+    role: string | null;
+    author_avatar?: string | null;
+    created_at: string;
+    rating: number;
+    text: string;
+    home_title?: string | null;
+    image: string | null;
+    media_type?: 'video' | 'image';
 }
 
-const TESTIMONIALS: Testimonial[] = [
-    { id: '1', name: 'Manjish Upadhaya', role: 'Fitness Trainer', avatar: '/images/athelete-2.png', date: '2025-04-27', rating: 5, mediaUrl: '/videos/video-highlight.mp4', type: 'video' },
-    { id: '2', name: 'Sharaddha Sharma', role: 'Fitness Trainer', avatar: '/images/avatar-1.png', date: '2025-04-27', rating: 5, headline: '“Exceeded My Limitations', content: 'I havent expected this level of supplement business in nepal”', type: 'text' },
-    { id: '3', name: 'Kapan Sharma', role: 'Athlete', avatar: '/images/athelete4.jpg', date: '2025-04-28', rating: 5, headline: 'Best in the game', content: 'Quality is top notch, highly recommend to everyone.', type: 'text' },
-    { id: '4', name: 'Nilam Pandey', role: 'Athlete', avatar: '/images/athelete1.jpg', date: '2025-04-28', rating: 5, mediaUrl: '/images/athelete4.jpg', type: 'image' }
-];
+interface TestimonialSectionProps {
+    testimonials?: PartialReview[];
+}
 
-const TestimonialSection: React.FC = () => {
+const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = [] }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const scroll = (direction: 'left' | 'right') => {
@@ -109,9 +113,15 @@ const TestimonialSection: React.FC = () => {
             {/* SLIDER & CONTROLS (Identical to previous working versions) */}
             <div className="relative w-full overflow-hidden">
                 <div ref={scrollRef} className="no-scrollbar flex w-full gap-[12px] overflow-x-auto px-[24px] pb-[10px] lg:gap-[24px] lg:px-[64px]">
-                    {TESTIMONIALS.map((item) => (
-                        <TestimonialCard key={item.id} testimonial={item} />
-                    ))}
+                    {testimonials.length > 0 ? (
+                        testimonials.map((item) => (
+                            <TestimonialCard key={item.id} review={item} />
+                        ))
+                    ) : (
+                        <div className="flex h-[200px] w-full items-center justify-center text-center text-[#535353] italic">
+                            No featured testimonials found.
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -123,37 +133,57 @@ const TestimonialSection: React.FC = () => {
     );
 };
 
-const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
-    const isMedia = testimonial.type === 'image' || testimonial.type === 'video';
+const TestimonialCard = ({ review }: { review: PartialReview }) => {
+    // Determine type based on existence of image/video
+    const hasMedia = !!review.image;
+    // VERY simple assumption: if image URL contains .mp4, it's a video. For real production, use a dedicated mediaType field.
+    const isVideo = review.image?.toLowerCase().endsWith('.mp4') || review.image?.toLowerCase().endsWith('.webm');
+    
+    // Fallbacks
+    const avatar = review.author_avatar || '/images/default-avatar.png';
+    const cleanDate = new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
     return (
-        <article className={`relative flex h-[275px] w-[220px] shrink-0 flex-col justify-between overflow-hidden rounded-[24px] p-[16px] transition-all lg:w-[320px] lg:h-[350px] ${isMedia ? 'border-none' : 'bg-white'}`}>
-            {isMedia && (
+        <article className={`relative flex h-[275px] w-[220px] shrink-0 flex-col justify-between overflow-hidden rounded-[24px] p-[16px] transition-all lg:w-[320px] lg:h-[350px] ${hasMedia ? 'border-none' : 'bg-white'}`}>
+            {hasMedia && (
                 <div className="absolute inset-0 z-0">
-                    {testimonial.type === 'video' ? <video src={testimonial.mediaUrl} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" /> : <Image src={testimonial.mediaUrl || ''} alt="Review" fill className="object-cover" />}
+                    {isVideo 
+                        ? <video src={review.image as string} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" /> 
+                        : <Image src={review.image as string} alt="Review Media" fill className="object-cover" />
+                    }
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 </div>
             )}
             <div className="relative z-10 flex flex-col gap-[20px]">
                 <div className="flex items-start gap-[10px]">
-                    <div className="relative h-[36px] w-[36px] shrink-0 overflow-hidden rounded-full border border-white/20"><Image src={testimonial.avatar} alt={testimonial.name} fill /></div>
+                    <div className="relative h-[36px] w-[36px] shrink-0 overflow-hidden rounded-full border border-white/20">
+                        <Image src={avatar} alt={review.author} fill className="object-cover" />
+                    </div>
                     <div className="flex flex-col">
-                        <span className={`text-[15px] font-[600] leading-[18px] ${isMedia ? 'text-white' : 'text-[#242424]'}`}>{testimonial.name}</span>
-                        <span className={`text-[11px] font-[400] ${isMedia ? 'text-white/80' : 'text-[#535353]'}`}>{testimonial.role}</span>
+                        <span className={`text-[15px] font-[600] leading-[18px] ${hasMedia ? 'text-white' : 'text-[#242424]'}`}>{review.author}</span>
+                        <span className={`text-[11px] font-[400] ${hasMedia ? 'text-white/80' : 'text-[#535353]'}`}>{review.role || 'Verified Buyer'}</span>
                     </div>
                 </div>
-                {!isMedia && (
+                {!hasMedia && (
                     <div className="flex flex-col gap-[6px]">
-                        <span className="text-[16px] font-[600] text-[#242424]">{testimonial.headline}</span>
-                        <p className="line-clamp-4 text-[14px] font-[400] leading-[19px] text-[#535353]">{testimonial.content}</p>
+                        <span className="text-[16px] font-[600] text-[#242424]">
+                            {review.home_title || "Excellent Product"}
+                        </span>
+                        <p className="line-clamp-4 text-[14px] font-[400] leading-[19px] text-[#535353]">{review.text}</p>
                     </div>
                 )}
             </div>
             <div className="relative z-10 flex w-full items-center justify-between pt-[10px]">
-                <div className="flex gap-[2px]">{[...Array(5)].map((_, i) => <StarIcon key={i} className={`h-[14px] w-[14px] ${i < testimonial.rating ? 'text-[#ffe900]' : 'text-gray-200'}`} />)}</div>
-                <span className={`text-[10px] font-[400] ${isMedia ? 'text-white' : 'text-[#979797]'}`}>{testimonial.date}</span>
+                <div className="flex gap-[2px]">
+                    {[...Array(5)].map((_, i) => (
+                        <StarIcon key={i} className={`h-[14px] w-[14px] ${i < review.rating ? 'text-[#ffe900]' : 'text-gray-200'}`} />
+                    ))}
+                </div>
+                <span className={`text-[10px] font-[400] ${hasMedia ? 'text-white' : 'text-[#979797]'}`}>{cleanDate}</span>
             </div>
         </article>
     );
 };
+
 
 export default TestimonialSection;

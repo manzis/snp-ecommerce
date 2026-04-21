@@ -37,6 +37,8 @@ export interface Review {
   media_type?: 'image' | 'video';   // UI-only or DB if added later
   author_avatar?: string | null;    // New field for reviewer profile photo
   is_verified: boolean;             // boolean, default false
+  is_featured_home?: boolean;       // boolean, default false
+  home_title?: string | null;       // varchar(255) nullable
   created_at: string;               // timestamptz, auto-set by DB
   products?: {                      // Nested product data from join
     title: string;
@@ -135,6 +137,7 @@ export interface Product {
     product_flavours?: ProductFlavour[];
     product_info?: ProductInfo[] | ProductInfo; 
     product_variants?: ProductVariant[];
+    product_banners?: any[];
     banner_image1?: string;
     banner_image2?: string;
     banner_image3?: string;
@@ -379,7 +382,8 @@ export async function fetchProductById(id: string): Promise<Product | null> {
       product_sizes (*),
       product_flavours (*),
       product_info (*),
-      product_variants (*, size:product_sizes(*), flavour:product_flavours(*))
+      product_variants (*, size:product_sizes(*), flavour:product_flavours(*)),
+      product_banners (*, banner:banners (*, products!banners_target_product_id_fkey(id, slug)))
     `)
     .eq('id', id)
     .single();
@@ -410,7 +414,8 @@ export const fetchProductBySlug = cache(async function(slug: string, options?: {
       product_sizes (*),
       product_flavours (*),
       product_info (*),
-      product_variants (*, size:product_sizes(*), flavour:product_flavours(*))
+      product_variants (*, size:product_sizes(*), flavour:product_flavours(*)),
+      product_banners (*, banner:banners (*, target_product:products!banners_target_product_id_fkey(id, slug)))
     `)
     .eq('slug', slug);
 
@@ -693,4 +698,22 @@ export const fetchRelatedProducts = cache(async function(
     brands: Array.isArray(p.brands) ? p.brands[0] : (p.brands || null),
     sellers: Array.isArray(p.sellers) ? p.sellers[0] : (p.sellers || null),
   })) as Product[];
+});
+
+/**
+ * Fetch featured testimonials for the home page
+ */
+export const fetchHomeTestimonials = cache(async function(): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('is_featured_home', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching home testimonials:', error);
+    return [];
+  }
+
+  return (data || []) as Review[];
 });

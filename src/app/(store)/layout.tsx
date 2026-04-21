@@ -8,11 +8,19 @@ import { CartProvider } from '@/context/CartContext';
 import LoginModal from '@/components/auth/LoginModal'; // Import Component
 import { titillium, inter, customFont } from "@/lib/fonts";
 import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElements";
+import { getSeoGlobal } from '@/lib/seo/getSeoData';
 
-export const metadata: Metadata = {
-  title: "SNP Store | Premium Supplements",
-  description: "High-performance supplements for your health.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const gSeo = await getSeoGlobal();
+  return {
+    title: {
+      default: gSeo?.default_title || 'SNP Store | Premium Supplements Nepal',
+      template: gSeo?.title_template || '%s | SNP Store',
+    },
+    description: gSeo?.default_description || 'Shop premium supplements at SNP Store Nepal.',
+    robots: gSeo?.default_robots || 'index, follow',
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

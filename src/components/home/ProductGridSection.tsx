@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import ProductCard from '@/components/home/ProductCard';
 
 interface ProductGridSectionProps {
@@ -34,9 +35,12 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
                 <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.8px] text-[#242424] md:text-[32px]">
                     {title}
                 </h2>
-                <button className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]">
+                <Link 
+                    href="/products" 
+                    className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
+                >
                     View All
-                </button>
+                </Link>
             </div>
 
             {/* HORIZONTAL SCROLL ON MOBILE / GRID ON DESKTOP */}

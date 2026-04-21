@@ -6,10 +6,47 @@ import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import ProductCard from '@/components/search/SearchProductCard';
 import { BRAND_THEMES } from '@/lib/BrandThemes';
 import BackButton from '@/components/ui/BackButton';
+import type { Metadata } from 'next';
+import { getSeoGlobal } from '@/lib/seo/getSeoData';
+import { generateBrandFallbackSeo } from '@/lib/seo/seoFallback';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const [brand, gSeo] = await Promise.all([
+    fetchBrandBySlug(slug),
+    getSeoGlobal(),
+  ]);
+
+  if (!brand) return { title: 'Brand Not Found | SNP Store' };
+
+  const fallback = generateBrandFallbackSeo(brand);
+  const canonical = `https://brightsupplements.store/brand/${slug}`;
+
+  return {
+    title: fallback.title,
+    description: fallback.description,
+    keywords: fallback.keywords,
+    alternates: { canonical },
+    robots: gSeo?.default_robots || 'index, follow',
+    openGraph: {
+      title: fallback.title,
+      description: fallback.description,
+      url: canonical,
+      type: 'website',
+      images: brand.cover_image ? [{ url: brand.cover_image }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: fallback.title,
+      description: fallback.description,
+    },
+  };
+}
+
 
 const BrandSkeleton = () => (
   <div className="min-h-screen mx-auto w-full bg-white mt-[80px] pb-[60px] animate-pulse">

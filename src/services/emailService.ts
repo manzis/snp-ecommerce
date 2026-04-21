@@ -12,7 +12,9 @@ import {
   orderCancelledTemplate,
   deliveryFailedTemplate,
   adminOrderReceivedTemplate,
+  contactFormEmailTemplate,
   type OrderEmailData,
+  type ContactEmailData,
 } from './emailTemplates';
 
 const ADMIN_EMAIL = 'brightnepcare@gmail.com';
@@ -183,6 +185,11 @@ export async function sendDeliveryFailedEmail(orderId: string, failureMessage?: 
   data.statusMessage = failureMessage;
   const html = deliveryFailedTemplate(data);
   await sendEmail(data.customerEmail, `Delivery Failed — #${data.shortId}`, html);
+}
+
+export async function sendContactFormEmail(data: ContactEmailData): Promise<boolean> {
+  const html = contactFormEmailTemplate(data);
+  return await sendEmail(ADMIN_EMAIL, `New Message from ${data.fullName} — SNP Contact Form`, html);
 }
 
 // ─── Generic Email Sender (for future marketing/subscriptions) ───────

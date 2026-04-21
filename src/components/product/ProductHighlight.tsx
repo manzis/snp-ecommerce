@@ -16,6 +16,9 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
   const [isDragging, setIsDragging] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const startX = useRef<number>(0);
+  const startY = useRef<number>(0);
+  const startTime = useRef<number>(0);
+  const isInteracting = useRef<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
@@ -35,21 +38,35 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
   }, [activeTab, mounted, highlights, isDragging]);
 
   const handleStart = (e: React.TouchEvent | React.MouseEvent) => {
+    isInteracting.current = true;
     setIsDragging(true);
-    startX.current = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    startTime.current = Date.now();
+    const touch = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
+    startX.current = touch.clientX;
+    startY.current = touch.clientY;
   };
 
   const handleEnd = (e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging) return;
+    if (!isInteracting.current) return;
+    isInteracting.current = false;
+    
     const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
-    const diff = startX.current - clientX;
+    const clientY = 'changedTouches' in e ? e.changedTouches[0].clientY : (e as React.MouseEvent).clientY;
+    
+    const diffX = startX.current - clientX;
+    const diffY = startY.current - clientY;
+    const elapsedTime = Date.now() - startTime.current;
 
-    if (Math.abs(diff) > 50 && highlights.length > 0) {
-      if (diff > 0 && activeTab < highlights.length - 1) setActiveTab(prev => prev + 1);
-      else if (diff < 0 && activeTab > 0) setActiveTab(prev => prev - 1);
-    } else if (Math.abs(diff) < 5) {
+    // 1. Navigation logic (Horizontal Swipes)
+    if (Math.abs(diffX) > 50 && Math.abs(diffY) < 30 && highlights.length > 0) {
+      if (diffX > 0 && activeTab < highlights.length - 1) setActiveTab(prev => prev + 1);
+      else if (diffX < 0 && activeTab > 0) setActiveTab(prev => prev - 1);
+    } 
+    // 2. Lightbox logic (Intentional Taps Only)
+    else if (elapsedTime < 250 && Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
       setIsLightboxOpen(true);
     }
+    
     setIsDragging(false);
   };
 

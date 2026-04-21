@@ -16,6 +16,7 @@ import CustomersIcon from '@/components/icons/CustomersIcon';
 import AnalyticsIcon from '@/components/icons/AnalyticsIcon';
 import StoreSettingsIcon from '@/components/icons/StoreSettingsIcon';
 import LayoutsIcon from '@/components/icons/LayoutsIcon';
+import SearchIcon from '@/components/icons/SearchIcon';
 import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon';
 import SettingsIcon from '@/components/icons/SettingsIcon';
 import HelpSupportIcon from '@/components/icons/HelpSupportIcon';
@@ -56,6 +57,7 @@ const MORE_OPTIONS_SUB_MENU = [
 const STORE_MENU_ITEMS: MenuItem[] = [
     { name: 'Store Settings', icon: StoreSettingsIcon, href: '/admin/settings/store' },
     { name: 'Layouts', icon: LayoutsIcon, href: '/admin/layouts' },
+    { name: 'SEO', icon: SearchIcon, href: '/admin/seo' },
 ];
 
 const SYSTEM_MENU_ITEMS: MenuItem[] = [

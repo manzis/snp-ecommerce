@@ -9,6 +9,7 @@ import ServiceHighlights from '@/components/product/ServiceHighlight';
 import ProductHighlights from '@/components/product/ProductHighlight';
 import ProductDetails from '@/components/product/ProductDetails';
 import ProductBanners from '@/components/product/ProductBanners';
+import LegacyProductBanners from '@/components/product/LegacyProductBanners';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
@@ -17,10 +18,51 @@ import FeaturedProductsSection from '@/components/product/FeaturedProductsSectio
 import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import type { Metadata } from 'next';
+import { getSeoProduct, getSeoGlobal } from '@/lib/seo/getSeoData';
+import { generateProductFallbackSeo } from '@/lib/seo/seoFallback';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const [product, gSeo] = await Promise.all([
+    fetchProductBySlug(slug),
+    getSeoGlobal(),
+  ]);
+
+  if (!product) return { title: 'Product Not Found | SNP Store' };
+
+  const dbOverride = await getSeoProduct(product.id);
+
+  const fallback = generateProductFallbackSeo(product);
+  const title = dbOverride?.custom_title || fallback.title;
+  const description = dbOverride?.custom_description || fallback.description;
+  const canonical = `https://brightsupplements.store/product/${dbOverride?.custom_slug || product.slug}`;
+
+  return {
+    title,
+    description,
+    keywords: fallback.keywords,
+    alternates: { canonical },
+    robots: gSeo?.default_robots || 'index, follow',
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'website',
+      images: product.images?.[0] ? [{ url: product.images[0] }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
+
 
 // ASYNC WRAPPERS FOR STREAMING
 async function ReviewsWrapper({ productId }: { productId: string }) {
@@ -122,13 +164,13 @@ async function ProductContent({ slug }: { slug: string }) {
                 <ProductDetails product={product} />
               </div>
               <div className="lg:hidden">
-                <ProductBanners 
+                <LegacyProductBanners
                   banners={[
-                    product.banner_image1, 
+                    product.banner_image1,
                     product.banner_image2,
                     product.banner_image3,
                     product.banner_image4
-                  ]} 
+                  ]}
                 />
               </div>
               <div className="lg:hidden ">
@@ -140,6 +182,11 @@ async function ProductContent({ slug }: { slug: string }) {
                 <Suspense fallback={<SectionSkeleton height="150px" />}>
                   <QAWrapper productId={product.id} />
                 </Suspense>
+              </div>
+              <div className="lg:hidden">
+                <ProductBanners
+                  linkedBanners={product.product_banners}
+                />
               </div>
               <div className="lg:hidden ">
                 <WhyChooseUs />
@@ -156,14 +203,14 @@ async function ProductContent({ slug }: { slug: string }) {
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
           <ProductDetails product={product} />
         </div>
-        <div className="hidden lg:block">
-          <ProductBanners 
+        <div className="hidden lg:block mt-12 mb-12 lg:px-[24px]">
+          <LegacyProductBanners
             banners={[
-              product.banner_image1, 
+              product.banner_image1,
               product.banner_image2,
               product.banner_image3,
               product.banner_image4
-            ]} 
+            ]}
           />
         </div>
         <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
@@ -175,6 +222,11 @@ async function ProductContent({ slug }: { slug: string }) {
           <Suspense fallback={<SectionSkeleton height="200px" />}>
             <QAWrapper productId={product.id} />
           </Suspense>
+        </div>
+        <div className="hidden lg:block">
+          <ProductBanners
+            linkedBanners={product.product_banners}
+          />
         </div>
         <div className="hidden lg:block lg:mt-[28px] ">
           <WhyChooseUs />

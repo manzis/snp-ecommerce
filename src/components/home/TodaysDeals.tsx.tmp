@@ -1,0 +1,197 @@
+"use client"
+
+import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface Deal {
+    id: string;
+    brand: string;
+    title: string;
+    originalPrice: string;
+    discountedPrice: string;
+    discount: string;
+    image: string;
+}
+
+interface TodaysDealsProps {
+    isHeroWidget?: boolean;
+    deals?: Deal[];
+}
+
+const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false, deals = [] }) => {
+    if (deals.length === 0) return null;
+    
+    // Ensure 3 deals
+    const displayDeals = deals.length >= 3 ? deals : [...deals, ...deals, ...deals].slice(0, 3);
+
+    return (
+        <section
+            className={`relative mx-auto w-full transition-all duration-700
+            ${isHeroWidget
+                    ? 'hidden lg:flex flex-col w-[410px] rounded-[32px] p-6 bg-white/40 backdrop-blur-xl border border-white/20 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)]'
+                    : 'pb-16 pt-10 rounded-b-[60px] bg-gradient-to-b from-[#f8fff2] to-[#e7ffc2]'
+                }`}
+        >
+            <header className={`flex flex-col items-center gap-3 px-6 text-center ${isHeroWidget ? 'mb-6' : 'mb-12'}`}>
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                >
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#d5ffb2] text-[#308026] font-titillium text-xs font-semibold uppercase tracking-wider mb-2">
+                        Limited Offers
+                    </span>
+                    <h2 className={`font-custom text-[#1a3a14] ${isHeroWidget ? 'text-2xl' : 'text-3xl lg:text-5xl lg:leading-tight'}`}>
+                        Today’s <span className="text-[#308026]">Best Deals</span>
+                    </h2>
+                    <p className="font-titillium font-light text-[#575757] max-w-lg mt-2">
+                        Curated fitness essentials with exclusive discounts.
+                    </p>
+                </motion.div>
+            </header>
+
+            <div className={`grid gap-4 px-6 lg:px-12 w-full max-w-[1440px] mx-auto 
+                ${isHeroWidget 
+                    ? 'grid-cols-1' 
+                    : 'grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 h-auto lg:h-[700px]'
+                }`}
+            >
+                {/* 1. FEATURED BIG CARD (Top Left, 2x2) */}
+                <BentoItem 
+                    deal={displayDeals[0]} 
+                    isFeatured 
+                    className={isHeroWidget ? "" : "col-span-2 row-span-2"}
+                />
+
+                {/* 2. SECOND CARD (Top Right, 1x1) */}
+                {!isHeroWidget && (
+                    <BentoItem 
+                        deal={displayDeals[1]} 
+                        className="col-span-1 row-span-1"
+                    />
+                )}
+
+                {/* 3. PROMO CARD (Top Rightmost, 1x1 or Middle) */}
+                <div className={`relative overflow-hidden group rounded-[28px] bg-[#1a3a14] p-8 flex flex-col justify-center items-center text-center shadow-lg transition-transform hover:scale-[1.02]
+                    ${isHeroWidget ? 'h-32' : 'col-span-1 row-span-1'}`}
+                >
+                    <div className="absolute inset-0 bg-[url('/images/pattern.png')] opacity-10 mix-blend-overlay" />
+                    <motion.div 
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        whileInView={{ scale: 1, opacity: 1 }}
+                        className="relative z-10"
+                    >
+                        <span className="text-lime-400 font-titillium text-sm font-semibold tracking-[0.2em] uppercase">up to</span>
+                        <div className="flex items-center justify-center gap-1">
+                            <span className="text-white font-custom text-5xl lg:text-6xl">20</span>
+                            <span className="text-white font-custom text-2xl lg:text-3xl mt-2">%</span>
+                        </div>
+                        <span className="text-white/70 font-custom text-xl tracking-widest">OFF</span>
+                    </motion.div>
+                    
+                    {/* Animated Shine */}
+                    <motion.div 
+                        animate={{ x: ['100%', '-100%'] }}
+                        transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg] pointer-events-none"
+                    />
+                </div>
+
+                {/* 4. THIRD CARD (Bottom Right, 1x1) */}
+                {!isHeroWidget && (
+                  <BentoItem 
+                      deal={displayDeals[2]} 
+                      className="col-span-1 row-span-1"
+                  />
+                )}
+
+                {/* 5. EXPLORE MORE (Bottom Rightmost, 1x1) */}
+                {!isHeroWidget && (
+                   <Link
+                      href="/search?on_sale=true"
+                      className="group relative col-span-1 row-span-1 rounded-[28px] bg-white border border-[#e0ebd8] p-8 flex flex-col items-center justify-center text-center overflow-hidden hover:border-[#308026]/30 transition-all duration-500"
+                   >
+                       <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#f0f9ea] group-hover:opacity-100 transition-opacity" />
+                       <div className="relative z-10">
+                            <div className="w-14 h-14 rounded-full bg-[#d5ffb2] flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                                <svg className="w-6 h-6 text-[#308026]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </div>
+                            <span className="block font-custom text-lg text-[#1a3a14]">Explore All</span>
+                            <span className="block font-titillium text-sm text-[#575757]">Summer Deals</span>
+                       </div>
+                   </Link>
+                )}
+            </div>
+        </section>
+    );
+};
+
+const BentoItem = ({ deal, isFeatured, className }: { deal: Deal, isFeatured?: boolean, className?: string }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -5 }}
+            className={`group relative overflow-hidden rounded-[28px] bg-white border border-[#e0ebd8] shadow-[0_4px_24px_-10px_rgba(48,128,38,0.1)] hover:shadow-[0_20px_40px_-12px_rgba(48,128,38,0.15)] transition-all duration-500 ${className}`}
+        >
+            <Link href={`/product/${deal.id}`} className="block h-full w-full">
+                {/* Badge */}
+                <div className="absolute top-5 right-5 z-10 px-3 py-1 rounded-full bg-[#308026] text-white font-custom text-[10px] tracking-wider uppercase shadow-lg">
+                    Save {deal.discount}%
+                </div>
+
+                <div className={`relative flex flex-col h-full ${isFeatured ? 'lg:flex-row' : ''}`}>
+                    {/* Image Area */}
+                    <div className={`relative bg-[#fcfdfa] overflow-hidden ${isFeatured ? 'lg:w-[55%] h-[200px] lg:h-full' : 'h-[160px] lg:h-[60%]'}`}>
+                        <Image 
+                            src={deal.image} 
+                            alt={deal.title} 
+                            fill 
+                            className="object-contain p-8 group-hover:scale-110 transition-transform duration-700 ease-out" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-[#308026]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    {/* Content Area */}
+                    <div className={`flex flex-col p-6 lg:p-8 ${isFeatured ? 'lg:w-[45%] justify-center' : 'justify-end'}`}>
+                        <div className="mb-4">
+                            <span className="text-[#308026] font-titillium text-xs font-semibold tracking-widest uppercase opacity-80 mb-1 block">
+                                {deal.brand}
+                            </span>
+                            <h3 className={`font-custom text-[#1a3a14] leading-tight group-hover:text-[#308026] transition-colors duration-300 ${isFeatured ? 'text-xl lg:text-3xl' : 'text-lg'}`}>
+                                {deal.title}
+                            </h3>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <span className="text-[#979797] font-titillium text-sm line-through opacity-60">
+                                Rs. {deal.originalPrice}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[#1a3a14] font-custom text-2xl lg:text-3xl">
+                                    Rs. {deal.discountedPrice}
+                                </span>
+                                {isFeatured && (
+                                     <div className="w-8 h-8 rounded-full bg-[#f0f9ea] flex items-center justify-center group-hover:bg-[#308026] group-hover:text-white transition-colors duration-500">
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Link>
+        </motion.div>
+    );
+};
+
+export default TodaysDeals;
+
+export default TodaysDeals;

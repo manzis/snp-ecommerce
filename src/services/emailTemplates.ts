@@ -34,9 +34,9 @@ interface OrderEmailData {
   cancellationReason?: string;
 }
 
-const STORE_NAME = process.env.STORE_NAME || 'SNP Nutrition';
-const STORE_URL = process.env.STORE_URL || 'https://snpnutrition.com';
-const SUPPORT_EMAIL = process.env.GMAIL_USER || 'support@snpnutrition.com';
+const STORE_NAME = process.env.STORE_NAME || 'Bright Supplements';
+const STORE_URL = process.env.STORE_URL || 'https://brightsupplements.store';
+const SUPPORT_EMAIL = process.env.GMAIL_USER || 'support@brightsupplements.store';
 
 // ─── Shared Layout Helpers ───────────────────────────────────────────
 
@@ -448,7 +448,7 @@ export function adminOrderReceivedTemplate(data: OrderEmailData): string {
     </tr>
     <tr>
       <td style="padding:10px 30px 40px;" align="center">
-        <a href="${process.env.STORE_URL || 'https://snpnutrition.com'}/admin/orders" style="display:block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:18px;text-transform:uppercase;letter-spacing:1px;">View Order In Dashboard</a>
+        <a href="${process.env.STORE_URL || 'https://brightsupplements.store'}/admin/orders" style="display:block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:18px;text-transform:uppercase;letter-spacing:1px;">View Order In Dashboard</a>
       </td>
     </tr>
   `;
@@ -494,4 +494,48 @@ export function deliveryFailedTemplate(data: OrderEmailData): string {
   return baseLayout(content, `Delivery failed for order #${data.shortId} — ${STORE_NAME}`);
 }
 
-export type { OrderEmailData };
+interface ContactEmailData {
+  fullName: string;
+  email: string;
+  message: string;
+  submittedAt: string;
+}
+
+export type { OrderEmailData, ContactEmailData };
+
+export function contactFormEmailTemplate(data: ContactEmailData): string {
+  const content = `
+    <tr>
+      <td style="background:#3f9733;padding:40px 30px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">✉️</div>
+        <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-1px;">New Message Received</h1>
+        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.9);font-weight:500;">A customer has reached out via the Contact Us form.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:30px 30px 10px;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Sender Details</p>
+        <div style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;border-radius:8px;">
+          <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#000000;">${data.fullName}</p>
+          <p style="margin:0 0 8px;font-size:14px;color:#3f9733;font-weight:600;">${data.email}</p>
+          <p style="margin:0;font-size:12px;color:#9ca3af;">Submitted at: ${data.submittedAt}</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 30px 40px;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Message Content</p>
+        <div style="background:#ffffff;padding:24px;border:1px solid #eeeeee;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#242424;white-space:pre-wrap;">${data.message}</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 30px 40px;" align="center">
+        <a href="mailto:${data.email}" style="display:inline-block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:16px 40px;border-radius:8px;text-transform:uppercase;letter-spacing:1px;">Reply To Customer</a>
+      </td>
+    </tr>
+  `;
+
+  return adminBaseLayout(content, `New message from ${data.fullName} — ${STORE_NAME} Contact Form`);
+}
