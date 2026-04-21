@@ -144,6 +144,22 @@ export interface Product {
     banner_image4?: string;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  type: 'fixed' | 'percentage';
+  value: number;
+  min_cart_value: number;
+  product_id: string | null;
+  description: string | null;
+  is_active: boolean;
+  expires_at: string | null;
+  max_discount: number | null;
+  created_at: string;
+  products?: { id: string, title: string } | null;
+}
+
+
 
 /**
  * Update product attributes (Visibility, stock_status, is_draft, etc.)
@@ -717,3 +733,23 @@ export const fetchHomeTestimonials = cache(async function(): Promise<Review[]> {
 
   return (data || []) as Review[];
 });
+
+/**
+ * Fetch all active coupons for storefront
+ */
+export async function fetchActiveCoupons(): Promise<Coupon[]> {
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('coupons')
+    .select('*, products(id, title)')
+    .eq('is_active', true)
+    .or(`expires_at.gt.${now},expires_at.is.null`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching active coupons:', error);
+    return [];
+  }
+  return data as any[];
+}
+

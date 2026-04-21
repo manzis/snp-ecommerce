@@ -210,11 +210,12 @@ export default function CheckoutPage() {
         user_id: currentUserId,
         total_amount: finalTotal,
         mrp_amount: totalMRP,
-        discount_amount: totalMRP - subtotal + couponDiscount,
+        discount_amount: totalMRP - subtotal + couponDiscountValue,
         shipping_amount: shippingCharge,
-        discount_on_mrp: totalMRP - subtotal,
-        coupon_discount: couponDiscount,
-        coupon_code: couponCode || null,
+        discount_on_mrp: totalMRP - subtotal - bundleDiscount,
+        bundle_discount: bundleDiscount,
+        coupon_discount: couponDiscountValue,
+        coupon_code: couponCodeValue || null,
         cod_fees: codCharge,
         tax_amount: 0,
         shipping_address: deliveryData,
@@ -258,12 +259,16 @@ export default function CheckoutPage() {
     return items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
   }, [items]);
 
-  const couponDiscount = getCouponDiscount();
-  const couponCode = coupon?.code || "";
+  const couponDiscountValue = getCouponDiscount();
+  const couponCodeValue = coupon?.code || "";
+
+  const bundleDiscount = useMemo(() => {
+    return items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0);
+  }, [items]);
 
   const shippingCharge = deliveryData?.shippingPrice || 0;
   const codCharge = selectedPaymentId === 'cod' ? 13 : 0;
-  const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - couponDiscount, [subtotal, shippingCharge, codCharge, couponDiscount]);
+  const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - couponDiscountValue, [subtotal, shippingCharge, codCharge, couponDiscountValue]);
 
   const mainButtonText = useMemo(() => {
     if (isProcessing) return "Processing...";
@@ -287,8 +292,9 @@ export default function CheckoutPage() {
             totalAmount={`NPR ${finalTotal.toLocaleString()}`}
             mrp={totalMRP}
             subtotal={subtotal}
-            couponDiscount={couponDiscount}
-            couponCode={couponCode}
+            couponDiscount={couponDiscountValue}
+            couponCode={couponCodeValue}
+            bundleDiscount={bundleDiscount}
             shippingCharge={shippingCharge}
             codCharge={codCharge}
             onApplyCoupon={handleApplyCoupon}

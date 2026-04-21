@@ -125,6 +125,7 @@ export default function OrderDetailsPage() {
                             discountOnMrp={orderData?.discount_on_mrp}
                             couponDiscount={orderData?.coupon_discount}
                             couponCode={orderData?.coupon_code}
+                            bundleDiscount={orderData?.bundle_discount}
                             codFees={orderData?.cod_fees}
                             taxAmount={orderData?.tax_amount}
                         />

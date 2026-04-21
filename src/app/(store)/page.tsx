@@ -22,8 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
     getSeoGlobal(),
   ]);
 
-  const title = pSeo?.title || gSeo?.default_title || 'SNP Store | Premium Supplements Nepal';
-  const description = pSeo?.description || gSeo?.default_description || 'Shop premium supplements at SNP Store Nepal. Best prices on whey protein, mass gainers, and vitamins.';
+  const title = pSeo?.title || gSeo?.default_title || 'Supplyment Nepal | Premium Supplements in Nepal';
+  const description = pSeo?.description || gSeo?.default_description || 'Shop premium supplements at Supplyment Nepal. Best prices on whey protein, mass gainers, and vitamins.';
   const canonical = pSeo?.canonical_url || 'https://brightsupplements.store';
 
   return {
@@ -108,24 +108,24 @@ export default async function HomePage() {
 
       <main className="flex flex-col pb-[86px] mx-auto w-full">
         <HomeHero deals={deals.length > 0 ? deals : []} />
-        
+
         {deals.length > 0 && <TodaysDeals deals={deals} />}
-        
+
         <HomeCategories />
 
         {bestSellingProducts.length > 0 && (
-          <ProductGridSection 
-            title="Best Sellers" 
-            products={mapToGrid(bestSellingProducts)} 
+          <ProductGridSection
+            title="Best Sellers"
+            products={mapToGrid(bestSellingProducts)}
           />
         )}
 
         <Brands brands={mappedBrands} />
 
         {popularProducts.length > 0 && (
-          <ProductGridSection 
-            title="Popular Products" 
-            products={mapToGrid(popularProducts)} 
+          <ProductGridSection
+            title="Popular Products"
+            products={mapToGrid(popularProducts)}
           />
         )}
 
@@ -146,9 +146,9 @@ export default async function HomePage() {
         <TestimonialSection testimonials={homeTestimonials} />
 
         {newArrivalsProducts.length > 0 && (
-          <ProductGridSection 
-            title="New Arrivals" 
-            products={mapToGrid(newArrivalsProducts)} 
+          <ProductGridSection
+            title="New Arrivals"
+            products={mapToGrid(newArrivalsProducts)}
           />
         )}
 

@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation';
 import FlavourSelection from './FalvourSelction';
 import SizeSelection from './SizeSelction';
 import OfferCard from './OfferCard';
+import BundleDealCard from './BundleDealCard';
 import DeliveryDetails from './DeliveryDetails';
 import { useToast } from '@/components/ui/ToastProvider';
 import type { ProductSize, ProductFlavour, Seller, Product } from '@/services/productService';
 import { useCartStore } from '@/store/cartStore';
 import { useProductSelectionStore } from '@/store/productSelectionStore';
+import { getCartItemId } from '@/services/cartService';
 
 interface ProductOptionsProps {
+
   product: Product;
   sizes: ProductSize[];
   flavours: ProductFlavour[];
@@ -23,7 +26,16 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
   const { showToast } = useToast();
   const router = useRouter();
 
-  const { selectedSize, selectedFlavorId, setSizeError, setFlavorError, setFlavorId, setPrice } = useProductSelectionStore();
+  const { 
+    selectedSize, 
+    selectedFlavorId, 
+    currentPrice, 
+    originalPrice, 
+    setSizeError, 
+    setFlavorError, 
+    setFlavorId, 
+    setPrice 
+  } = useProductSelectionStore();
   const { addItem } = useCartStore();
 
   // Handle Dynamic Variant Pricing
@@ -106,9 +118,15 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
 
     const { currentPrice, originalPrice } = useProductSelectionStore.getState();
 
-    addItem({
-      id: `${product.id}-${selectedSize || 'none'}-${selectedFlavorId || 'none'}`,
+    const itemData = {
       product_id: product.id,
+      selected_size: selectedSize,
+      selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
+    };
+
+    addItem({
+      id: getCartItemId(itemData),
+      ...itemData,
       name: product.name,
       slug: product.slug,
       brand: product.brands?.name || 'Store Product',
@@ -116,10 +134,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
       image: product.images?.[0] || '/images/protein.jpg',
       quantity: 1,
-      selected_size: selectedSize,
-      selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured',
       stock_status: product.stock_status || 'in_stock'
     });
+
 
     showToast("Successfully Added to Cart", "success");
     setIsInCart(true);
@@ -142,12 +159,18 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         return;
       }
       const { currentPrice, originalPrice } = useProductSelectionStore.getState();
-      const itemId = `${product.id}-${selectedSize || 'none'}-${selectedFlavorId || 'none'}`;
+      const itemData = {
+          product_id: product.id,
+          selected_size: selectedSize,
+          selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
+      };
+      const itemId = getCartItemId(itemData);
       const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
+
       if (!alreadyInCart) {
         addItem({
           id: itemId,
-          product_id: product.id,
+          ...itemData,
           name: product.name,
           slug: product.slug,
           brand: product.brands?.name || 'Store Product',
@@ -155,10 +178,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
           mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
           image: product.images?.[0] || '/images/protein.jpg',
           quantity: 1,
-          selected_size: selectedSize,
-          selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured',
           stock_status: product.stock_status || 'in_stock'
         });
+
         window.dispatchEvent(new CustomEvent('addToCartSuccess'));
       }
       window.dispatchEvent(new CustomEvent('buyNowCartSuccess'));
@@ -198,6 +220,11 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         </button>
       </div>
       
+      <BundleDealCard 
+        mainProduct={product}
+        currentProductImage={product.images?.[0]} 
+      />
+
       <OfferCard />
 
       <DeliveryDetails seller={seller} stockStatus={product.stock_status} />

@@ -67,6 +67,7 @@ export interface OrderProps {
     coupon_code?: string | null;
     cod_fees?: number;
     tax_amount?: number;
+    bundle_discount?: number;
     order_items?: any[];
     payment_screenshot_url?: string;
     payment_remarks?: string;

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { CartItemType, addToCart, updateCartItem, removeCartItem, mergeCart, fetchCart, clearCartRemote } from '@/services/cartService';
+import { CartItemType, addToCart, updateCartItem, removeCartItem, removeBundleItems, mergeCart, fetchCart, clearCartRemote } from '@/services/cartService';
+
 import type { Coupon } from '@/services/couponService';
 
 interface CartState {
@@ -10,7 +11,9 @@ interface CartState {
   setUserId: (id: string | null) => void;
   loadCart: () => Promise<void>;
   addItem: (item: CartItemType) => void;
+  addItemsBatch: (items: CartItemType[]) => Promise<void>;
   removeItem: (item: CartItemType) => void;
+
   updateQuantity: (item: CartItemType, quantity: number) => void;
   mergeCartOnLogin: (userId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -39,26 +42,70 @@ export const useCartStore = create<CartState>()(
       },
 
       addItem: (item) => {
-        const { items, userId } = get();
-        const existing = items.find(i => i.id === item.id);
-        const newItems = [...items];
+        set((state) => {
+          const existingIndex = state.items.findIndex(i => i.id === item.id);
+          const newItems = [...state.items];
 
-        if (existing) {
-          existing.quantity += item.quantity;
-          set({ items: newItems });
-          if (userId) updateCartItem(userId, existing, existing.quantity);
-        } else {
-          newItems.push(item);
-          set({ items: newItems });
-          if (userId) addToCart(item, userId);
+          if (existingIndex > -1) {
+            const existing = { ...newItems[existingIndex] };
+            existing.quantity += item.quantity;
+            // Sum bundle discounts when merging identical units in same bundle
+            existing.bundle_discount = (existing.bundle_discount || 0) + (item.bundle_discount || 0);
+            newItems[existingIndex] = existing;
+            if (state.userId) updateCartItem(state.userId, existing, existing.quantity);
+          } else {
+            newItems.push(item);
+            if (state.userId) addToCart(item, state.userId);
+          }
+          
+          return { items: newItems };
+        });
+      },
+
+
+      addItemsBatch: async (newBatch) => {
+        const { userId, items } = get();
+        let updatedItems = [...items];
+
+        newBatch.forEach(item => {
+          const existingIndex = updatedItems.findIndex(i => i.id === item.id);
+          if (existingIndex > -1) {
+            updatedItems[existingIndex] = {
+              ...updatedItems[existingIndex],
+              quantity: updatedItems[existingIndex].quantity + item.quantity,
+              // Sum bundle discounts during batch merging
+              bundle_discount: (updatedItems[existingIndex].bundle_discount || 0) + (item.bundle_discount || 0)
+            };
+          } else {
+            updatedItems.push(item);
+          }
+        });
+
+        set({ items: updatedItems });
+
+        if (userId) {
+          // Use mergeCart to sync the full batch state to database in one go
+          await mergeCart(newBatch, userId);
         }
       },
 
       removeItem: (item) => {
         const { items, userId } = get();
-        set({ items: items.filter(i => i.id !== item.id) });
-        if (userId) removeCartItem(userId, item);
+
+        
+        if (item.bundle_id) {
+          // Atomic Bundle Removal: Remove ALL items associated with this bundle
+          const newItems = items.filter(i => i.bundle_id !== item.bundle_id);
+          set({ items: newItems });
+          if (userId) removeBundleItems(userId, item.bundle_id);
+        } else {
+          // Standard Individual Item Removal
+          const newItems = items.filter(i => i.id !== item.id);
+          set({ items: newItems });
+          if (userId) removeCartItem(userId, item);
+        }
       },
+
 
       updateQuantity: (item, quantity) => {
         if (quantity < 1) {
@@ -66,20 +113,63 @@ export const useCartStore = create<CartState>()(
           return;
         }
         const { items, userId } = get();
-        const newItems = items.map(i => i.id === item.id ? { ...i, quantity } : i);
+        
+        let newItems: CartItemType[];
+        
+        if (item.bundle_id) {
+          // Atomic Bundle Quantity Update: Update ALL items in the bundle
+          newItems = items.map(i => {
+            if (i.bundle_id === item.bundle_id) {
+              // Scale the total line discount proportional to the quantity change
+              const scaleFactor = quantity / i.quantity;
+              const newBundleDiscount = (i.bundle_discount || 0) * scaleFactor;
+              
+              const updatedItem = { ...i, quantity, bundle_discount: newBundleDiscount };
+              if (userId) updateCartItem(userId, updatedItem, quantity);
+              return updatedItem;
+            }
+            return i;
+          });
+        } else {
+          // Standard Individual Item Quantity Update
+          newItems = items.map(i => i.id === item.id ? { ...i, quantity } : i);
+          if (userId) updateCartItem(userId, item, quantity);
+        }
+
         set({ items: newItems });
-        if (userId) updateCartItem(userId, item, quantity);
       },
 
+
       mergeCartOnLogin: async (userId) => {
+        const { items, isLoading } = get();
+        if (isLoading) return;
+        
         set({ isLoading: true, userId });
-        const { items } = get();
-        if (items.length > 0) {
-          await mergeCart(items, userId);
+        
+        try {
+          // 1. Fetch current items from database
+          const dbItems = await fetchCart(userId);
+          
+          // 2. Identify items that are LOCAL ONLY (not in DB)
+          const localOnlyItems = items.filter(local => 
+            !dbItems.some(db => db.id === local.id)
+          );
+
+          // 3. If there are local items, push them to DB
+          if (localOnlyItems.length > 0) {
+            await mergeCart(localOnlyItems, userId);
+            // Re-fetch after merge to get final state
+            const finalItems = await fetchCart(userId);
+            set({ items: finalItems });
+          } else {
+            // Already synced or nothing to merge
+            set({ items: dbItems });
+          }
+        } finally {
+          set({ isLoading: false });
         }
-        const dbItems = await fetchCart(userId);
-        set({ items: dbItems, isLoading: false });
       },
+
 
       clearCart: async () => {
         const { userId } = get();

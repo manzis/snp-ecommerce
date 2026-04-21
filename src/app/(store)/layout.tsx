@@ -14,10 +14,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
   return {
     title: {
-      default: gSeo?.default_title || 'SNP Store | Premium Supplements Nepal',
-      template: gSeo?.title_template || '%s | SNP Store',
+      default: gSeo?.default_title || 'Supplyment Nepal | Premium Supplements Store',
+      template: gSeo?.title_template || '%s | Supplyment Nepal',
     },
-    description: gSeo?.default_description || 'Shop premium supplements at SNP Store Nepal.',
+    description: gSeo?.default_description || 'Shop premium supplements at Supplyment Nepal.',
     robots: gSeo?.default_robots || 'index, follow',
   };
 }
@@ -95,9 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CartProvider>
               <AuthModalProvider>
 
-                <main key="main-root-container" className="flex-grow flex flex-col w-full relative">
-                  {children}
-                </main>
+                {children}
 
                 {/* Conditional Global UI Components (hides on login/signup) */}
                 <ConditionalLayoutElements />

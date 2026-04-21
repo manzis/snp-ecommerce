@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { updateOrderStatusAdminAction } from '@/app/actions/orderActions';
 import { OrderProps } from '@/components/orders/OrderCard';
 import DashboardOrderCard from '@/components/admin/orders/OrderCard';
@@ -9,6 +10,9 @@ interface AdminOrderListProps {
   initialOrders: OrderProps[];
   lastSeenAt?: string;
   viewMode?: 'grid' | 'list';
+  selectedIds?: string[];
+  onToggleSelect?: (id: string) => void;
+  onToggleSelectAll?: () => void;
   onViewDetails?: (order: OrderProps) => void;
   onUpdateStatus?: (order: OrderProps) => void;
   onUpdatePaymentStatus?: (order: OrderProps) => void;
@@ -34,6 +38,9 @@ export function AdminOrderList({
   initialOrders,
   lastSeenAt,
   viewMode = 'list',
+  selectedIds = [],
+  onToggleSelect,
+  onToggleSelectAll,
   onViewDetails,
   onUpdateStatus,
   onUpdatePaymentStatus,
@@ -46,6 +53,8 @@ export function AdminOrderList({
   useEffect(() => {
     setOrders(initialOrders);
   }, [initialOrders]);
+
+  const isAllSelected = orders.length > 0 && selectedIds.length === orders.length;
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -114,42 +123,61 @@ export function AdminOrderList({
 
   return (
     <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] font-rubik">
-      <table className="w-full text-left border-collapse">
+      <table className="w-full text-left border-separate border-spacing-0">
         <thead>
           <tr className="border-b border-gray-50 bg-[#fafafa]">
-            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Order</th>
-            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Customer</th>
-            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Status</th>
-            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider text-right">Amount</th>
-            <th className="py-4 px-4 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider text-center">Action</th>
+            <th className="py-4 px-4 w-[40px] border-b border-gray-100 first:rounded-tl-[12px]">
+              <div className="flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={onToggleSelectAll}
+                  className="w-4 h-4 rounded border-gray-300 text-[#242424] focus:ring-[#242424] cursor-pointer"
+                />
+              </div>
+            </th>
+            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Order</th>
+            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Customer</th>
+            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Product Item</th>
+            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Status</th>
+            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100 text-right">Amount</th>
+            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100 text-center last:rounded-tr-[12px]">Action</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
           <AnimatePresence mode="popLayout">
             {orders.map((order) => {
               const isNew = lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false;
+              const isSelected = selectedIds.includes(order.id);
 
               const getStatusColors = (status?: string) => {
                 const s = status?.toUpperCase();
                 switch (s) {
                   case 'DELIVERED': return { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-100' };
-                  case 'OUT_FOR_DELIVERY': return { bg: 'bg-[#f9fafb]', text: 'text-green-700', border: 'border-[#f5f5f5]' };
-                  case 'IN_TRANSIT': case 'RESCHEDULED': return { bg: 'bg-[#fefce8]', text: 'text-[#854d0e]', border: 'border-[#fef9c3]' };
+                  case 'OUT_FOR_DELIVERY': return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' };
+                  case 'SHIPPED': case 'IN_TRANSIT': case 'SHIPMENT_ARRIVED': return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' };
+                  case 'PENDING': case 'CONFIRMED': case 'PROCESSING': return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' };
                   case 'CANCELLED': case 'FAILED': return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-100' };
-                  default: return { bg: 'bg-[#f9fafb]', text: 'text-[#71717a]', border: 'border-[#f5f5f5]' };
+                  default: return { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-100' };
                 }
               };
 
               const getPaymentStatusColors = (status?: string) => {
                 switch (status?.toLowerCase()) {
-                  case 'paid': return { bg: 'bg-green-100', label: 'Paid', text: 'text-green-800' };
-                  case 'partially_paid': return { bg: 'bg-[#fef08a]', label: 'Part. Paid', text: 'text-[#854d0e]' };
-                  case 'pending': default: return { bg: 'bg-zinc-100', label: 'Pending', text: 'text-[#3f3f46]' };
+                  case 'paid': return { bg: 'bg-green-500', label: 'Paid', text: 'text-green-600' };
+                  case 'partially_paid': return { bg: 'bg-amber-500', label: 'Partial', text: 'text-amber-600' };
+                  default: return { bg: 'bg-gray-400', label: 'Pending', text: 'text-gray-500' };
                 }
               };
 
               const statusColors = getStatusColors(order.status);
               const paymentColors = getPaymentStatusColors(order.paymentStatus);
+
+              const addr = order.shippingAddress;
+              const addressDetails = addr?.addressDetails || addr || {};
+              const addressSummary = [addressDetails.area, addressDetails.city].filter(Boolean).join(', ');
+
+              const firstItem = order.order_items?.[0];
 
               return (
                 <motion.tr
@@ -158,65 +186,115 @@ export function AdminOrderList({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className={`group hover:bg-[#fafafa] transition-colors duration-200 ${isNew ? 'bg-[#fcfcfd]' : ''}`}
+                  className={`group hover:bg-[#fafafa] transition-colors duration-200 ${isSelected ? 'bg-[#fcfcfd]' : ''} ${isNew ? 'border-l-2 border-l-[#242424]' : ''}`}
                 >
+                  {/* CHECKBOX */}
+                  <td className="py-4 px-4 text-center">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect?.(order.id)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#242424] focus:ring-[#242424] cursor-pointer"
+                    />
+                  </td>
+
                   {/* ORDER ID & DATE */}
-                  <td className="py-4 px-4 min-w-[200px]">
-                    <div className="flex flex-col gap-1 min-w-0">
+                  <td className="py-4 px-4 min-w-[140px]">
+                    <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-[14px] font-medium text-[#242424] uppercase tracking-wider">
-                          #{order.shortId}
-                        </h3>
+                        <span className="text-[14px] font-bold text-[#242424] tracking-tight">#{order.shortId}</span>
                         {isNew && (
-                          <span className="flex h-[18px] px-[6px] py-[2px] justify-center items-center bg-[#242424] text-white rounded-[4px] text-[9px] font-bold tracking-widest animate-pulse">
-                            NEW
-                          </span>
+                          <span className="h-[14px] px-1 bg-[#242424] text-white text-[8px] font-black rounded flex items-center justify-center tracking-tighter">NEW</span>
                         )}
                       </div>
-                      <span className="text-[12px] text-[#a1a1aa] font-regular">
-                        {order.dateText.replace('Ordered On ', '')}
+                      <span className="text-[12px] text-[#a1a1aa] font-medium">
+                        {new Date(order.createdAt || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                   </td>
 
-                  {/* CUSTOMER & ITEMS */}
-                  <td className="py-4 px-4 min-w-[240px]">
-                    <div className="flex flex-col gap-1 min-w-0">
-                      <span className="text-[14px] font-medium text-[#242424] truncate max-w-[200px] md:max-w-[240px]">
-                        {order.customerName}
-                      </span>
-                      <span className="text-[12px] font-regular text-[#71717a] truncate max-w-[240px]">
-                        {order.title} {order.extraItemsCount > 0 && <span className="text-[#a1a1aa] italic">+{order.extraItemsCount} more items</span>}
+                  {/* CUSTOMER NAME & ADDRESS */}
+                  <td className="py-4 px-4 min-w-[170px]">
+                    <div className="flex flex-col gap-1 max-w-[160px]">
+                      <span className="text-[14px] font-semibold text-[#242424] truncate">{order.customerName}</span>
+                      <span className="text-[11px] leading-tight text-[#71717a] line-clamp-2" title={addressSummary}>
+                        {addressSummary || 'Address N/A'}
                       </span>
                     </div>
+                  </td>
+
+                  {/* PRODUCT ITEM (CONSILIATED) */}
+                  <td className="py-4 px-4 min-w-[340px]">
+                    {firstItem ? (
+                      <div className="flex items-center gap-4">
+                        <div className="w-[52px] h-[52px] rounded-lg bg-[#f4f4f5] border border-gray-100 overflow-hidden relative shrink-0">
+                          <Image
+                            src={firstItem.products?.images?.[0] || '/images/product-placeholder.png'}
+                            alt={firstItem.products?.name || 'Product'}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[14px] font-bold text-[#242424] truncate leading-tight mb-1" title={firstItem.products?.name}>
+                            {firstItem.products?.name}
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-tighter">Size:</span>
+                              <span className="text-[12px] font-semibold text-[#242424]">{firstItem.selected_size || '—'}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-tighter">Flav:</span>
+                              <span className="text-[12px] font-semibold text-[#242424] truncate max-w-[100px]">{firstItem.selected_flavor || '—'}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-tighter">Qty:</span>
+                              <span className="text-[12px] font-bold text-[#242424]">{firstItem.quantity}</span>
+                            </div>
+                          </div>
+
+                          {order.extraItemsCount > 0 && (
+                            <div className="mt-1.5">
+                              <span className="inline-flex py-0.5 px-2 bg-[#74a134]/10 text-[#74a134] text-[10px] font-semibold  tracking-tighter rounded-full border border-[#74a134]/20">
+                                + {order.extraItemsCount} More items
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No items</span>
+                    )}
                   </td>
 
                   {/* STATUS */}
                   <td className="py-4 px-4 whitespace-nowrap">
-                    <div className="flex gap-2">
-                      <div className={`px-2 py-0.5 rounded-full border text-[10px] font-medium uppercase tracking-tight ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
-                        {order.status}
-                      </div>
+                    <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
+                      {order.status}
                     </div>
+                    {order.paymentStatus === 'paid' && (
+                      <div className="mt-1 flex items-center gap-1 ml-1 text-green-600">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
+                        <span className="text-[9px] font-black uppercase">PAID</span>
+                      </div>
+                    )}
                   </td>
 
-                  {/* AMOUNT & PAYMENT */}
+                  {/* AMOUNT */}
                   <td className="py-4 px-4 text-right">
-                    <div className="flex flex-col items-end gap-0.5">
-                      <span className="text-[14px] font-semibold text-[#242424]">
-                        NPR {order.totalAmount}
-                      </span>
-                      <div className="flex gap-1.5 items-center mt-0.5">
-                        <span className={`text-[10px] font-medium uppercase tracking-widest ${paymentColors.text}`}>
-                          {paymentColors.label}
-                        </span>
-                        <span className="text-[10px] text-[#a1a1aa]">· {order.paymentMethod?.toUpperCase()}</span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[15px] font-bold text-[#242424] tracking-tight">NPR {order.totalAmount?.toLocaleString()}</span>
+                      <div className={`h-1.5 w-12 rounded-full ${order.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-gray-200'}`} />
+                      <div className="flex items-center gap-1.5 leading-none">
+                        <span className="text-[9px] py-0.5 px-1.5 bg-gray-100 text-gray-500 rounded font-bold uppercase tracking-tighter">{order.paymentMethod}</span>
+                        <span className={`text-[9px] font-bold uppercase tracking-widest ${paymentColors.text}`}>{paymentColors.label}</span>
                       </div>
                     </div>
                   </td>
 
                   {/* ACTIONS */}
-                  <td className="py-4 px-4">
+                  <td className="py-4 px-4 border-b border-gray-100">
                     <div className="flex justify-center">
                       <OrderActionMenu
                         order={order}
@@ -230,16 +308,15 @@ export function AdminOrderList({
                 </motion.tr>
               );
             })}
-            {orders.length === 0 && (
-              <tr>
-                <td colSpan={5} className="py-10 px-4 text-center text-[#71717a] text-[14px]">
-                  No orders found.
-                </td>
-              </tr>
-            )}
           </AnimatePresence>
         </tbody>
       </table>
+
+      {orders.length === 0 && (
+        <div className="py-[100px] text-center">
+          <p className="text-[#a1a1aa] text-sm">No orders found.</p>
+        </div>
+      )}
 
       {/* Comprehensive Update Modal */}
       {showModal && (
@@ -267,7 +344,6 @@ export function AdminOrderList({
                       <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')}</option>
                     ))}
                   </select>
-                  <p className="text-[10px] text-gray-500 mt-1">Note: You can update to the same status to add a new progress log.</p>
                 </div>
 
                 <div>
@@ -279,7 +355,6 @@ export function AdminOrderList({
                     onChange={(e) => setStatusMessage(e.target.value)}
                     placeholder="Enter a message for the customer..."
                   />
-                  <p className="text-[10px] text-gray-400 mt-1 italic">This message will appear in the customer's tracking timeline.</p>
                 </div>
               </div>
 

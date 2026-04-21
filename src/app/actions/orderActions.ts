@@ -43,7 +43,7 @@ export async function trackOrderByIdAction(shortId: string) {
         status_updates, carrier_name, tracking_number,
         shipping_address, contact_details,
         discount_amount, shipping_amount, discount_on_mrp, coupon_discount,
-        coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        bundle_discount, coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
         payment_screenshot_url, payment_remarks,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
@@ -95,6 +95,13 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
   try {
     const result = await createOrder(orderData, items);
     
+    // NEW: Log the initial status update in history
+    await supabase.rpc('update_order_status_v2', {
+      p_order_id: result.id,
+      p_new_status: 'pending',
+      p_message: 'Order Received'
+    });
+
     // Revalidate relevant paths
     revalidatePath('/account/orders');
 
@@ -249,7 +256,7 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
         status_updates, carrier_name, tracking_number,
         shipping_address, contact_details,
         discount_amount, shipping_amount, discount_on_mrp, coupon_discount, 
-        coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        bundle_discount, coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
         payment_screenshot_url, payment_remarks,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,

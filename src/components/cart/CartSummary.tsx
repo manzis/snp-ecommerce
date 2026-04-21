@@ -19,10 +19,16 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
     items.reduce((acc, item) => acc + ((item.mrp || item.price) * item.quantity), 0),
     [items]);
 
-  const itemDiscount = totalMRP - subtotal;
+  const bundleDiscount = useMemo(() =>
+    items.reduce((acc, item) => acc + (item.bundle_discount || 0), 0),
+    [items]);
+
+
+  const itemDiscount = totalMRP - subtotal - bundleDiscount;
   const couponDiscount = getCouponDiscount();
-  const totalDiscount = itemDiscount + couponDiscount;
-  const finalPrice = subtotal - couponDiscount;
+  const totalDiscount = itemDiscount + couponDiscount + bundleDiscount;
+  const finalPrice = subtotal - bundleDiscount - couponDiscount;
+
 
   return (
     <section className="flex w-full flex-col bg-white mt-[12px]">
@@ -73,6 +79,15 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                       - Rs. {itemDiscount.toLocaleString()}
                     </span>
                   </div>
+
+                  {bundleDiscount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="font-titillium text-[15px] text-[#242424] opacity-60">Bundle Discount</span>
+                      <span className="font-titillium text-[15px] font-medium text-[#308026]">
+                        - Rs. {bundleDiscount.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
 
                   {couponDiscount > 0 && (
                     <div className="flex justify-between items-center">

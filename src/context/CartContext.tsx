@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cartStore';
+import { useAuth } from './AuthContext';
 
 interface CartContextType {
     cartCount: number;
@@ -9,15 +10,33 @@ interface CartContextType {
     clearCart: () => void;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const CartContext = createContext<CartContextType>({
+    cartCount: 0,
+    addToCart: () => {},
+    clearCart: () => {},
+});
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [mounted, setMounted] = useState(false);
+    const { user, isLoading: authLoading } = useAuth();
     const cartItems = useCartStore((state) => state.items);
+    const { setUserId, mergeCartOnLogin } = useCartStore();
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    // Bridge Auth state to Cart Store
+    useEffect(() => {
+        if (authLoading || !mounted) return;
+
+        if (user?.id) {
+            mergeCartOnLogin(user.id);
+        } else {
+            setUserId(null);
+        }
+    }, [user?.id, authLoading, mounted, setUserId, mergeCartOnLogin]);
+
 
     // Real cart items total, accounting for native quantity bindings
     const cartCount = mounted ? cartItems.reduce((acc, item) => acc + item.quantity, 0) : 0;
@@ -34,9 +53,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 };
 
 export const useCart = () => {
-    const context = useContext(CartContext);
-    if (context === undefined) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
-    return context;
+    return useContext(CartContext);
 };
+

@@ -15,13 +15,24 @@ const OffersCard: React.FC = () => {
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
 
-  // Dynamic content - the card will now auto-grow to fit any number of coupons
-  const coupons = [
-    { code: 'PREPAID', detail: 'Extra 5% off on all prepaid orders above Rs. 999.' },
-    { code: 'SNP20PLUS', detail: 'Get 20% Off on products worths Rs 2999 and above.' },
-    { code: 'WELCOMESNP', detail: 'Flat Rs. 500 off on your first supplement purchase.' },
-    { code: 'BULKSNP', detail: 'Get free shaker on orders above Rs. 9999.' }
-  ];
+  const [coupons, setCoupons] = useState<any[]>([]);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadCoupons() {
+      const { fetchActiveCoupons } = await import('@/services/productService');
+      const data = await fetchActiveCoupons();
+      // Transform for UI
+      const mapped = data.map(c => ({
+        code: c.code,
+        detail: c.description || (c.type === 'percentage' ? `Get ${c.value}% off on your order.` : `Flat Rs. ${c.value} off on your order.`)
+      }));
+      setCoupons(mapped);
+      setLoading(false);
+    }
+    loadCoupons();
+  }, []);
 
   const handleCopy = async (e: React.MouseEvent, code: string) => {
     e.stopPropagation();

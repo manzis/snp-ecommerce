@@ -14,13 +14,14 @@ interface PriceDetailsProps {
     discountOnMrp?: number;
     couponDiscount?: number;
     couponCode?: string | null;
+    bundleDiscount?: number;
     codFees?: number;
     taxAmount?: number;
 }
 
 export default function PriceDetails({
     total, mrp, discount, shipping, method, paymentStatus = 'pending',
-    discountOnMrp = 0, couponDiscount = 0, couponCode, codFees = 0, taxAmount = 0
+    discountOnMrp = 0, couponDiscount = 0, couponCode, bundleDiscount = 0, codFees = 0, taxAmount = 0
 }: PriceDetailsProps) {
     const [isDiscountsExpanded, setIsDiscountsExpanded] = useState(false);
     const [isFeesExpanded, setIsFeesExpanded] = useState(false);
@@ -70,6 +71,12 @@ export default function PriceDetails({
                                             <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Discount on MRP</span>
                                             <span className="font-titillium text-[14px] font-[400] text-[#64748b]">- Rs. {discountOnMrp || discount}</span>
                                         </div>
+                                        {bundleDiscount > 0 && (
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Bundle Savings</span>
+                                                <span className="font-titillium text-[14px] font-[400] text-[#308026] text-right">- Rs. {bundleDiscount}</span>
+                                            </div>
+                                        )}
                                         {couponDiscount > 0 && (
                                             <div className="flex items-center justify-between">
                                                 <div className="flex flex-col items-start">

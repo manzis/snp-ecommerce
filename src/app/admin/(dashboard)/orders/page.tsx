@@ -28,11 +28,26 @@ export default function OrdersPage() {
   
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<any | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const [orderToUpdate, setOrderToUpdate] = useState<any | null>(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const { showAdminToast } = useAdminToast();
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds(prev => 
+        prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedIds.length === filteredOrders.length) {
+        setSelectedIds([]);
+    } else {
+        setSelectedIds(filteredOrders.map(o => o.id));
+    }
+  };
   
   // Notification Logic
   const { markAsSeen, lastSeenAt, isHydrated } = useOrderNotifications();
@@ -217,6 +232,9 @@ export default function OrdersPage() {
             initialOrders={filteredOrders} 
             lastSeenAt={lastSeenAtOnMount.current || undefined}
             viewMode={viewMode}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
             onViewDetails={handleOpenDetails}
             onUpdateStatus={handleUpdateStatusTrigger} 
             onUpdatePaymentStatus={handleUpdatePaymentTrigger}

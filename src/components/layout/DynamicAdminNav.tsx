@@ -50,6 +50,11 @@ const MOBILE_ACTIONS: Record<string, { label: string; icon: any; href?: string; 
         { label: 'Add Brand', icon: PlusIcon, triggerModal: true },
         { label: 'Brand Settings', icon: SettingsIcon, href: '/admin/settings/brands' },
     ],
+    '/admin/coupons': [
+        { label: 'Add Coupon', icon: PlusIcon, triggerModal: true },
+        { label: 'Coupon Settings', icon: SettingsIcon, href: '/admin/settings/coupons' },
+    ],
+
     '/admin/sellers': [
         { label: 'Add Seller', icon: PlusIcon, triggerModal: true },
         { label: 'Seller Settings', icon: SettingsIcon, href: '/admin/settings/sellers' },
@@ -82,6 +87,7 @@ const TITLE_MAP: Record<string, string> = {
     '/admin/settings': 'System Settings',
     '/admin/support': 'Help & Support',
     '/admin/profile': 'My Profile',
+    '/admin/coupons': 'Coupon Management',
 };
 
 /**
@@ -96,6 +102,7 @@ const PRIMARY_ACTIONS: Record<string, { label: string; href?: string; type: 'lin
     '/admin/categories': { label: 'Create Category', type: 'modal' },
     '/admin/brands': { label: 'Create Brand', type: 'modal' },
     '/admin/sellers': { label: 'Create Seller', type: 'modal' },
+    '/admin/coupons': { label: 'Create Coupon', type: 'modal' },
 };
 
 import AdminModal from '@/components/admin/shared/AdminModal';

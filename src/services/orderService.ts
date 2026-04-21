@@ -10,6 +10,7 @@ export interface OrderData {
   discount_on_mrp: number;
   coupon_discount: number;
   coupon_code: string | null;
+  bundle_discount: number;
   cod_fees: number;
   tax_amount: number;
   shipping_address: any;
@@ -101,6 +102,7 @@ export function mapToOrderProps(order: any): OrderProps {
     coupon_code: order.coupon_code,
     cod_fees: order.cod_fees,
     tax_amount: order.tax_amount,
+    bundle_discount: order.bundle_discount || 0,
     order_items: order.order_items || [],
     payment_screenshot_url: order.payment_screenshot_url,
     payment_remarks: order.payment_remarks,
@@ -129,6 +131,7 @@ export async function createOrder(orderData: OrderData, items: any[]) {
     p_discount_on_mrp: orderData.discount_on_mrp || 0,
     p_coupon_discount: orderData.coupon_discount || 0,
     p_coupon_code: orderData.coupon_code || null,
+    p_bundle_discount: orderData.bundle_discount || 0,
     p_cod_fees: orderData.cod_fees || 0,
     p_tax_amount: orderData.tax_amount || 0,
     p_shipping_address: orderData.shipping_address,

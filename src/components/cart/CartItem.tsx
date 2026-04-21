@@ -47,10 +47,31 @@ const getDeliveryString = (status?: string) => {
 };
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { updateQuantity, removeItem } = useCartStore();
+  const { items, updateQuantity, removeItem } = useCartStore();
   const { showToast } = useToast();
+
+  const bundleTotalDiscount = React.useMemo(() => {
+    if (!item.bundle_id) return 0;
+    return items
+      .filter(i => i.bundle_id === item.bundle_id)
+      .reduce((acc, i) => acc + (i.bundle_discount || 0), 0);
+  }, [items, item.bundle_id]);
+
   return (
-    <div className="flex w-full flex-col border-t border-[#f1f5f9] bg-white">
+    <div className="flex w-full flex-col border-t border-[#f1f5f9] bg-white relative overflow-hidden">
+      {/* Savings Header - All Bundle Items */}
+      {item.bundle_id && bundleTotalDiscount > 0 ? (
+        <div className="w-full bg-[#f0fff4] border-b border-[#318126]/10 px-[24px] py-[6px] flex items-center justify-center">
+          <span className="text-[10px] uppercase font-bold text-[#318126] tracking-[0.5px]">
+            Congrats! You Saved Rs. {bundleTotalDiscount} with this bundle deal
+          </span>
+        </div>
+      ) : null}
+
+
+
+
+
       {/* Product Details Area - items-stretch ensures the image div fills the vertical space */}
       <div className="flex items-stretch p-[16px_24px_8px_24px] lg:p-[24px]">
 
@@ -67,36 +88,42 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
         {/* Content Area - min-w-0 is required for the child truncate to function properly in flex */}
         <div className="flex flex-1 flex-col gap-[8px] pl-[16px] min-w-0">
-          <div className="flex flex-col gap-[2px] w-full">
-            <span className="font-titillium text-[12px] text-[#242424] leading-[18px]">
-              {item.brand || 'Store Product'}
-            </span>
-            {/* Product Name - Single line with ellipsis */}
-            <Link href={item.slug ? `/product/${item.slug}` : '#'} className="hover:underline cursor-pointer">
-              <h3 className="font-custom text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
-                {item.name}
-              </h3>
-            </Link>
+          <div className="flex items-start justify-between gap-1 w-full relative">
+            <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+              <span className="font-titillium text-[12px] text-[#242424] leading-[18px]">
+                {item.brand || 'Store Product'}
+              </span>
+              {/* Product Name - Single line with ellipsis */}
+              <Link href={item.slug ? `/product/${item.slug}` : '#'} className="hover:underline cursor-pointer">
+                <h3 className="font-custom text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
+                  {item.name}
+                </h3>
+              </Link>
+            </div>
           </div>
 
+
           <div className="flex items-center gap-[6px]">
-            {item.mrp > item.price && (
+            {item.mrp > (item.price - (item.bundle_discount || 0) / item.quantity) && (
               <div className="flex items-center text-[#308026] mr-[4px]">
                 <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
                 <span className="font-titillium text-[18px] font-semibold tracking-[-1.26px]">
-                  {Math.round(((item.mrp - item.price) / item.mrp) * 100)}%
+                  {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0) / item.quantity)) / item.mrp) * 100)}%
                 </span>
               </div>
             )}
-            {item.mrp > 0 && item.mrp > item.price && (
+            {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0) / item.quantity) && (
               <span className="font-titillium text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
                 Rs. {item.mrp.toLocaleString()}
               </span>
             )}
             <span className="font-custom text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
-              Rs. {item.price.toLocaleString()}
+              Rs. {(item.price - (item.bundle_discount || 0) / item.quantity).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
+
           </div>
+
+
 
           <div className="flex flex-row gap-[13px] items-center text-[#8a8e91] font-titillium text-[14px] whitespace-nowrap">
             {Boolean(item.selected_size || item.selected_flavor) && (
@@ -153,6 +180,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           </button>
         ))}
       </div>
+
     </div>
   );
 };

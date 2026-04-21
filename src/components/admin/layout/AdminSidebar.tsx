@@ -51,6 +51,7 @@ const MORE_OPTIONS_SUB_MENU = [
     { name: 'Abandoned Carts', href: '/admin/abandoned-cart' },
     { name: 'Reviews', href: '/admin/reviews' },
     { name: 'QA', href: '/admin/qa' },
+    { name: 'Coupons', href: '/admin/coupons' },
 ];
 
 
@@ -139,7 +140,7 @@ export default function AdminSidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const [isProductsOpen, setIsProductsOpen] = useState(pathname.includes('/products') || pathname.includes('/categories'));
-    const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa'));
+    const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa') || pathname.includes('/coupons'));
     const [optimisticActivePath, setOptimisticActivePath] = useState(pathname);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -152,7 +153,7 @@ export default function AdminSidebar() {
         if (pathname.includes('/products') || pathname.includes('/categories')) {
             setIsProductsOpen(true);
         }
-        if (pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa')) {
+        if (pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa') || pathname.includes('/coupons')) {
             setIsMoreOptionsOpen(true);
         }
     }, [pathname]);
@@ -181,7 +182,7 @@ export default function AdminSidebar() {
         [optimisticActivePath]);
 
     const isMoreOptionsSectionActive = useMemo(() =>
-        optimisticActivePath.includes('/abandoned-cart') || optimisticActivePath.includes('/reviews') || optimisticActivePath.includes('/qa'),
+        optimisticActivePath.includes('/abandoned-cart') || optimisticActivePath.includes('/reviews') || optimisticActivePath.includes('/qa') || optimisticActivePath.includes('/coupons'),
         [optimisticActivePath]);
 
 

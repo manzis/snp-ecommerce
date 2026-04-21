@@ -83,26 +83,22 @@ function SuccessContent() {
       return;
     }
 
-    // Guard: Prevent revisiting the success page for the same order session
     const viewedKey = `order_success_viewed_${orderId}`;
-    if (typeof window !== 'undefined' && sessionStorage.getItem(viewedKey)) {
-      router.replace('/');
-      return;
-    }
-
-    // Mark as viewed immediately
-    sessionStorage.setItem(viewedKey, 'true');
-
+    
     // Lock background color to prevent flickers on mobile viewport changes
     const originalBg = document.body.style.backgroundColor;
     document.body.style.backgroundColor = '#3f9633';
     
-    fetchOrderDetails(orderId).then(data => {
-      setOrder(data);
-      setIsLoading(false);
-    }).catch(() => {
-      router.replace('/');
-    });
+    // Only fetch if not already done
+    if (!order) {
+      fetchOrderDetails(orderId).then(data => {
+        setOrder(data);
+        setIsLoading(false);
+      }).catch((err) => {
+        console.error("Order fetch error:", err);
+        setIsLoading(false);
+      });
+    }
 
     return () => {
       document.body.style.backgroundColor = originalBg;
@@ -111,12 +107,15 @@ function SuccessContent() {
 
   useEffect(() => {
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      const timer = setTimeout(() => setCountdown(prev => prev - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (countdown === 0 && !isLoading) {
+    } else if (countdown === 0) {
+      // Mark as viewed ONLY after countdown ends, or if user leaves manually
+      const viewedKey = `order_success_viewed_${orderId}`;
+      sessionStorage.setItem(viewedKey, 'true');
       router.push('/');
     }
-  }, [countdown, isLoading, router]);
+  }, [countdown, orderId, router]);
 
   // Optimistic data from search params if possible (or just the ID)
   const displayOrderId = orderId ? `# ${orderId.split('-')[0].toUpperCase()}` : "N/A";

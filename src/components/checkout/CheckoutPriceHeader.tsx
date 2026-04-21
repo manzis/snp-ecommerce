@@ -14,6 +14,7 @@ interface CheckoutPriceHeaderProps {
   couponCode: string;
   shippingCharge: number;
   codCharge?: number;
+  bundleDiscount?: number;
   onApplyCoupon: (code: string) => void;
   onRemoveCoupon: () => void;
 }
@@ -26,6 +27,7 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
   couponCode,
   shippingCharge,
   codCharge = 0,
+  bundleDiscount,
   onApplyCoupon,
   onRemoveCoupon
 }) => {
@@ -46,6 +48,9 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
     if (!couponInput.trim()) return;
     onApplyCoupon(couponInput.trim().toUpperCase());
   };
+
+  const bundleDiscountValue = bundleDiscount || 0;
+  const itemDiscountValue = mrp - subtotal - bundleDiscountValue;
 
   return (
     <div className="flex flex-col bg-white border-t border-[#f1f5f9] z-[1]">
@@ -85,8 +90,14 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="font-titillium text-[14px] text-[#242424] opacity-60">Item Discount</span>
-                  <span className="font-titillium text-[14px] text-[#308026]">- NPR {(mrp - subtotal).toLocaleString()}</span>
+                  <span className="font-titillium text-[14px] text-[#308026]">- NPR {itemDiscountValue.toLocaleString()}</span>
                 </div>
+                {bundleDiscountValue > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="font-titillium text-[14px] text-[#242424] opacity-60">Bundle Discount</span>
+                    <span className="font-titillium text-[14px] text-[#308026]">- NPR {bundleDiscountValue.toLocaleString()}</span>
+                  </div>
+                )}
                 {couponDiscount > 0 && (
                   <div className="flex justify-between items-center">
                     <span className="font-titillium text-[14px] text-[#242424] opacity-60">Coupon ({couponCode})</span>

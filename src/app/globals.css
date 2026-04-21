@@ -123,4 +123,24 @@ html.viewport-ready body {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
+  @keyframes shine {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  .animate-shine {
+    animation: shine 2s linear infinite;
+  }
+
+  @keyframes shine-once {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .group-hover\:animate-shine-once:hover .group-hover\:animate-shine-once,
+  .group:hover .group-hover\:animate-shine-once {
+    animation: shine-once 0.6s ease-in-out;
+  }
 }

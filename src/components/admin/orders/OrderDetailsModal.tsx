@@ -365,6 +365,12 @@ export default function OrderDetailsModal({
                                 <span className="text-green-600 font-medium">- Rs. {order.discount_on_mrp}</span>
                             </div>
                         )}
+                        {!!order.bundle_discount && order.bundle_discount > 0 && (
+                            <div className="flex justify-between items-center text-[12px]">
+                                <span className="text-[#a1a1aa]">Bundle Savings</span>
+                                <span className="text-green-600 font-medium">- Rs. {order.bundle_discount}</span>
+                            </div>
+                        )}
                         {!!order.coupon_discount && order.coupon_discount > 0 && (
                             <div className="flex justify-between items-center text-[12px]">
                                 <div className="flex flex-col">
