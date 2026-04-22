@@ -18,7 +18,7 @@ const AccountHeader: React.FC<ProfileHeaderProps> = ({ name, avatarUrl }) => {
                     {/* AVATAR */}
                     <div className="relative h-[75px] w-[75px] rounded-full overflow-hidden outline outline-2 outline-white">
                         <Image
-                            src={avatarUrl || "/images/avatar.png"}
+                            src={avatarUrl || "/images/avatar.svg"}
                             alt={name}
                             fill
                             className="object-cover"
@@ -35,16 +35,16 @@ const AccountHeader: React.FC<ProfileHeaderProps> = ({ name, avatarUrl }) => {
                 {/* ACTION BUTTONS */}
                 <div className="flex gap-[8px] items-start shrink-0">
                     {/* EDIT BUTTON */}
-                    <Link 
+                    <Link
                         href="/account/profile"
                         className="flex h-[34px] w-[65px] items-center justify-center gap-[4px] rounded-[100px] bg-white transition-transform active:scale-95"
                     >
                         <EditIcon className="w-[14px] h-[14px] text-[#242424]" />
                         <span className="font-titillium text-[16px] font-[600] leading-[10px] tracking-[-0.03px] text-[#242424]">Edit</span>
                     </Link>
-                    
+
                     {/* STORE BUTTON */}
-                    <Link 
+                    <Link
                         href="/"
                         className="flex h-[34px] w-[79px] items-center justify-center gap-[4px] rounded-[100px] bg-[#eaffcc] transition-transform active:scale-95"
                     >
