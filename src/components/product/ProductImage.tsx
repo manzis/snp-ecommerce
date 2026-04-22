@@ -98,19 +98,19 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   const handleEnd = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    
+
     const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
     const clientY = 'changedTouches' in e ? e.changedTouches[0].clientY : (e as React.MouseEvent).clientY;
-    
+
     const diffX = startX.current - clientX;
     const diffY = startY.current - clientY;
     const elapsedTime = Date.now() - startTime.current;
-    
+
     // 1. Navigation logic (Horizontal Swipes)
     if (Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
       if (diffX > 0) navigate('next');
       else navigate('prev');
-    } 
+    }
     // 2. Lightbox logic (Intentional Taps Only)
     // Criteria: Fast click (< 250ms) AND minimal movement on BOTH axes (< 10px)
     else if (elapsedTime < 250 && Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
@@ -128,7 +128,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
            - Mobile: h-[318px] (Exact Token)
            - Desktop: lg:h-[560px] (Increased for Premium Layout)
         */
-        className="relative h-[350px] lg:h-[560px] w-full overflow-hidden bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5]"
+        className="relative h-[360px] lg:h-[560px] w-full overflow-hidden bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5]"
         onMouseDown={handleStart}
         onMouseUp={handleEnd}
         onMouseLeave={handleEnd}
@@ -228,7 +228,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         ))}
       </div>
 
-      <MediaLightbox 
+      <MediaLightbox
         isOpen={isLightboxOpen}
         media={displayImages.map(img => ({ type: 'image', url: img, alt: productName }))}
         initialIndex={activeIndex}

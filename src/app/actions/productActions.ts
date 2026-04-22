@@ -156,7 +156,6 @@ export async function createProductAction(productData: any) {
       categories, 
       brands, 
       sellers,
-      qa,
       reviews,
       tags,
       slug: providedSlug,
@@ -173,6 +172,8 @@ export async function createProductAction(productData: any) {
       product_review_mapping,
       products_data,
       products: productsJoin,
+      product_qa,
+      qa,
       ...mainFields 
     } = productData;
 
@@ -582,6 +583,7 @@ export async function updateProductDeepAction(id: string, productData: any) {
       product_review_mapping, // Exclude join table field
       products_data, // Exclude join data
       products: productsJoin, // Exclude join data
+      product_qa,
       ...mainFields 
     } = productData;
 
