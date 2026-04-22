@@ -94,7 +94,7 @@ const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
 const ProductPageSkeleton = () => (
   <div className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 animate-pulse">
     <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
-      <div className="w-full max-w-[700px] lg:w-[58%] aspect-square bg-gray-50 rounded-[20px]" />
+      <div className="w-full max-w-[700px] lg:w-[58%] h-[360px] lg:h-[560px] bg-gray-50 rounded-[20px]" />
       <div className="w-full max-w-[700px] lg:w-[38%] flex flex-col gap-6">
         <div className="h-10 w-3/4 bg-gray-50 rounded" />
         <div className="h-6 w-1/4 bg-gray-50 rounded" />
@@ -266,6 +266,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <>
           <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5]">
             <ProductNav />
+            <div className="h-[40px] w-full bg-gray-50/50" /> {/* Breadcrumbs Placeholder */}
           </header>
           <ProductPageSkeleton />
         </>

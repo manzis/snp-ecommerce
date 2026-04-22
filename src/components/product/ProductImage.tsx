@@ -118,7 +118,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
     }
   };
 
-  if (!mounted) return <div className="w-full h-[320px] lg:h-[560px] bg-white" />;
+  if (!mounted) return <div className="w-full h-[360px] lg:h-[560px] bg-white" />;
 
   return (
     <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[24px] relative select-none ">

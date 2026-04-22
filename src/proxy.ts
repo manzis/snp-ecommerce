@@ -35,18 +35,16 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // --- Admin Route Protection ---
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
   const isLoginRoute = request.nextUrl.pathname === '/admin/login';
 
+  // Only perform profile/role check if on an Admin route to save performance on public pages
   if (isAdminRoute) {
     if (!user) {
-      // Not logged in: Redirect to login if trying to access dashboard
       if (!isLoginRoute) {
         return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     } else {
-      // Logged in: Check role
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -56,12 +54,10 @@ export async function proxy(request: NextRequest) {
       const isAdmin = profile?.role === 'admin';
 
       if (!isAdmin) {
-        // Customer trying to access Admin Pages: Redirect to storefront
         return NextResponse.redirect(new URL('/', request.url));
       }
 
       if (isAdmin && isLoginRoute) {
-        // Logged-in admin trying to access login page: Redirect to dashboard
         return NextResponse.redirect(new URL('/admin', request.url));
       }
     }
