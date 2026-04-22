@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { ProductVariant } from '@/services/productService';
 
 /**
@@ -395,6 +395,7 @@ export async function createProductAction(productData: any) {
     revalidatePath('/admin/products');
     revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
+    revalidateTag('products', 'tag');
 
     return { success: true, data: newProduct };
   } catch (error: any) {
@@ -775,6 +776,7 @@ export async function updateProductDeepAction(id: string, productData: any) {
     revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
     revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
+    revalidateTag('products', 'tag');
 
     return { success: true, data: updatedProduct };
   } catch (error: any) {
