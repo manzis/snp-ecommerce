@@ -11,6 +11,7 @@ import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElem
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
+import Script from 'next/script';
 
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
@@ -52,8 +53,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased initial-loading`}
     >
       <head>
-        <script
-          key="viewport-scaler-script"
+        <Script
+          id="viewport-scaler-script"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {

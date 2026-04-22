@@ -118,7 +118,9 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
     }
   };
 
-  if (!mounted) return <div className="w-full h-[360px] lg:h-[560px] bg-white" />;
+  // We no longer block the entire initial render for mounting.
+  // Instead, we only guard interactive parts like the lightbox if needed.
+
 
   return (
     <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[24px] relative select-none ">
@@ -228,12 +230,14 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         ))}
       </div>
 
-      <MediaLightbox
-        isOpen={isLightboxOpen}
-        media={displayImages.map(img => ({ type: 'image', url: img, alt: productName }))}
-        initialIndex={activeIndex}
-        onClose={() => setIsLightboxOpen(false)}
-      />
+      {mounted && (
+        <MediaLightbox
+          isOpen={isLightboxOpen}
+          media={displayImages.map(img => ({ type: 'image', url: img, alt: productName }))}
+          initialIndex={activeIndex}
+          onClose={() => setIsLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 };

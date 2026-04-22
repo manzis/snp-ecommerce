@@ -29,22 +29,35 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: Do NOT remove auth.getUser() — it refreshes the session cookie
-  // so that Server Actions and Server Components always see a valid session.
+  // --- Route Detection ---
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  const isLoginRoute = request.nextUrl.pathname === '/admin/login';
+  const isPublicRoute = !isAdminRoute && 
+    !request.nextUrl.pathname.startsWith('/account') && 
+    !request.nextUrl.pathname.startsWith('/checkout') &&
+    !request.nextUrl.pathname.startsWith('/cart') &&
+    !request.nextUrl.pathname.startsWith('/api/user');
+
+  // If it's a public route and NOT an admin route, we can skip the heavy auth.getUser() check
+  // for the initial response. Supabase will still handle session persistence via cookies.
+  // We only run getUser for Admin routes or Account routes to keep the storefront lightning fast.
+  if (isPublicRoute) {
+    return supabaseResponse;
+  }
+
+  // IMPORTANT: Do NOT remove auth.getUser() for protected routes — it refreshes the session
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
-  const isLoginRoute = request.nextUrl.pathname === '/admin/login';
-
-  // Only perform profile/role check if on an Admin route to save performance on public pages
   if (isAdminRoute) {
     if (!user) {
+      // Not logged in: Redirect to login if trying to access dashboard
       if (!isLoginRoute) {
         return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     } else {
+      // Logged in: Check role
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -54,10 +67,12 @@ export async function proxy(request: NextRequest) {
       const isAdmin = profile?.role === 'admin';
 
       if (!isAdmin) {
+        // Customer trying to access Admin Pages: Redirect to storefront
         return NextResponse.redirect(new URL('/', request.url));
       }
 
       if (isAdmin && isLoginRoute) {
+        // Logged-in admin trying to access login page: Redirect to dashboard
         return NextResponse.redirect(new URL('/admin', request.url));
       }
     }

@@ -16,27 +16,38 @@ import WhyChooseUs from '@/components/product/WhyChooseUs';
 import FeaturedProductsSection from '@/components/product/FeaturedProductsSection';
 import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
-import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
+import { fetchProducts, fetchProductBySlug, fetchRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { getSeoProduct, getSeoGlobal } from '@/lib/seo/getSeoData';
+import { getSeoProduct, getSeoGlobal, getSeoProductBySlug } from '@/lib/seo/getSeoData';
 import { generateProductFallbackSeo } from '@/lib/seo/seoFallback';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
+// Add generateStaticParams for ISR (Incremental Static Regeneration)
+// This pre-renders all published products at build time for instant loading.
+export async function generateStaticParams() {
+  const products = await fetchProducts();
+  return products.map((product) => ({
+    slug: product.slug,
+  }));
+}
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const [product, gSeo] = await Promise.all([
+  
+  // Parallelize ALL data fetching for the head
+  const [product, gSeo, dbOverride] = await Promise.all([
     fetchProductBySlug(slug),
     getSeoGlobal(),
+    getSeoProductBySlug(slug), 
   ]);
 
   if (!product) return { title: 'Product Not Found | Bright Supplements Nepal' };
 
-  const dbOverride = await getSeoProduct(product.id);
 
   const fallback = generateProductFallbackSeo(product);
   const title = dbOverride?.custom_title || fallback.title;
@@ -94,7 +105,7 @@ const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
 const ProductPageSkeleton = () => (
   <div className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 animate-pulse">
     <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
-      <div className="w-full max-w-[700px] lg:w-[58%] h-[360px] lg:h-[560px] bg-gray-50 rounded-[20px]" />
+      <div className="w-full max-w-[700px] lg:w-[58%] aspect-square bg-gray-50 rounded-[20px]" />
       <div className="w-full max-w-[700px] lg:w-[38%] flex flex-col gap-6">
         <div className="h-10 w-3/4 bg-gray-50 rounded" />
         <div className="h-6 w-1/4 bg-gray-50 rounded" />
@@ -105,15 +116,15 @@ const ProductPageSkeleton = () => (
 );
 
 async function ProductContent({ slug }: { slug: string }) {
-  const product = await fetchProductBySlug(slug);
+  const [product, dbOverride] = await Promise.all([
+    fetchProductBySlug(slug),
+    getSeoProductBySlug(slug),
+  ]);
 
   if (!product) {
     notFound();
   }
 
-  const [dbOverride] = await Promise.all([
-    getSeoProduct(product.id),
-  ]);
 
   const breadcrumbPath = [
     { name: "Supplements", href: "/supplements" },
@@ -266,7 +277,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <>
           <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5]">
             <ProductNav />
-            <div className="h-[40px] w-full bg-gray-50/50" /> {/* Breadcrumbs Placeholder */}
           </header>
           <ProductPageSkeleton />
         </>
