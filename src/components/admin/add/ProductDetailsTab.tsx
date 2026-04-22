@@ -182,7 +182,7 @@ export default function ProductDetailsTab({ formData, setFormData, showErrors, e
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div className="flex flex-col gap-2">
                     <label className="text-[12.5px] font-regular text-[#242424]">Product Rating (0.0 - 5.0)</label>
                     <input
@@ -197,9 +197,20 @@ export default function ProductDetailsTab({ formData, setFormData, showErrors, e
                     />
                 </div>
                 <div className="flex flex-col gap-2">
+                    <label className="text-[12.5px] font-regular text-[#242424]">Reviews Count (Stored as Text)</label>
+                    <input
+                        type="text"
+                        value={formData.reviews_count || ''}
+                        onChange={(e) => setFormData({ ...formData, reviews_count: e.target.value })}
+                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] focus:border-black outline-none transition-all font-medium"
+                        placeholder="e.g. 1.2k+ / 500+ Reviews"
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
                     <label className="text-[12.5px] font-regular text-[#242424]">Manufacture Info (JSON)</label>
                     <textarea
                         rows={1}
+                        value={formData.product_info.manufacture_info ? JSON.stringify(formData.product_info.manufacture_info) : ''}
                         onChange={(e) => {
                             try {
                                 if (e.target.value.trim() === '') {
@@ -211,6 +222,24 @@ export default function ProductDetailsTab({ formData, setFormData, showErrors, e
                         }}
                         className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-mono placeholder:text-zinc-400 placeholder:font-regular focus:border-black outline-none transition-all"
                         placeholder='{"country": "India", "licence": "..."}'
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label className="text-[12.5px] font-regular text-[#242424]">Other Details (JSON)</label>
+                    <textarea
+                        rows={1}
+                        value={formData.product_info.other_details ? JSON.stringify(formData.product_info.other_details) : ''}
+                        onChange={(e) => {
+                            try {
+                                if (e.target.value.trim() === '') {
+                                    updateInfo('other_details', {});
+                                } else {
+                                    updateInfo('other_details', JSON.parse(e.target.value));
+                                }
+                            } catch { }
+                        }}
+                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[13px] font-mono placeholder:text-zinc-400 placeholder:font-regular focus:border-black outline-none transition-all"
+                        placeholder='{"Net Quantity": "100g", "Item Weight": "120g"}'
                     />
                 </div>
             </div>

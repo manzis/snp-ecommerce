@@ -137,7 +137,7 @@ const AdminMobileNav: React.FC = () => {
                                     className="flex items-center gap-[10px] group active:scale-95 transition-transform"
                                 >
                                     <div className="relative w-[34px] h-[34px] rounded-[10px] overflow-hidden bg-gray-100 border border-gray-100">
-                                        <Image src="/images/avatar.png" alt="Admin" fill className="object-cover" />
+                                        <Image src="/images/avatar.svg" alt="Admin" fill className="object-cover" />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[13px] font-semibold text-[#18181b] font-rubik tracking-tight leading-tight">Bright Nepcare</span>

@@ -17,17 +17,21 @@ export async function fetchReviewsAction() {
     const { data, error } = await supabase
       .from('reviews')
       .select(`
-        id, product_id, author, author_avatar, role, text, rating, image, is_verified, created_at,
-        products (title, name, images)
+        id, author, author_avatar, role, text, rating, image, is_verified, created_at,
+        product_review_mapping (
+          product:products (id, title, name, images)
+        )
       `)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
     
-    // Normalize products array to single object
+    // Normalize mapping results back into a clean product array/object
     const normalizedReviews = (data || []).map(r => ({
       ...r,
-      products: Array.isArray(r.products) ? r.products[0] : r.products
+      products_data: (r.product_review_mapping || []).map((m: any) => m.product),
+      // Keep legacy single 'products' field for compatibility if needed (take the first one)
+      products: r.product_review_mapping?.[0]?.product || null
     }));
 
     return { success: true, reviews: normalizedReviews };
@@ -61,25 +65,48 @@ export async function createReviewAction(reviewData: any, productIds: string[] =
     const adminClient = getSupabaseAdmin();
     const finalClient = adminClient || supabase;
 
-    // Build one row per product (or one row with null product_id)
-    const rows = productIds.length > 0
-      ? productIds.map(pid => ({ ...reviewData, product_id: pid || null }))
-      : [{ ...reviewData, product_id: null }];
-
-    const { data, error } = await finalClient
+    // 1. Insert the single unique review row
+    const { data: review, error: reviewError } = await finalClient
       .from('reviews')
-      .insert(rows)
+      .insert([reviewData])
+      .select()
+      .single();
+
+    if (reviewError) throw reviewError;
+
+    // 2. If productIds provided, create the mappings
+    if (productIds.length > 0) {
+      const mappings = productIds.map(pid => ({
+        product_id: pid,
+        review_id: review.id
+      }));
+
+      const { error: mapError } = await finalClient
+        .from('product_review_mapping')
+        .insert(mappings);
+
+      if (mapError) throw mapError;
+    }
+
+    // 3. Fetch the full merged data back for consistency
+    const { data: finalData, error: fetchError } = await finalClient
+      .from('reviews')
       .select(`
-        id, product_id, author, author_avatar, role, text, rating, image, is_verified, created_at,
-        products (title, name, images)
-      `);
+        id, author, author_avatar, role, text, rating, image, is_verified, created_at,
+        product_review_mapping (
+          product:products (id, title, name, images)
+        )
+      `)
+      .eq('id', review.id)
+      .single();
 
-    if (error) throw error;
+    if (fetchError) throw fetchError;
 
-    const normalizedData = (data || []).map(r => ({
-      ...r,
-      products: Array.isArray(r.products) ? r.products[0] : r.products
-    }));
+    const normalizedData = {
+      ...finalData,
+      products_data: (finalData.product_review_mapping || []).map((m: any) => m.product),
+      products: finalData.product_review_mapping?.[0]?.product || null
+    };
 
     revalidatePath('/admin/reviews');
     return { success: true, data: normalizedData };
@@ -92,7 +119,7 @@ export async function createReviewAction(reviewData: any, productIds: string[] =
 /**
  * Server action to update a review
  */
-export async function updateReviewAction(id: string, updates: any) {
+export async function updateReviewAction(id: string, updates: any, productIds: string[] = []) {
   const supabase = await createClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -112,24 +139,56 @@ export async function updateReviewAction(id: string, updates: any) {
     const adminClient = getSupabaseAdmin();
     const finalClient = adminClient || supabase;
 
+    // 1. Update the review content
     const { data, error } = await finalClient
       .from('reviews')
       .update(updates)
       .eq('id', id)
       .select(`
-        id, product_id, author, author_avatar, role, text, rating, image, is_verified, created_at,
-        products (title, name, images)
+        id, author, author_avatar, role, text, rating, image, is_verified, created_at,
+        product_review_mapping (
+          product:products (id, title, name, images)
+        )
       `);
 
     if (error) throw error;
 
+    // 2. Synchronize mappings (Replace existing mappings with new set)
+    if (productIds.length > 0) {
+      // Clear old mappings
+      await finalClient.from('product_review_mapping').delete().eq('review_id', id);
+      
+      // Insert new mappings
+      const mappings = productIds.map(pid => ({
+        product_id: pid,
+        review_id: id
+      }));
+      await finalClient.from('product_review_mapping').insert(mappings);
+    }
+
+    // 3. Fetch fresh normalized data
+    const { data: refreshed, error: rError } = await finalClient
+      .from('reviews')
+      .select(`
+        id, author, author_avatar, role, text, rating, image, is_verified, created_at,
+        product_review_mapping (
+          product:products (id, title, name, images)
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (rError) throw rError;
+
+    const { product_review_mapping, ...reviewCore } = refreshed;
     const normalizedReview = {
-      ...data[0],
-      products: Array.isArray(data[0].products) ? data[0].products[0] : data[0].products
+      ...reviewCore,
+      products_data: (product_review_mapping || []).map((m: any) => m.product),
+      products: product_review_mapping?.[0]?.product || null
     };
 
     revalidatePath('/admin/reviews');
-    return { success: true, data: normalizedReview };
+    return { success: true, data: normalizedReview as any };
   } catch (error: any) {
     console.error('Action Error: updateReviewAction:', error);
     return { success: false, message: error.message || 'Failed to update review.' };

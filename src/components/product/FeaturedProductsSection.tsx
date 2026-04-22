@@ -69,6 +69,7 @@ export default async function FeaturedProductsSection({
                 discountText={discountText}
                 imageUrl={primaryImage}
                 productUrl={`/product/${product.slug}`}
+                stockStatus={product.stock_status}
               />
             );
           })}

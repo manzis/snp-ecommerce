@@ -59,11 +59,10 @@ export default function ReviewsPage() {
   const handleSave = async (id: string | null, data: Partial<Review>, productIds: string[] = []) => {
     setIsSaving(true);
     if (id) {
-      // Edit: update the single existing row (product_id = first selection or existing)
-      const updatePayload = { ...data, product_id: productIds[0] || (data as any).product_id || null };
-      const res = await updateReviewAction(id, updatePayload);
+      // Edit: update the review row and its mappings
+      const res = await updateReviewAction(id, data, productIds);
       if (res.success && res.data) {
-        setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, ...res.data } : r)));
+        setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, ...res.data as Review } : r)));
         setIsModalOpen(false);
         showAdminToast('Review updated successfully.', 'success');
       } else {

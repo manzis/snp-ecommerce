@@ -108,7 +108,18 @@ export default function ReviewTable({
                                     </div>
                                 </td>
                                 <td className="py-4 px-4 min-w-[150px]">
-                                    {review.products ? (
+                                    {(review.products_data?.length ?? 0) > 0 ? (
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[13px] font-semibold text-[#242424] line-clamp-1">
+                                                {review.products_data![0].title || review.products_data![0].name}
+                                                {review.products_data!.length > 1 && (
+                                                    <span className="ml-1 text-[11px] text-[#71717a] font-normal">
+                                                        + {review.products_data!.length - 1} more
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+                                    ) : review.products ? (
                                         <div className="flex flex-col gap-0.5">
                                             <span className="text-[13px] font-semibold text-[#242424] line-clamp-1">
                                                 {review.products.title || review.products.name}

@@ -138,15 +138,23 @@ export function ReviewCard({
                 </div>
             </div>
 
-            {/* Product Context Tag (Inside Padding, Rounded 8px) */}
-            {review.products && (
+            {/* Product Context Tag (Many-to-Many support) */}
+            {(review.products_data?.length ?? 0) > 0 ? (
+                <div className="flex items-center gap-2 px-[10px] py-[6.5px] bg-zinc-50 rounded-[8px] border border-gray-200/50 self-start max-w-full overflow-hidden">
+                    <span className="text-[9px] font-normal text-[#a1a1aa] uppercase tracking-[0.05em] shrink-0">Linked to:</span>
+                    <span className="text-[10px] font-medium text-[#52525b] truncate">
+                        {review.products_data![0].title || review.products_data![0].name}
+                        {review.products_data!.length > 1 && ` + ${review.products_data!.length - 1} more`}
+                    </span>
+                </div>
+            ) : review.products ? (
                 <div className="flex items-center gap-2 px-[10px] py-[6.5px] bg-zinc-50 rounded-[8px] border border-gray-200/50 self-start max-w-full overflow-hidden">
                     <span className="text-[9px] font-normal text-[#a1a1aa] uppercase tracking-[0.05em] shrink-0">Added on:</span>
                     <span className="text-[10px] font-medium text-[#52525b] truncate">
                         {review.products.title || review.products.name}
                     </span>
                 </div>
-            )}
+            ) : null}
         </article>
     );
 }

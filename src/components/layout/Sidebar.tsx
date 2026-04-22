@@ -37,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     }, []);
 
     const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
-    const avatarUrl = user?.user_metadata?.avatar_url || "/images/avatar.png";
+    const avatarUrl = user?.user_metadata?.avatar_url || "/images/avatar.svg";
 
     const handleLogout = async () => {
         setIsLoggingOut(true);

@@ -176,6 +176,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                     rating={product.rating.toString()}
                                     image={product.images?.[0] || '/images/protein.jpg'}
                                     slug={product.slug}
+                                    stockStatus={product.stock_status}
                                 />
                             ))}
                         </div>

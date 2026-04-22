@@ -142,7 +142,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
             <div className="flex flex-col gap-[12px] items-center self-stretch shrink-0 pb-[12px]">
                 <div className="relative w-[80px] h-[80px] rounded-full overflow-hidden shrink-0 border-2 border-[#3f9633]">
                     <Image 
-                        src={previewUrl || "/images/avatar.png"} 
+                        src={previewUrl || "/images/avatar.svg"} 
                         alt="Profile" 
                         fill 
                         className="object-cover" 

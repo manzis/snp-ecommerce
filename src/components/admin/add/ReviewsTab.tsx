@@ -37,11 +37,9 @@ export default function ReviewsTab({ formData, setFormData }: any) {
     }, [allReviews, searchQuery]);
 
     // Track which reviews are "locally" linked to this product in the form
-    // We'll use the author + text as a unique key for matching if they are new,
-    // or we can add a 'linked_from_id' to the objects in formData.reviews
     const isReviewLinked = (review: any) => {
         return (formData.reviews || []).some((r: any) => 
-            r.linked_from_id === review.id || (r.author === review.author && r.text === review.text)
+            (r.id && r.id === review.id) || (r.linked_from_id && r.linked_from_id === review.id)
         );
     };
 
@@ -74,20 +72,18 @@ export default function ReviewsTab({ formData, setFormData }: any) {
             setFormData({
                 ...formData,
                 reviews: (formData.reviews || []).filter((r: any) => 
-                    r.linked_from_id !== review.id && !(r.author === review.author && r.text === review.text)
+                    (r.id || r.linked_from_id) !== review.id
                 )
             });
         } else {
-            // Add to local formData.reviews (Duplicate/Link)
-            const { id, created_at, products, product_id, ...dataToCopy } = review;
+            // Add to local formData.reviews (Link using existing ID as primary)
             setFormData({
                 ...formData,
                 reviews: [
                     ...(formData.reviews || []),
                     {
-                        ...dataToCopy,
-                        linked_from_id: review.id,
-                        is_verified: true
+                        ...review,
+                        linked_from_id: review.id, // Keep for action mapping logic
                     }
                 ]
             });

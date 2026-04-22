@@ -95,7 +95,11 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
                     is_featured_home: review.is_featured_home || false,
                     home_title: review.home_title || '',
                 });
-                setSelectedProductIds(review.product_id ? [review.product_id] : []);
+                // Initialize from many-to-many data if available, fallback to deprecated product_id
+                const initialIds = review.products_data 
+                    ? review.products_data.map((p: any) => p.id).filter(Boolean)
+                    : (review.product_id ? [review.product_id] : []);
+                setSelectedProductIds(initialIds);
             } else {
                 setForm({ author: '', role: '', text: '', rating: 5, image: '', author_avatar: '', is_verified: false, is_featured_home: false, home_title: '' });
                 setSelectedProductIds(initialProductIds || []);
@@ -110,14 +114,9 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
     );
 
     const toggleProduct = (id: string) => {
-        if (isEdit) {
-            // When editing, only allow one product (the row has one product_id)
-            setSelectedProductIds([id]);
-        } else {
-            setSelectedProductIds(prev =>
-                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-            );
-        }
+        setSelectedProductIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
     };
 
     const handleSubmit = async () => {
@@ -168,8 +167,8 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
                         {isSaving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
                         {isEdit
                             ? 'Save Changes'
-                            : selectedProductIds.length > 1
-                            ? `Add to ${selectedProductIds.length} Products`
+                            : selectedProductIds.length > 0
+                            ? `Add to ${selectedProductIds.length} Product${selectedProductIds.length > 1 ? 's' : ''}`
                             : 'Add Review'}
                     </button>
                 </>
@@ -240,13 +239,13 @@ export default function ReviewModal({ isOpen, onClose, onSave, review, isSaving,
                     />
                 </div>
 
-                {/* Product multi-select */}
+                {/* Product multi-select (Linked Products) */}
                 <div className="flex flex-col gap-2" ref={pickerRef}>
                     <label className="text-[13px] font-regular text-[#71717a]">
-                        {isEdit ? 'Product' : 'Products'}
-                        {!isEdit && selectedProductIds.length > 0 && (
+                        Linked Products
+                        {selectedProductIds.length > 0 && (
                             <span className="ml-2 text-[12px] text-[#a1a1aa]">
-                                — will create {selectedProductIds.length} review{selectedProductIds.length > 1 ? 's' : ''}
+                                — associated with {selectedProductIds.length} product{selectedProductIds.length > 1 ? 's' : ''}
                             </span>
                         )}
                     </label>

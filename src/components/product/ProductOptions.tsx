@@ -222,10 +222,12 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       
       <OfferCard />
 
-      <BundleDealCard 
-        mainProduct={product}
-        currentProductImage={product.images?.[0]} 
-      />
+      {product.stock_status !== 'out_of_stock' && (
+        <BundleDealCard 
+          mainProduct={product}
+          currentProductImage={product.images?.[0]} 
+        />
+      )}
 
       <DeliveryDetails seller={seller} stockStatus={product.stock_status} />
     </section>

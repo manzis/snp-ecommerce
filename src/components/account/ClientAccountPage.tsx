@@ -14,7 +14,7 @@ interface ClientAccountPageProps {
 
 export default function ClientAccountPage({ user }: ClientAccountPageProps) {
     const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || "User";
-    const avatarUrl = user.user_metadata?.avatar_url || "/images/avatar.png";
+    const avatarUrl = user.user_metadata?.avatar_url || "/images/avatar.svg";
 
     return (
         <main className="relative min-h-screen w-full overflow-x-hidden">

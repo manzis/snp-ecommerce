@@ -12,6 +12,7 @@ export interface FeaturedProductCardProps {
     discountText?: string;
     imageUrl?: string;
     productUrl?: string;
+    stockStatus?: string;
 }
 
 // --- MOCK DATA (Ready for Supabase DB Integration) ---
@@ -34,20 +35,31 @@ export default function FeaturedProductCard({
     discountText = MOCK_PRODUCT.discountText!,
     imageUrl = MOCK_PRODUCT.imageUrl!,
     productUrl = MOCK_PRODUCT.productUrl!,
+    stockStatus,
 }: FeaturedProductCardProps) {
     return (
         <article className="group flex w-full max-w-[169px] mx-auto flex-col gap-[8px] items-start relative font-['Titillium_Web',sans-serif]">
             <Link href={productUrl} className="flex flex-col gap-[8px] w-full focus:outline-none">
 
                 {/* --- Product Image Container --- */}
-                <div className="flex h-[159px] w-full items-center self-stretch shrink-0 rounded-[8px] relative overflow-hidden">
+                <div className={`flex h-[159px] w-full items-center self-stretch shrink-0 rounded-[8px] relative overflow-hidden ${stockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}>
                     <Image
                         src={imageUrl}
                         alt={title}
                         fill
                         sizes="(max-width: 768px) 159px, 169px"
-                        className="p-[12px] object-contain object-center transition-transform duration-[300ms] ease-in-out group-hover:scale-110"
+                        className={`p-[12px] object-contain object-center transition-transform duration-[300ms] ease-in-out group-hover:scale-110 ${stockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
                     />
+                    
+                    {stockStatus === 'out_of_stock' && (
+                        <div className="absolute inset-0 z-[11] flex items-center justify-center p-2">
+                            <div className="w-full bg-red-600/90 py-1.5 flex items-center justify-center shadow-xl transform -rotate-1">
+                                <span className="font-custom text-[10px] font-bold tracking-[0.2em] text-white uppercase drop-shadow-sm">
+                                    Out of Stock
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* --- Product Details --- */}

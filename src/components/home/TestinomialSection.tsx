@@ -140,7 +140,6 @@ const TestimonialCard = ({ review }: { review: PartialReview }) => {
     const isVideo = review.image?.toLowerCase().endsWith('.mp4') || review.image?.toLowerCase().endsWith('.webm');
     
     // Fallbacks
-    const avatar = review.author_avatar || '/images/default-avatar.png';
     const cleanDate = new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
     return (
@@ -156,8 +155,14 @@ const TestimonialCard = ({ review }: { review: PartialReview }) => {
             )}
             <div className="relative z-10 flex flex-col gap-[20px]">
                 <div className="flex items-start gap-[10px]">
-                    <div className="relative h-[36px] w-[36px] shrink-0 overflow-hidden rounded-full border border-white/20">
-                        <Image src={avatar} alt={review.author} fill className="object-cover" />
+                    <div className="relative h-[36px] w-[36px] shrink-0 overflow-hidden rounded-full border border-white/20 bg-[#308026] flex items-center justify-center">
+                        {review.author_avatar ? (
+                            <Image src={review.author_avatar} alt={review.author} fill className="object-cover" />
+                        ) : (
+                            <span className="text-white font-titillium font-bold text-[16px] leading-none mb-[1px]">
+                                {review.author.charAt(0).toUpperCase()}
+                            </span>
+                        )}
                     </div>
                     <div className="flex flex-col">
                         <span className={`text-[15px] font-[600] leading-[18px] ${hasMedia ? 'text-white' : 'text-[#242424]'}`}>{review.author}</span>

@@ -61,6 +61,8 @@ export async function updateProductAction(id: string, updates: any) {
     // 4. Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
+    revalidatePath('/', 'layout'); // Force refresh for storefront
+    revalidatePath('/product/[slug]', 'page');
     
     return { success: true, data: data[0] };
   } catch (error: any) {
@@ -113,6 +115,8 @@ export async function updateProductVariantPricesAction(productId: string, varian
 
     // 4. Revalidate cache
     revalidatePath('/admin/products');
+    revalidatePath('/', 'layout');
+    revalidatePath('/product/[slug]', 'page');
     
     return { success: true };
   } catch (error: any) {
@@ -166,6 +170,9 @@ export async function createProductAction(productData: any) {
       stock_count: providedStock,
       linked_banner_ids,
       product_banners, // Exclude this too
+      product_review_mapping,
+      products_data,
+      products: productsJoin,
       ...mainFields 
     } = productData;
 
@@ -310,34 +317,56 @@ export async function createProductAction(productData: any) {
     }
 
     // 6. Insert QA if any
-    if (qa && qa.length > 0) {
-      const qaToInsert = qa.map((q: any) => ({
+    const validQa = (qa || []).filter((q: any) => q.question?.trim());
+    if (validQa.length > 0) {
+      const qaToInsert = validQa.map((q: any) => ({
         product_id: productId,
-        question: q.question,
-        answer: q.answer,
+        question: q.question.trim(),
+        answer: q.answer?.trim() || null,
         author: q.author || 'Admin'
       }));
       const { error: qaError } = await finalClient
         .from('product_qa')
         .insert(qaToInsert);
-      if (qaError) console.error('Error inserting QA:', qaError);
+      if (qaError) throw new Error(`QA Error: ${qaError.message}`);
     }
 
-    // 7. Insert Reviews if any
+    // 7. Handle Reviews (Many-to-Many logic)
     if (reviews && reviews.length > 0) {
-      const reviewsToInsert = reviews.map((r: any) => ({
-        product_id: productId,
-        author: r.author,
-        author_avatar: r.author_avatar,
-        role: r.role || 'Verified Buyer',
-        text: r.text,
-        rating: r.rating || 5,
-        is_verified: true
-      }));
-      const { error: reviewError } = await finalClient
-        .from('reviews')
-        .insert(reviewsToInsert);
-      if (reviewError) console.error('Error inserting reviews:', reviewError);
+      const newReviews = reviews.filter((r: any) => !r.id && !r.linked_from_id);
+      const existingReviews = reviews.filter((r: any) => r.id || r.linked_from_id);
+
+      // 7a. Insert brand new reviews
+      let newReviewIds: string[] = [];
+      if (newReviews.length > 0) {
+        const reviewsToInsert = newReviews.map((r: any) => ({
+          author: r.author,
+          author_avatar: r.author_avatar,
+          role: r.role || 'Verified Buyer',
+          text: r.text,
+          rating: r.rating || 5,
+          image: r.image,
+          is_verified: true
+        }));
+        const { data: inserted, error: rError } = await finalClient.from('reviews').insert(reviewsToInsert).select('id');
+        if (rError) console.error('Error creating new reviews:', rError);
+        if (inserted) newReviewIds = inserted.map(r => r.id);
+      }
+
+      // 7b. Map both new and existing reviews to this product
+      const allReviewIdsToLink = Array.from(new Set([
+        ...newReviewIds,
+        ...existingReviews.map((r: any) => r.id || r.linked_from_id)
+      ]));
+
+      if (allReviewIdsToLink.length > 0) {
+        const mappingRows = allReviewIdsToLink.map(rid => ({
+          product_id: productId,
+          review_id: rid
+        }));
+        const { error: mError } = await finalClient.from('product_review_mapping').insert(mappingRows);
+        if (mError) console.error('Error linking reviews to product:', mError);
+      }
     }
 
     // 8. Handle Tags
@@ -363,6 +392,8 @@ export async function createProductAction(productData: any) {
 
     // 9. Revalidate cache
     revalidatePath('/admin/products');
+    revalidatePath('/', 'layout');
+    revalidatePath('/product/[slug]', 'page');
 
     return { success: true, data: newProduct };
   } catch (error: any) {
@@ -403,6 +434,8 @@ export async function deleteProductAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/products');
+    revalidatePath('/', 'layout');
+    revalidatePath('/product/[slug]', 'page');
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: deleteProductAction:', error);
@@ -546,6 +579,9 @@ export async function updateProductDeepAction(id: string, productData: any) {
       roles,
       linked_banner_ids,
       product_banners, // Exclude relational field
+      product_review_mapping, // Exclude join table field
+      products_data, // Exclude join data
+      products: productsJoin, // Exclude join data
       ...mainFields 
     } = productData;
 
@@ -580,7 +616,7 @@ export async function updateProductDeepAction(id: string, productData: any) {
       finalClient.from('product_variants').delete().eq('product_id', productId),
       finalClient.from('product_info').delete().eq('product_id', productId),
       finalClient.from('product_qa').delete().eq('product_id', productId),
-      finalClient.from('reviews').delete().eq('product_id', productId),
+      finalClient.from('product_review_mapping').delete().eq('product_id', productId), // Clear mappings
       finalClient.from('product_sizes').delete().eq('product_id', productId),
       finalClient.from('product_flavours').delete().eq('product_id', productId),
     ]);
@@ -671,28 +707,54 @@ export async function updateProductDeepAction(id: string, productData: any) {
     }
 
     // 7. Insert QA
-    if (qa && qa.length > 0) {
-      const qaToInsert = qa.map((q: any) => ({
+    const validQa = (qa || []).filter((q: any) => q.question?.trim());
+    if (validQa.length > 0) {
+      const qaToInsert = validQa.map((q: any) => ({
         product_id: productId,
-        question: q.question,
-        answer: q.answer,
+        question: q.question.trim(),
+        answer: q.answer?.trim() || null,
         author: q.author || 'Admin'
       }));
-      await finalClient.from('product_qa').insert(qaToInsert);
+      const { error: qaError } = await finalClient.from('product_qa').insert(qaToInsert);
+      if (qaError) throw new Error(`QA Error: ${qaError.message}`);
     }
 
-    // 8. Insert Reviews
+    // 8. Handle Reviews (Many-to-Many logic)
     if (reviews && reviews.length > 0) {
-      const reviewsToInsert = reviews.map((r: any) => ({
-        product_id: productId,
-        author: r.author,
-        author_avatar: r.author_avatar,
-        role: r.role || 'Verified Buyer',
-        text: r.text,
-        rating: r.rating || 5,
-        is_verified: true
-      }));
-      await finalClient.from('reviews').insert(reviewsToInsert);
+      const newReviews = reviews.filter((r: any) => !r.id && !r.linked_from_id);
+      const existingReviews = reviews.filter((r: any) => r.id || r.linked_from_id);
+
+      // 8a. Insert brand new reviews
+      let newReviewIds: string[] = [];
+      if (newReviews.length > 0) {
+        const reviewsToInsert = newReviews.map((r: any) => ({
+          author: r.author,
+          author_avatar: r.author_avatar,
+          role: r.role || 'Verified Buyer',
+          text: r.text,
+          rating: r.rating || 5,
+          image: r.image,
+          is_verified: true
+        }));
+        const { data: inserted, error: rError } = await finalClient.from('reviews').insert(reviewsToInsert).select('id');
+        if (rError) console.error('Error creating new reviews:', rError);
+        if (inserted) newReviewIds = inserted.map(r => r.id);
+      }
+
+      // 8b. Map both new and existing reviews to this product
+      const allReviewIdsToLink = Array.from(new Set([
+        ...newReviewIds,
+        ...existingReviews.map((r: any) => r.id || r.linked_from_id)
+      ]));
+
+      if (allReviewIdsToLink.length > 0) {
+        const mappingRows = allReviewIdsToLink.map(rid => ({
+          product_id: productId,
+          review_id: rid
+        }));
+        const { error: mError } = await finalClient.from('product_review_mapping').insert(mappingRows);
+        if (mError) console.error('Error linking reviews to product:', mError);
+      }
     }
 
     // 8a. Sync Linked Banners
@@ -709,6 +771,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/edit/${id}`);
     revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
+    revalidatePath('/', 'layout');
+    revalidatePath('/product/[slug]', 'page');
 
     return { success: true, data: updatedProduct };
   } catch (error: any) {

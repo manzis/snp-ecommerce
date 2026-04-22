@@ -28,23 +28,25 @@ export interface Brand {
 /** Mirrors the public.reviews table schema exactly */
 export interface Review {
   id: string;
-  product_id: string | null;       // uuid FK → products.id, on delete CASCADE
+  product_id?: string | null;       // Deprecated: use product_review_mapping
   author: string;                   // varchar(255) NOT NULL
   role: string | null;              // varchar(255) nullable
   text: string;                     // text NOT NULL
-  rating: number;                   // numeric(2,1) NOT NULL — e.g. 4.5, 5.0
+  rating: number;                   // numeric(2,1) NOT NULL
   image: string | null;             // varchar(1000) nullable
-  media_type?: 'image' | 'video';   // UI-only or DB if added later
-  author_avatar?: string | null;    // New field for reviewer profile photo
+  media_type?: 'image' | 'video';
+  author_avatar?: string | null;
   is_verified: boolean;             // boolean, default false
   is_featured_home?: boolean;       // boolean, default false
-  home_title?: string | null;       // varchar(255) nullable
-  created_at: string;               // timestamptz, auto-set by DB
-  products?: {                      // Nested product data from join
+  home_title?: string | null;
+  created_at: string;
+  products?: {                      // Nested product data (backward compatibility)
+    id?: string;
     title: string;
     name: string;
     images?: string[];
-  };
+  } | null;
+  products_data?: any[];            // Full many-to-many product list
 }
 
 export interface ProductSize {
@@ -399,7 +401,9 @@ export async function fetchProductById(id: string): Promise<Product | null> {
       product_flavours (*),
       product_info (*),
       product_variants (*, size:product_sizes(*), flavour:product_flavours(*)),
-      product_banners (*, banner:banners (*, products!banners_target_product_id_fkey(id, slug)))
+      product_banners (*, banner:banners (*, products!banners_target_product_id_fkey(id, slug))),
+      product_review_mapping (review:reviews (*)),
+      product_qa (*)
     `)
     .eq('id', id)
     .single();
@@ -410,7 +414,9 @@ export async function fetchProductById(id: string): Promise<Product | null> {
     ...data,
     categories: Array.isArray(data.categories) ? data.categories[0] : (data.categories || null),
     brands: Array.isArray(data.brands) ? data.brands[0] : (data.brands || null),
-    sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null)
+    sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null),
+    reviews: (data.product_review_mapping || []).map((m: any) => m.review),
+    qa: data.product_qa || []
   } as Product;
 }
 
@@ -431,7 +437,9 @@ export const fetchProductBySlug = cache(async function(slug: string, options?: {
       product_flavours (*),
       product_info (*),
       product_variants (*, size:product_sizes(*), flavour:product_flavours(*)),
-      product_banners (*, banner:banners (*, target_product:products!banners_target_product_id_fkey(id, slug)))
+      product_banners (*, banner:banners (*, target_product:products!banners_target_product_id_fkey(id, slug))),
+      product_review_mapping (review:reviews (*)),
+      product_qa (*)
     `)
     .eq('slug', slug);
 
@@ -452,7 +460,9 @@ export const fetchProductBySlug = cache(async function(slug: string, options?: {
     ...data,
     categories: Array.isArray(data.categories) ? data.categories[0] : (data.categories || null),
     brands: Array.isArray(data.brands) ? data.brands[0] : (data.brands || null),
-    sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null)
+    sellers: Array.isArray(data.sellers) ? data.sellers[0] : (data.sellers || null),
+    reviews: (data.product_review_mapping || []).map((m: any) => m.review),
+    qa: data.product_qa || []
   } as Product;
 });
 
@@ -461,8 +471,8 @@ export const fetchProductBySlug = cache(async function(slug: string, options?: {
  */
 export const fetchProductReviews = cache(async function(productId: string): Promise<Review[]> {
   const { data, error } = await supabase
-    .from('reviews')
-    .select('*, author_avatar')
+    .from('product_review_mapping')
+    .select('review:reviews(*)')
     .eq('product_id', productId)
     .order('created_at', { ascending: false });
     
@@ -470,7 +480,7 @@ export const fetchProductReviews = cache(async function(productId: string): Prom
     console.error(`Error fetching reviews for ${productId}:`, error);
     return [];
   }
-  return data as Review[];
+  return (data || []).map((m: any) => m.review) as Review[];
 });
 
 /**
