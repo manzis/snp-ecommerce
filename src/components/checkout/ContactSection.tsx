@@ -54,10 +54,11 @@ const ContactSection: React.FC<ContactSectionProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
-    if (/^\d+$/.test(val.replace(/\D/g, ''))) {
-      const digits = val.replace(/\D/g, '');
-      if (digits.length <= 10) setInputValue(digits);
+    // Only treat as phone digits if the entire input is numeric
+    if (/^\d+$/.test(val)) {
+      if (val.length <= 10) setInputValue(val);
     } else {
+      // Allow mixed input (emails with numbers)
       setInputValue(val);
     }
     if (errorMsg) setErrorMsg(null);
@@ -132,7 +133,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
                     }`}
                 >
                   <div className="flex flex-grow items-center gap-[8px]">
-                    {/^\d+$/.test(inputValue) && inputValue.length > 0 && (
+                    {/^\d{10}$/.test(inputValue) && (
                       <span className="font-titillium text-[18px] text-[#242424] font-medium">+977</span>
                     )}
                     <input
