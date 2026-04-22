@@ -88,6 +88,7 @@ const TITLE_MAP: Record<string, string> = {
     '/admin/support': 'Help & Support',
     '/admin/profile': 'My Profile',
     '/admin/coupons': 'Coupon Management',
+    '/admin/orders/create': 'Create Manual Order',
 };
 
 /**

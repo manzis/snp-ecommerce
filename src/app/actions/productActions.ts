@@ -716,3 +716,40 @@ export async function updateProductDeepAction(id: string, productData: any) {
     return { success: false, message: error.message || 'Failed to update product.' };
   }
 }
+
+/**
+ * Fetches all products with variants for admin selection.
+ */
+export async function fetchAllProductsAction() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: 'Unauthorized' };
+
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        id, 
+        name, 
+        images, 
+        original_price, 
+        discounted_price,
+        brands (name),
+        product_variants (
+          id, 
+          original_price, 
+          discounted_price, 
+          stock_count,
+          size:product_sizes(id, size_label),
+          flavour:product_flavours(id, flavour_name)
+        )
+      `)
+      .order('name');
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error: any) {
+    console.error('Action Error: fetchAllProductsAction:', error);
+    return { success: false, message: error.message || 'Failed to fetch products.' };
+  }
+}

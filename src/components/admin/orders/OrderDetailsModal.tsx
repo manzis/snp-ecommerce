@@ -507,12 +507,22 @@ export default function OrderDetailsModal({
                                  <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
                                  {order.shippingAddress ? (
                                     <div className="text-[13px] leading-relaxed text-[#242424] space-y-0.5 max-w-sm">
-                                        <p className="font-medium">{order.shippingAddress.first_name || order.shippingAddress.addressDetails?.first_name} {order.shippingAddress.last_name || order.shippingAddress.addressDetails?.last_name || ''}</p>
-                                        <p className="text-[#71717a]">{order.shippingAddress.address_line_1 || order.shippingAddress.addressDetails?.address_line_1}</p>
-                                        <p className="text-[#a1a1aa] text-[12px]">{order.shippingAddress.area || order.shippingAddress.addressDetails?.area}, {order.shippingAddress.city || order.shippingAddress.addressDetails?.city}, {order.shippingAddress.pincode || order.shippingAddress.addressDetails?.pincode}</p>
-                                        {(order.shippingAddress.phone || order.shippingAddress.addressDetails?.phone) && (
+                                        <p className="font-medium">
+                                            {order.shippingAddress.first_name || order.shippingAddress.addressDetails?.first_name || ''} {order.shippingAddress.last_name || order.shippingAddress.addressDetails?.last_name || ''}
+                                            {(!order.shippingAddress.first_name && !order.shippingAddress.addressDetails?.first_name) && (order.customerName || 'Manual Order Recipient')}
+                                        </p>
+                                        <p className="text-[#71717a]">
+                                            {order.shippingAddress.street || order.shippingAddress.address_line_1 || order.shippingAddress.addressDetails?.address_line_1}
+                                            {order.shippingAddress.area ? `, ${order.shippingAddress.area}` : ''}
+                                            {order.shippingAddress.address_line_2 ? `, ${order.shippingAddress.address_line_2}` : ''}
+                                        </p>
+                                        <p className="text-[#a1a1aa] text-[12px]">
+                                            {order.shippingAddress.city || order.shippingAddress.addressDetails?.city}, {order.shippingAddress.state || order.shippingAddress.addressDetails?.state}, {order.shippingAddress.pincode || order.shippingAddress.postal_code || order.shippingAddress.addressDetails?.pincode}
+                                            {order.shippingAddress.country ? ` (${order.shippingAddress.country})` : ''}
+                                        </p>
+                                        {(order.shippingAddress.phone || order.shippingAddress.addressDetails?.phone || order.customerPhone) && (
                                             <p className="text-[#242424] font-medium pt-1">
-                                                <span className="text-[#a1a1aa] font-normal">Phone:</span> {order.shippingAddress.phone || order.shippingAddress.addressDetails?.phone}
+                                                <span className="text-[#a1a1aa] font-normal">Phone:</span> {order.shippingAddress.phone || order.shippingAddress.addressDetails?.phone || order.customerPhone}
                                             </p>
                                         )}
                                     </div>

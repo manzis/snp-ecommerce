@@ -3,7 +3,24 @@
 import { createClient } from '@/lib/supabase/server';
 import type { UserAddress } from '@/services/addressService';
 
-export async function saveUserAddressAction(address: UserAddress): Promise<{ data: UserAddress | null; error: string | null }> {
+/**
+ * Helper to verify if the current user is an admin.
+ */
+async function verifyAdmin() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  return profile?.role === 'admin';
+}
+
+export async function saveUserAddressAction(address: UserAddress, targetUserId?: string): Promise<{ data: UserAddress | null; error: string | null }> {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -12,9 +29,17 @@ export async function saveUserAddressAction(address: UserAddress): Promise<{ dat
       return { data: null, error: 'Backend session missing. Please log in again.' };
     }
 
-    // Force strict user binding to exactly the authorized backend session user
+    // Permission check: If targetUserId is provided, requester must be admin
+    let finalUserId = user.id;
+    if (targetUserId && targetUserId !== user.id) {
+      const isAdmin = await verifyAdmin();
+      if (!isAdmin) return { data: null, error: 'Forbidden: Admin privileges required.' };
+      finalUserId = targetUserId;
+    }
+
+    // Force strict user binding
     const payload = {
-      user_id: user.id,
+      user_id: finalUserId,
       first_name: address.first_name,
       last_name: address.last_name,
       city: address.city,
@@ -47,7 +72,7 @@ export async function saveUserAddressAction(address: UserAddress): Promise<{ dat
   }
 }
 
-export async function fetchUserAddressesAction(): Promise<{ data: UserAddress[]; error: string | null }> {
+export async function fetchUserAddressesAction(targetUserId?: string): Promise<{ data: UserAddress[]; error: string | null }> {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -56,10 +81,18 @@ export async function fetchUserAddressesAction(): Promise<{ data: UserAddress[];
       return { data: [], error: 'Backend session missing. Please log in again.' };
     }
 
+    // Permission check
+    let finalUserId = user.id;
+    if (targetUserId && targetUserId !== user.id) {
+      const isAdmin = await verifyAdmin();
+      if (!isAdmin) return { data: [], error: 'Forbidden: Admin privileges required.' };
+      finalUserId = targetUserId;
+    }
+
     const { data, error } = await supabase
       .from('user_addresses')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', finalUserId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -72,7 +105,7 @@ export async function fetchUserAddressesAction(): Promise<{ data: UserAddress[];
   }
 }
 
-export async function deleteUserAddressAction(addressId: string): Promise<{ success: boolean; error: string | null }> {
+export async function deleteUserAddressAction(addressId: string, targetUserId?: string): Promise<{ success: boolean; error: string | null }> {
   try {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -81,11 +114,19 @@ export async function deleteUserAddressAction(addressId: string): Promise<{ succ
       return { success: false, error: 'Backend session missing.' };
     }
 
+    // Permission check
+    let finalUserId = user.id;
+    if (targetUserId && targetUserId !== user.id) {
+      const isAdmin = await verifyAdmin();
+      if (!isAdmin) return { success: false, error: 'Forbidden: Admin privileges required.' };
+      finalUserId = targetUserId;
+    }
+
     const { error } = await supabase
       .from('user_addresses')
       .delete()
       .eq('id', addressId)
-      .eq('user_id', user.id);
+      .eq('user_id', finalUserId);
 
     if (error) {
       return { success: false, error: error.message };

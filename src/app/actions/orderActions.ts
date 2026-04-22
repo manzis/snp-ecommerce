@@ -528,3 +528,104 @@ export async function deleteOrderAction(orderId: string) {
     return { success: false, message: error.message || 'Failed to delete order.' };
   }
 }
+
+/**
+ * Server action for Admin to manually create an order.
+ * Handles customer auto-creation if the email is new.
+ */
+export async function createManualOrderAction(orderData: any, items: any[]) {
+  const supabase = await createClient();
+  const adminSupabase = getSupabaseAdmin();
+  if (!adminSupabase) return { success: false, message: 'Admin client missing.' };
+
+  // 1. Verify Admin Role
+  const { data: { user: adminUser }, error: authError } = await supabase.auth.getUser();
+  if (authError || !adminUser) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', adminUser.id).single();
+  if (profile?.role !== 'admin') return { success: false, message: 'Forbidden.' };
+
+  try {
+    let targetUserId = orderData.user_id;
+
+    // 2. Handle Customer (Lookup or Create)
+    if (!targetUserId && orderData.customerEmail) {
+      // Check if user already exists in auth
+      const { data: { users }, error: listError } = await adminSupabase.auth.admin.listUsers();
+      if (listError) throw listError;
+
+      const existingUser = users.find(u => u.email?.toLowerCase() === orderData.customerEmail.toLowerCase());
+
+      if (existingUser) {
+        targetUserId = existingUser.id;
+      } else {
+        // Create new Auth User
+        const { data: newUser, error: createError } = await adminSupabase.auth.admin.createUser({
+          email: orderData.customerEmail,
+          email_confirm: true,
+          user_metadata: { full_name: orderData.customerName || 'Manual Customer' }
+        });
+
+        if (createError) throw createError;
+        targetUserId = newUser.user.id;
+      }
+    }
+
+    if (!targetUserId) throw new Error('Could not identify or create customer.');
+
+    // 2.5 Sync or Create Profile entry (Ensures latest address/email is stored)
+    await adminSupabase.from('profiles').upsert({
+      id: targetUserId,
+      full_name: orderData.customerName || 'Manual Customer',
+      email: orderData.customerEmail,
+      phone: orderData.customerPhone || '',
+      address_data: orderData.shipping_address
+    });
+
+    // 3. Prepare Order Data
+    const finalOrderData: OrderData = {
+      user_id: targetUserId,
+      total_amount: orderData.total_amount,
+      mrp_amount: orderData.mrp_amount || orderData.total_amount,
+      discount_amount: orderData.discount_amount || 0,
+      shipping_amount: orderData.shipping_amount || 0,
+      discount_on_mrp: orderData.discount_on_mrp || 0,
+      coupon_discount: orderData.coupon_discount || 0,
+      coupon_code: orderData.coupon_code || null,
+      bundle_discount: orderData.bundle_discount || 0,
+      cod_fees: orderData.cod_fees || 0,
+      tax_amount: orderData.tax_amount || 0,
+      shipping_address: orderData.shipping_address,
+      contact_details: {
+        full_name: orderData.customerName,
+        email: orderData.customerEmail,
+        phone: orderData.customerPhone
+      },
+      payment_method: orderData.payment_method || 'COD',
+      payment_screenshot_url: orderData.payment_screenshot_url || null,
+      payment_remarks: orderData.payment_remarks || 'Manually created by Admin'
+    };
+
+    // 4. Create Order using existing service
+    const result = await createOrder(finalOrderData, items);
+
+    // 5. Initial Status Update v2
+    await adminSupabase.rpc('update_order_status_v2', {
+      p_order_id: result.id,
+      p_new_status: 'pending',
+      p_message: 'Order Created Manually by Admin'
+    });
+
+    revalidatePath('/admin/orders');
+    
+    // Optional: Send confirmation email
+    sendOrderConfirmationEmail(result.id).catch(err => 
+      console.error('[Email] Confirmation failed for manual order:', err)
+    );
+
+    return { success: true, orderId: result.id };
+  } catch (error: any) {
+    console.error('Action Error: createManualOrderAction:', error);
+    return { success: false, message: error.message || 'Failed to create manual order.' };
+  }
+}

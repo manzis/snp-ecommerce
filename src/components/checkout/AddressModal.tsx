@@ -19,6 +19,7 @@ interface AddressModalProps {
   userId: string;
   initialAddress?: UserAddress | null;
   onSuccess: (address: UserAddress) => void;
+  targetUserId?: string;
 }
 
 const LocationIcon = () => (
@@ -28,7 +29,7 @@ const LocationIcon = () => (
   </svg>
 );
 
-const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, userId, initialAddress, onSuccess }) => {
+const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, userId, initialAddress, onSuccess, targetUserId }) => {
   const { showToast } = useToast();
   const contactData = useCheckoutStore(state => state.contactData);
   const [formData, setFormData] = useState<Partial<UserAddress>>({
@@ -94,7 +95,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
     }
 
     setIsSaving(true);
-    const result = await saveUserAddressAction(formData as UserAddress);
+    const result = await saveUserAddressAction(formData as UserAddress, targetUserId);
     setIsSaving(false);
     if (result.data) {
       showToast("Address saved successfully!", "success");
@@ -111,7 +112,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
     if (!confirm("Are you sure you want to delete this address?")) return;
 
     setIsDeleting(true);
-    const result = await deleteUserAddressAction(formData.id);
+    const result = await deleteUserAddressAction(formData.id, targetUserId);
     setIsDeleting(false);
 
     if (result.success) {

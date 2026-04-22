@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -179,4 +180,40 @@ export async function uploadAvatar(formData: FormData) {
   revalidatePath("/account/profile");
 
   return { success: true, url: publicUrl };
+}
+
+/**
+ * Fetches all customers for admin selection.
+ * Requires admin privileges.
+ */
+export async function fetchAllCustomersAction() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: 'Unauthorized' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') return { success: false, message: 'Forbidden' };
+
+  try {
+    // Determine which client to use: Standard (subject to RLS) vs. Admin (bypasses RLS)
+    const admin = getSupabaseAdmin();
+    const client = admin || supabase;
+
+    const { data: customers, error } = await client
+      .from('profiles')
+      .select('id, full_name, email, phone, avatar_url, address_data, created_at')
+      .order('full_name', { ascending: true });
+
+    if (error) throw error;
+
+    return { success: true, customers };
+  } catch (err: any) {
+    console.error('Error fetching customers:', err);
+    return { success: false, message: err.message || 'Failed to fetch customers' };
+  }
 }
