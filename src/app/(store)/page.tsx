@@ -15,6 +15,7 @@ import HomeFeaturedProducts from '@/components/home/HomeFeaturedProducts';
 import { fetchProducts, fetchHomepageProducts, fetchBrands, fetchHomeTestimonials } from '@/services/productService';
 import { fetchActiveBannersAction } from '@/app/actions/bannerActions';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';
+import { generateHomeFallbackSeo } from '@/lib/seo/seoFallback';
 
 export async function generateMetadata(): Promise<Metadata> {
   const [pSeo, gSeo] = await Promise.all([
@@ -22,27 +23,37 @@ export async function generateMetadata(): Promise<Metadata> {
     getSeoGlobal(),
   ]);
 
-  const title = pSeo?.title || gSeo?.default_title || 'Supplyment Nepal | Premium Supplements in Nepal';
-  const description = pSeo?.description || gSeo?.default_description || 'Shop premium supplements at Supplyment Nepal. Best prices on whey protein, mass gainers, and vitamins.';
+  const homeFallback = generateHomeFallbackSeo();
+  const title = pSeo?.title || gSeo?.default_title || homeFallback.title;
+  const description = pSeo?.description || gSeo?.default_description || homeFallback.description;
+  const keywords = pSeo?.keywords || homeFallback.keywords;
   const canonical = pSeo?.canonical_url || 'https://brightsupplements.store';
+  const ogImage = pSeo?.og_image || gSeo?.default_og_image || '';
 
   return {
     title,
     description,
-    keywords: pSeo?.keywords || undefined,
-    alternates: { canonical },
+    keywords,
+    alternates: {
+      canonical,
+      languages: { 'en-NP': canonical },
+    },
     robots: pSeo?.robots || gSeo?.default_robots || 'index, follow',
     openGraph: {
       title,
       description,
       url: canonical,
       type: 'website',
-      images: pSeo?.og_image ? [{ url: pSeo.og_image }] : gSeo?.default_og_image ? [{ url: gSeo.default_og_image }] : [],
+      siteName: 'Bright Supplements',
+      locale: 'en_NP',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: title }] : [],
     },
     twitter: {
-      card: (pSeo?.twitter_card as any) || 'summary_large_image',
+      card: 'summary_large_image' as const,
       title,
       description,
+      site: '@brightsupplements',
+      images: ogImage ? [ogImage] : [],
     },
   };
 }

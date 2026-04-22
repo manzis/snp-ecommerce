@@ -109,7 +109,7 @@ export async function createReviewAction(reviewData: any, productIds: string[] =
     };
 
     revalidatePath('/admin/reviews');
-    revalidateTag('products', 'tag');
+    revalidateTag('products', 'max');
     return { success: true, data: normalizedData };
   } catch (error: any) {
     console.error('Action Error: createReviewAction:', error);
@@ -189,7 +189,7 @@ export async function updateReviewAction(id: string, updates: any, productIds: s
     };
 
     revalidatePath('/admin/reviews');
-    revalidateTag('products', 'tag');
+    revalidateTag('products', 'max');
     return { success: true, data: normalizedReview as any };
   } catch (error: any) {
     console.error('Action Error: updateReviewAction:', error);
@@ -228,7 +228,7 @@ export async function deleteReviewAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/reviews');
-    revalidateTag('products', 'tag');
+    revalidateTag('products', 'max');
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: deleteReviewAction:', error);

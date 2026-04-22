@@ -10,15 +10,35 @@ export async function generateMetadata(): Promise<Metadata> {
     getSeoGlobal(),
   ]);
 
-  const title = pSeo?.title || 'All Supplements & Proteins | SNP Store Nepal';
-  const description = pSeo?.description || gSeo?.default_description || 'Browse Nepal\'s largest collection of authentic supplements. Whey protein, pre-workouts, vitamins, and more with fast nationwide delivery.';
+  const title = pSeo?.title || 'Buy Supplements Online Nepal | Best Price | Bright Supplements';
+  const description = pSeo?.description || gSeo?.default_description || "Browse Nepal's widest collection of 100% authentic supplements. Whey protein, mass gainers, creatine, vitamins & more — best prices with fast nationwide delivery. Cash on delivery available.";
+  const keywords = pSeo?.keywords || 'buy supplements online nepal, protein powder price nepal, mass gainer nepal, creatine nepal, supplement store kathmandu, pre-workout nepal, gym nutrition nepal';
+  const canonical = pSeo?.canonical_url || 'https://brightsupplements.store/products';
+  const ogImage = pSeo?.og_image || gSeo?.default_og_image || '';
 
   return {
     title,
     description,
+    keywords,
+    alternates: {
+      canonical,
+      languages: { 'en-NP': canonical },
+    },
     robots: pSeo?.robots || gSeo?.default_robots || 'index, follow',
-    alternates: { canonical: pSeo?.canonical_url || 'https://brightsupplements.store/products' },
-    openGraph: { title, description, type: 'website' },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'website',
+      siteName: 'Bright Supplements',
+      locale: 'en_NP',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: title }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 

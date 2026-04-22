@@ -395,7 +395,7 @@ export async function createProductAction(productData: any) {
     revalidatePath('/admin/products');
     revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
-    revalidateTag('products', 'tag');
+    revalidateTag('products', 'max');
 
     return { success: true, data: newProduct };
   } catch (error: any) {
@@ -776,7 +776,7 @@ export async function updateProductDeepAction(id: string, productData: any) {
     revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
     revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
-    revalidateTag('products', 'tag');
+    revalidateTag('products', 'max');
 
     return { success: true, data: updatedProduct };
   } catch (error: any) {

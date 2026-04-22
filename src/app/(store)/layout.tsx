@@ -2,23 +2,45 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { Suspense } from "react";
 import { ToastProvider } from '@/components/ui/ToastProvider';
-import { AuthModalProvider } from '@/context/AuthModalContext'; // Import Provider
-import { AuthProvider } from '@/context/AuthContext'; // Import new AuthProvider
+import { AuthModalProvider } from '@/context/AuthModalContext';
+import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
-import LoginModal from '@/components/auth/LoginModal'; // Import Component
+import LoginModal from '@/components/auth/LoginModal';
 import { titillium, inter, customFont } from "@/lib/fonts";
 import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElements";
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
+import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
 
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
   return {
+    metadataBase: new URL('https://brightsupplements.store'),
     title: {
-      default: gSeo?.default_title || 'Supplyment Nepal | Premium Supplements Store',
-      template: gSeo?.title_template || '%s | Supplyment Nepal',
+      default: gSeo?.default_title || 'Bright Supplements | Buy Authentic Supplements Online in Nepal',
+      template: gSeo?.title_template || '%s | Bright Supplements Nepal',
     },
-    description: gSeo?.default_description || 'Shop premium supplements at Supplyment Nepal.',
+    description: gSeo?.default_description || "Nepal's most trusted supplement store. Buy 100% genuine whey protein, mass gainer, creatine & vitamins with fast delivery.",
+    keywords: gSeo?.default_title
+      ? undefined
+      : 'buy supplements online nepal, best supplement store nepal, authentic whey protein nepal, protein powder price nepal, gym supplements nepal, mass gainer nepal, creatine nepal',
     robots: gSeo?.default_robots || 'index, follow',
+    openGraph: {
+      type: 'website',
+      locale: 'en_NP',
+      siteName: 'Bright Supplements',
+      images: gSeo?.default_og_image ? [{ url: gSeo.default_og_image }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@brightsupplements',
+    },
+    alternates: {
+      canonical: 'https://brightsupplements.store',
+    },
+    verification: {
+      google: process.env.GOOGLE_SITE_VERIFICATION,
+    },
   };
 }
 
@@ -89,18 +111,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
+        {/* Organization + WebSite JSON-LD — global structured data for Google */}
+        <OrganizationJsonLd />
+
+        {/* Google Analytics 4 — SPA-tracking enabled */}
+        <GoogleAnalytics />
+
         <ToastProvider>
-          {/* Global Auth & Cart Contexts wrapping the app */}
           <AuthProvider>
             <CartProvider>
               <AuthModalProvider>
 
                 {children}
 
-                {/* Conditional Global UI Components (hides on login/signup) */}
                 <ConditionalLayoutElements />
-
-                {/* The Modal lives here at the bottom of the body */}
                 <LoginModal key="global-login-modal" />
 
               </AuthModalProvider>

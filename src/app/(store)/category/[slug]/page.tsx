@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import { generateCategoryFallbackSeo } from '@/lib/seo/seoFallback';
+import CategoryJsonLd from '@/components/seo/CategoryJsonLd';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -17,27 +18,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getSeoGlobal(),
   ]);
 
-  if (!catData) return { title: 'Category Not Found | SNP Store' };
+  if (!catData) return { title: 'Category Not Found | Bright Supplements Nepal' };
 
   const fallback = generateCategoryFallbackSeo(catData);
   const canonical = `https://brightsupplements.store/category/${slug}`;
+  const ogImage = catData.image_url || gSeo?.default_og_image || '';
 
   return {
     title: fallback.title,
     description: fallback.description,
     keywords: fallback.keywords,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: { 'en-NP': canonical },
+    },
     robots: gSeo?.default_robots || 'index, follow',
     openGraph: {
       title: fallback.title,
       description: fallback.description,
       url: canonical,
       type: 'website',
+      siteName: 'Bright Supplements',
+      locale: 'en_NP',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: fallback.title }] : [],
     },
     twitter: {
       card: 'summary_large_image',
       title: fallback.title,
       description: fallback.description,
+      images: ogImage ? [ogImage] : [],
     },
   };
 }
@@ -63,12 +72,29 @@ async function CategoryDataWrapper({ slug }: { slug: string }) {
     fetchCategoryBySlug(slug)
   ]);
 
+  const productItems = (productsData || []).map(p => ({
+    name: p.title || p.name,
+    slug: p.slug,
+    image: p.images?.[0],
+    price: String(p.discounted_price),
+  }));
+
   return (
-    <ClientCategoryDetailLayout 
-      slug={slug}
-      initialProducts={productsData}
-      categoryMetadata={catData}
-    />
+    <>
+      {catData && (
+        <CategoryJsonLd
+          categoryName={catData.name}
+          categorySlug={slug}
+          products={productItems}
+          description={catData.description}
+        />
+      )}
+      <ClientCategoryDetailLayout 
+        slug={slug}
+        initialProducts={productsData}
+        categoryMetadata={catData}
+      />
+    </>
   );
 }
 

@@ -12,6 +12,17 @@ const PAGE_OPTIONS = [
   { label: 'Home (/)', identifier: 'home', urlPath: '' },
   { label: 'Products (/products)', identifier: 'products', urlPath: 'products' },
   { label: 'Brands (/brands)', identifier: 'brands', urlPath: 'brands' },
+  { label: 'Contact (/contact)', identifier: 'contact', urlPath: 'contact' },
+  { label: 'Distributor (/distributor)', identifier: 'distributor', urlPath: 'distributor' },
+  { label: 'Essentials (/essentials)', identifier: 'essentials', urlPath: 'essentials' },
+  { label: 'Refund (/refund)', identifier: 'refund', urlPath: 'refund' },
+  { label: 'Return (/return)', identifier: 'return', urlPath: 'return' },
+  { label: 'Shipping (/shipping)', identifier: 'shipping', urlPath: 'shipping' },
+  { label: 'Terms (/terms)', identifier: 'terms', urlPath: 'terms' },
+  { label: 'Track Order (/track-order)', identifier: 'track-order', urlPath: 'track-order' },
+  { label: 'Search (/search)', identifier: 'search', urlPath: 'search' },
+  { label: 'Cart (/cart)', identifier: 'cart', urlPath: 'cart' },
+  { label: 'Checkout (/checkout)', identifier: 'checkout', urlPath: 'checkout' },
 ];
 
 export default function SeoPreviewTab() {

@@ -110,6 +110,71 @@ export async function fetchSeoOverrideForProductAction(productId: string) {
   }
 }
 
+// SEO CONTENT BLOCKS ACTIONS
+export async function upsertSeoContentBlockAction(payload: any) {
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return { success: false, error: 'Database uninitialized' };
+
+    const { error } = await supabase
+      .from('seo_content_blocks')
+      .upsert(payload)
+      .select()
+      .single();
+
+    if (error) throw error;
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function fetchAllSeoContentBlocksAction() {
+  try {
+     const supabase = getSupabaseAdmin();
+     if (!supabase) return { success: false, data: [] };
+     const { data } = await supabase.from('seo_content_blocks').select('*').order('updated_at', { ascending: false });
+     return { success: true, data: data || [] };
+  } catch (err) {
+     return { success: false, data: [] };
+  }
+}
+
+export async function fetchSeoContentBlockByEntityAction(entityType: string, entityId: string) {
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return { success: false, data: null };
+    const { data } = await supabase
+      .from('seo_content_blocks')
+      .select('*')
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .single();
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, data: null };
+  }
+}
+
+export async function deleteSeoContentBlockAction(id: string) {
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return { success: false, error: 'Database uninitialized' };
+
+    const { error } = await supabase
+      .from('seo_content_blocks')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    revalidatePath('/', 'layout');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
 // REDIRECTS SEO ACTION
 export async function fetchSeoRedirectsAction() {
   try {

@@ -14,6 +14,7 @@ import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
 import FeaturedProductsSection from '@/components/product/FeaturedProductsSection';
+import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
 import { fetchProductBySlug, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     getSeoGlobal(),
   ]);
 
-  if (!product) return { title: 'Product Not Found | SNP Store' };
+  if (!product) return { title: 'Product Not Found | Bright Supplements Nepal' };
 
   const dbOverride = await getSeoProduct(product.id);
 
@@ -41,24 +42,33 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const title = dbOverride?.custom_title || fallback.title;
   const description = dbOverride?.custom_description || fallback.description;
   const canonical = `https://brightsupplements.store/product/${dbOverride?.custom_slug || product.slug}`;
+  const ogImage = product.images?.[0] || gSeo?.default_og_image || '';
 
   return {
     title,
     description,
     keywords: fallback.keywords,
-    alternates: { canonical },
-    robots: gSeo?.default_robots || 'index, follow',
+    alternates: {
+      canonical,
+      languages: { 'en-NP': canonical },
+    },
+    robots: dbOverride
+      ? ((dbOverride as any).robots || gSeo?.default_robots || 'index, follow')
+      : gSeo?.default_robots || 'index, follow',
     openGraph: {
       title,
       description,
       url: canonical,
       type: 'website',
-      images: product.images?.[0] ? [{ url: product.images[0] }] : [],
+      siteName: 'Bright Supplements',
+      locale: 'en_NP',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: title }] : [],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: ogImage ? [ogImage] : [],
     },
   };
 }
@@ -101,6 +111,10 @@ async function ProductContent({ slug }: { slug: string }) {
     notFound();
   }
 
+  const [dbOverride] = await Promise.all([
+    getSeoProduct(product.id),
+  ]);
+
   const breadcrumbPath = [
     { name: "Supplements", href: "/supplements" },
     { name: product.categories?.name || "Category", href: `/category/${product.categories?.slug || ''}` },
@@ -108,8 +122,36 @@ async function ProductContent({ slug }: { slug: string }) {
     { name: product.name, href: `/product/${product.slug}` }
   ];
 
+  // Build FAQ data from admin-defined SEO overrides or DB QA
+  const faqData = Array.isArray((dbOverride as any)?.faq_schema)
+    ? (dbOverride as any).faq_schema.filter((f: any) => f.question && f.answer)
+    : [];
+
   return (
     <>
+      {/* Rich Product JSON-LD for Google Rich Results */}
+      <ProductJsonLd
+        name={product.title || product.name}
+        description={`Buy authentic ${product.title} by ${product.brands?.name || 'Bright Supplements'} in Nepal. ${product.categories?.name || 'Premium supplement'} available at the best price with fast delivery.`}
+        images={product.images || []}
+        slug={dbOverride?.custom_slug || product.slug}
+        brand={product.brands?.name || 'Bright Supplements'}
+        originalPrice={product.original_price}
+        discountedPrice={product.discounted_price}
+        stockStatus={product.stock_status || 'in_stock'}
+        rating={product.rating}
+        reviewCount={product.reviews_count}
+        category={product.categories?.name}
+        breadcrumbs={[
+          { name: product.categories?.name || 'Category', url: `https://brightsupplements.store/category/${product.categories?.slug || ''}` },
+          { name: product.brands?.name || 'Brand', url: `https://brightsupplements.store/brand/${product.brands?.slug || ''}` },
+          { name: product.name, url: `https://brightsupplements.store/product/${product.slug}` },
+        ]}
+        faqs={faqData}
+        priceOverride={(dbOverride as any)?.rich_snippet_data?.price ? Number((dbOverride as any).rich_snippet_data.price) : undefined}
+        stockStatusOverride={(dbOverride as any)?.rich_snippet_data?.stock_status}
+        ratingOverride={(dbOverride as any)?.rich_snippet_data?.rating_value ? Number((dbOverride as any).rich_snippet_data.rating_value) : undefined}
+      />
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04) ">
         <div className="mx-auto w-full">
           <ProductNav />

@@ -156,27 +156,135 @@ export default function ProductsSeoTab() {
              </div>
 
              <div className="flex-1 overflow-y-auto no-scrollbar pt-6 pb-20">
-                 <div className="flex flex-col gap-5 max-w-[800px]">
+                 <div className="flex flex-col gap-6 max-w-[800px]">
                    
                    {/* Auto-Fallback info box */}
-                   <div className="bg-blue-50/50 text-blue-800 p-4 rounded-[8px] text-[12px] border border-blue-100">
-                     <strong>Auto-Generation Active:</strong> If these fields are left blank, the frontend dynamically generates the title and description combining the actual product data and <span className="font-mono">Global Settings</span>.
+                   <div className="bg-blue-50/50 text-blue-800 p-4 rounded-[8px] text-[12px] border border-blue-100 flex gap-3">
+                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                     <p>If fields are left blank, UI dynamically generates metadata combining product data & <span className="font-mono bg-blue-100 px-1 rounded">Global Settings</span>.</p>
                    </div>
 
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[12px] font-medium text-[#242424]">Custom Meta Title Override</label>
-                     <input type="text" name="custom_title" value={formData.custom_title || ''} onChange={handleChange} placeholder={`Leave empty for default: ${selectedProduct.title} - SNP Store`} className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black" />
+                   {/* Primary Overrides */}
+                   <div className="flex flex-col gap-4 bg-white p-5 rounded-[12px] border border-[#e5e5e5]">
+                     <h4 className="text-[14px] font-medium text-[#242424] border-b pb-2">Primary Overrides</h4>
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[12px] font-medium text-[#242424]">Custom Meta Title</label>
+                       <input type="text" name="custom_title" value={formData.custom_title || ''} onChange={handleChange} placeholder={`Default: ${selectedProduct.title}`} className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black" />
+                     </div>
+
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[12px] font-medium text-[#242424]">Custom Meta Description</label>
+                       <textarea name="custom_description" value={formData.custom_description || ''} onChange={handleChange} rows={3} placeholder="Overrides auto-generated description..." className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black resize-none" />
+                     </div>
+
+                     <div className="flex flex-col gap-1.5">
+                       <label className="text-[12px] font-medium text-[#242424]">Custom URL Slug</label>
+                       <input type="text" name="custom_slug" value={formData.custom_slug || ''} onChange={handleChange} placeholder="e.g. premium-whey-protein" className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black" />
+                     </div>
                    </div>
 
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[12px] font-medium text-[#242424]">Custom Meta Description Override</label>
-                     <textarea name="custom_description" value={formData.custom_description || ''} onChange={handleChange} rows={5} placeholder="Overrides the auto-generated description constructed from product benefits..." className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black resize-none" />
+                   {/* Rich Snippet Overrides */}
+                   <div className="flex flex-col gap-4 bg-white p-5 rounded-[12px] border border-[#e5e5e5]">
+                     <h4 className="text-[14px] font-medium text-[#242424] border-b pb-2">Rich Snippet Overrides (Schema.org)</h4>
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[12px] font-medium text-[#242424]">Manual Price (Rs.)</label>
+                          <input 
+                            type="number" 
+                            placeholder={selectedProduct.discounted_price.toString()}
+                            value={formData.rich_snippet_data?.price || ''} 
+                            onChange={(e) => setFormData(prev => ({ ...prev, rich_snippet_data: { ...prev.rich_snippet_data, price: e.target.value } }))}
+                            className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black" 
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[12px] font-medium text-[#242424]">Stock Status</label>
+                          <select 
+                            value={formData.rich_snippet_data?.stock_status || 'InStock'} 
+                            onChange={(e) => setFormData(prev => ({ ...prev, rich_snippet_data: { ...prev.rich_snippet_data, stock_status: e.target.value } }))}
+                            className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black bg-white"
+                          >
+                             <option value="InStock">In Stock</option>
+                             <option value="OutOfStock">Out of Stock</option>
+                             <option value="PreOrder">Pre-Order</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-[12px] font-medium text-[#242424]">Rating Override (0-5)</label>
+                          <input 
+                            type="number" 
+                            step="0.1"
+                            max="5"
+                            placeholder="4.9"
+                            value={formData.rich_snippet_data?.rating_value || ''} 
+                            onChange={(e) => setFormData(prev => ({ ...prev, rich_snippet_data: { ...prev.rich_snippet_data, rating_value: e.target.value } }))}
+                            className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black" 
+                          />
+                        </div>
+                     </div>
                    </div>
 
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[12px] font-medium text-[#242424]">Custom Product Slug Override</label>
-                     <input type="text" name="custom_slug" value={formData.custom_slug || ''} onChange={handleChange} placeholder="e.g. premium-whey-protein-5lbs" className="w-full text-[13px] border border-[#e5e5e5] rounded-[6px] px-3 py-2 outline-none focus:border-black" />
+                   {/* FAQ Schema Editor */}
+                   <div className="flex flex-col gap-4 bg-white p-5 rounded-[12px] border border-[#e5e5e5]">
+                     <div className="flex justify-between items-center border-b pb-2">
+                        <h4 className="text-[14px] font-medium text-[#242424]">Product FAQ Schema</h4>
+                        <button 
+                          onClick={() => {
+                            const current = Array.isArray(formData.faq_schema) ? formData.faq_schema : [];
+                            setFormData(prev => ({ ...prev, faq_schema: [...current, { question: '', answer: '' }] }));
+                          }}
+                          className="text-[12px] text-blue-600 font-medium hover:underline"
+                        >
+                          + Add QA Pair
+                        </button>
+                     </div>
+                     
+                     <div className="flex flex-col gap-4">
+                        {Array.isArray(formData.faq_schema) && formData.faq_schema.map((faq, idx) => (
+                           <div key={idx} className="p-4 bg-gray-50 rounded-[8px] border border-gray-100 relative group">
+                              <button 
+                                onClick={() => {
+                                  const filtered = (formData.faq_schema as any[]).filter((_, i) => i !== idx);
+                                  setFormData(prev => ({ ...prev, faq_schema: filtered }));
+                                }}
+                                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                              </button>
+                              <div className="flex flex-col gap-3">
+                                 <input 
+                                   type="text" 
+                                   placeholder="Question..." 
+                                   value={faq.question}
+                                   onChange={(e) => {
+                                      const updated = [...(formData.faq_schema as any[])];
+                                      updated[idx].question = e.target.value;
+                                      setFormData(prev => ({ ...prev, faq_schema: updated }));
+                                   }}
+                                   className="w-full bg-transparent text-[13px] font-medium border-b border-gray-200 py-1 outline-none focus:border-black"
+                                 />
+                                 <textarea 
+                                   placeholder="Answer content..." 
+                                   rows={2}
+                                   value={faq.answer}
+                                   onChange={(e) => {
+                                      const updated = [...(formData.faq_schema as any[])];
+                                      updated[idx].answer = e.target.value;
+                                      setFormData(prev => ({ ...prev, faq_schema: updated }));
+                                   }}
+                                   className="w-full bg-transparent text-[13px] py-1 outline-none focus:border-black resize-none"
+                                 />
+                              </div>
+                           </div>
+                        ))}
+                        {(!formData.faq_schema || (formData.faq_schema as any[]).length === 0) && (
+                           <div className="text-center py-6 text-[12px] text-gray-400 italic">
+                             No structured FAQs defined for this product yet.
+                           </div>
+                        )}
+                     </div>
                    </div>
+
                  </div>
              </div>
            </div>
