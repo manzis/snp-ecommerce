@@ -13,12 +13,13 @@ import { fetchProducts, Product } from '@/services/productService';
 interface SearchNavbarProps {
   onSearch: (term: string) => void;
   currentQuery: string;
+  initialProducts?: Product[];
 }
 
-const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery }) => {
+const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery, initialProducts }) => {
   const [inputValue, setInputValue] = useState(currentQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -26,9 +27,15 @@ const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery }) =
   const autofocus = searchParams.get('autofocus');
 
   useEffect(() => {
-    // Load database on mount for autocomplete context
-    fetchProducts().then(setProducts);
-  }, []);
+    // Only fetch if not provided via props (fallback)
+    if (!initialProducts || initialProducts.length === 0) {
+      if (products.length === 0) {
+        fetchProducts().then(setProducts);
+      }
+    } else {
+      setProducts(initialProducts);
+    }
+  }, [initialProducts]);
 
   useEffect(() => {
     setInputValue(currentQuery);
