@@ -11,17 +11,17 @@ import StarIcon from '@/components/icons/StarIcon2';
 import CancelOrderModal from '@/components/orders/CancelOrderModal';
 import { cancelOrderAction } from '@/app/actions/orderActions';
 
-export type OrderStatus = 
-    | 'PENDING' 
-    | 'CONFIRMED' 
-    | 'PROCESSING' 
-    | 'SHIPPED' 
-    | 'IN_TRANSIT' 
-    | 'RETURNED' 
-    | 'SHIPMENT_ARRIVED' 
-    | 'OUT_FOR_DELIVERY' 
-    | 'DELIVERED' 
-    | 'CANCELLED' 
+export type OrderStatus =
+    | 'PENDING'
+    | 'CONFIRMED'
+    | 'PROCESSING'
+    | 'SHIPPED'
+    | 'IN_TRANSIT'
+    | 'RETURNED'
+    | 'SHIPMENT_ARRIVED'
+    | 'OUT_FOR_DELIVERY'
+    | 'DELIVERED'
+    | 'CANCELLED'
     | 'RESCHEDULED'
     | 'FAILED';
 
@@ -101,7 +101,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
     const isOutForDelivery = order.status === 'OUT_FOR_DELIVERY';
     const isFailedOrCancelled = order.status === 'CANCELLED' || order.status === 'FAILED';
     const isActiveGroup = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'SHIPMENT_ARRIVED', 'RETURNED'].includes(order.status);
-    
+
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isCancelling, setIsCancelling] = useState(false);
 
@@ -136,7 +136,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                     </div>
                     {/* Hide Track Order if Cancelled/Failed/Delivered */}
                     {isActiveGroup && (
-                        <Link href={`/account/orders/${order.id}/track`} className="flex h-[32px]  items-center justify-center gap-[10px] rounded-[8px] border border-[#f1f5f9] px-[8px] py-[12px] transition-all bg-[#FAFBFC] hover:bg-gray-50 active:scale-95">
+                        <Link href={`/account/orders/${order.id}`} className="flex h-[32px]  items-center justify-center gap-[10px] rounded-[8px] border border-[#f1f5f9] px-[8px] py-[12px] transition-all bg-[#FAFBFC] hover:bg-gray-50 active:scale-95">
                             <span className="font-titillium text-[14px] font-[600] leading-[24px] tracking-[-0.2px] text-[#242424] whitespace-nowrap">
                                 Track Order
                             </span>
@@ -257,8 +257,8 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
 
                     <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[rgba(36,36,36,0.8)]">
                         {isFailedOrCancelled
-                            ? order.cancellationReason && order.status === 'CANCELLED' 
-                                ? `Cancellation Reason: ${order.cancellationReason}` 
+                            ? order.cancellationReason && order.status === 'CANCELLED'
+                                ? `Cancellation Reason: ${order.cancellationReason}`
                                 : "Note: Refund will take up to 7 days for cancelled and failed orders."
                             : isDelivered
                                 ? <>Note: You can only get support for delivered items up to 4 days from the delivery date regarding any returns. Check our <Link href="/terms" className="text-[#308026] underline hover:text-[#242424] transition-colors">Terms and Conditions</Link>.</>
@@ -270,7 +270,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
             </div>
 
             {/* CANCELLATION WIZARD MODAL */}
-            <CancelOrderModal 
+            <CancelOrderModal
                 isOpen={isCancelModalOpen}
                 onClose={() => setIsCancelModalOpen(false)}
                 onConfirm={handleCancelOrder}
