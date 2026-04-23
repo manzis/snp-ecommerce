@@ -22,6 +22,7 @@ interface BundleDealCardProps {
 interface VariantInfo {
   size: string | null;
   flavor: string | null;
+  image_url: string | null;
   price: number;
   mrp: number;
 }
@@ -30,6 +31,7 @@ interface SelectedProduct {
   product: Product;
   size: string | null;
   flavor: string | null;
+  image_url: string | null;
   price: number;
   mrp: number;
 }
@@ -183,7 +185,10 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
     let finalPrice = 0;
 
     if (type === 'interactive') {
-      const activeFlavor = mainProduct.product_flavours?.find(f => f.id === selectedFlavorId)?.flavour_name || 'Regular';
+      const selectedFlavourObj = mainProduct.product_flavours?.find(f => f.id === selectedFlavorId);
+      const activeFlavor = selectedFlavourObj?.flavour_name || 'Regular';
+      const mainImage = selectedFlavourObj?.image_url || currentProductImage || mainProduct.images?.[0] || '';
+      
       discount = interactiveDiscount;
       finalPrice = currentPriceRaw;
 
@@ -199,7 +204,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
         brand: mainProduct.brands?.name || 'Store Product',
         price: storePrice || basePrice,
         mrp: storeMrp || baseMrp,
-        image: currentProductImage || mainProduct.images?.[0] || '',
+        image: mainImage,
         quantity: 1,
         stock_status: mainProduct.stock_status || 'in_stock'
       });
@@ -214,7 +219,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
           brand: p.product.brands?.name || 'Store Product',
           price: p.price,
           mrp: p.mrp,
-          image: p.product.images?.[0] || '',
+          image: p.image_url || p.product.images?.[0] || '',
           quantity: 1,
           stock_status: p.product.stock_status || 'in_stock',
           bundle_discount: 0
@@ -237,7 +242,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
           brand: mainProduct.brands?.name || 'Store Product',
           price: s.price,
           mrp: s.mrp,
-          image: currentProductImage || mainProduct.images?.[0] || '',
+          image: s.image_url || currentProductImage || mainProduct.images?.[0] || '',
           quantity: 1,
           stock_status: mainProduct.stock_status || 'in_stock',
           bundle_discount: i === 0 ? discount : 0
@@ -351,7 +356,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       {selectedProducts[0] ? (
                         <>
                           <SavingsBadge text="Rs. 20 Saved" type="saved" />
-                          <Image src={selectedProducts[0].product.images[0]} alt="p1" width={48} height={48} className="object-contain" />
+                          <Image src={selectedProducts[0].image_url || selectedProducts[0].product.images[0]} alt="p1" width={48} height={48} className="object-contain" />
                           <button onClick={(e) => { e.stopPropagation(); removeProduct(0); }} className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transition-transform hover:scale-110">
                             <CloseIcon className="w-2.5 h-2.5" />
                           </button>
@@ -377,7 +382,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       {selectedProducts[1] ? (
                         <>
                           <SavingsBadge text="Rs. 50 Saved" type="saved" />
-                          <Image src={selectedProducts[1].product.images[0]} alt="p2" width={48} height={48} className="object-contain" />
+                          <Image src={selectedProducts[1].image_url || selectedProducts[1].product.images[0]} alt="p2" width={48} height={48} className="object-contain" />
                           <button onClick={(e) => { e.stopPropagation(); removeProduct(1); }} className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transition-transform hover:scale-110">
                             <CloseIcon className="w-2.5 h-2.5" />
                           </button>

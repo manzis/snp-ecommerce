@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const fallback = generateCategoryFallbackSeo(catData);
   const canonical = `https://brightsupplements.store/category/${slug}`;
-  const ogImage = catData.image_url || gSeo?.default_og_image || '';
+  const ogImage = catData.image_url || gSeo?.default_og_image || '/images/shoplogo.png';
 
   return {
     title: fallback.title,
@@ -40,13 +40,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       siteName: 'Bright Supplements',
       locale: 'en_NP',
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: fallback.title }] : [],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: fallback.title,
+        }
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: fallback.title,
       description: fallback.description,
-      images: ogImage ? [ogImage] : [],
+      images: [ogImage],
     },
   };
 }

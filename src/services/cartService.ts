@@ -44,7 +44,8 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
         original_price,
         stock_status,
         images,
-        brands (name)
+        brands (name),
+        product_flavours (id, flavour_name, image_url)
       )
     `)
     .eq('user_id', userId);
@@ -58,6 +59,13 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
 
   (data || []).forEach((row: any) => {
     const product = row.product;
+    const selectedFlavor = row.selected_flavor;
+    
+    // Resolve Flavour-Specific Image
+    const flavourImage = product?.product_flavours?.find(
+      (f: any) => f.flavour_name === selectedFlavor
+    )?.image_url;
+
     const item: CartItemType = {
       id: getCartItemId(row),
       product_id: row.product_id,
@@ -66,10 +74,10 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       brand: product?.brands?.name || 'Store Product',
       price: row.price || parseInt((product?.discounted_price || '0').replace(/\D/g, ''), 10),
       mrp: row.original_price || parseInt((product?.original_price || '0').replace(/\D/g, ''), 10),
-      image: product?.images?.[0] || '',
+      image: flavourImage || product?.images?.[0] || '',
       quantity: row.quantity,
       selected_size: row.selected_size,
-      selected_flavor: row.selected_flavor,
+      selected_flavor: selectedFlavor,
       stock_status: product?.stock_status || 'in_stock',
       bundle_id: row.bundle_id === 'standard' ? undefined : row.bundle_id,
       bundle_discount: row.bundle_discount || 0

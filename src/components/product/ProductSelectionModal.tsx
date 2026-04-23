@@ -12,6 +12,7 @@ import ProductVariantPicker from './ProductVariantPicker';
 interface VariantInfo {
   size: string | null;
   flavor: string | null;
+  image_url: string | null;
   price: number;
   mrp: number;
 }
@@ -255,10 +256,12 @@ export default function ProductSelectionModal({
                                     )}
                                     <button 
                                         onClick={() => {
-                                            const flavorName = product.product_flavours?.find(f => f.id === selectedFlavorId)?.flavour_name || null;
+                                            const flavorObj = product.product_flavours?.find(f => f.id === selectedFlavorId);
+                                            const flavorName = flavorObj?.flavour_name || null;
                                             const variantInfo = {
                                                 size: selectedSize,
                                                 flavor: flavorName,
+                                                image_url: flavorObj?.image_url || null,
                                                 price: currentPrice,
                                                 mrp: originalPrice
                                             };

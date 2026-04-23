@@ -30,7 +30,14 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       locale: 'en_NP',
       siteName: 'Bright Supplements',
-      images: gSeo?.default_og_image ? [{ url: gSeo.default_og_image }] : [],
+      images: [
+        {
+          url: gSeo?.default_og_image || '/images/shoplogo.png',
+          width: 1200,
+          height: 630,
+          alt: 'Bright Supplements Nepal',
+        }
+      ],
     },
     twitter: {
       card: 'summary_large_image',

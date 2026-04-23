@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const fallback = generateBrandFallbackSeo(brand);
   const canonical = `https://brightsupplements.store/brand/${slug}`;
+  const ogImage = brand.cover_image || gSeo?.default_og_image || '/images/shoplogo.png';
 
   return {
     title: fallback.title,
@@ -37,12 +38,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: fallback.description,
       url: canonical,
       type: 'website',
-      images: brand.cover_image ? [{ url: brand.cover_image }] : [],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: fallback.title,
+        }
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: fallback.title,
       description: fallback.description,
+      images: [ogImage],
     },
   };
 }

@@ -32,12 +32,20 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       siteName: 'Bright Supplements',
       locale: 'en_NP',
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: title }] : [],
+      images: [
+        {
+          url: ogImage || '/images/shoplogo.png',
+          width: 1200,
+          height: 630,
+          alt: title,
+        }
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImage || '/images/shoplogo.png'],
     },
   };
 }

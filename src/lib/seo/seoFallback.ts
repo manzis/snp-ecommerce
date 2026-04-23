@@ -8,6 +8,7 @@ import { Product, Category, Brand } from '@/services/productService';
 
 const BRAND_NAME = 'Bright Supplements';
 const SITE_URL = 'https://brightsupplements.store';
+const DEFAULT_OG_IMAGE = '/images/shoplogo.png';
 
 // Keyword-rich location + intent modifiers
 const NEPAL_QUALIFIERS = [

@@ -53,7 +53,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const title = dbOverride?.custom_title || fallback.title;
   const description = dbOverride?.custom_description || fallback.description;
   const canonical = `https://brightsupplements.store/product/${dbOverride?.custom_slug || product.slug}`;
-  const ogImage = product.images?.[0] || gSeo?.default_og_image || '';
+  const ogImage = product.images?.[0] || gSeo?.default_og_image || '/images/shoplogo.png';
+  const ogTitle = title;
+  const ogDescription = description;
 
   return {
     title,
@@ -67,19 +69,26 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       ? ((dbOverride as any).robots || gSeo?.default_robots || 'index, follow')
       : gSeo?.default_robots || 'index, follow',
     openGraph: {
-      title,
-      description,
+      title: ogTitle,
+      description: ogDescription,
       url: canonical,
       type: 'website',
       siteName: 'Bright Supplements',
       locale: 'en_NP',
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: title }] : [],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: title,
+        }
+      ],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description,
-      images: ogImage ? [ogImage] : [],
+      title: ogTitle,
+      description: ogDescription,
+      images: [ogImage],
     },
   };
 }
@@ -195,9 +204,19 @@ async function ProductContent({ slug }: { slug: string }) {
             </div>
             {/* Reviews: Desktop only in left column */}
             <div className="hidden lg:block">
-              <Suspense fallback={<SectionSkeleton height="200px" />}>
-                <ReviewsWrapper productId={product.id} />
-              </Suspense>
+              <LegacyProductBanners
+                banners={[
+                  product.banner_image1,
+                  product.banner_image2,
+                  product.banner_image3,
+                  product.banner_image4
+                ]}
+              />
+              <div className="mt-8">
+                <Suspense fallback={<SectionSkeleton height="200px" />}>
+                  <ReviewsWrapper productId={product.id} />
+                </Suspense>
+              </div>
             </div>
           </div>
 
@@ -227,9 +246,19 @@ async function ProductContent({ slug }: { slug: string }) {
                 <ProductDetails product={product} />
               </div>
               <div className="w-full lg:hidden">
-                <Suspense fallback={<SectionSkeleton height="200px" />}>
-                  <ReviewsWrapper productId={product.id} />
-                </Suspense>
+                <LegacyProductBanners
+                  banners={[
+                    product.banner_image1,
+                    product.banner_image2,
+                    product.banner_image3,
+                    product.banner_image4
+                  ]}
+                />
+                <div className="mt-6">
+                  <Suspense fallback={<SectionSkeleton height="200px" />}>
+                    <ReviewsWrapper productId={product.id} />
+                  </Suspense>
+                </div>
               </div>
               <div className="w-full">
                 <Suspense fallback={<SectionSkeleton height="150px" />}>
@@ -240,17 +269,6 @@ async function ProductContent({ slug }: { slug: string }) {
           </div>
         </div>
 
-        {/* FULL-WIDTH SECTIONS: Below the two-column grid */}
-        <div className="w-full mt-[32px] lg:mt-[48px] lg:px-[24px]">
-          <LegacyProductBanners
-            banners={[
-              product.banner_image1,
-              product.banner_image2,
-              product.banner_image3,
-              product.banner_image4
-            ]}
-          />
-        </div>
         <div className="w-full mt-[32px] lg:mt-[48px]">
           <ProductBanners linkedBanners={product.product_banners} />
         </div>

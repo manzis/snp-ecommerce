@@ -6,6 +6,18 @@ import SearchPageClient from './SearchPageClient';
 export const metadata: Metadata = {
   title: 'Search Products | Bright Supplements Nepal',
   description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal.',
+  openGraph: {
+    title: 'Search Products | Bright Supplements Nepal',
+    description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal.',
+    images: [
+      {
+        url: '/images/shoplogo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Bright Supplements Nepal',
+      }
+    ],
+  },
 };
 
 export default async function SearchPage() {

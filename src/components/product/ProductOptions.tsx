@@ -124,6 +124,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
     };
 
+    const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
+    const itemImage = selectedFlavour?.image_url || product.images?.[0] || '/images/protein.jpg';
+
     addItem({
       id: getCartItemId(itemData),
       ...itemData,
@@ -132,7 +135,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       brand: product.brands?.name || 'Store Product',
       price: currentPrice || parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
       mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
-      image: product.images?.[0] || '/images/protein.jpg',
+      image: itemImage,
       quantity: 1,
       stock_status: product.stock_status || 'in_stock'
     });
@@ -168,6 +171,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
 
       if (!alreadyInCart) {
+        const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
+        const itemImage = selectedFlavour?.image_url || product.images?.[0] || '/images/protein.jpg';
+
         addItem({
           id: itemId,
           ...itemData,
@@ -176,7 +182,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
           brand: product.brands?.name || 'Store Product',
           price: currentPrice || parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
           mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
-          image: product.images?.[0] || '/images/protein.jpg',
+          image: itemImage,
           quantity: 1,
           stock_status: product.stock_status || 'in_stock'
         });
@@ -225,7 +231,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       {product.stock_status !== 'out_of_stock' && (
         <BundleDealCard 
           mainProduct={product}
-          currentProductImage={product.images?.[0]} 
+          currentProductImage={flavours.find(f => f.id === selectedFlavorId)?.image_url || product.images?.[0]} 
         />
       )}
 
