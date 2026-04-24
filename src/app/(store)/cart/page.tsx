@@ -11,15 +11,61 @@ import CartCheckoutBar from '@/components/cart/CartCheckoutBar';
 import CartCoupons from '@/components/cart/CartCoupons';
 import { useCartStore } from '@/store/cartStore';
 import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
+import { useAuth } from '@/context/AuthContext';
+import { useAuthModal } from '@/context/AuthModalContext';
+import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions/addressActions';
+import { UserAddress } from '@/services/addressService';
+import AddressModal from '@/components/checkout/AddressModal';
+import AddressSelector from '@/components/checkout/AddressSelector';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/components/ui/ToastProvider';
 
 export default function CartPage() {
 
   const router = useRouter();
   const { items, loadCart, getCouponDiscount } = useCartStore();
+  const { user, session, isLoading: isAuthLoading } = useAuth();
+  const { openLogin } = useAuthModal();
+  const { showToast } = useToast();
+
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [isAddressesLoading, setIsAddressesLoading] = useState(false);
+
+  // Modal states
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [addressModalMode, setAddressModalMode] = useState<'add' | 'edit'>('add');
+  const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
 
   useEffect(() => {
     loadCart();
   }, [loadCart]);
+
+  useEffect(() => {
+    if (user) {
+      fetchAddresses();
+    } else {
+      setAddresses([]);
+      setSelectedAddressId('');
+    }
+  }, [user]);
+
+  const fetchAddresses = async () => {
+    setIsAddressesLoading(true);
+    const { data, error } = await fetchUserAddressesAction();
+    if (!error && data) {
+      setAddresses(data);
+      if (data.length > 0 && !selectedAddressId) {
+        setSelectedAddressId(data[0].id || '');
+      }
+    }
+    setIsAddressesLoading(false);
+  };
+
+  const selectedAddress = useMemo(() => {
+    return addresses.find(addr => addr.id === selectedAddressId) || addresses[0] || null;
+  }, [addresses, selectedAddressId]);
 
   // 1. CALCULATE TOTALS
   const subtotal = useMemo(() => {
@@ -38,6 +84,47 @@ export default function CartPage() {
     router.push('/checkout');
   };
 
+  const handleAddressChange = () => {
+    setIsSelectionModalOpen(true);
+  };
+
+  const handleCreateAddress = () => {
+    setAddressModalMode('add');
+    setEditingAddress(null);
+    setIsAddressModalOpen(true);
+  };
+
+  const handleEditAddress = (id: string) => {
+    const addr = addresses.find(a => a.id === id);
+    if (addr) {
+      setEditingAddress(addr);
+      setAddressModalMode('edit');
+      setIsAddressModalOpen(true);
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this address?")) return;
+    const result = await deleteUserAddressAction(id);
+    if (result.success) {
+      showToast("Address deleted successfully!", "success");
+      fetchAddresses();
+    } else {
+      showToast(result.error || "Failed to delete address", "error");
+    }
+  };
+
+  const handleAddressSelect = (id: string) => {
+    setSelectedAddressId(id);
+    setIsSelectionModalOpen(false);
+  };
+
+  const handleAddressSuccess = (address: UserAddress) => {
+    fetchAddresses();
+    if (address.id) setSelectedAddressId(address.id);
+    setIsAddressModalOpen(false);
+  };
+
   return (
     <div className={`min-h-screen bg-[#f7faf6] pt-[81px] ${items.length > 0 ? 'mb-[80px]' : ''}`}>
       {/* STICKY NAV */}
@@ -49,11 +136,16 @@ export default function CartPage() {
         <div className="flex-1 flex flex-col gap-[12px]">
           {items.length > 0 && (
             <DeliveryAddress
-              name="Manjish"
-              phoneSuffix="273164"
-              address="Baneshwor, Kathmandu, Bus Stop Area"
-              type="Home"
-              onChange={() => console.log("Change address")}
+              isLoggedIn={!!user}
+              isLoading={isAuthLoading}
+              name={selectedAddress?.first_name}
+              phoneSuffix={selectedAddress?.phone?.slice(-6)}
+              address={`${selectedAddress?.address_line_1}, ${selectedAddress?.street}, ${selectedAddress?.city}`}
+              type={selectedAddress?.type}
+              hasAddresses={addresses.length > 0}
+              onChange={handleAddressChange}
+              onLogin={openLogin}
+              onCreate={handleCreateAddress}
             />
           )}
 
@@ -131,6 +223,52 @@ export default function CartPage() {
           onCheckout={handleCheckout}
         />
       )}
+
+      {/* ADDRESS SELECTION MODAL */}
+      <AnimatePresence>
+        {isSelectionModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSelectionModalOpen(false)}
+              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+              className="fixed bottom-0 left-0 right-0 z-[70] flex flex-col w-full bg-white rounded-t-[24px] max-h-[90vh] overflow-hidden"
+            >
+              <div className="flex justify-center p-[16px]">
+                <button onClick={() => setIsSelectionModalOpen(false)} className="w-[40px] h-[5px] bg-[#eaebf0] rounded-full" />
+              </div>
+              <div className="px-[24px] pb-[32px] overflow-y-auto">
+                <h2 className="font-titillium text-[20px] font-bold text-[#242424] mb-[24px]">Select Delivery Address</h2>
+                <AddressSelector
+                  addresses={addresses}
+                  selectedId={selectedAddressId}
+                  onSelect={handleAddressSelect}
+                  onEdit={handleEditAddress}
+                  onDelete={handleDeleteAddress}
+                  onAddNew={handleCreateAddress}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        mode={addressModalMode}
+        userId={user?.id || ''}
+        initialAddress={editingAddress}
+        onSuccess={handleAddressSuccess}
+      />
     </div>
   );
 }

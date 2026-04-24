@@ -77,64 +77,60 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         setError(null);
         setIsSending(true);
 
-        // OPTIMISTIC TRANSITION: Switch to OTP view immediately to feel "faster"
-        // Most users have high confidence in their email/phone being correct.
-        setStep('otp');
-
-        const supabase = createClient();
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
-
         try {
-            if (isEmail) {
-                const { error } = await supabase.auth.signInWithOtp({
-                    email: identifier,
-                    options: { shouldCreateUser: true }
-                });
-                if (error) throw error;
-            } else {
-                const { error } = await supabase.auth.signInWithOtp({
-                    phone: identifier.startsWith('+') ? identifier : `+977${identifier}`,
-                });
-                if (error) throw error;
-            }
+            const supabase = createClient();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
-            console.log("OTP Sent");
-            setIsSending(false);
+            // Wrap the Supabase call with a timeout to prevent infinite hangs
+            const otpPromise = isEmail
+                ? supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
+                : supabase.auth.signInWithOtp({ phone: identifier.startsWith('+') ? identifier : `+977${identifier}` });
+
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Request timed out. Please check your connection and try again.")), 15000)
+            );
+
+            const { error } = await Promise.race([otpPromise, timeoutPromise]);
+            if (error) throw error;
+
+            // Only transition to OTP view AFTER confirmed success
+            setStep('otp');
             showToast("OTP sent successfully!", "success");
         } catch (err: any) {
-            console.log("Login Failed");
+            console.error("OTP Send Failed:", err?.message || err);
+            setStep('login'); // Ensure we're on login step
+            showToast(err?.message || "Failed to send OTP. Please try again.", "error");
+        } finally {
+            // Always reset sending state, no matter what happens
             setIsSending(false);
-            setStep('login'); // Revert if failed
-            showToast(err?.message || "Failed to send OTP", "error");
         }
     };
 
     const handleResendOtp = async () => {
         setStatusMsg("Sending...");
-        const supabase = createClient();
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
         try {
-            if (isEmail) {
-                const { error } = await supabase.auth.signInWithOtp({
-                    email: identifier,
-                    options: { shouldCreateUser: true }
-                });
-                if (error) throw error;
-            } else {
-                const { error } = await supabase.auth.signInWithOtp({
-                    phone: identifier.startsWith('+') ? identifier : `+977${identifier}`,
-                });
-                if (error) throw error;
-            }
-            console.log("OTP Sent");
+            const supabase = createClient();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+
+            const otpPromise = isEmail
+                ? supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
+                : supabase.auth.signInWithOtp({ phone: identifier.startsWith('+') ? identifier : `+977${identifier}` });
+
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Request timed out. Please try again.")), 15000)
+            );
+
+            const { error } = await Promise.race([otpPromise, timeoutPromise]);
+            if (error) throw error;
+
             setStatusMsg("OTP resent successfully!");
             showToast("OTP has been resent to your inbox", "success");
-            setTimeout(() => setStatusMsg(null), 3000);
         } catch (err: any) {
-            console.log("Login Failed");
+            console.error("Resend OTP Failed:", err?.message || err);
             setStatusMsg("Failed to resend");
             showToast(err?.message || "Failed to resend OTP", "error");
+        } finally {
             setTimeout(() => setStatusMsg(null), 3000);
         }
     };
@@ -146,12 +142,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         }
         setIsVerifying(true);
         const otpString = otp.join('');
-        console.log("Verifying:", otpString);
-
-        const supabase = createClient();
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
 
         try {
+            const supabase = createClient();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+
             let verifyParams: any = {
                 token: otpString,
                 type: isEmail ? 'email' : 'sms',
@@ -162,11 +157,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 verifyParams.phone = identifier.startsWith('+') ? identifier : `+977${identifier}`;
             }
 
-            const { error: verifyError } = await supabase.auth.verifyOtp(verifyParams);
+            const verifyPromise = supabase.auth.verifyOtp(verifyParams);
+            const timeoutPromise = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Verification timed out. Please try again.")), 15000)
+            );
 
+            const { error: verifyError } = await Promise.race([verifyPromise, timeoutPromise]);
             if (verifyError) throw verifyError;
 
-            console.log("OTP Verified");
             // Clear persistence on success
             localStorage.removeItem('auth_identifier');
             localStorage.removeItem('auth_step');
@@ -175,7 +173,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             closeLogin();
             router.push('/account');
         } catch (err: any) {
-            console.log("Login Failed");
+            console.error("OTP Verify Failed:", err?.message || err);
             showToast(err?.message || "Invalid OTP", "error");
         } finally {
             setIsVerifying(false);

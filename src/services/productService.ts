@@ -159,6 +159,7 @@ export interface Coupon {
   max_discount: number | null;
   created_at: string;
   products?: { id: string, title: string } | null;
+  is_public?: boolean;
 }
 
 
@@ -753,6 +754,7 @@ export async function fetchActiveCoupons(): Promise<Coupon[]> {
     .from('coupons')
     .select('*, products(id, title)')
     .eq('is_active', true)
+    .eq('is_public', true)
     .or(`expires_at.gt.${now},expires_at.is.null`)
     .order('created_at', { ascending: false });
 

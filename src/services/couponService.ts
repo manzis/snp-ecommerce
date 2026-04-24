@@ -12,6 +12,7 @@ export interface Coupon {
   description?: string;
   is_active: boolean;
   expires_at?: string;
+  is_public?: boolean;
 }
 
 export interface ValidationResult {

@@ -6,6 +6,8 @@ import TrashIcon from '@/components/icons/TrashIcon';
 import HorizontalDotsIcon from '@/components/icons/DotsHorizontalIcon';
 import CheckIcon from '@/components/icons/CheckIcon';
 import CopyIcon from '@/components/icons/CopyIcon';
+import { Eye, EyeOff } from 'lucide-react';
+
 
 export interface Coupon {
   id: string;
@@ -20,12 +22,14 @@ export interface Coupon {
   max_discount: number | null;
   created_at: string;
   products?: { id: string, title: string } | null;
+  is_public?: boolean;
 }
 
 interface CouponActionMenuProps {
   coupon: Coupon;
   onEdit?: (coupon: Coupon) => void;
   onDelete?: (id: string) => void;
+  onToggleVisibility?: (coupon: Coupon) => void;
   onOpenChange?: (isOpen: boolean) => void;
 }
 
@@ -40,6 +44,7 @@ export default function CouponActionMenu({
     coupon,
     onEdit,
     onDelete,
+    onToggleVisibility,
     onOpenChange
 }: CouponActionMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
@@ -126,6 +131,26 @@ export default function CouponActionMenu({
                         >
                             <EditIcon className="w-4 h-4 text-[#71717a]" />
                             <span>Edit details</span>
+                        </button>
+
+                        <div className="border-t border-gray-50 my-1"></div>
+
+                        {/* Toggle Visibility */}
+                        <button
+                            onClick={(e) => handleAction(e, () => onToggleVisibility?.(coupon))}
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                        >
+                            {coupon.is_public === false ? (
+                                <>
+                                    <Eye className="w-4 h-4 text-[#71717a]" />
+                                    <span>Make Public</span>
+                                </>
+                            ) : (
+                                <>
+                                    <EyeOff className="w-4 h-4 text-[#71717a]" />
+                                    <span>Make Private</span>
+                                </>
+                            )}
                         </button>
 
                         <div className="border-t border-gray-50 my-1"></div>

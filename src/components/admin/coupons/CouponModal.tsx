@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import AdminModal from '@/components/admin/shared/AdminModal';
 import { Coupon } from './CouponActionMenu';
 import { fetchProducts, Product } from '@/services/productService';
-import { Calendar, Tag, Percent, DollarSign, Package } from 'lucide-react';
+import { Calendar, Tag, Percent, DollarSign, Package, EyeOff } from 'lucide-react';
+
 
 interface CouponModalProps {
     isOpen: boolean;
@@ -30,7 +31,8 @@ export default function CouponModal({
         description: '',
         is_active: true,
         expires_at: null,
-        max_discount: null
+        max_discount: null,
+        is_public: true
     });
 
     const [products, setProducts] = useState<Product[]>([]);
@@ -59,7 +61,8 @@ export default function CouponModal({
                 description: coupon.description || '',
                 is_active: coupon.is_active,
                 expires_at: coupon.expires_at ? new Date(coupon.expires_at).toISOString().split('T')[0] : null,
-                max_discount: coupon.max_discount
+                max_discount: coupon.max_discount,
+                is_public: coupon.is_public !== false // defaults to true if undefined
             });
         } else {
             setFormData({
@@ -71,7 +74,8 @@ export default function CouponModal({
                 description: '',
                 is_active: true,
                 expires_at: null,
-                max_discount: null
+                max_discount: null,
+                is_public: true
             });
         }
     }, [coupon, isOpen]);
@@ -219,21 +223,41 @@ export default function CouponModal({
                     />
                 </div>
 
-                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <input
-                        type="checkbox"
-                        id="is_active"
-                        checked={formData.is_active}
-                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                        className="w-5 h-5 rounded outline-none border-gray-300 text-[#242424] focus:ring-[#242424]"
-                    />
-                    <div className="flex flex-col">
-                        <label htmlFor="is_active" className="text-[14px] font-medium text-[#242424] cursor-pointer">
-                            Active Status
-                        </label>
-                        <span className="text-[12px] text-[#71717a]">
-                            If disabled, this coupon cannot be used by customers.
-                        </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <input
+                            type="checkbox"
+                            id="is_active"
+                            checked={formData.is_active}
+                            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                            className="w-5 h-5 rounded outline-none border-gray-300 text-[#242424] focus:ring-[#242424]"
+                        />
+                        <div className="flex flex-col">
+                            <label htmlFor="is_active" className="text-[14px] font-medium text-[#242424] cursor-pointer">
+                                Active Status
+                            </label>
+                            <span className="text-[12px] text-[#71717a]">
+                                If disabled, this coupon cannot be used.
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <input
+                            type="checkbox"
+                            id="is_private"
+                            checked={formData.is_public === false}
+                            onChange={(e) => setFormData({ ...formData, is_public: !e.target.checked })}
+                            className="w-5 h-5 rounded outline-none border-gray-300 text-[#242424] focus:ring-[#242424]"
+                        />
+                        <div className="flex flex-col">
+                            <label htmlFor="is_private" className="text-[14px] font-medium text-[#242424] cursor-pointer flex items-center gap-1">
+                                Make Private <EyeOff className="w-3.5 h-3.5" />
+                            </label>
+                            <span className="text-[12px] text-[#71717a]">
+                                Hide from the storefront product pages.
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

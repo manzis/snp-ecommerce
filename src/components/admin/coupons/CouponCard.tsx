@@ -11,11 +11,13 @@ import DiscountIcon from "@/components/icons/DiscountIcon";
 export const CouponCard = ({ 
     coupon, 
     onEditAction, 
-    onDeleteAction 
+    onDeleteAction,
+    onToggleVisibility
 }: { 
     coupon: Coupon;
     onEditAction?: (coupon: Coupon) => void;
     onDeleteAction?: (id: string) => void;
+    onToggleVisibility?: (coupon: Coupon) => void;
 }) => {
     const isPercentage = coupon.type === 'percentage';
     
@@ -31,10 +33,15 @@ export const CouponCard = ({
                     </div>
 
                     {/* Status Badge */}
-                    <div className="absolute top-[12px] left-[12px] z-[10]">
+                    <div className="absolute top-[12px] left-[12px] z-[10] flex gap-1">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${coupon.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                             {coupon.is_active ? 'Active' : 'Inactive'}
                         </span>
+                        {coupon.is_public === false && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gray-200 text-gray-700 border border-gray-300 shadow-sm">
+                                Private
+                            </span>
+                        )}
                     </div>
 
                     {/* Coupon Value Display */}
@@ -68,6 +75,7 @@ export const CouponCard = ({
                         coupon={coupon}
                         onEdit={onEditAction}
                         onDelete={onDeleteAction}
+                        onToggleVisibility={onToggleVisibility}
                     />
                 </div>
             </div>
@@ -98,11 +106,13 @@ export const CouponCard = ({
 export default function CouponGrid({ 
     coupons,
     onEditAction,
-    onDeleteAction
+    onDeleteAction,
+    onToggleVisibility
 }: { 
     coupons: Coupon[];
     onEditAction?: (coupon: Coupon) => void;
     onDeleteAction?: (id: string) => void;
+    onToggleVisibility?: (coupon: Coupon) => void;
 }) {
     if (coupons.length === 0) {
         return (
@@ -123,6 +133,7 @@ export default function CouponGrid({
                         coupon={coupon} 
                         onEditAction={onEditAction} 
                         onDeleteAction={onDeleteAction} 
+                        onToggleVisibility={onToggleVisibility}
                     />
                 ))}
             </div>

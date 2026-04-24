@@ -13,6 +13,7 @@ interface CouponTableProps {
     onToggleSelectAll: () => void;
     onEditAction?: (coupon: Coupon) => void;
     onDeleteAction?: (id: string) => void;
+    onToggleVisibility?: (coupon: Coupon) => void;
 }
 
 export default function CouponTable({
@@ -21,7 +22,8 @@ export default function CouponTable({
     onToggleSelect,
     onToggleSelectAll,
     onEditAction,
-    onDeleteAction
+    onDeleteAction,
+    onToggleVisibility
 }: CouponTableProps) {
     const isAllSelected = coupons.length > 0 && selectedIds.length === coupons.length;
 
@@ -99,6 +101,11 @@ export default function CouponTable({
                                             <span className="text-[14px] font-bold text-[#242424] font-mono tracking-wider bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
                                                 {coupon.code}
                                             </span>
+                                            {coupon.is_public === false && (
+                                                <span className="px-1.5 py-0.5 rounded border border-gray-200 bg-gray-100 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                                                    Private
+                                                </span>
+                                            )}
                                         </div>
                                         <span className="text-[12px] text-[#71717a] mt-1 max-w-[200px] truncate" title={coupon.description || ''}>
                                             {coupon.description || 'No description'}
@@ -163,6 +170,7 @@ export default function CouponTable({
                                             coupon={coupon}
                                             onEdit={onEditAction}
                                             onDelete={onDeleteAction}
+                                            onToggleVisibility={onToggleVisibility}
                                         />
                                     </div>
                                 </td>

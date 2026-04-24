@@ -147,24 +147,15 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, userId });
         
         try {
-          // 1. Fetch current items from database
-          const dbItems = await fetchCart(userId);
-          
-          // 2. Identify items that are LOCAL ONLY (not in DB)
-          const localOnlyItems = items.filter(local => 
-            !dbItems.some(db => db.id === local.id)
-          );
-
-          // 3. If there are local items, push them to DB
-          if (localOnlyItems.length > 0) {
-            await mergeCart(localOnlyItems, userId);
-            // Re-fetch after merge to get final state
-            const finalItems = await fetchCart(userId);
-            set({ items: finalItems });
-          } else {
-            // Already synced or nothing to merge
-            set({ items: dbItems });
+          // If there are local items, push all of them to DB. 
+          // mergeCart service automatically handles summing quantities for items that exist in both Local + DB
+          if (items.length > 0) {
+            await mergeCart(items, userId);
           }
+          
+          // Always fetch final state from DB as the single source of truth
+          const finalItems = await fetchCart(userId);
+          set({ items: finalItems });
         } finally {
           set({ isLoading: false });
         }

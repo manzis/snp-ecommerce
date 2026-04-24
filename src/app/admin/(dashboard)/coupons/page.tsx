@@ -58,6 +58,20 @@ export default function CouponsPage() {
     setIsModalOpen(true);
   };
 
+  const handleToggleVisibility = async (coupon: Coupon) => {
+    const newVisibility = coupon.is_public === false ? true : false;
+    const res = await updateCouponAction(coupon.id, { is_public: newVisibility });
+    if (res.success && res.data) {
+      const refreshRes = await fetchCouponsAction();
+      if (refreshRes.success) {
+        setCoupons(refreshRes.data || []);
+      }
+      showAdminToast(`Coupon is now ${newVisibility ? 'public' : 'private'}.`, 'success');
+    } else {
+      showAdminToast(`Error: ${res.message}`, 'error');
+    }
+  };
+
   const handleSaveCoupon = async (id: string | null, data: Partial<Coupon>) => {
     setIsSaving(true);
     if (id) {
@@ -132,13 +146,15 @@ export default function CouponsPage() {
               onToggleSelect={handleToggleSelect}
               onToggleSelectAll={handleToggleSelectAll}
               onEditAction={handleEdit} 
-              onDeleteAction={handleDelete} 
+              onDeleteAction={handleDelete}
+              onToggleVisibility={handleToggleVisibility}
             />
           ) : (
             <CouponGrid
               coupons={filteredCoupons}
               onEditAction={handleEdit}
               onDeleteAction={handleDelete}
+              onToggleVisibility={handleToggleVisibility}
             />
           )
         )}
