@@ -184,7 +184,10 @@ export async function fetchOrderDetails(orderId: string) {
       *,
       order_items (
         *,
-        products (*)
+        products (
+          *,
+          brands (name)
+        )
       )
     `)
     .eq('id', orderId)

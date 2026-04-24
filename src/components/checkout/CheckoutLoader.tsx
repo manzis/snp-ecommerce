@@ -8,9 +8,9 @@ interface CheckoutLoaderProps {
   message?: string;
 }
 
-const CheckoutLoader: React.FC<CheckoutLoaderProps> = ({ 
-  isLoading, 
-  message = "Processing your order" 
+const CheckoutLoader: React.FC<CheckoutLoaderProps> = ({
+  isLoading,
+  message = "Processing your order"
 }) => {
   return (
     <AnimatePresence>
@@ -19,14 +19,14 @@ const CheckoutLoader: React.FC<CheckoutLoaderProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-white/20 backdrop-blur-[2px] pointer-events-none"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-white/20 backdrop-blur-[1px] pointer-events-none"
         >
           {/* Main Loader Container: Minimal, Small, Sharp Rectangular with Green Border */}
           <motion.div
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.98, opacity: 0 }}
-            className="bg-white border-[1.5px] border-[#3f9633] rounded-none p-6 flex flex-row items-center gap-4 max-w-fit pointer-events-auto"
+            className="bg-white border-[1px] border-[#3f9633] rounded-[2px] p-5 flex flex-row items-center gap-4 max-w-fit pointer-events-auto"
           >
             {/* Simple Small Spinner */}
             <div className="relative w-5 h-5">
@@ -38,7 +38,7 @@ const CheckoutLoader: React.FC<CheckoutLoaderProps> = ({
             </div>
 
             {/* Small Minimalist Text */}
-            <span className="font-titillium text-[14px] text-[#3f9633] font-medium tracking-tight whitespace-nowrap">
+            <span className="font-titillium text-[14px] text-[#3f9633] font-semibold tracking-tight whitespace-nowrap">
               {message}
             </span>
           </motion.div>
