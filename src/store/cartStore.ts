@@ -140,21 +140,29 @@ export const useCartStore = create<CartState>()(
       },
 
 
-      mergeCartOnLogin: async (userId) => {
-        const { items, isLoading } = get();
+      mergeCartOnLogin: async (newUserId) => {
+        const { items, userId, isLoading } = get();
         if (isLoading) return;
         
-        set({ isLoading: true, userId });
+        // If the user hasn't changed, just refresh the cart from DB.
+        // Don't merge, because 'items' in store are already a local copy of DB items.
+        if (userId === newUserId) {
+          const finalItems = await fetchCart(newUserId);
+          set({ items: finalItems });
+          return;
+        }
+
+        set({ isLoading: true, userId: newUserId });
         
         try {
           // If there are local items, push all of them to DB. 
           // mergeCart service automatically handles summing quantities for items that exist in both Local + DB
           if (items.length > 0) {
-            await mergeCart(items, userId);
+            await mergeCart(items, newUserId);
           }
           
           // Always fetch final state from DB as the single source of truth
-          const finalItems = await fetchCart(userId);
+          const finalItems = await fetchCart(newUserId);
           set({ items: finalItems });
         } finally {
           set({ isLoading: false });
