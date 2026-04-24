@@ -88,6 +88,21 @@ export default function OrderActionMenu({
         onOpenChange?.(false);
     };
 
+    const fallbackCopy = (text: string) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {}
+        document.body.removeChild(textArea);
+    };
+
     return (
         <div className="relative" ref={menuRef}>
             <button
@@ -145,6 +160,51 @@ export default function OrderActionMenu({
                         >
                             <LabelIcon className="w-4 h-4 text-[#71717a]" />
                             <span>Generate Label</span>
+                        </button>
+
+                        <div className="border-t border-gray-50 my-1" />
+
+                        {/* Order Sharing Links */}
+                        <button
+                            onClick={(e) => handleAction(e, async () => {
+                                const url = `${window.location.origin}/track-order?id=${order.shortId}`;
+                                if (navigator.share) {
+                                    try {
+                                        await navigator.share({ title: 'Track your Order', url });
+                                        return;
+                                    } catch (err: any) {
+                                        if (err.name === 'AbortError') return;
+                                    }
+                                }
+                                if (!navigator.clipboard) fallbackCopy(url);
+                                else navigator.clipboard.writeText(url);
+                                alert('Tracking Link Copied!');
+                            })}
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                        >
+                            <svg className="w-4 h-4 text-[#71717a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            <span>Share Tracking</span>
+                        </button>
+
+                        <button
+                            onClick={(e) => handleAction(e, async () => {
+                                const url = `${window.location.origin}/pay/${order.id}`;
+                                if (navigator.share) {
+                                    try {
+                                        await navigator.share({ title: 'Complete your Payment', url });
+                                        return;
+                                    } catch (err: any) {
+                                        if (err.name === 'AbortError') return;
+                                    }
+                                }
+                                if (!navigator.clipboard) fallbackCopy(url);
+                                else navigator.clipboard.writeText(url);
+                                alert('Payment Link Copied!');
+                            })}
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                        >
+                            <svg className="w-4 h-4 text-[#71717a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+                            <span>Share Payment</span>
                         </button>
 
                         <div className="border-t border-gray-50 my-1" />

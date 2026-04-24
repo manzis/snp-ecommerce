@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import UploadIcon from '@/components/icons/ArrowDown'; 
+import UploadIcon from '@/components/icons/UploadIcon';
 import EyeIcon from '@/components/icons/EyeIcon';
 import SaveIcon from '@/components/icons/Wishlisht';
 
@@ -15,8 +15,8 @@ interface QrPaymentDetailsProps {
   hasError?: boolean;
 }
 
-const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({ 
-  onVerify, 
+const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
+  onVerify,
   onChange,
   initialFile = null,
   initialRemarks = 'Shopping Payment',
@@ -38,7 +38,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
 
   useEffect(() => {
     if (!isRevealed || timeLeft <= 0) return;
-    
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
@@ -76,18 +76,18 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
 
   return (
     <div className="flex w-full flex-col gap-[24px] items-center transition-all duration-300 pt-[4px]" >
-      
+
       {/* Main QR Container (Outer Stroke - Full Width) */}
-      <div className="w-full border-[1.5px] border-[#eaebf0] rounded-[12px]  overflow-hidden "style={{ background: isRevealed ? activeGradient : inactiveGradient }}>
-        
-         {/* TIMER SECTION AT TOP (With Gradient Fill) */}
-        <div 
+      <div className="w-full border-[1.5px] border-[#eaebf0] rounded-[12px]  overflow-hidden " style={{ background: isRevealed ? activeGradient : inactiveGradient }}>
+
+        {/* TIMER SECTION AT TOP (With Gradient Fill) */}
+        <div
           className="w-full transition-all duration-500 "
-          
+
         >
           <AnimatePresence mode="wait">
             {isRevealed ? (
-              <motion.div 
+              <motion.div
                 key="timer-active"
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: 'auto', opacity: 1 }}
@@ -114,10 +114,10 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
         <div className="relative w-full aspect-square pt-[24px] pb-[16px] flex items-center justify-center overflow-hidden bg-white border-t  border-[#eaebf0] ">
           {/* QR Image */}
           <div className={`relative w-full h-full transition-all duration-1000 ease-out ${!isRevealed ? 'blur-[20px] scale-90 opacity-30' : 'blur-0 scale-100 opacity-100'}`}>
-            <Image 
-              src="/images/payments/qr.png" 
-              alt="Payment QR" 
-              fill 
+            <Image
+              src="/images/payments/qr.png"
+              alt="Payment QR"
+              fill
               className="object-contain"
               sizes="(max-width: 412px) 100vw, 350px"
             />
@@ -125,7 +125,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
 
           {/* Show QR Button - DEAD CENTER */}
           {!isRevealed && (
-            <button 
+            <button
               onClick={() => setIsRevealed(true)}
               className="absolute z-10 flex items-center gap-[10px] p-[16px_20px] border border-[#eaebf0] rounded-[12px] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform"
             >
@@ -137,7 +137,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
           {/* Save QR Button - BOTTOM CENTER */}
           <AnimatePresence>
             {isRevealed && (
-              <motion.button 
+              <motion.button
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 onClick={() => console.log("Save QR")}
@@ -155,13 +155,12 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
       <div className="flex flex-col w-full gap-[8px]">
         <button
           onClick={() => fileInputRef.current?.click()}
-          className={`flex w-full h-[56px] items-center justify-between px-[16px] rounded-[12px] border-[1.5px] border-dashed transition-all duration-200 ${
-            selectedFile 
-              ? 'border-[#308026] bg-[#f7faf6]' 
-              : hasError 
-                ? 'border-[#e11717] bg-[#fff5f5]' 
+          className={`flex w-full h-[56px] items-center justify-between px-[16px] rounded-[12px] border-[1.5px] border-dashed transition-all duration-200 ${selectedFile
+              ? 'border-[#308026] bg-[#f7faf6]'
+              : (hasError || (!!error && !selectedFile))
+                ? 'border-[#e11717] bg-[#fff5f5]'
                 : 'border-[#e2e8f0] bg-white'
-          }`}
+            }`}
         >
           <div className="flex items-center gap-[10px] overflow-hidden">
             <UploadIcon className="w-[18px] h-[18px] text-[#68727d] rotate-180" />
@@ -173,18 +172,18 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
             {selectedFile ? 'Change' : 'Browse'}
           </span>
         </button>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileChange} 
-          className="hidden" 
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
           accept="image/*,.pdf"
         />
         <div className="flex justify-between items-center px-1">
           <p className="font-titillium text-[13px] text-[#838383]">
             Upload a statement receipt (PNG, JPG or PDF)
           </p>
-          {hasError && !selectedFile && (
+          {((hasError || !!error) && !selectedFile) && (
             <span className="text-[#e11717] font-semibold text-[12px]">Please upload screenshot</span>
           )}
         </div>
@@ -215,11 +214,11 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
               Verify payment via QR
             </span>
           </button>
-          
+
           <AnimatePresence>
             {error && (
-              <motion.span 
-                initial={{ opacity: 0, y: -10 }} 
+              <motion.span
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-[#e11717] font-titillium text-[12px] text-center font-medium"
               >

@@ -14,6 +14,8 @@ interface OrderDetailsModalProps {
     onClose: () => void;
     order: (OrderProps & { payment_screenshot_url?: string; payment_remarks?: string }) | null;
     onUpdateStatus?: (order: OrderProps) => void;
+    onUpdatePaymentStatus?: (order: OrderProps) => void;
+    onResetPayment?: (order: OrderProps) => void;
     onCancelOrder?: (order: OrderProps) => void;
 }
 
@@ -33,11 +35,13 @@ const MILESTONES = [
     { id: 'DELIVERY', label: 'Out for Delivery / Final', rankRange: [7, 8] }
 ];
 
-export default function OrderDetailsModal({ 
-    isOpen, 
-    onClose, 
+export default function OrderDetailsModal({
+    isOpen,
+    onClose,
     order,
     onUpdateStatus,
+    onUpdatePaymentStatus,
+    onResetPayment,
     onCancelOrder
 }: OrderDetailsModalProps) {
     const { showAdminToast } = useAdminToast();
@@ -111,6 +115,56 @@ export default function OrderDetailsModal({
         });
     };
 
+    const fallbackCopyTextToClipboard = (text: string) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    };
+
+    const handleShare = async (type: 'tracking' | 'payment') => {
+        const url = type === 'tracking'
+            ? `${window.location.origin}/track-order?id=${order.shortId}`
+            : `${window.location.origin}/pay/${order.id}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: type === 'tracking' ? `Track Order #${order.shortId}` : `Pay Order #${order.shortId}`,
+                    url
+                });
+                return;
+            } catch (e: any) {
+                if (e.name !== 'AbortError') {
+                    if (!navigator.clipboard) {
+                        fallbackCopyTextToClipboard(url);
+                    } else {
+                        navigator.clipboard.writeText(url);
+                    }
+                    showAdminToast(`${type === 'tracking' ? 'Tracking URL' : 'Payment Link'} copied!`, 'success');
+                }
+                return;
+            }
+        }
+
+        if (!navigator.clipboard) {
+            fallbackCopyTextToClipboard(url);
+        } else {
+            navigator.clipboard.writeText(url);
+        }
+        showAdminToast(`${type === 'tracking' ? 'Tracking URL' : 'Payment Link'} copied!`, 'success');
+    };
+
 
     const footerActions = (
         <div className="flex w-full gap-3">
@@ -129,6 +183,18 @@ export default function OrderDetailsModal({
         </div>
     );
 
+    const headerActions = (
+        <div className="flex items-center gap-1.5 border-r border-gray-200 pr-2 mr-2">
+            <button
+                onClick={() => handleShare('tracking')}
+                className="p-1.5 hover:bg-zinc-100 rounded-md text-[#71717a] hover:text-black transition-colors"
+                title="Share Tracking Link"
+            >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            </button>
+        </div>
+    );
+
     return (
         <AdminSheet
             isOpen={isOpen}
@@ -136,9 +202,10 @@ export default function OrderDetailsModal({
             title={`Order Fulfillment`}
             description={`#${order.shortId} — Ordered ${getRelativeDate(order.createdAt)}`}
             footerActions={footerActions}
+            headerActions={headerActions}
         >
             <div className="space-y-12">
-                
+
                 {/* Section 1: Ordered Items (The manifest user wants at top) */}
                 <section className="space-y-6">
                     <div className="flex items-center gap-3">
@@ -195,7 +262,7 @@ export default function OrderDetailsModal({
                         ))}
                     </div>
                 </section>
-                
+
                 {/* Section 1.5: Shipping & Logistics (Visible if info exists) */}
                 {(order.carrierName || order.trackingNumber) && (
                     <section className="space-y-6">
@@ -212,13 +279,24 @@ export default function OrderDetailsModal({
                                 <div className="flex-1 p-5 flex justify-between items-center group">
                                     <div>
                                         <p className="text-[10px] font-medium text-[#71717a] uppercase mb-1">Tracking Number</p>
-                                        <p className="text-[14px] font-mono font-medium text-black">#{order.trackingNumber || 'Pending'}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[14px] font-mono font-medium text-black">#{order.trackingNumber || 'Pending'}</p>
+                                            {order.trackingNumber && (
+                                                <button
+                                                    onClick={() => handleShare('tracking')}
+                                                    className="p-1 text-gray-400 hover:text-black transition-colors"
+                                                    title="Share Tracking URL"
+                                                >
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                     {order.trackingNumber && (
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 navigator.clipboard.writeText(order.trackingNumber || '');
-                                                // showAdminToast('Tracking ID copied!', 'success');
+                                                showAdminToast('Tracking ID copied!', 'success');
                                             }}
                                             className="px-2.5 py-1.5 bg-white hover:bg-black hover:text-white rounded-[6px] border border-gray-200 transition-all text-[10px] font-bold uppercase active:scale-95"
                                         >
@@ -237,7 +315,7 @@ export default function OrderDetailsModal({
                         <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Fulfillment Lifecycle</h4>
                         <div className="h-px flex-1 bg-gray-100" />
                     </div>
-                    
+
                     <div className="space-y-4">
                         {MILESTONES.map((m) => {
                             const isExpanded = expandedMilestones.has(m.id);
@@ -245,30 +323,28 @@ export default function OrderDetailsModal({
                                 const rank = STATUS_RANK[u.status.toUpperCase()] || 0;
                                 return rank >= m.rankRange[0] && rank <= m.rankRange[1];
                             }) || [];
-                            
+
                             const isFinalMilestone = m.id === 'DELIVERY';
                             const isTerminal = ['DELIVERED', 'CANCELLED', 'FAILED', 'RETURNED'].includes(normalizedStatus);
                             const isCompleted = currentRank > m.rankRange[1] || (isFinalMilestone && isTerminal);
                             const isActive = currentRank >= m.rankRange[0] && currentRank <= m.rankRange[1] && !(isFinalMilestone && isTerminal);
-                            
+
                             const isDelivered = normalizedStatus === 'DELIVERED';
-                            
+
                             // Color logic: #308026 for success/completion
                             const activeColor = isDelivered || isCompleted ? 'bg-[#308026]' : 'bg-black';
                             const activeBorder = isDelivered || isCompleted ? 'border-[#308026]' : 'border-black';
 
                             return (
                                 <div key={m.id} className="group">
-                                    <div 
+                                    <div
                                         onClick={() => toggleMilestone(m.id)}
-                                        className={`flex items-center justify-between p-3 rounded-[10px] border border-dotted transition-all cursor-pointer ${
-                                            isActive ? 'border-zinc-400 bg-zinc-50/50' : 'border-gray-200 hover:bg-zinc-50/30'
-                                        }`}
+                                        className={`flex items-center justify-between p-3 rounded-[10px] border border-dotted transition-all cursor-pointer ${isActive ? 'border-zinc-400 bg-zinc-50/50' : 'border-gray-200 hover:bg-zinc-50/30'
+                                            }`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] ${
-                                                isCompleted ? `${activeColor} ${activeBorder}` : isActive ? `${activeBorder} animate-pulse` : 'border-gray-200'
-                                            }`}>
+                                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-[1.5px] ${isCompleted ? `${activeColor} ${activeBorder}` : isActive ? `${activeBorder} animate-pulse` : 'border-gray-200'
+                                                }`}>
                                                 {isCompleted && <TickIcon className="w-2.5 h-2.5 text-white" />}
                                                 {isActive && <div className={`w-1 h-1 ${activeColor} rounded-full`} />}
                                             </div>
@@ -278,7 +354,7 @@ export default function OrderDetailsModal({
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {milestoneLogs.length > 0 && (
-                                               <span className="text-[10px] font-mono text-[#a1a1aa] uppercase">{milestoneLogs.length} Events</span>
+                                                <span className="text-[10px] font-mono text-[#a1a1aa] uppercase">{milestoneLogs.length} Events</span>
                                             )}
                                             <motion.div
                                                 animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -313,7 +389,7 @@ export default function OrderDetailsModal({
                                                             </div>
                                                         </div>
                                                         {order.trackingNumber && (
-                                                            <button 
+                                                            <button
                                                                 onClick={() => {
                                                                     navigator.clipboard.writeText(order.trackingNumber || '');
                                                                 }}
@@ -329,16 +405,16 @@ export default function OrderDetailsModal({
                                                     const logRank = STATUS_RANK[log.status.toUpperCase()] || 0;
                                                     const isLogCompleted = currentRank > logRank || isTerminal;
                                                     return (
-                                                    <div key={idx} className="relative">
-                                                        <div className={`absolute -left-[23px] top-1.5 w-1 h-1 ${isLogCompleted ? 'bg-[#308026]' : 'bg-gray-300'} rounded-full`} />
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-[11px] font-medium text-black uppercase">{log.status}</span>
-                                                                <span className="text-[10px] text-[#a1a1aa] font-mono">{new Date(log.date).toLocaleDateString()}</span>
+                                                        <div key={idx} className="relative">
+                                                            <div className={`absolute -left-[23px] top-1.5 w-1 h-1 ${isLogCompleted ? 'bg-[#308026]' : 'bg-gray-300'} rounded-full`} />
+                                                            <div className="space-y-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-[11px] font-medium text-black uppercase">{log.status}</span>
+                                                                    <span className="text-[10px] text-[#a1a1aa] font-mono">{new Date(log.date).toLocaleDateString()}</span>
+                                                                </div>
+                                                                <p className="text-[12px] text-[#71717a] leading-relaxed">{log.message}</p>
                                                             </div>
-                                                            <p className="text-[12px] text-[#71717a] leading-relaxed">{log.message}</p>
                                                         </div>
-                                                    </div>
                                                     );
                                                 })}
                                             </motion.div>
@@ -418,11 +494,19 @@ export default function OrderDetailsModal({
                                 </div>
                             </>
                         )}
-                        
-                        <div className="pt-3 mt-1 border-t border-dotted border-gray-200">
+
+                        {/* Generate Invoice and Copy Payment Link */}
+                        <div className="pt-3 mt-1 border-t border-dotted border-gray-200 flex gap-2">
+                            <button
+                                onClick={() => handleShare('payment')}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-zinc-50 border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-zinc-100 hover:border-gray-300 transition-all active:scale-[0.98]"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                Share Pay URL
+                            </button>
                             <button
                                 onClick={() => alert('Invoice Generation Module linking...')}
-                                className="w-full flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98]"
+                                className="flex-[2] flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98]"
                             >
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -436,7 +520,7 @@ export default function OrderDetailsModal({
                         </div>
                     </div>
                 </section>
-                
+
                 {/* Section 3.5: Payment Proof (Visible for QR) */}
                 {order.paymentMethod?.toLowerCase() === 'qr' && (
                     <section className="space-y-6">
@@ -454,9 +538,9 @@ export default function OrderDetailsModal({
                                             fill
                                             className="object-contain p-2"
                                         />
-                                        <a 
-                                            href={order.payment_screenshot_url} 
-                                            target="_blank" 
+                                        <a
+                                            href={order.payment_screenshot_url}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
@@ -478,6 +562,42 @@ export default function OrderDetailsModal({
                                     </p>
                                 </div>
                             )}
+
+                            {/* Review Actions */}
+                            {order.paymentStatus?.toLowerCase() !== 'paid' && (
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        onClick={() => onUpdatePaymentStatus?.(order)}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-600 hover:bg-red-700 rounded-xl text-[12px] font-bold text-white transition-all active:scale-95 shadow-md shadow-red-500/20"
+                                    >
+                                        Reject
+                                    </button>
+                                    <button
+                                        onClick={() => onResetPayment?.(order)}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-100 hover:bg-zinc-200 rounded-xl text-[12px] font-bold text-zinc-900 transition-all active:scale-95 border border-zinc-200"
+                                    >
+                                        Reset
+                                    </button>
+                                    <button
+                                        onClick={() => onUpdatePaymentStatus?.(order)}
+                                        className="flex-[2] flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 rounded-xl text-[12px] font-bold text-white transition-all active:scale-95 shadow-md shadow-green-500/20"
+                                    >
+                                        Approve
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Rejected State actions */}
+                            {order.paymentStatus?.toLowerCase() === 'failed' && (
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        onClick={() => onResetPayment?.(order)}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-100 hover:bg-zinc-200 rounded-xl text-[12px] font-bold text-zinc-900 transition-all active:scale-95 border border-zinc-200"
+                                    >
+                                        Clear Rejection/Proof
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </section>
                 )}
@@ -490,25 +610,25 @@ export default function OrderDetailsModal({
                     </div>
                     <div className="border border-dotted border-gray-300 rounded-[6px] divide-y divide-dotted divide-gray-300 overflow-hidden bg-zinc-50/10">
                         <div className="grid grid-cols-2 divide-x divide-dotted divide-gray-300">
-                             <div className="p-5 flex flex-col gap-1.5">
+                            <div className="p-5 flex flex-col gap-1.5">
                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Contact Payload</label>
                                 <p className="text-[13px] font-medium text-black">{order.customerName}</p>
                                 <p className="text-[11px] text-[#71717a]">{order.customerEmail || 'No Email'}</p>
                                 <p className="text-[11px] text-[#71717a]">{order.customerPhone || 'No Phone'}</p>
-                             </div>
-                             <div className="p-5 flex flex-col gap-1.5">
+                            </div>
+                            <div className="p-5 flex flex-col gap-1.5">
                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Payment Architecture</label>
                                 <div className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-                                  <p className="text-[13px] font-medium text-black uppercase">{order.paymentMethod?.replace(/_/g, ' ')}</p>
+                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                                    <p className="text-[13px] font-medium text-black uppercase">{order.paymentMethod?.replace(/_/g, ' ')}</p>
                                 </div>
                                 <span className="text-[10px] text-[#a1a1aa] mt-0.5">Automated settlement active</span>
-                             </div>
+                            </div>
                         </div>
                         <div className="grid grid-cols-2 divide-x divide-gray-200 border-t border-gray-200">
-                             <div className="p-5 flex flex-col gap-1.5">
-                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
-                                 {order.shippingAddress ? (
+                            <div className="p-5 flex flex-col gap-1.5">
+                                <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
+                                {order.shippingAddress ? (
                                     <div className="text-[13px] leading-relaxed text-[#242424] space-y-0.5 max-w-sm">
                                         <p className="font-medium">
                                             {order.shippingAddress.first_name || order.shippingAddress.addressDetails?.first_name || ''} {order.shippingAddress.last_name || order.shippingAddress.addressDetails?.last_name || ''}
@@ -529,24 +649,24 @@ export default function OrderDetailsModal({
                                             </p>
                                         )}
                                     </div>
-                                 ) : (
+                                ) : (
                                     <p className="text-[13px] text-gray-400 italic">Static address unassigned</p>
-                                 )}
-                             </div>
-                             
-                             <div className="p-5 flex flex-col gap-1.5">
-                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Preferred Shipping Mode</label>
-                                 <div className="flex items-center gap-2 mt-1">
+                                )}
+                            </div>
+
+                            <div className="p-5 flex flex-col gap-1.5">
+                                <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Preferred Shipping Mode</label>
+                                <div className="flex items-center gap-2 mt-1">
                                     <div className={`w-1.5 h-1.5 rounded-full ${order.shippingAddress?.option === 'pickup' ? 'bg-[#A16207]' : 'bg-[#308026]'}`} />
                                     <p className="text-[13px] font-medium text-black">
                                         {order.shippingAddress?.option === 'pickup' ? 'Pickup from Station' : 'Home Delivery'}
                                     </p>
-                                 </div>
-                             </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
-                
+
                 {/* Meta payload */}
                 <div className="text-center pt-4">
                     <p className="text-[10px] font-mono text-[#a1a1aa] uppercase tracking-[0.3em]">

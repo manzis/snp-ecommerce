@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import ContactIcon from '@/components/icons/ChevronLeftIcon';
@@ -16,7 +14,11 @@ interface ContactSectionProps {
   externalError?: string | null;
 }
 
-const ContactSection: React.FC<ContactSectionProps> = ({
+export interface ContactSectionHandle {
+  validateAndConfirm: () => boolean;
+}
+
+const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
   isOpen,
   isConfirmed,
   onConfirm,
@@ -24,7 +26,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   initialValue = '',
   initialMarketing = true,
   externalError
-}) => {
+}, ref) => {
   const [inputValue, setInputValue] = useState('');
   const [isMarketing, setIsMarketing] = useState(initialMarketing);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -34,8 +36,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({
   useEffect(() => {
     if (initialValue) {
       // Remove +977 for display if it's a mobile number
-      const cleanValue = initialValue.startsWith('+977 ') 
-        ? initialValue.replace('+977 ', '') 
+      const cleanValue = initialValue.startsWith('+977 ')
+        ? initialValue.replace('+977 ', '')
         : initialValue;
       setInputValue(cleanValue);
     }
@@ -69,7 +71,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
     if (!trimmed) {
       setErrorMsg("Please enter your email or phone number");
       setShakeTrigger(prev => prev + 1);
-      return;
+      return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -80,14 +82,20 @@ const ContactSection: React.FC<ContactSectionProps> = ({
       const finalValue = isPhone ? `+977 ${trimmed}` : trimmed;
       onConfirm({ value: finalValue, marketing: isMarketing });
       setErrorMsg(null);
+      return true;
     } else {
       setErrorMsg("Please enter a valid email or 10-digit phone number");
       setShakeTrigger(prev => prev + 1);
+      return false;
     }
   };
 
+  useImperativeHandle(ref, () => ({
+    validateAndConfirm
+  }));
+
   return (
-    <div className="main-container mx-auto flex w-full max-w-[410px] flex-col justify-center items-center bg-white border-t border-[#f1f5f9] lg:max-w-none">
+    <div className="main-container mx-auto flex w-full max-w-[410px] flex-col justify-center items-center  border-t border-[#f1f5f9] lg:max-w-none">
       <button
         onClick={onToggle}
         className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 ${isOpen ? 'bg-[#fafafb] py-[24px] pb-[16px]' : 'bg-white py-[24px]'
@@ -98,7 +106,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
             Contact Details
           </h3>
           {isConfirmed && !isOpen && inputValue.trim() !== '' && (
-            <div className="flex p-[2px_6px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
+            <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
               <span className="font-titillium text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
                 All set up
               </span>
@@ -191,6 +199,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({
       </AnimatePresence>
     </div>
   );
-};
+});
 
-export default ContactSection;
+ContactSection.displayName = 'ContactSection';
+
+export default ContactSection;

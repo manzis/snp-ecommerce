@@ -419,6 +419,13 @@ type Tab = 'tracking' | 'order';
 export default function TrackOrderPage() {
   const [trackedOrder, setTrackedOrder] = useState<OrderProps | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('tracking');
+  const [initialOrderId, setInitialOrderId] = useState<string | undefined>();
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) setInitialOrderId(id);
+  }, []);
 
   const handleResult = (order: OrderProps) => {
     setTrackedOrder(order);
@@ -443,24 +450,24 @@ export default function TrackOrderPage() {
         </div>
         <section className="relative z-10 flex-1 flex flex-col justify-between p-[24px] lg:p-[48px] lg:gap-[32px]">
           <div className="flex items-center justify-between lg:justify-start gap-[10px]">
-            <div className="flex items-center gap-[10px]">
-              <div className="relative w-[60px] h-[60px] shrink-0 rounded-[12px] p-[2px] bg-[linear-gradient(to_right,#3F9733,#EAFFCD)]">
-                <div className="relative w-full h-full rounded-[10px] overflow-hidden bg-[#3f9633]">
-                  <Image src="/images/logo.png" alt="Supplement Nepal Logo" fill className="object-cover" />
-                </div>
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
-                <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
-              </div>
-            </div>
-            <button onClick={() => window.location.href = '/'} className="lg:hidden flex w-[44px] h-[44px] items-center justify-center bg-[#edffe7] rounded-[12px]">
-              <CloseIcon className="w-[24px] h-[24px] text-[#3f9633]" />
-            </button>
+             <div className="flex items-center gap-[10px]">
+               <div className="relative w-[60px] h-[60px] shrink-0 rounded-[12px] p-[2px] bg-[linear-gradient(to_right,#3F9733,#EAFFCD)]">
+                 <div className="relative w-full h-full rounded-[10px] overflow-hidden bg-[#3f9633]">
+                   <Image src="/images/logo.png" alt="Supplement Nepal Logo" fill className="object-cover" />
+                 </div>
+               </div>
+               <div className="flex flex-col text-left">
+                 <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
+                 <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
+               </div>
+             </div>
+             <button onClick={() => window.location.href = '/'} className="lg:hidden flex w-[44px] h-[44px] items-center justify-center bg-[#edffe7] rounded-[12px]">
+               <CloseIcon className="w-[24px] h-[24px] text-[#3f9633]" />
+             </button>
           </div>
           <div className="hidden lg:flex flex-col gap-[12px] text-left">
-            <h2 className="font-custom text-[32px] text-white leading-tight">Track your order <br />in real time.</h2>
-            <p className="text-[#b1e7aa] text-[16px]">Enter your Order ID and get instant shipment updates.</p>
+             <h2 className="font-custom text-[32px] text-white leading-tight">Track your order <br />in real time.</h2>
+             <p className="text-[#b1e7aa] text-[16px]">Enter your Order ID and get instant shipment updates.</p>
           </div>
         </section>
 
@@ -476,7 +483,7 @@ export default function TrackOrderPage() {
                 exit={{ x: -20, opacity: 0 }}
                 className="flex flex-col"
               >
-                <TrackModalForm onResult={handleResult} />
+                <TrackModalForm onResult={handleResult} initialOrderId={initialOrderId} />
               </motion.div>
             ) : (
               /* ── RESULTS STATE ── */

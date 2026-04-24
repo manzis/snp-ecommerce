@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import AddressSelector from './AddressSelector';
@@ -19,27 +17,33 @@ interface DeliverySectionProps {
   onConfirm: (address: UserAddress, option: string) => void;
   onToggle: () => void;
   externalError?: string | null;
+  initialAddressId?: string;
+  initialOption?: string;
 }
 
-
+export interface DeliverySectionHandle {
+  handleConfirm: () => boolean;
+}
 
 const DELIVERY_METHODS = [
   { id: 'home', title: 'Home Delivery', price: 'NPR 150', desc: 'Deliver the parcel to home address, Doorstep' },
   { id: 'pickup', title: 'Pickup', price: 'NPR 100', desc: 'Pickup from the nearest station' }
 ];
 
-const DeliverySection: React.FC<DeliverySectionProps> = ({
+const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(({
   isOpen,
   isConfirmed,
   disabled = false,
   userId,
   onConfirm,
   onToggle,
-  externalError
-}) => {
+  externalError,
+  initialAddressId,
+  initialOption
+}, ref) => {
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
-  const [selectedAddressId, setSelectedAddressId] = useState('');
-  const [deliveryOption, setDeliveryOption] = useState<string>('');
+  const [selectedAddressId, setSelectedAddressId] = useState(initialAddressId || '');
+  const [deliveryOption, setDeliveryOption] = useState<string>(initialOption || '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
@@ -47,37 +51,48 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
   const { showToast } = useToast();
 
   useEffect(() => {
-    if (externalError) {
-      setErrorMessage(externalError);
-    }
+    if (externalError) setErrorMessage(externalError);
   }, [externalError]);
 
+  useEffect(() => {
+    // Only update from props if they actually have values (to avoid resetting during rehydration)
+    if (initialAddressId) setSelectedAddressId(initialAddressId);
+    if (initialOption) setDeliveryOption(initialOption);
+  }, [initialAddressId, initialOption]);
 
   React.useEffect(() => {
     fetchUserAddressesAction().then(res => {
       if (res.data) {
         setAddresses(res.data);
-        if (res.data.length > 0) setSelectedAddressId(res.data[0].id!);
+        // Auto-select first address only if nothing is selected yet (not in store and not selected locally)
+        if (res.data.length > 0 && !initialAddressId && !selectedAddressId) {
+          setSelectedAddressId(res.data[0].id!);
+        }
       }
     });
-  }, []);
+  }, [initialAddressId, selectedAddressId]);
 
   const handleConfirm = () => {
     setErrorMessage(null);
     const addr = addresses.find(a => a.id === selectedAddressId);
-    
+
     if (!addr) {
       setErrorMessage("Please select or add a delivery address.");
-      return;
+      return false;
     }
 
     if (!deliveryOption) {
       setErrorMessage("Please select a delivery method to continue.");
-      return;
+      return false;
     }
 
     onConfirm(addr, deliveryOption);
+    return true;
   };
+
+  useImperativeHandle(ref, () => ({
+    handleConfirm
+  }));
 
   const handleModalSuccess = (addr: UserAddress) => {
     // Refresh addresses
@@ -91,7 +106,7 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
 
   const handleDeleteAddress = async (id: string) => {
     if (!confirm("Are you sure you want to remove this address?")) return;
-    
+
     const result = await deleteUserAddressAction(id);
     if (result.success) {
       showToast("Address removed successfully!", "success");
@@ -109,22 +124,20 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
   };
 
   return (
-    <div className={`main-container mx-auto flex w-full  flex-col items-start bg-white border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${
-      disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
-    }`}>
+    <div className={`main-container mx-auto flex w-full  flex-col items-start  border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
+      }`}>
       {/* ACCORDION HEADER */}
-      <button 
+      <button
         onClick={onToggle}
         disabled={disabled}
-        className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 ${
-          isOpen ? 'bg-[#fafbfb] py-[24px]' : 'bg-white py-[24px]'
-        }`}
+        className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 ${isOpen ? 'bg-[#fafbfb] py-[24px]' : 'bg-white py-[24px]'
+          }`}
       >
         <div className="flex items-center gap-[12px]">
           <h1 className="font-titillium text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
             Delivery Details
           </h1>
-          {isConfirmed && !isOpen && !disabled && (
+          {isConfirmed && !isOpen && !disabled && selectedAddressId && deliveryOption && (
             <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
               <span className="font-titillium text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px]">
                 Details Added
@@ -147,26 +160,26 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
             className="w-full overflow-hidden"
           >
             <div className="flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
-              
-              <AddressSelector 
+
+              <AddressSelector
                 addresses={addresses}
                 selectedId={selectedAddressId}
                 onSelect={setSelectedAddressId}
                 onDelete={handleDeleteAddress}
-                onEdit={(id) => { 
+                onEdit={(id) => {
                   const t = addresses.find(a => a.id === id);
-                  if(t) setEditingAddress(t);
-                  setModalMode('edit'); 
-                  setIsModalOpen(true); 
+                  if (t) setEditingAddress(t);
+                  setModalMode('edit');
+                  setIsModalOpen(true);
                 }}
-                onAddNew={() => { 
+                onAddNew={() => {
                   setEditingAddress(null);
-                  setModalMode('add'); 
-                  setIsModalOpen(true); 
+                  setModalMode('add');
+                  setIsModalOpen(true);
                 }}
               />
 
-              <DeliveryMethodSelector 
+              <DeliveryMethodSelector
                 methods={DELIVERY_METHODS}
                 selectedMethodId={deliveryOption}
                 hasError={!!errorMessage && !deliveryOption}
@@ -191,14 +204,13 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
               </AnimatePresence>
 
               {/* CONFIRM BUTTON */}
-              <button 
+              <button
                 onClick={handleConfirm}
                 disabled={addresses.length === 0}
-                className={`w-full py-[14px] rounded-[12px] font-titillium text-[16px] font-semibold transition-all active:scale-[0.98] ${
-                  addresses.length === 0 
-                  ? 'bg-[#ffe900] text-[#242424] opacity-50 cursor-not-allowed' 
+                className={`w-full py-[14px] rounded-[12px] font-titillium text-[16px] font-semibold transition-all active:scale-[0.98] ${addresses.length === 0
+                  ? 'bg-[#ffe900] text-[#242424] opacity-50 cursor-not-allowed'
                   : 'bg-[#ffe900] active:bg-[#f5e000] text-[#242424]'
-                }`}
+                  }`}
               >
                 Confirm Address
               </button>
@@ -207,16 +219,18 @@ const DeliverySection: React.FC<DeliverySectionProps> = ({
         )}
       </AnimatePresence>
 
-      <AddressModal 
-        isOpen={isModalOpen} 
-        mode={modalMode} 
+      <AddressModal
+        isOpen={isModalOpen}
+        mode={modalMode}
         userId={userId}
         initialAddress={editingAddress}
         onSuccess={handleModalSuccess}
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
-};
+});
 
-export default DeliverySection;
+DeliverySection.displayName = 'DeliverySection';
+
+export default DeliverySection;

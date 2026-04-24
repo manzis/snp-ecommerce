@@ -54,7 +54,7 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
 
   return (
     <div className="flex flex-col bg-white border-t border-[#f1f5f9] z-[1]">
-      <div className="p-[12px_24px_24px_24px] flex flex-col gap-[10px]">
+      <div className="p-[24px_24px_24px_24px] flex flex-col gap-[10px]">
 
         {/* Expandable Total Amount Banner */}
         <button

@@ -415,14 +415,55 @@ export async function updatePaymentStatusAdminAction(orderId: string, paymentSta
     await new Promise(resolve => setTimeout(resolve, 200));
 
     revalidatePath('/admin/orders');
-    revalidatePath(`/admin/orders/${orderId}`);
-    revalidatePath('/account/orders');
-    revalidatePath(`/account/orders/${orderId}`);
-    
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: updatePaymentStatusAdminAction:', error);
     return { success: false, message: error.message || 'Failed to update payment status.' };
+  }
+}
+
+/**
+ * Server action to reset payment status and clear proofs by admin
+ */
+export async function resetPaymentAdminAction(orderId: string) {
+  const supabase = await createClient();
+  
+  // 1. Verify Admin Role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return { success: false, message: 'Forbidden. Admin access required.' };
+  }
+
+  try {
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({ 
+        payment_status: 'pending',
+        payment_screenshot_url: null,
+        payment_remarks: null,
+        amount_paid: 0,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId);
+      
+    if (updateError) throw updateError;
+
+    revalidatePath('/admin/orders');
+    revalidatePath(`/admin/orders/${orderId}`);
+    revalidatePath(`/pay/${orderId}`);
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error('Action Error: resetPaymentAdminAction:', error);
+    return { success: false, message: error.message || 'Failed to reset payment.' };
   }
 }
 

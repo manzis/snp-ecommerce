@@ -9,20 +9,22 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface TrackModalFormProps {
     onResult: (order: OrderProps) => void;
+    initialOrderId?: string;
 }
 
-export default function TrackModalForm({ onResult }: TrackModalFormProps) {
-    const [orderId, setOrderId] = useState("");
+export default function TrackModalForm({ onResult, initialOrderId }: TrackModalFormProps) {
+    const [orderId, setOrderId] = useState(initialOrderId || "");
     const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [isLiked, setIsLiked] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!orderId.trim()) { setError("Please enter your Order ID."); return; }
+    const handleSubmit = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        const idToSearch = orderId || initialOrderId;
+        if (!idToSearch || !idToSearch.trim()) { setError("Please enter your Order ID."); return; }
         setError(null);
         startTransition(async () => {
-            const result = await trackOrderByIdAction(orderId.trim());
+            const result = await trackOrderByIdAction(idToSearch.trim());
             if (!result.success || !result.order) {
                 setError(result.message || "Order not found.");
             } else {
@@ -30,6 +32,13 @@ export default function TrackModalForm({ onResult }: TrackModalFormProps) {
             }
         });
     };
+
+    React.useEffect(() => {
+        if (initialOrderId && !orderId) {
+            setOrderId(initialOrderId);
+            handleSubmit();
+        }
+    }, [initialOrderId]);
 
     const handleLikeClick = () => {
         if (!isLiked) {

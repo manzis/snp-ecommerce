@@ -14,7 +14,8 @@ interface UpdatePaymentStatusModalProps {
 const paymentStatuses = [
     { id: 'pending', label: 'PENDING', bgClass: 'bg-zinc-100 text-[#3f3f46]', activeBg: 'bg-[#3f3f46] text-white' },
     { id: 'partially_paid', label: 'PART. PAID', bgClass: 'bg-[#fef08a] text-[#854d0e]', activeBg: 'bg-[#ca8a04] text-white' },
-    { id: 'paid', label: 'PAID', bgClass: 'bg-green-100 text-green-800', activeBg: 'bg-green-600 text-white' }
+    { id: 'paid', label: 'PAID', bgClass: 'bg-green-100 text-green-800', activeBg: 'bg-green-600 text-white' },
+    { id: 'failed', label: 'FAILED', bgClass: 'bg-red-100 text-red-800', activeBg: 'bg-red-600 text-white' }
 ];
 
 export default function UpdatePaymentStatusModal({ isOpen, onClose, order, onConfirm }: UpdatePaymentStatusModalProps) {

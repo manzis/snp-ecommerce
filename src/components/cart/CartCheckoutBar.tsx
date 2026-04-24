@@ -79,9 +79,12 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       <div className="flex flex-1 basis-0 h-full items-start lg:items-center justify-center bg-white px-[16px] lg:bg-transparent lg:pr-0">
         <button
           onClick={handleAction}
-          className="w-full h-[60px] lg:h-[52px] flex items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98]"
+          className={`w-full h-[60px] lg:h-[52px] flex items-center justify-center rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' 
+            ? 'bg-[#3f9633] text-white' 
+            : 'bg-[#ffe900] active:bg-[#f5e000] text-[#1e1e1e]'
+          }`}
         >
-          <span className="font-custom text-[18px] text-[#1e1e1e] uppercase tracking-[0.2px]">
+          <span className={`font-custom text-[18px] uppercase tracking-[0.2px] ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
             {buttonText}
           </span>
         </button>

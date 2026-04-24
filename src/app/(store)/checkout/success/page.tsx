@@ -4,14 +4,17 @@ import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import CheckConfirmicon from "@/components/icons/CheckTickIcon";
 import { fetchOrderDetails } from "@/services/orderService";
+import { mapStatus, mapToOrderProps } from "@/services/orderService";
 
 // --- TYPES ---
 export interface OrderConfirmationProps {
   orderId?: string;
   amount?: string;
   date?: string;
+  items?: any[];
   paymentMethod?: string;
   redirectSeconds?: number;
 }
@@ -120,12 +123,13 @@ function SuccessContent() {
   // Optimistic data from search params if possible (or just the ID)
   const displayOrderId = orderId ? `# ${orderId.split('-')[0].toUpperCase()}` : "N/A";
   
-  // Only the fields that strictly require the order object will show skeletons
-  const amount = order ? `Rs. ${order.total_amount.toLocaleString()}` : null;
-  const dateStr = order ? new Date(order.created_at).toLocaleString('en-US', { 
+  // Mapping to props for display
+  const orderProps = order ? mapToOrderProps(order) : null;
+  const amount = orderProps ? `Rs. ${orderProps.totalAmount?.toLocaleString()}` : null;
+  const dateStr = orderProps ? new Date(orderProps.createdAt!).toLocaleString('en-US', { 
     month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
   }) : null;
-  const paymentMethod = order?.payment_method === 'cod' ? "Cash on Delivery" : order?.payment_method === 'qr' ? "QR Payment" : order?.payment_method;
+  const paymentMethodDisplay = orderProps?.paymentMethod === 'cod' ? "Cash on Delivery" : orderProps?.paymentMethod === 'qr' ? "QR Payment" : orderProps?.paymentMethod;
 
   return (
     <main className="fixed inset-0 flex flex-col w-full h-full justify-between items-center bg-[#3f9633] font-['Titillium_Web',sans-serif] overflow-hidden z-[9999]">
@@ -180,72 +184,116 @@ function SuccessContent() {
         </div>
       </section>
 
-      {/* --- BOTTOM SECTION --- */}
-      <motion.section
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.5 }}
-        className="flex w-full max-w-[410px] px-[16px] py-[24px] items-center shrink-0 relative z-[1]"
-      >
-        <article className="flex w-full py-[24px] flex-col gap-[30px] items-start bg-[#ffffff] rounded-[16px] shadow-[0px_8px_24px_rgba(0,0,0,0.1)] relative z-[2]">
-          <div className="flex flex-col gap-[24px] items-start self-stretch shrink-0 relative z-[3]">
+      {/* --- BOTTOM SECTION: Pull-up Drawer --- */}
+      <div className="flex w-full max-w-[410px] px-[16px] items-end justify-center relative z-[15] h-[55%]">
+        <motion.section
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          transition={{ 
+            type: "spring",
+            damping: 30,
+            stiffness: 200,
+            delay: 0.6
+          }}
+          className="w-full bg-[#ffffff] rounded-t-[24px] shadow-[0px_-8px_30px_rgba(0,0,0,0.15)] flex flex-col relative z-[2] overflow-hidden"
+        >
+          {/* Decorative Drag Handle */}
+          <div className="w-full flex justify-center py-3">
+            <div className="w-12 h-1 bg-gray-100 rounded-full" />
+          </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.6, ease: "easeOut" }}
-              className="flex px-[24px] flex-col gap-[10px] items-start self-stretch shrink-0 relative z-[4]"
-            >
-              <div className="flex justify-between items-start self-stretch shrink-0 relative z-[5]">
-                <h2 className="text-[18px] font-[700] leading-[27px] tracking-[-0.07px] bg-clip-text text-transparent bg-[linear-gradient(46.44deg,#242424,#7d857b)] whitespace-nowrap">
-                  ORDER: {hasMounted ? displayOrderId : "..."}
+          <div className="flex flex-col gap-[20px] items-start self-stretch px-[24px] pb-[40px] pt-2">
+            
+            {/* Header: Order ID & Amount */}
+            <div className="flex justify-between items-end self-stretch shrink-0 relative z-[5]">
+              <div className="flex flex-col gap-1">
+                <span className="text-[12px] font-[600] uppercase tracking-wider text-[#3f9633]/60">Order ID</span>
+                <h2 className="text-[20px] font-[700] leading-none tracking-[-0.5px] text-[#242424]">
+                  {hasMounted ? displayOrderId : "..."}
                 </h2>
-                <span className="text-[18px] font-[700] leading-[27px] tracking-[-0.07px] bg-clip-text text-transparent bg-[linear-gradient(46.44deg,#242424,#7d857b)] whitespace-nowrap">
-                  {hasMounted && amount ? amount : <div className="w-[80px] h-[20px] bg-gray-200 animate-pulse rounded-md" />}
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[12px] font-[600] uppercase tracking-wider text-[#3f9633]/60">Total Paid</span>
+                <span className="text-[22px] font-[700] leading-none tracking-[-0.5px] text-[#3f9633]">
+                  {hasMounted && amount ? amount : "..."}
                 </span>
               </div>
+            </div>
 
-              <div className="flex flex-col items-start self-stretch relative">
-                <div className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] whitespace-nowrap">
-                  {hasMounted && dateStr ? dateStr : <div className="w-[120px] h-[16px] bg-gray-100 animate-pulse rounded-md mt-[4px]" />}
-                </div>
-                <div className="w-full text-[14px] font-[600] leading-[22px] text-[#575757] whitespace-nowrap">
-                  Paid By : {hasMounted && paymentMethod ? paymentMethod : <span className="inline-block w-[60px] h-[14px] bg-gray-100 animate-pulse rounded-md translate-y-[2px] ml-[4px]" />}
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1 }}
-              className="flex flex-col gap-[12px] items-start self-stretch shrink-0 relative z-[9]"
-            >
-              <div className="flex px-[24px] flex-col gap-[12px] items-start self-stretch shrink-0 relative z-[10]">
-                <div className="flex w-full gap-[12px] items-start self-stretch shrink-0 relative z-[11]">
-                  <Link
-                    href={`/account/orders/${orderId}`}
-                    className="flex py-[12px] gap-[10px] justify-center items-center flex-1 bg-[#ffe900] hover:bg-[#ebd700] rounded-[12px] transition-all duration-[200ms] active:scale-95 "
+            {/* ITEM SUMMARY BOX (Like OrderCard) */}
+            <div className={`w-full p-4 rounded-[12px] border border-[#f1f5f9] bg-[#fafbfc] transition-all duration-500 overflow-hidden ${orderProps ? 'opacity-100' : 'opacity-0'}`}>
+              <AnimatePresence mode="wait">
+                {orderProps && (
+                  <motion.div 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-4"
                   >
-                    <span className="text-[14px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-                      Track Order
-                    </span>
-                  </Link>
-                  <Link
-                    href="/"
-                    className="flex py-[12px] gap-[10px] justify-center items-center flex-1 rounded-[12px] border-[1px] border-[#e4e4e7] hover:bg-[#f9fafb] transition-all duration-[200ms] active:scale-95"
-                  >
-                    <span className="text-[14px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-                      Go Back Home
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
+                    {/* PRODUCT IMAGE BORDER BOX */}
+                    <div className="relative flex w-[70px] h-[70px] items-center justify-center rounded-[8px] border border-[#e2e8f0] bg-white p-[4px] shrink-0">
+                      <div className="relative h-full w-full">
+                        <Image src={orderProps.image} alt={orderProps.title} fill className="object-contain" />
+                      </div>
+                      {orderProps.extraItemsCount > 0 && (
+                        <div className="absolute -bottom-1 -right-1 z-10 flex h-[20px] w-[20px] items-center justify-center rounded-full border border-white bg-[#3f9633] shadow-sm">
+                          <span className="font-titillium text-[10px] font-bold text-white">
+                            +{orderProps.extraItemsCount}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <span className="font-titillium text-[12px] font-[500] text-[#68727d] uppercase tracking-wide">
+                        {orderProps.brand}
+                      </span>
+                      <span className="font-titillium text-[16px] font-[700] text-[#242424] truncate leading-tight mt-0.5">
+                        {orderProps.title}
+                      </span>
+                      {orderProps.extraItemsCount > 0 && (
+                        <span className="font-titillium text-[12px] font-[600] text-[#3f9633] mt-1">
+                          + {orderProps.extraItemsCount} more items included
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Details Footer */}
+            <div className="flex flex-col gap-1 items-start self-stretch">
+              <div className="w-full text-[13px] font-[500] text-[#68727d]">
+                Placed on {hasMounted && dateStr ? dateStr : "..."}
+              </div>
+              <div className="w-full text-[13px] font-[600] text-[#242424] flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3f9633]" />
+                Paid via {hasMounted && paymentMethodDisplay ? paymentMethodDisplay : "..."}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex w-full gap-[12px] mt-2">
+              <Link
+                href={`/account/orders/${orderId}`}
+                className="flex py-[14px] gap-[10px] justify-center items-center flex-1 bg-[#ffe900] hover:bg-[#ebd700] rounded-[14px] transition-all duration-[200ms] active:scale-95 shadow-sm"
+              >
+                <span className="text-[15px] font-[700] text-[#242424] tracking-[-0.2px]">
+                  Track Order
+                </span>
+              </Link>
+              <Link
+                href="/"
+                className="flex py-[14px] gap-[10px] justify-center items-center flex-1 rounded-[14px] border border-[#e4e4e7] hover:bg-gray-50 transition-all duration-[200ms] active:scale-95 bg-white"
+              >
+                <span className="text-[15px] font-[600] text-[#242424] tracking-[-0.2px]">
+                  Back to Shop
+                </span>
+              </Link>
+            </div>
           </div>
-        </article>
-      </motion.section>
+        </motion.section>
+      </div>
     </main>
   );
 }

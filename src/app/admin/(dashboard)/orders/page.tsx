@@ -13,7 +13,7 @@ import OrderDetailsModal from '@/components/admin/orders/OrderDetailsModal';
 import StatusUpdateModal from '@/components/admin/orders/StatusUpdateModal';
 import UpdatePaymentStatusModal from '@/components/admin/orders/UpdatePaymentStatusModal';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
-import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction } from '@/app/actions/orderActions';
+import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaymentAdminAction } from '@/app/actions/orderActions';
 
 const PAGE_SIZE = 20;
 
@@ -205,6 +205,20 @@ export default function OrdersPage() {
     }
   };
 
+  const handleResetPayment = async (order: OrderProps) => {
+    if (confirm(`Are you sure you want to reset the payment state for Order #${order.shortId}? This will clear the uploaded proof and allow the customer to submit a new one.`)) {
+        setIsLoading(true);
+        const res = await resetPaymentAdminAction(order.id);
+        if (res.success) {
+            showAdminToast('Payment state reset successfully.', 'success');
+            loadOrders();
+        } else {
+            showAdminToast(res.message || 'Failed to reset payment.', 'error');
+            setIsLoading(false);
+        }
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
       <DynamicAdminNav />
@@ -288,6 +302,8 @@ export default function OrdersPage() {
         }}
         order={selectedOrderForDetails}
         onUpdateStatus={handleUpdateStatusTrigger}
+        onUpdatePaymentStatus={handleUpdatePaymentTrigger}
+        onResetPayment={handleResetPayment}
         onCancelOrder={handleCancelOrder}
       />
 

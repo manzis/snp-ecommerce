@@ -9,9 +9,10 @@ interface AdminSheetProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
-    description?: string;
+    description?: string | React.ReactNode;
     children: React.ReactNode;
     footerActions?: React.ReactNode;
+    headerActions?: React.ReactNode;
 }
 
 export default function AdminSheet({
@@ -21,6 +22,7 @@ export default function AdminSheet({
     description,
     children,
     footerActions,
+    headerActions,
 }: AdminSheetProps) {
     const [mounted, setMounted] = useState(false);
 
@@ -67,12 +69,15 @@ export default function AdminSheet({
                                     <p className="text-[12px] text-[#71717a] font-regular">{description}</p>
                                 )}
                             </div>
-                            <button
-                                onClick={onClose}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-[#71717a] hover:text-[#242424]"
-                            >
-                                <CloseIcon className="w-5 h-5" />
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {headerActions}
+                                <button
+                                    onClick={onClose}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-[#71717a] hover:text-[#242424]"
+                                >
+                                    <CloseIcon className="w-5 h-5" />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Scrollable Content Area */}
