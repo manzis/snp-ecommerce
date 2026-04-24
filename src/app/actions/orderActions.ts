@@ -105,15 +105,17 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
     // Revalidate relevant paths
     revalidatePath('/account/orders');
 
-    // Fire-and-forget: send confirmation emails
-    sendOrderConfirmationEmail(result.id).catch(err =>
-      console.error('[Email] Confirmation email failed:', err)
-    );
-    
-    // Notify admin
-    sendAdminOrderReceivedEmail(result.id).catch(err =>
-      console.error('[Email] Admin notification failed:', err)
-    );
+    // Await email confirmations (Production fix for Vercel)
+    await Promise.allSettled([
+      sendOrderConfirmationEmail(result.id),
+      sendAdminOrderReceivedEmail(result.id)
+    ]).then(results => {
+      results.forEach((res, i) => {
+        if (res.status === 'rejected') {
+          console.error(`[Email] ${i === 0 ? 'Confirmation' : 'Admin'} email failed:`, res.reason);
+        }
+      });
+    });
     
     return { success: true, orderId: result.id };
   } catch (error: any) {
@@ -210,8 +212,8 @@ export async function cancelOrderAction(orderId: string, reason: string) {
     revalidatePath('/account/orders');
     revalidatePath(`/account/orders/${orderId}`);
 
-    // Fire-and-forget: send cancellation email
-    sendOrderCancelledEmail(orderId, reason).catch(err =>
+    // Await cancellation email (Production fix)
+    await sendOrderCancelledEmail(orderId, reason).catch(err =>
       console.error('[Email] Cancellation email failed:', err)
     );
 
@@ -350,22 +352,22 @@ export async function updateOrderStatusAdminAction(
     revalidatePath('/account/orders');
     revalidatePath(`/account/orders/${orderId}`);
 
-    // Fire-and-forget: send status-specific email
+    // Await status-specific email (Production fix)
     const normalizedStatus = newStatus.toLowerCase();
     if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit') {
-      sendOrderShippedEmail(orderId, message).catch(err =>
+      await sendOrderShippedEmail(orderId, message).catch(err =>
         console.error('[Email] Shipped email failed:', err)
       );
     } else if (normalizedStatus === 'out_for_delivery') {
-      sendOutForDeliveryEmail(orderId).catch(err =>
+      await sendOutForDeliveryEmail(orderId).catch(err =>
         console.error('[Email] OFD email failed:', err)
       );
     } else if (normalizedStatus === 'failed') {
-      sendDeliveryFailedEmail(orderId, message).catch(err =>
+      await sendDeliveryFailedEmail(orderId, message).catch(err =>
         console.error('[Email] Failed delivery email failed:', err)
       );
     } else if (normalizedStatus === 'cancelled') {
-      sendOrderCancelledEmail(orderId, message).catch(err =>
+      await sendOrderCancelledEmail(orderId, message).catch(err =>
         console.error('[Email] Admin cancellation email failed:', err)
       );
     }
@@ -618,8 +620,8 @@ export async function createManualOrderAction(orderData: any, items: any[]) {
 
     revalidatePath('/admin/orders');
     
-    // Optional: Send confirmation email
-    sendOrderConfirmationEmail(result.id).catch(err => 
+    // Await confirmation email for manual order (Production fix)
+    await sendOrderConfirmationEmail(result.id).catch(err => 
       console.error('[Email] Confirmation failed for manual order:', err)
     );
 
@@ -627,5 +629,55 @@ export async function createManualOrderAction(orderData: any, items: any[]) {
   } catch (error: any) {
     console.error('Action Error: createManualOrderAction:', error);
     return { success: false, message: error.message || 'Failed to create manual order.' };
+  }
+}
+/**
+ * Server action to manually resend order status email (Admin only)
+ */
+export async function resendStatusEmailAction(orderId: string, status: string, message: string) {
+  const supabase = await createClient();
+  
+  // 1. Verify Admin Role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return { success: false, message: 'Forbidden. Admin access required.' };
+  }
+
+  try {
+    let success = false;
+    const normalizedStatus = status.toLowerCase();
+
+    // 2. Route to correct email template based on mapping in updateOrderStatusAdminAction
+    if (normalizedStatus === 'pending' || normalizedStatus === 'confirmed') {
+      success = await sendOrderConfirmationEmail(orderId);
+    } else if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit' || normalizedStatus === 'processing' || normalizedStatus === 'shipment_arrived') {
+      success = await sendOrderShippedEmail(orderId, message);
+    } else if (normalizedStatus === 'out_for_delivery') {
+      success = await sendOutForDeliveryEmail(orderId);
+    } else if (normalizedStatus === 'failed') {
+      success = await sendDeliveryFailedEmail(orderId, message);
+    } else if (normalizedStatus === 'cancelled') {
+      success = await sendOrderCancelledEmail(orderId, message);
+    } else {
+      // Default fallback to confirmation if unknown, or return error?
+      return { success: false, message: `No email template mapped for status: ${status}` };
+    }
+    
+    if (success) {
+      return { success: true, message: `Notification email for "${status}" resent successfully.` };
+    } else {
+      return { success: false, message: 'Failed to resend email. Check server logs.' };
+    }
+  } catch (error: any) {
+    console.error('Action Error: resendStatusEmailAction:', error);
+    return { success: false, message: error.message || 'Failed to resend email.' };
   }
 }

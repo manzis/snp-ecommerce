@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import AdminModal from '@/components/admin/shared/AdminModal';
 import { OrderProps } from '@/components/orders/OrderCard';
+import { resendStatusEmailAction } from '@/app/actions/orderActions';
+import { useAdminToast } from '../ui/AdminToastProvider';
 
 interface StatusUpdateModalProps {
     isOpen: boolean;
@@ -37,12 +39,32 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
     const [trackingNumber, setTrackingNumber] = useState(order?.trackingNumber || '');
     const [carrierName, setCarrierName] = useState(order?.carrierName || '');
     const [loading, setLoading] = useState(false);
+    const [isResending, setIsResending] = useState(false);
+    const { showAdminToast } = useAdminToast();
 
     if (!order) return null;
 
     const handleStatusChange = (newStatus: string) => {
         setTargetStatus(newStatus);
         setStatusMessage(DEFAULT_MESSAGES[newStatus] || 'Order status updated.');
+    };
+
+    const handleResendNotification = async () => {
+        if (!order || isResending) return;
+        
+        setIsResending(true);
+        try {
+            const result = await resendStatusEmailAction(order.id, targetStatus, statusMessage);
+            if (result.success) {
+                showAdminToast(result.message, 'success');
+            } else {
+                showAdminToast(result.message || 'Failed to resend email', 'error');
+            }
+        } catch (error) {
+            showAdminToast('An error occurred while resending the email', 'error');
+        } finally {
+            setIsResending(false);
+        }
     };
 
     const handleConfirm = async () => {
@@ -57,6 +79,43 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
         }
     };
 
+    const headerRight = (
+        <button
+            onClick={handleResendNotification}
+            disabled={isResending || loading}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#3f9733] hover:text-[#308026] bg-[#3f9733]/5 border border-[#3f9733]/10 hover:bg-[#3f9733]/10 rounded-lg transition-all active:scale-95 disabled:opacity-50"
+        >
+            {isResending ? (
+                <div className="w-2.5 h-2.5 border-2 border-[#3f9733]/30 border-t-[#3f9733] rounded-full animate-spin" />
+            ) : (
+                <span>📧</span>
+            )}
+            {isResending ? 'Resending...' : 'Resend Notification'}
+        </button>
+    );
+
+    const footerActions = (
+        <div className="flex w-full gap-4">
+            <button
+                onClick={onClose}
+                className="flex-1 px-8 py-3.5 text-[13px] font-medium text-[#71717a] hover:text-[#242424] bg-gray-50 rounded-2xl transition-all active:scale-95"
+            >
+                Discard
+            </button>
+            <button
+                onClick={handleConfirm}
+                disabled={loading || isResending}
+                className="flex-[2] md:flex-none md:px-12 py-3.5 bg-[#242424] text-white rounded-2xl text-[13px] font-medium hover:bg-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-black/10"
+            >
+                {loading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                    <span>Confirm Status Update</span>
+                )}
+            </button>
+        </div>
+    );
+
     return (
         <AdminModal
             isOpen={isOpen}
@@ -64,6 +123,8 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
             title={`Status Update: #${order.shortId}`}
             description={order.title}
             maxWidth="max-w-xl"
+            headerRight={headerRight}
+            footerActions={footerActions}
         >
             <div className="space-y-10 py-2">
                 {/* Status Selection Grid */}
@@ -140,27 +201,6 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
                         </div>
                     </div>
                 </section>
-
-                {/* Confirm Actions */}
-                <div className="flex gap-4 pt-4">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 px-8 py-3.5 text-[13px] font-medium text-[#71717a] hover:text-[#242424] bg-gray-50 rounded-2xl transition-all active:scale-95"
-                    >
-                        Discard
-                    </button>
-                    <button
-                        onClick={handleConfirm}
-                        disabled={loading}
-                        className="flex-[2] md:flex-none md:px-12 py-3.5 bg-[#242424] text-white rounded-2xl text-[13px] font-medium hover:bg-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-black/10"
-                    >
-                        {loading ? (
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : (
-                            <span>Confirm Status Update</span>
-                        )}
-                    </button>
-                </div>
             </div>
         </AdminModal>
     );

@@ -135,57 +135,57 @@ async function fetchOrderEmailData(orderId: string): Promise<OrderEmailData | nu
   };
 }
 
-// ─── Public Sender Functions (fire-and-forget) ───────────────────────
+// ─── Public Sender Functions (fire-and-forget or awaitable) ─────────
 
-export async function sendOrderConfirmationEmail(orderId: string): Promise<void> {
+export async function sendOrderConfirmationEmail(orderId: string): Promise<boolean> {
   const data = await fetchOrderEmailData(orderId);
-  if (!data) return;
+  if (!data) return false;
 
   const html = orderConfirmationTemplate(data);
-  await sendEmail(data.customerEmail, `Order Confirmed — #${data.shortId}`, html);
+  return await sendEmail(data.customerEmail, `Order Confirmed — #${data.shortId}`, html);
 }
 
-export async function sendAdminOrderReceivedEmail(orderId: string): Promise<void> {
+export async function sendAdminOrderReceivedEmail(orderId: string): Promise<boolean> {
   const data = await fetchOrderEmailData(orderId);
-  if (!data) return;
+  if (!data) return false;
 
   const html = adminOrderReceivedTemplate(data);
-  await sendEmail(ADMIN_EMAIL, `New Order Received — #${data.shortId}`, html);
+  return await sendEmail(ADMIN_EMAIL, `New Order Received — #${data.shortId}`, html);
 }
 
-export async function sendOrderShippedEmail(orderId: string, statusMessage?: string): Promise<void> {
+export async function sendOrderShippedEmail(orderId: string, statusMessage?: string): Promise<boolean> {
   const data = await fetchOrderEmailData(orderId);
-  if (!data) return;
+  if (!data) return false;
 
   data.statusMessage = statusMessage;
   const html = orderShippedTemplate(data);
-  await sendEmail(data.customerEmail, `Your Order Has Been Shipped — #${data.shortId}`, html);
+  return await sendEmail(data.customerEmail, `Your Order Has Been Shipped — #${data.shortId}`, html);
 }
 
-export async function sendOutForDeliveryEmail(orderId: string): Promise<void> {
+export async function sendOutForDeliveryEmail(orderId: string): Promise<boolean> {
   const data = await fetchOrderEmailData(orderId);
-  if (!data) return;
+  if (!data) return false;
 
   const html = outForDeliveryTemplate(data);
-  await sendEmail(data.customerEmail, `Out for Delivery — #${data.shortId}`, html);
+  return await sendEmail(data.customerEmail, `Out for Delivery — #${data.shortId}`, html);
 }
 
-export async function sendOrderCancelledEmail(orderId: string, reason?: string): Promise<void> {
+export async function sendOrderCancelledEmail(orderId: string, reason?: string): Promise<boolean> {
   const data = await fetchOrderEmailData(orderId);
-  if (!data) return;
+  if (!data) return false;
 
   data.cancellationReason = reason;
   const html = orderCancelledTemplate(data);
-  await sendEmail(data.customerEmail, `Order Cancelled — #${data.shortId}`, html);
+  return await sendEmail(data.customerEmail, `Order Cancelled — #${data.shortId}`, html);
 }
 
-export async function sendDeliveryFailedEmail(orderId: string, failureMessage?: string): Promise<void> {
+export async function sendDeliveryFailedEmail(orderId: string, failureMessage?: string): Promise<boolean> {
   const data = await fetchOrderEmailData(orderId);
-  if (!data) return;
+  if (!data) return false;
 
   data.statusMessage = failureMessage;
   const html = deliveryFailedTemplate(data);
-  await sendEmail(data.customerEmail, `Delivery Failed — #${data.shortId}`, html);
+  return await sendEmail(data.customerEmail, `Delivery Failed — #${data.shortId}`, html);
 }
 
 export async function sendContactFormEmail(data: ContactEmailData): Promise<boolean> {

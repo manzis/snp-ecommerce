@@ -7,6 +7,7 @@ import AdminSheet from '@/components/admin/shared/AdminSheet';
 import TickIcon from '@/components/icons/TickIcon';
 import CaretDownIcon from '@/components/icons/CaretDownIcon';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAdminToast } from '../ui/AdminToastProvider';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -39,6 +40,7 @@ export default function OrderDetailsModal({
     onUpdateStatus,
     onCancelOrder
 }: OrderDetailsModalProps) {
+    const { showAdminToast } = useAdminToast();
     const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set(['ORDERED']));
 
     // Auto-expand the active milestone on mount or status change
@@ -108,6 +110,7 @@ export default function OrderDetailsModal({
             return next;
         });
     };
+
 
     const footerActions = (
         <div className="flex w-full gap-3">
@@ -502,7 +505,7 @@ export default function OrderDetailsModal({
                                 <span className="text-[10px] text-[#a1a1aa] mt-0.5">Automated settlement active</span>
                              </div>
                         </div>
-                        <div className="grid grid-cols-2 divide-x divide-dotted divide-gray-300 border-t border-dotted border-gray-300">
+                        <div className="grid grid-cols-2 divide-x divide-gray-200 border-t border-gray-200">
                              <div className="p-5 flex flex-col gap-1.5">
                                  <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
                                  {order.shippingAddress ? (

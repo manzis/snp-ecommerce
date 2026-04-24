@@ -12,6 +12,7 @@ interface AdminModalProps {
     description?: string;
     children: React.ReactNode;
     footerActions?: React.ReactNode;
+    headerRight?: React.ReactNode;
     maxHeight?: string;
     maxWidth?: string;
 }
@@ -23,6 +24,7 @@ export default function AdminModal({
     description,
     children,
     footerActions,
+    headerRight,
     maxHeight = 'max-h-[75dvh] lg:max-h-[50dvh]',
     maxWidth = 'max-w-2xl'
 }: AdminModalProps) {
@@ -69,10 +71,17 @@ export default function AdminModal({
                         </div>
 
                         {/* Header */}
-                        <div className="px-8 pb-4 pt-4 md:pt-6 border-b border-gray-100 flex flex-col font-rubik sticky top-0 z-20 ">
-                            <h3 className="text-[18px] font-medium text-[#242424] tracking-tight">{title}</h3>
-                            {description && (
-                                <p className="text-[12px] text-[#71717a] font-regular mt-0.5">{description}</p>
+                        <div className="px-8 pb-4 pt-4 md:pt-6 border-b border-gray-100 flex justify-between items-start font-rubik sticky top-0 z-20 bg-white rounded-t-[24px] md:rounded-t-[12px]">
+                            <div className="flex flex-col">
+                                <h3 className="text-[18px] font-medium text-[#242424] tracking-tight">{title}</h3>
+                                {description && (
+                                    <p className="text-[12px] text-[#71717a] font-regular mt-0.5">{description}</p>
+                                )}
+                            </div>
+                            {headerRight && (
+                                <div className="ml-4 pt-1">
+                                    {headerRight}
+                                </div>
                             )}
                         </div>
 
