@@ -248,7 +248,7 @@ export default function PaymentPageView({ order }: { order: any }) {
                   <CheckoutPriceHeader
                      totalAmount={`NPR ${Number(order.totalAmount || 0).toLocaleString()}`}
                      mrp={Number(order.mrp_amount || 0)}
-                     subtotal={Number(order.totalAmount || 0) + Number(order.discount_amount || 0)}
+                     subtotal={Number(order.totalAmount || 0) + Number(order.coupon_discount || 0) - Number(order.shipping_amount || 0) - Number(order.cod_fees || 0)}
                      couponDiscount={Number(order.coupon_discount || 0)}
                      couponCode={order.coupon_code || ''}
                      shippingCharge={Number(order.shipping_amount || 0)}
