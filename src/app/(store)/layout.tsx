@@ -46,6 +46,15 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: 'https://brightsupplements.store',
     },
+    icons: {
+      icon: [
+        { url: '/images/shoplogo.png', sizes: 'any' },
+        { url: '/icon.png', type: 'image/png' },
+      ],
+      apple: [
+        { url: '/apple-icon.png', type: 'image/png' },
+      ],
+    },
     verification: {
       google: process.env.GOOGLE_SITE_VERIFICATION,
     },
