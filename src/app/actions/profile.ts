@@ -28,7 +28,11 @@ export async function getProfile() {
       if (error.code === "PGRST116") {
         const { data: newProfile, error: createError } = await supabase
           .from("profiles")
-          .insert([{ id: user.id, full_name: user.user_metadata?.full_name || "" }])
+          .insert([{ 
+            id: user.id, 
+            full_name: user.user_metadata?.full_name || "",
+            email: user.email 
+          }])
           .select("*")
           .single();
         

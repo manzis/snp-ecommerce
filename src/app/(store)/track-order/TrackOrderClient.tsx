@@ -221,18 +221,29 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
               const isLastRenderedGroupNode = (groupIndex === reconciliation.groups.length - 1) && (!isExpanded || group.logs.length === 0);
 
               return (
-                <div key={group.id} className="flex flex-col w-full mb-[12px]">
-                  <div className={`relative flex items-center justify-between w-full h-[36px] ${group.isCompleted ? 'bg-[#ECF7E8]' : 'bg-[#f8fafc]'} rounded-[10px] px-[12px] cursor-pointer hover:bg-gray-100 transition-colors z-20`} onClick={() => toggleMilestone(group.id)}>
+                <motion.div layout key={group.id} className="flex flex-col w-full mb-[12px]">
+                  <motion.div 
+                    layout
+                    className={`relative flex items-center justify-between w-full h-[36px] ${group.isCompleted ? 'bg-[#ECF7E8]' : 'bg-[#f8fafc]'} rounded-[10px] px-[12px] cursor-pointer hover:bg-gray-100 transition-colors z-20`} 
+                    onClick={() => toggleMilestone(group.id)}
+                  >
                     <TimelineSegment isIncomingActive={isIncomingActive} isOutgoingActive={isOutgoingActive} isFirst={groupIndex === 0} isLast={isLastRenderedGroupNode} progressColor={progress.color} />
                     <TimelineDot size="large" isActive={group.isActive} isLatest={milestoneIdx === reconciliation.latestActiveIndex} glowColor={group.id === 'SHIPPED' ? '#A16207' : progress.hex} progressColor={progress.color} />
                     <div className="flex items-center gap-[8px]">
                       <span className={`font-titillium text-[15px] font-[700] tracking-[0.2px] leading-[1] ${group.isActive ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>{group.label}</span>
                     </div>
                     <ChevronIcon className="h-[16px] w-[16px] text-[#8a8e91]" rotated={isExpanded} />
-                  </div>
+                  </motion.div>
                   <AnimatePresence>
                     {isExpanded && (
-                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: 'easeInOut' }} className="overflow-hidden ml-[-60px] pl-[60px]">
+                      <motion.div 
+                        layout
+                        initial={{ height: 0, opacity: 0 }} 
+                        animate={{ height: 'auto', opacity: 1 }} 
+                        exit={{ height: 0, opacity: 0 }} 
+                        transition={{ duration: 0.35, ease: [0.33, 1, 0.68, 1] }} 
+                        className="overflow-hidden ml-[-60px] pl-[60px]"
+                      >
                         <div className="flex flex-col gap-[6px] mt-[8px]">
                           {group.logs.map((log, logIdx) => {
                             const flatElement = reconciliation.flatElements.find(el => el.type === 'log' && el.id === log.id);
@@ -259,7 +270,7 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -279,12 +290,17 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
   const otherItems = (order.order_items || []).slice(1);
 
   // Build readable address
-  const shippingLines = addressDetails ? [
-    [addressDetails.first_name, addressDetails.last_name].filter(Boolean).join(' '),
-    addressDetails.address_line_1 || addressDetails.address || addressDetails.area,
-    addressDetails.phone ? `Phone: ${addressDetails.phone}` : null,
-    addressDetails.email ? `Email: ${addressDetails.email}` : null,
-  ].filter(Boolean) : [];
+  const fullName = ([addressDetails?.first_name, addressDetails?.last_name].filter(Boolean).join(' ') || order.customerName || '').trim();
+  const phone = addressDetails?.phone || order.customerPhone;
+  const email = addressDetails?.email || order.customerEmail;
+
+  const streetAddress = addressDetails ? [
+    addressDetails.address_line_1 || addressDetails.address || addressDetails.street,
+    addressDetails.landmark ? `(Near ${addressDetails.landmark})` : null,
+    addressDetails.area,
+    addressDetails.city,
+    addressDetails.district
+  ].filter(Boolean).join(', ') : null;
 
   return (
     <div className="flex flex-col gap-[20px] w-full">
@@ -302,7 +318,7 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
             <div className="flex flex-wrap items-center gap-[13px] mt-[4px]">
               <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Size : {order.size}</span>
               <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Flavour : {order.flavour}</span>
-              <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Qty : 1</span>
+              <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Qty : {firstItem.quantity}</span>
             </div>
           </div>
         </div>
@@ -364,12 +380,13 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
 
       {/* Shipping Address */}
       <DetailCard title="Shipping Address">
-        {shippingLines.length > 0 ? (
-          <div className="flex flex-col gap-[2px]">
-            {shippingLines.map((line, i) => (
-              <p key={i} className={`font-titillium text-[14px] ${i === 0 ? 'font-[600] text-[#242424]' : 'text-[#626262]'}`}>{line}</p>
-            ))}
-          </div>
+        {addressDetails ? (
+           <div className="flex flex-col gap-[2px] font-titillium text-[14px]">
+              <p className="font-[600] text-[#242424]">{fullName}</p>
+              <p className="font-[400] text-[#626262]">{streetAddress}</p>
+              {email && <p className="font-[400] text-[#626262]">{email}</p>}
+              {phone && <p className="font-[600] text-[#242424] mt-[2px]">Ph: {phone}</p>}
+           </div>
         ) : (
           <p className="font-titillium text-[14px] text-[#8a8e91]">Address not available</p>
         )}
@@ -416,16 +433,12 @@ function DetailCard({ title, children }: { title: string; children: React.ReactN
 
 type Tab = 'tracking' | 'order';
 
-export default function TrackOrderClient() {
+export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: string }) {
   const [trackedOrder, setTrackedOrder] = useState<OrderProps | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('tracking');
-  const [initialOrderId, setInitialOrderId] = useState<string | undefined>();
+  const [orderIdToFetch, setOrderIdToFetch] = useState<string | undefined>(initialOrderId);
 
-  React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    if (id) setInitialOrderId(id);
-  }, []);
+  // No longer needed to read URL params manually as they are passed from the server
 
   const handleResult = (order: OrderProps) => {
     setTrackedOrder(order);
@@ -478,20 +491,22 @@ export default function TrackOrderClient() {
               /* ── FORM STATE ── */
               <motion.div
                 key="form"
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -20, opacity: 0 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 className="flex flex-col"
               >
-                <TrackModalForm onResult={handleResult} initialOrderId={initialOrderId} />
+                <TrackModalForm onResult={handleResult} initialOrderId={orderIdToFetch} />
               </motion.div>
             ) : (
               /* ── RESULTS STATE ── */
               <motion.div
                 key="results"
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -20, opacity: 0 }}
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
                 className="flex flex-col h-full max-h-[85vh] lg:max-h-[580px]"
               >
                 {/* Back + Order ID Header */}

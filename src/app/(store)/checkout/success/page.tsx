@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import CheckConfirmicon from "@/components/icons/CheckTickIcon";
@@ -132,12 +133,12 @@ function SuccessContent() {
 
       {/* Animated Background Text Effect */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.05 }}
-        transition={{ duration: 1 }} // Speed up background entry
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.05, scale: 1 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-[0]"
       >
-        <span className="text-[20vw] font-bold text-white whitespace-nowrap">SUCCESS</span>
+        <span className="text-[20vw] font-bold text-white whitespace-nowrap tracking-tighter">SUCCESS</span>
       </motion.div>
 
       {/* --- TOP SECTION --- */}
@@ -208,11 +209,12 @@ function SuccessContent() {
               {/* PRODUCT PREVIEW SECTION */}
               {hasMounted && order?.order_items?.length > 0 && (
                 <div className="flex gap-[12px] items-center self-stretch py-[4px]">
-                  <div className="w-[48px] h-[48px] bg-[#f8f9fa] shrink-0 border border-[#f1f5f9] overflow-hidden rounded-none">
-                    <img 
+                  <div className="w-[60px] h-[60px] bg-[#f8f9fa] shrink-0 border border-[#f1f5f9] overflow-hidden rounded-[8px] relative">
+                    <Image 
                       src={order.order_items[0].products?.images?.[0] || "/images/product-placeholder.png"} 
                       alt="Product"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-contain p-1"
                     />
                   </div>
                   <div className="flex flex-col justify-center min-w-0">

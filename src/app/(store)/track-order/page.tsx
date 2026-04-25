@@ -27,6 +27,11 @@ export async function generateMetadata({
   };
 }
 
-export default function TrackOrderPage() {
-  return <TrackOrderClient />;
+export default async function TrackOrderPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ id?: string }> 
+}) {
+  const { id } = await searchParams;
+  return <TrackOrderClient initialOrderId={id} />;
 }

@@ -68,25 +68,34 @@ function UnderReviewIcon({ className }: { className?: string }) {
 function ProcessingLoader() {
    return (
       <motion.div 
-         initial={{ opacity: 0, y: 10 }}
-         animate={{ opacity: 1, y: 0 }}
-         className="w-full flex flex-col items-center gap-5 mt-[140px] px-12 relative z-[20]"
+         initial={{ opacity: 0, scale: 0.95 }}
+         animate={{ opacity: 1, scale: 1 }}
+         exit={{ opacity: 0, scale: 1.05 }}
+         className="w-full flex flex-col items-center gap-6 mt-[120px] px-8 relative z-[20]"
       >
-         <div className="w-[80%] h-[4px] bg-gray-100 rounded-full overflow-hidden relative shadow-inner">
+         <div className="w-full max-w-[280px] h-[6px] bg-zinc-100 rounded-full overflow-hidden relative shadow-inner border border-zinc-200/50">
             <motion.div
-               className="absolute inset-0 bg-[#3f9633]"
+               className="absolute inset-0 bg-gradient-to-r from-[#3f9633] via-[#4db23d] to-[#3f9633]"
                initial={{ x: "-100%" }}
                animate={{ x: "100%" }}
                transition={{
                   repeat: Infinity,
-                  duration: 1.2,
+                  duration: 1.5,
                   ease: "easeInOut"
                }}
             />
          </div>
-         <div className="flex flex-col items-center gap-1.5">
-            <p className="text-[#3f9633] font-bold text-base tracking-tight animate-pulse text-center uppercase">Verifying Payment</p>
-            <p className="text-zinc-500 text-[12px] font-medium text-center max-w-[200px]">Please do not press back or refresh while we verify your payment</p>
+         <div className="flex flex-col items-center gap-2">
+            <motion.p 
+               animate={{ opacity: [0.6, 1, 0.6] }}
+               transition={{ duration: 2, repeat: Infinity }}
+               className="text-[#3f9633] font-bold text-lg tracking-[0.02em] text-center uppercase"
+            >
+               Verifying Payment...
+            </motion.p>
+            <p className="text-zinc-500 text-[13px] font-medium text-center max-w-[240px] leading-relaxed">
+               Hold tight! We're confirming your transaction with the provider.
+            </p>
          </div>
       </motion.div>
    );
@@ -109,9 +118,9 @@ export default function PaymentPageView({ order }: { order: any }) {
    const isProcessed = (isPaid || isFailed || (isPending && hasProof) || isSuccessfullySubmitted) && !isRetrying;
    const isQR = order.paymentMethod?.toLowerCase() === 'qr' || selectedPayment === 'qr';
 
-   useEffect(() => {
-      setIsMounted(true);
-   }, []);
+   // Pre-define payment state to avoid mismatch if possible, 
+   // but since we interact with it immediately, we can use useLayoutEffect or just default state.
+   // We'll keep qr as default.
 
    const handlePlaceOrder = async (data?: { qrFile?: File | null; qrRemarks?: string }) => {
       if (selectedPayment === 'qr' && !data?.qrFile) {
@@ -142,7 +151,7 @@ export default function PaymentPageView({ order }: { order: any }) {
       }
    };
 
-   if (!isMounted) return null;
+   // Removed isMounted return to prevent hydration flicker
 
    // Success / Pending Review / Failed State
    if (isProcessed) {
@@ -290,32 +299,35 @@ export default function PaymentPageView({ order }: { order: any }) {
             </div>
 
             {/* Payment Section Wrapper */}
-            <AnimatePresence mode="wait">
-               {isSubmitting ? (
-                  <ProcessingLoader key="loader" />
-               ) : (
-                  <motion.div
-                     key="payment-options"
-                     initial={{ opacity: 0 }}
-                     animate={{ opacity: 1 }}
-                     exit={{ opacity: 0, height: 0 }}
-                     className="mt-[120px] lg:mt-[160px] rounded-b-[24px]"
-                  >
-                     <PaymentSection
-                        isOpen={true}
-                        isConfirmed={true}
-                        selectedId={selectedPayment}
-                        onSelect={setSelectedPayment}
-                        onToggle={() => { }}
-                        onPlaceOrder={handlePlaceOrder}
-                        excludeOptions={['cod']}
-                        externalError={error}
-                        hasQrError={!!error && selectedPayment === 'qr'}
-                        disabled={isSubmitting}
-                     />
-                  </motion.div>
-               )}
-            </AnimatePresence>
+            <motion.div layout className="flex flex-col w-full">
+               <AnimatePresence mode="wait">
+                  {isSubmitting ? (
+                     <ProcessingLoader key="loader" />
+                  ) : (
+                     <motion.div
+                        key="payment-options"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        className="mt-[120px] lg:mt-[160px] rounded-b-[24px]"
+                     >
+                        <PaymentSection
+                           isOpen={true}
+                           isConfirmed={true}
+                           selectedId={selectedPayment}
+                           onSelect={setSelectedPayment}
+                           onToggle={() => { }}
+                           onPlaceOrder={handlePlaceOrder}
+                           excludeOptions={['cod']}
+                           externalError={error}
+                           hasQrError={!!error && selectedPayment === 'qr'}
+                           disabled={isSubmitting}
+                        />
+                     </motion.div>
+                  )}
+               </AnimatePresence>
+            </motion.div>
          </div>
       </div>
    );
