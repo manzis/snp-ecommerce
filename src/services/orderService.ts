@@ -106,6 +106,8 @@ export function mapToOrderProps(order: any): OrderProps {
     order_items: order.order_items || [],
     payment_screenshot_url: order.payment_screenshot_url,
     payment_remarks: order.payment_remarks,
+    paymentAttemptedAt: order.payment_attempted_at,
+    updatedAt: order.updated_at,
   };
 }
 

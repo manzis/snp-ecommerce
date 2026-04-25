@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CheckoutPriceHeader from '@/components/checkout/CheckoutPriceHeader';
 import PaymentSection from '@/components/checkout/PaymentSection';
-import { submitOrderPaymentAction } from '@/app/actions/paymentActions';
+import { submitOrderPaymentAction, notifyPaymentAttemptAction } from '@/app/actions/paymentActions';
 import CheckTickIcon from '@/components/icons/CheckTickIcon';
 import ErrorIcon from '@/components/icons/ErrorIcon';
 import Link from 'next/link';
@@ -65,25 +65,53 @@ function UnderReviewIcon({ className }: { className?: string }) {
    );
 }
 
+function ProcessingLoader() {
+   return (
+      <motion.div 
+         initial={{ opacity: 0, y: 10 }}
+         animate={{ opacity: 1, y: 0 }}
+         className="w-full flex flex-col items-center gap-5 mt-[140px] px-12 relative z-[20]"
+      >
+         <div className="w-[80%] h-[4px] bg-gray-100 rounded-full overflow-hidden relative shadow-inner">
+            <motion.div
+               className="absolute inset-0 bg-[#3f9633]"
+               initial={{ x: "-100%" }}
+               animate={{ x: "100%" }}
+               transition={{
+                  repeat: Infinity,
+                  duration: 1.2,
+                  ease: "easeInOut"
+               }}
+            />
+         </div>
+         <div className="flex flex-col items-center gap-1.5">
+            <p className="text-[#3f9633] font-bold text-base tracking-tight animate-pulse text-center uppercase">Verifying Payment</p>
+            <p className="text-zinc-500 text-[12px] font-medium text-center max-w-[200px]">Please do not press back or refresh while we verify your payment</p>
+         </div>
+      </motion.div>
+   );
+}
+
 export default function PaymentPageView({ order }: { order: any }) {
    const [isMounted, setIsMounted] = useState(false);
    const [selectedPayment, setSelectedPayment] = useState<string | null>('qr');
    const [isSubmitting, setIsSubmitting] = useState(false);
    const [error, setError] = useState<string | null>(null);
    const [isRetrying, setIsRetrying] = useState(false);
-
-   useEffect(() => {
-      setIsMounted(true);
-   }, []);
+   const [isSuccessfullySubmitted, setIsSuccessfullySubmitted] = useState(false);
 
    const isPaid = order.paymentStatus?.toLowerCase() === 'paid';
    const isPending = order.paymentStatus?.toLowerCase() === 'pending';
    const isFailed = order.paymentStatus?.toLowerCase() === 'failed';
    const hasProof = !!order.payment_screenshot_url;
 
-   // Only processed if Paid, Failed, OR Pending WITH a proof uploaded
-   const isProcessed = (isPaid || isFailed || (isPending && hasProof)) && !isRetrying;
+   // Only processed if Paid, Failed, OR Pending WITH a proof uploaded, OR just successfully submitted
+   const isProcessed = (isPaid || isFailed || (isPending && hasProof) || isSuccessfullySubmitted) && !isRetrying;
    const isQR = order.paymentMethod?.toLowerCase() === 'qr' || selectedPayment === 'qr';
+
+   useEffect(() => {
+      setIsMounted(true);
+   }, []);
 
    const handlePlaceOrder = async (data?: { qrFile?: File | null; qrRemarks?: string }) => {
       if (selectedPayment === 'qr' && !data?.qrFile) {
@@ -106,7 +134,8 @@ export default function PaymentPageView({ order }: { order: any }) {
 
       const res = await submitOrderPaymentAction(formData);
       if (res.success) {
-         window.location.reload();
+         setIsSuccessfullySubmitted(true);
+         setIsSubmitting(false);
       } else {
          setError(res.message || 'Payment submission failed.');
          setIsSubmitting(false);
@@ -261,20 +290,32 @@ export default function PaymentPageView({ order }: { order: any }) {
             </div>
 
             {/* Payment Section Wrapper */}
-            <div className="mt-[120px] lg:mt-[160px] rounded-b-[24px]">
-               <PaymentSection
-                  isOpen={true}
-                  isConfirmed={true}
-                  selectedId={selectedPayment}
-                  onSelect={setSelectedPayment}
-                  onToggle={() => { }}
-                  onPlaceOrder={handlePlaceOrder}
-                  excludeOptions={['cod']}
-                  externalError={error}
-                  hasQrError={!!error && selectedPayment === 'qr'}
-                  disabled={isSubmitting}
-               />
-            </div>
+            <AnimatePresence mode="wait">
+               {isSubmitting ? (
+                  <ProcessingLoader key="loader" />
+               ) : (
+                  <motion.div
+                     key="payment-options"
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     exit={{ opacity: 0, height: 0 }}
+                     className="mt-[120px] lg:mt-[160px] rounded-b-[24px]"
+                  >
+                     <PaymentSection
+                        isOpen={true}
+                        isConfirmed={true}
+                        selectedId={selectedPayment}
+                        onSelect={setSelectedPayment}
+                        onToggle={() => { }}
+                        onPlaceOrder={handlePlaceOrder}
+                        excludeOptions={['cod']}
+                        externalError={error}
+                        hasQrError={!!error && selectedPayment === 'qr'}
+                        disabled={isSubmitting}
+                     />
+                  </motion.div>
+               )}
+            </AnimatePresence>
          </div>
       </div>
    );

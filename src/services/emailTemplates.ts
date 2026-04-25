@@ -35,7 +35,7 @@ interface OrderEmailData {
   cancellationReason?: string;
 }
 
-const STORE_NAME = process.env.STORE_NAME || 'Bright Supplements';
+export const STORE_NAME = process.env.STORE_NAME || 'Bright Supplements';
 const STORE_URL = process.env.STORE_URL || 'https://brightsupplements.store';
 const SUPPORT_EMAIL = process.env.GMAIL_USER || 'support@brightsupplements.store';
 
@@ -544,4 +544,124 @@ export function contactFormEmailTemplate(data: ContactEmailData): string {
   `;
 
   return adminBaseLayout(content, `New message from ${data.fullName} — ${STORE_NAME} Contact Form`);
+}
+
+/**
+ * Payment Attempt Notification Template
+ */
+export function paymentAttemptTemplate(data: OrderEmailData): string {
+  const dateStr = new Date().toLocaleString('en-US', { 
+    month: 'short', day: 'numeric', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit' 
+  });
+  
+  const content = `
+    <tr>
+      <td style="background:#242424;padding:40px 30px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">💳</div>
+        <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-1px;">Payment Attempted</h1>
+        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.7);font-weight:500;">A customer is attempting to pay for order #${data.shortId}.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:30px 30px 10px;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Order Summary</p>
+        <div style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;border-radius:8px;">
+          <p style="margin:0 0 5px;font-size:16px;font-weight:700;color:#000000;">Customer: ${data.customerName}</p>
+          <p style="margin:0 0 5px;font-size:14px;color:#242424;font-weight:600;">Amount: NPR ${data.totalAmount.toLocaleString()}</p>
+          <p style="margin:0;font-size:12px;color:#a1a1aa;">Attempted at: ${dateStr}</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 30px 40px;" align="center">
+        <a href="${STORE_URL}/admin/orders?orderId=${data.orderId}" style="display:inline-block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:16px 40px;border-radius:8px;text-transform:uppercase;letter-spacing:1px;">View Order In Admin</a>
+      </td>
+    </tr>
+  `;
+
+  return adminBaseLayout(content, `Payment Attempt — #${data.shortId} — ${STORE_NAME} Admin`);
+}
+
+/**
+ * Payment Acknowledge (Receipt Uploaded) Template
+ */
+export function paymentAcknowledgeTemplate(data: OrderEmailData & { screenshotUrl: string, adminLink: string }): string {
+  const dateStr = new Date().toLocaleString('en-US', { 
+    month: 'short', day: 'numeric', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit' 
+  });
+  
+  const content = `
+    <tr>
+      <td style="background:#3f9733;padding:40px 30px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">🧾</div>
+        <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-1px;">Receipt Uploaded</h1>
+        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.9);font-weight:500;">Payment proof received for order #${data.shortId}.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:30px 30px 10px;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Payment Information</p>
+        <div style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;border-radius:8px;margin-bottom:20px;">
+          <p style="margin:0 0 5px;font-size:16px;font-weight:700;color:#000000;">${data.customerName}</p>
+          <p style="margin:0 0 5px;font-size:14px;color:#3f9733;font-weight:600;">Order Total: NPR ${data.totalAmount.toLocaleString()}</p>
+          <p style="margin:0;font-size:12px;color:#9ca3af;">Received at: ${dateStr}</p>
+        </div>
+        
+        <p style="margin:0 0 10px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Uploaded Receipt</p>
+        ${data.screenshotUrl.toLowerCase().endsWith('.pdf') ? `
+          <div style="padding:40px 20px;text-align:center;background:#f9fafb;border:1px solid #eeeeee;border-radius:12px;">
+            <div style="font-size:48px;margin-bottom:16px;">📄</div>
+            <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#242424;text-transform:uppercase;">PDF Receipt Attached</p>
+            <p style="margin:0 0 24px;font-size:13px;color:#71717a;">The customer has uploaded a PDF document as payment proof.</p>
+            <a href="${data.screenshotUrl}" style="display:inline-block;background:#242424;color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:8px;">View PDF Document</a>
+          </div>
+        ` : `
+          <div style="border:1px solid #eeeeee;border-radius:12px;overflow:hidden;background:#ffffff;">
+            <img src="${data.screenshotUrl}" alt="Payment Receipt" style="width:100%;max-width:100%;height:auto;display:block;" />
+          </div>
+        `}
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 30px 40px;" align="center">
+        <a href="${data.adminLink}" style="display:inline-block;background:#3f9733;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:16px 40px;border-radius:8px;text-transform:uppercase;letter-spacing:1px;">Verify Payment Now</a>
+      </td>
+    </tr>
+  `;
+
+  return adminBaseLayout(content, `Payment Acknowledge — #${data.shortId} — ${STORE_NAME} Admin`);
+}
+
+/**
+ * Customer Payment Confirmed Template
+ */
+export function customerPaymentConfirmedTemplate(data: OrderEmailData): string {
+  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  
+  const content = [
+    statusBanner('#3f9733', '💰', 'Payment Received!', `Hi ${data.customerName}, we've successfully received your payment for order #${data.shortId}.`),
+    orderIdRow(data.shortId, dateStr),
+    `<tr><td style="padding:8px 24px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+        <tr>
+          <td style="padding:14px 20px;">
+            <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:0.5px;">Current Fulfillment Status</p>
+            <p style="margin:0;font-size:16px;color:#14532d;font-weight:700;text-transform:uppercase;">${data.statusMessage || 'Processing'}</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>`,
+    `<tr><td style="padding:0 24px 16px;">
+      <p style="margin:0;font-size:14px;color:#71717a;line-height:1.5;">Thank you for your business! Your order is now being prioritized in our fulfillment queue. You will receive another update as soon as it's shipped.</p>
+    </td></tr>`,
+    itemsTable(data.items),
+    pricingSummary(data),
+    divider(),
+    addressBlock(data),
+    ctaButton('View Order Status', `${STORE_URL}/account/orders`, '#3f9733'),
+  ].join('');
+
+  return baseLayout(content, `Payment received for order #${data.shortId} — ${STORE_NAME}`);
 }

@@ -13,6 +13,10 @@ import {
   deliveryFailedTemplate,
   adminOrderReceivedTemplate,
   contactFormEmailTemplate,
+  paymentAttemptTemplate,
+  paymentAcknowledgeTemplate,
+  customerPaymentConfirmedTemplate,
+  STORE_NAME,
   type OrderEmailData,
   type ContactEmailData,
 } from './emailTemplates';
@@ -191,6 +195,34 @@ export async function sendDeliveryFailedEmail(orderId: string, failureMessage?: 
 export async function sendContactFormEmail(data: ContactEmailData): Promise<boolean> {
   const html = contactFormEmailTemplate(data);
   return await sendEmail(ADMIN_EMAIL, `New Message from ${data.fullName} — SNP Contact Form`, html);
+}
+
+export async function sendPaymentAttemptEmail(orderId: string): Promise<boolean> {
+  const data = await fetchOrderEmailData(orderId);
+  if (!data) return false;
+
+  const html = paymentAttemptTemplate(data);
+  return await sendEmail(ADMIN_EMAIL, `Payment Attempted — #${data.shortId}`, html);
+}
+
+export async function sendPaymentAcknowledgeEmail(orderId: string, screenshotUrl: string): Promise<boolean> {
+  const data = await fetchOrderEmailData(orderId);
+  if (!data) return false;
+
+  const adminLink = `https://brightsupplements.store/admin/orders?orderId=${orderId}`;
+  const html = paymentAcknowledgeTemplate({ ...data, screenshotUrl, adminLink });
+  return await sendEmail(ADMIN_EMAIL, `Payment Receipt Uploaded — #${data.shortId}`, html);
+}
+
+export async function sendCustomerPaymentConfirmedEmail(orderId: string): Promise<boolean> {
+  const data = await fetchOrderEmailData(orderId);
+  if (!data) return false;
+
+  const html = customerPaymentConfirmedTemplate({ 
+    ...data, 
+    statusMessage: data.statusMessage || 'Processing' 
+  });
+  return await sendEmail(data.customerEmail, `Payment Received for Order #${data.shortId} — ${STORE_NAME}`, html);
 }
 
 // ─── Generic Email Sender (for future marketing/subscriptions) ───────

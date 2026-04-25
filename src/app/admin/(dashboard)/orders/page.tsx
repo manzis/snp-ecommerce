@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useOrderNotifications } from '@/hooks/useOrderNotifications';
+import { useSearchParams } from 'next/navigation';
 import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction } from '@/app/actions/orderActions';
 import { OrderProps } from '@/components/orders/OrderCard';
 import { AdminOrderList } from '@/components/admin/AdminOrderList';
@@ -34,6 +35,8 @@ export default function OrdersPage() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const { showAdminToast } = useAdminToast();
+  const searchParams = useSearchParams();
+  const deepLinkOrderId = searchParams.get('orderId');
 
   const handleToggleSelect = (id: string) => {
     setSelectedIds(prev => 
@@ -86,6 +89,16 @@ export default function OrdersPage() {
   useEffect(() => {
     loadOrders();
   }, [currentPage]);
+
+  // Deep Link Logic: Auto-open modal if orderId is in URL
+  useEffect(() => {
+    if (deepLinkOrderId && orders.length > 0) {
+      const orderToOpen = orders.find(o => o.id === deepLinkOrderId || o.shortId === deepLinkOrderId);
+      if (orderToOpen && !selectedOrderForDetails) {
+        handleOpenDetails(orderToOpen);
+      }
+    }
+  }, [deepLinkOrderId, orders, selectedOrderForDetails]);
 
   const handleOpenDetails = (order: any) => {
     setSelectedOrderForDetails(order);

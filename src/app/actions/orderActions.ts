@@ -11,6 +11,7 @@ import {
   sendOrderCancelledEmail,
   sendDeliveryFailedEmail,
   sendAdminOrderReceivedEmail,
+  sendCustomerPaymentConfirmedEmail,
 } from '@/services/emailService';
 
 /**
@@ -44,7 +45,7 @@ export async function trackOrderByIdAction(shortId: string) {
         shipping_address, contact_details,
         discount_amount, shipping_amount, discount_on_mrp, coupon_discount,
         bundle_discount, coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
-        payment_screenshot_url, payment_remarks,
+        payment_screenshot_url, payment_remarks, payment_attempted_at,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
           products (name, images, brands (name))
@@ -259,7 +260,7 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
         shipping_address, contact_details,
         discount_amount, shipping_amount, discount_on_mrp, coupon_discount, 
         bundle_discount, coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
-        payment_screenshot_url, payment_remarks,
+        payment_screenshot_url, payment_remarks, payment_attempted_at, updated_at,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
           products (name, images, brands (name))
@@ -412,7 +413,12 @@ export async function updatePaymentStatusAdminAction(orderId: string, paymentSta
     if (updateError) throw updateError;
 
     // Wait 200ms to allow Supabase triggers or caching to settle
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // Trigger customer email if payment is marked as paid
+    if (paymentStatus.toLowerCase() === 'paid') {
+      sendCustomerPaymentConfirmedEmail(orderId).catch(err => 
+        console.error('[Email] Customer payment confirmation email failed:', err)
+      );
+    }
 
     revalidatePath('/admin/orders');
     return { success: true };

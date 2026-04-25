@@ -531,22 +531,49 @@ export default function OrderDetailsModal({
                         <div className="border border-dotted border-gray-300 rounded-[6px] overflow-hidden bg-zinc-50/10 p-5 space-y-4">
                             {order.payment_screenshot_url ? (
                                 <div className="space-y-3">
-                                    <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm group">
-                                        <Image
-                                            src={order.payment_screenshot_url}
-                                            alt="Payment Receipt"
-                                            fill
-                                            className="object-contain p-2"
-                                        />
-                                        <a
-                                            href={order.payment_screenshot_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <span className="px-3 py-1.5 bg-white shadow-md rounded-lg text-[11px] font-bold uppercase tracking-wider text-black">View Full Size</span>
-                                        </a>
-                                    </div>
+                                    {(() => {
+                                        const isPdf = order.payment_screenshot_url.toLowerCase().endsWith('.pdf');
+                                        if (isPdf) {
+                                            return (
+                                                <div className="flex flex-col items-center justify-center py-8 bg-white border border-gray-200 rounded-lg shadow-sm gap-4">
+                                                    <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 border border-red-100">
+                                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <p className="text-[13px] font-bold text-black uppercase tracking-tight">PDF RECEIPT ATTACHED</p>
+                                                        <p className="text-[11px] text-zinc-400 mt-1">Payment proof is in PDF format</p>
+                                                    </div>
+                                                    <a
+                                                        href={order.payment_screenshot_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="px-6 py-2.5 bg-[#242424] text-white text-[12px] font-bold rounded-xl hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
+                                                    >
+                                                        Review PDF Payload
+                                                    </a>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div className="relative w-full aspect-video bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm group">
+                                                <Image
+                                                    src={order.payment_screenshot_url}
+                                                    alt="Payment Receipt"
+                                                    fill
+                                                    className="object-contain p-2"
+                                                />
+                                                <a
+                                                    href={order.payment_screenshot_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <span className="px-3 py-1.5 bg-white shadow-md rounded-lg text-[11px] font-bold uppercase tracking-wider text-black">View Full Size</span>
+                                                </a>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             ) : (
                                 <div className="py-4 text-center border border-dashed border-gray-200 rounded-lg">

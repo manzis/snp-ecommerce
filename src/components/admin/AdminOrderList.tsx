@@ -103,25 +103,34 @@ export function AdminOrderList({
     }
   };
 
-  if (viewMode === 'grid') {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {orders.map((order) => (
-          <DashboardOrderCard
-            key={order.id}
-            order={order}
-            isNew={lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false}
-            onViewOrder={onViewDetails}
-            onUpdateStatus={onUpdateStatus || openUpdateModal}
-            onUpdatePaymentStatus={onUpdatePaymentStatus}
-            onDeleteOrder={onDeleteOrder}
-          />
-        ))}
-      </div>
-    );
-  }
+  // 1. Split orders into Recently and All
+  const recentlyOrders = lastSeenAt ? orders.filter(o =>
+    (o.createdAt && new Date(o.createdAt) > new Date(lastSeenAt)) ||
+    (o.paymentAttemptedAt && new Date(o.paymentAttemptedAt) > new Date(lastSeenAt))
+  ) : [];
 
-  return (
+  const otherOrders = recentlyOrders.length > 0
+    ? orders.filter(o => !recentlyOrders.some(ro => ro.id === o.id))
+    : orders;
+
+  const renderGrid = (orderList: OrderProps[]) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {orderList.map((order) => (
+        <DashboardOrderCard
+          key={order.id}
+          order={order}
+          isNew={lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false}
+          onViewOrder={onViewDetails}
+          onUpdateStatus={onUpdateStatus || openUpdateModal}
+          onUpdatePaymentStatus={onUpdatePaymentStatus}
+          onDeleteOrder={onDeleteOrder}
+          isPaymentAttempted={lastSeenAt && order.paymentAttemptedAt ? new Date(order.paymentAttemptedAt) > new Date(lastSeenAt) : false}
+        />
+      ))}
+    </div>
+  );
+
+  const renderTable = (orderList: OrderProps[]) => (
     <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] font-rubik">
       <table className="w-full text-left border-separate border-spacing-0">
         <thead>
@@ -146,8 +155,9 @@ export function AdminOrderList({
         </thead>
         <tbody className="divide-y divide-gray-50">
           <AnimatePresence mode="popLayout">
-            {orders.map((order) => {
+            {orderList.map((order) => {
               const isNew = lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false;
+              const isPaymentAttempted = lastSeenAt && order.paymentAttemptedAt ? new Date(order.paymentAttemptedAt) > new Date(lastSeenAt) : false;
               const isSelected = selectedIds.includes(order.id);
 
               const getStatusColors = (status?: string) => {
@@ -205,6 +215,9 @@ export function AdminOrderList({
                         <span className="text-[14px] font-bold text-[#242424] tracking-tight">#{order.shortId}</span>
                         {isNew && (
                           <span className="h-[14px] px-1 bg-[#242424] text-white text-[8px] font-black rounded flex items-center justify-center tracking-tighter">NEW</span>
+                        )}
+                        {isPaymentAttempted && (
+                          <span className="h-[14px] px-1.5 bg-[#74a134] text-white text-[8px] font-black rounded flex items-center justify-center tracking-tighter shadow-sm animate-pulse">ATTEMPTED</span>
                         )}
                       </div>
                       <span className="text-[12px] text-[#a1a1aa] font-medium">
@@ -311,12 +324,34 @@ export function AdminOrderList({
           </AnimatePresence>
         </tbody>
       </table>
+    </div>
+  );
 
-      {orders.length === 0 && (
-        <div className="py-[100px] text-center">
-          <p className="text-[#a1a1aa] text-sm">No orders found.</p>
+  return (
+    <div className="flex flex-col gap-8">
+      {/* Recently Section */}
+      {recentlyOrders.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[12px] font-medium text-[#71717a] uppercase">Recently</h2>
+          </div>
+          {viewMode === 'grid' ? renderGrid(recentlyOrders) : renderTable(recentlyOrders)}
         </div>
       )}
+
+      {/* All Orders Section */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[12px] font-medium text-[#71717a] uppercase ">All Orders</h2>
+        </div>
+        {viewMode === 'grid' ? renderGrid(otherOrders) : renderTable(otherOrders)}
+
+        {orders.length === 0 && (
+          <div className="py-[100px] text-center bg-white border border-gray-100 rounded-[12px]">
+            <p className="text-[#a1a1aa] text-sm font-medium">No orders found matching your filters.</p>
+          </div>
+        )}
+      </div>
 
       {/* Comprehensive Update Modal */}
       {showModal && (

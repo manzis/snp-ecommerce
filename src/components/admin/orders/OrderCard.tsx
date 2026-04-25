@@ -13,6 +13,7 @@ export interface AdminOrderCardProps {
     onUpdateStatus?: (order: OrderProps) => void;
     onUpdatePaymentStatus?: (order: OrderProps) => void;
     onDeleteOrder?: (order: OrderProps) => void;
+    isPaymentAttempted?: boolean;
 }
 
 export default function OrderCard({
@@ -22,6 +23,7 @@ export default function OrderCard({
     onUpdateStatus,
     onUpdatePaymentStatus,
     onDeleteOrder,
+    isPaymentAttempted,
 }: AdminOrderCardProps) {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
@@ -122,8 +124,7 @@ export default function OrderCard({
 
             <div className="flex flex-col w-full h-full relative">
                 {/* --- HEADER (Exceptions stay as is) --- */}
-                <header className={`flex px-[14px] py-[12px] justify-between items-center self-stretch shrink-0 ${statusColors.bg} relative z-[20] rounded-t-[12px] transition-colors duration-300`}>
-
+                <header className={`flex px-[14px] py-[12px] justify-between items-center self-stretch shrink-0 ${isPaymentAttempted ? 'bg-[#f0f9eb]' : statusColors.bg} relative z-[20] rounded-t-[12px] transition-colors duration-300`}>
                     {/* Status Segment */}
                     <div className="flex gap-[8px] items-center shrink-0 relative z-[2]">
                         <span className={`shrink-0 text-[13px] font-[400] ${statusValue ? 'opacity-70' : ''} text-[#71717a] whitespace-nowrap`}>
@@ -134,15 +135,22 @@ export default function OrderCard({
                         </span>
                     </div>
 
-                    {/* Action Menu Component */}
-                    <OrderActionMenu
-                        order={order}
-                        onViewOrder={onViewOrder}
-                        onUpdateStatus={onUpdateStatus}
-                        onUpdatePaymentStatus={onUpdatePaymentStatus}
-                        onDeleteOrder={onDeleteOrder}
-                        onOpenChange={setIsMenuOpen}
-                    />
+                    <div className="flex items-center gap-3">
+                        {isPaymentAttempted && (
+                            <span className="text-[10px] text-[#74a134] font-bold uppercase tracking-tight">
+                                Payment Attempted
+                            </span>
+                        )}
+                        {/* Action Menu Component */}
+                        <OrderActionMenu
+                            order={order}
+                            onViewOrder={onViewOrder}
+                            onUpdateStatus={onUpdateStatus}
+                            onUpdatePaymentStatus={onUpdatePaymentStatus}
+                            onDeleteOrder={onDeleteOrder}
+                            onOpenChange={setIsMenuOpen}
+                        />
+                    </div>
                 </header>
 
                 {/* --- BODY (Padded to match ProductCard) --- */}
@@ -166,6 +174,7 @@ export default function OrderCard({
                             </span>
                         )}
                     </div>
+
 
                     {/* Product Info Block */}
                     <div className="flex flex-col gap-[16px] justify-center items-start self-stretch grow relative z-[12]">
