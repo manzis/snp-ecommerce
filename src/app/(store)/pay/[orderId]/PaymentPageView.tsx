@@ -261,7 +261,7 @@ export default function PaymentPageView({ order }: { order: any }) {
             </div>
 
             {/* Payment Section Wrapper */}
-            <div className="mt-[100px] lg:mt-[140px] rounded-b-[24px]">
+            <div className="mt-[120px] lg:mt-[160px] rounded-b-[24px]">
                <PaymentSection
                   isOpen={true}
                   isConfirmed={true}
