@@ -1,7 +1,22 @@
+import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { mapToOrderProps } from '@/services/orderService';
 import PaymentPageView from './PaymentPageView';
+
+export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }): Promise<Metadata> {
+  const { orderId } = await params;
+  const shortId = orderId.split('-')[0].toUpperCase();
+
+  return {
+    title: `Pay for your order: #${shortId}`,
+    description: `Securely complete payment for your order #${shortId}. Official payment link for Supplement Nepal.`,
+    openGraph: {
+      title: `Pay for your order: #${shortId}`,
+      description: `Securely complete payment for your order #${shortId}. Official payment link for Supplement Nepal.`,
+    }
+  };
+}
 
 export default async function PayOrderPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;
