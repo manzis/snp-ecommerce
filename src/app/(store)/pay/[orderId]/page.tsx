@@ -14,6 +14,20 @@ export async function generateMetadata({ params }: { params: Promise<{ orderId: 
     openGraph: {
       title: `Pay for your order: #${shortId}`,
       description: `Securely complete payment for your order #${shortId}. Official payment link for Supplement Nepal.`,
+      images: [
+        {
+          url: '/images/pay-order.png',
+          width: 1200,
+          height: 630,
+          alt: `Payment for Order #${shortId}`,
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Pay for your order: #${shortId}`,
+      description: `Securely complete payment for your order #${shortId}. Official payment link for Supplement Nepal.`,
+      images: ['/images/pay-order.png'],
     }
   };
 }
