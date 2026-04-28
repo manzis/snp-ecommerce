@@ -124,7 +124,7 @@ export default async function HomePage() {
       {/* GLOBAL HOME NAVIGATION (TOP) */}
       <FloatingNav showBanner={true} />
 
-      <main className="flex flex-col pb-[86px] mx-auto w-full">
+      <main className="flex flex-col items-center max-w-[1200px] lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
         <HomeHero deals={deals.length > 0 ? deals : []} />
 
         {deals.length > 0 && <TodaysDeals deals={deals} />}

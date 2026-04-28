@@ -20,7 +20,7 @@ const Footer = () => {
   }
 
   return (
-    <footer className="mx-auto w-full bg-[#308026] px-[4px] pt-[4px] rounded-t-[24px] flex flex-col gap-[16px] items-start flex-nowrap relative">
+    <footer className="mx-auto w-full max-w-[1200px] lg:border-[1px] border-[#e2e2e2] bg-[#308026] px-[4px] pt-[4px] rounded-t-[24px] flex flex-col gap-[16px] items-start flex-nowrap relative">
 
       {/* 1. TOP CTA SECTION */}
       <section className="flex flex-col gap-[16px] justify-center items-center self-stretch shrink-0 flex-nowrap bg-[#164210] px-[24px] pt-[28px] pb-[32px] rounded-[24px] border-b-[2px] border-[#e5e5e5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] relative">

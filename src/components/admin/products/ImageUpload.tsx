@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { uploadFileAction, deleteFileAction } from '@/app/actions/storageActions';
 import Image from 'next/image';
 
 interface ImageUploadProps {
@@ -28,39 +28,62 @@ export default function ImageUpload({
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const oldMediaUrl = value;
         setIsUploading(true);
 
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', path);
+        formData.append('bucket', bucket);
+
         try {
-            // Prepare unique filename
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-            const filePath = `${path}/${fileName}`;
+            const res = await uploadFileAction(formData);
+            if (res.success && res.url) {
+                onChange(res.url);
 
-            // Direct client-side upload to Supabase Storage
-            const { error: uploadError } = await supabase.storage
-                .from(bucket)
-                .upload(filePath, file, {
-                    upsert: true,
-                    contentType: file.type,
-                });
-
-            if (uploadError) {
-                console.error('Supabase Storage Error:', uploadError);
-                throw new Error(uploadError.message);
+                // Cleanup old media
+                if (oldMediaUrl && oldMediaUrl.includes('res.cloudinary.com')) {
+                    const parts = oldMediaUrl.split('/upload/');
+                    if (parts.length >= 2) {
+                        const afterUpload = parts[1];
+                        const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+                        const publicId = withoutVersion.split('.')[0];
+                        const type = oldMediaUrl.match(/\.(mp4|webm|mov|ogg)$/i) ? 'video' : 'image';
+                        if (publicId) await deleteFileAction(publicId, type);
+                    }
+                }
+            } else {
+                throw new Error(res.message || 'Upload failed');
             }
-
-            // Get Public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(filePath);
-
-            onChange(publicUrl);
         } catch (error: any) {
             console.error('Image upload error:', error);
             alert(`Upload failed: ${error.message || 'An unexpected error occurred'}`);
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleRemove = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!value) return;
+
+        const urlToRemove = value;
+        onChange('');
+
+        if (urlToRemove.includes('res.cloudinary.com')) {
+            try {
+                const parts = urlToRemove.split('/upload/');
+                if (parts.length >= 2) {
+                    const afterUpload = parts[1];
+                    const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+                    const publicId = withoutVersion.split('.')[0];
+                    const type = urlToRemove.match(/\.(mp4|webm|mov|ogg)$/i) ? 'video' : 'image';
+                    if (publicId) await deleteFileAction(publicId, type);
+                }
+            } catch (err) {
+                console.error('Failed to delete media:', err);
+            }
         }
     };
 
@@ -111,10 +134,7 @@ export default function ImageUpload({
                         </div>
                         <button
                             type="button"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onChange('');
-                            }}
+                            onClick={handleRemove}
                             className="absolute top-2 right-2 bg-black/50 hover:bg-red-500 text-white rounded-full p-1.5 transition-colors opacity-0 group-hover:opacity-100 z-10"
                             title="Remove media"
                         >

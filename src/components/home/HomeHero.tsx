@@ -11,7 +11,7 @@ interface HomeHeroProps {
 const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
     return (
         <section className="relative w-full overflow-hidden bg-white">
-            <div className="relative mx-auto flex h-[656px] w-full items-end rounded-br-[32px] lg:h-[820px]">
+            <div className="relative mx-auto flex h-[656px] w-full items-end md:rounded-br-[32px] lg:rounded-none lg:h-[820px]">
 
                 {/* BACKGROUND IMAGE & OVERLAYS */}
                 <div className="absolute inset-0 z-0">
@@ -20,10 +20,10 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         alt="Fitness Essentials Hero"
                         fill
                         priority
-                        className="object-cover rounded-br-[32px]"
+                        className="object-cover md:rounded-br-[32px] lg:rounded-none"
                         sizes="(max-w-410px) 100vw, 100vw"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-[#000000]/20 to-transparent rounded-br-[32px]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-[#000000]/20 to-transparent md:rounded-br-[32px] lg:rounded-none" />
                 </div>
 
                 {/* CONTENT AREA */}

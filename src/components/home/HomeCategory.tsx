@@ -5,10 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const CATEGORIES = [
-    { name: 'Proteins', slug: 'protein', img: '/images/protein.png' },
+    { name: 'Proteins', slug: 'proteins', img: '/images/protein.png' },
     { name: 'Creatine', slug: 'creatine', img: '/images/creatine.png' },
     { name: 'Multivitamins', slug: 'multivitamins', img: '/images/vitamin.png' },
-    { name: 'Essentials', slug: 'Essentials', img: '/images/essentials.png' },
+    { name: 'Essentials', slug: 'essentials', img: '/images/essentials.png' },
     { name: 'Accessories', slug: 'accessories', img: '/images/accessories.png' },
 ];
 

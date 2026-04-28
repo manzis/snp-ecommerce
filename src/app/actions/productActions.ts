@@ -428,6 +428,60 @@ export async function deleteProductAction(id: string) {
     const adminClient = getSupabaseAdmin();
     const finalClient = adminClient || supabase;
 
+    // 2. Fetch all media URLs before deletion for cleanup
+    const { data: product } = await finalClient
+      .from('products')
+      .select(`
+        *,
+        product_info (ingredients_image),
+        product_variants (image_url),
+        product_flavours (image_url),
+        product_sizes (image_url)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (product) {
+      const { extractPublicId, deleteFromCloudinary } = await import('@/services/cloudinary');
+      
+      // Collect all potential Cloudinary URLs
+      const urls: { url: string; type: 'image' | 'video' }[] = [];
+      
+      if (product.image_url) urls.push({ url: product.image_url, type: 'image' });
+      if (product.banner_image1) urls.push({ url: product.banner_image1, type: 'image' });
+      if (product.banner_image2) urls.push({ url: product.banner_image2, type: 'image' });
+      if (product.banner_image3) urls.push({ url: product.banner_image3, type: 'image' });
+      if (product.banner_image4) urls.push({ url: product.banner_image4, type: 'image' });
+      
+      // Highlights (JSON array of { type: 'video' | 'image', src: string })
+      if (Array.isArray(product.highlights)) {
+        product.highlights.forEach((h: any) => {
+          if (h.src) urls.push({ url: h.src, type: h.type === 'video' ? 'video' : 'image' });
+        });
+      }
+      // Relational media
+      const processRelational = (data: any, field: string, type: 'image' | 'video' = 'image') => {
+        if (!data) return;
+        const items = Array.isArray(data) ? data : [data];
+        items.forEach(item => {
+          if (item && item[field]) urls.push({ url: item[field], type });
+        });
+      };
+
+      processRelational(product.product_info, 'ingredients_image');
+      processRelational(product.product_variants, 'image_url');
+      processRelational(product.product_flavours, 'image_url');
+      processRelational(product.product_sizes, 'image_url');
+      const publicIds = urls
+        .map(u => ({ id: extractPublicId(u.url), type: u.type }))
+        .filter(u => u.id);
+
+      await Promise.allSettled(
+        publicIds.map(p => deleteFromCloudinary(p.id!, p.type))
+      );
+    }
+
+    // 3. Delete from Database
     const { error } = await finalClient
       .from('products')
       .delete()

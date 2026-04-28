@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { uploadFileAction } from '@/app/actions/storageActions';
+import { uploadFileAction, deleteFileAction } from '@/app/actions/storageActions';
 
 interface VideoUploadProps {
     value?: string;
@@ -27,6 +27,7 @@ export default function VideoUpload({
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const oldVideoUrl = value;
         setIsUploading(true);
         const formData = new FormData();
         formData.append('file', file);
@@ -37,6 +38,17 @@ export default function VideoUpload({
             const res = await uploadFileAction(formData);
             if (res.success && res.url) {
                 onChange(res.url);
+
+                // Cleanup old video from storage
+                if (oldVideoUrl && oldVideoUrl.includes('res.cloudinary.com')) {
+                    const parts = oldVideoUrl.split('/upload/');
+                    if (parts.length >= 2) {
+                        const afterUpload = parts[1];
+                        const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+                        const publicId = withoutVersion.split('.')[0];
+                        if (publicId) await deleteFileAction(publicId, 'video');
+                    }
+                }
             } else {
                 alert(`Upload failed: ${res.message}`);
             }
@@ -46,6 +58,28 @@ export default function VideoUpload({
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleRemove = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!value) return;
+
+        const urlToRemove = value;
+        onChange('');
+
+        if (urlToRemove.includes('res.cloudinary.com')) {
+            try {
+                const parts = urlToRemove.split('/upload/');
+                if (parts.length >= 2) {
+                    const afterUpload = parts[1];
+                    const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+                    const publicId = withoutVersion.split('.')[0];
+                    if (publicId) await deleteFileAction(publicId, 'video');
+                }
+            } catch (err) {
+                console.error('Failed to delete video:', err);
+            }
         }
     };
 
@@ -82,6 +116,17 @@ export default function VideoUpload({
                                 Replace Video
                             </span>
                         </div>
+                        <button
+                            type="button"
+                            onClick={handleRemove}
+                            className="absolute top-2 right-2 bg-black/50 hover:bg-red-500 text-white rounded-full p-1.5 transition-colors opacity-0 group-hover:opacity-100 z-10"
+                            title="Remove video"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
                     </>
                 ) : (
                     <div className="flex flex-col items-center gap-2 px-4 py-6">

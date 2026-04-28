@@ -55,7 +55,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
     };
 
     return (
-        <section className="relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px] lg:max-w-[1440px] lg:rounded-[48px] lg:pt-[280px] ">
+        <section className="relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px] lg:max-w-[1440px]  lg:pt-[280px] ">
             {/* ... athlete images ... */}
             <div className="absolute top-[31.96px] left-[-24px] flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
                 {/* LEFT SCATTER PARTICLES */}
@@ -119,9 +119,9 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
                 <div ref={scrollRef} className="no-scrollbar flex w-full gap-[12px] overflow-x-auto px-[24px] pb-[10px] lg:gap-[24px] lg:px-[64px]">
                     {testimonials.length > 0 ? (
                         testimonials.map((item) => (
-                            <TestimonialCard 
-                                key={item.id} 
-                                review={item} 
+                            <TestimonialCard
+                                key={item.id}
+                                review={item}
                                 onMediaClick={() => {
                                     if (item.image) {
                                         const isVideo = item.image.toLowerCase().endsWith('.mp4') || item.image.toLowerCase().endsWith('.webm');
@@ -143,7 +143,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
                 <button onClick={() => scroll('right')} className="flex h-[36px] w-[36px] rotate-45 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px]" /></button>
             </div>
 
-            <MediaLightbox 
+            <MediaLightbox
                 isOpen={lightboxOpen}
                 media={selectedMedia}
                 onClose={() => setLightboxOpen(false)}
@@ -158,14 +158,14 @@ const TestimonialCard = ({ review, onMediaClick }: { review: PartialReview, onMe
     const cleanDate = new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
     return (
-        <article 
+        <article
             onClick={hasMedia ? onMediaClick : undefined}
             className={`relative flex h-[275px] w-[220px] shrink-0 flex-col justify-between overflow-hidden rounded-[24px] p-[16px] transition-all lg:w-[320px] lg:h-[350px] ${hasMedia ? 'border-none cursor-pointer group active:scale-[0.98]' : 'bg-white'}`}
         >
             {hasMedia && (
                 <div className="absolute inset-0 z-0 select-none">
-                    {isVideo 
-                        ? <video src={review.image as string} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" /> 
+                    {isVideo
+                        ? <video src={review.image as string} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
                         : <Image src={review.image as string} alt="Review Media" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
                     }
                     {/* OPTIMIZED OVERLAY: Slight dark top, clear center, medium dark bottom */}

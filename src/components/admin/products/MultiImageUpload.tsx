@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { uploadFileAction } from '@/app/actions/storageActions';
+import { uploadFileAction, deleteFileAction } from '@/app/actions/storageActions';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -90,10 +90,26 @@ export default function MultiImageUpload({
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
-    const removeImage = (index: number) => {
-        const newImages = [...images];
-        newImages.splice(index, 1);
+    const removeImage = async (urlToRemove: string) => {
+        const newImages = images.filter(img => img !== urlToRemove);
         onChange(newImages);
+
+        // Cleanup storage
+        try {
+            // Extract public_id from URL
+            const parts = urlToRemove.split('/upload/');
+            if (parts.length >= 2) {
+                const afterUpload = parts[1];
+                const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+                const publicId = withoutVersion.split('.')[0];
+                
+                if (publicId && urlToRemove.includes('res.cloudinary.com')) {
+                    await deleteFileAction(publicId, 'image');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to cleanup removed image:', error);
+        }
     };
 
     const setMainImage = (index: number) => {
@@ -170,7 +186,7 @@ export default function MultiImageUpload({
                                     <button 
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            removeImage(index);
+                                            removeImage(url);
                                         }}
                                         className="absolute top-2 right-2 z-20 w-6 h-6 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-red-500 opacity-0 group-hover:opacity-100 hover:bg-white transition-all scale-75 group-hover:scale-100"
                                     >
@@ -194,6 +210,7 @@ export default function MultiImageUpload({
                                 onClick={() => fileInputRef.current?.click()}
                                 className="aspect-square rounded-xl border border-gray-100 bg-gray-50/30 hover:bg-[#242424] hover:text-white transition-all flex flex-col items-center justify-center gap-1 group/add"
                             >
+                                <PlusIcon className="w-4 h-4 mb-0.5 group-hover:scale-110 transition-transform" />
                                 <span className="text-[11px] font-medium group-hover/add:underline underline-offset-2">Browse file</span>
                                 <span className="text-[9px] font-regular opacity-60">{maxImages - images.length} left</span>
                             </button>
@@ -202,8 +219,8 @@ export default function MultiImageUpload({
                 </div>
             )}
 
-            {/* Upload Area */}
-            {images.length < maxImages && (
+            {/* Upload Area - Only show when empty */}
+            {images.length === 0 && (
                 <div 
                     onClick={() => fileInputRef.current?.click()}
                     className="relative group cursor-pointer border-2 border-dashed border-gray-200 hover:border-black rounded-2xl transition-all flex flex-col items-center justify-center p-8 bg-gray-50/50 hover:bg-white"
@@ -221,7 +238,7 @@ export default function MultiImageUpload({
                         <CloudIcon className="w-8 h-8 text-[#a1a1aa] mb-1" />
                         <div className="text-center">
                             <p className="text-[14px] font-medium text-[#242424]">Click to upload product images</p>
-                            <p className="text-[12px] text-[#71717a] mt-1">Select up to {maxImages - images.length} more images (JPG, PNG or WEBP)</p>
+                            <p className="text-[12px] text-[#71717a] mt-1">Select up to {maxImages} images (JPG, PNG or WEBP)</p>
                             <button 
                                 className="mt-4 px-6 py-2 bg-white border border-gray-200 text-[#242424] text-[12px] font-medium rounded-full hover:bg-[#242424] hover:text-white hover:border-[#242424] transition-all"
                             >

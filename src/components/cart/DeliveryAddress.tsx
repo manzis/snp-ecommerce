@@ -45,7 +45,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
             )}
           </div>
           {isLoggedIn && hasAddresses && address && (
-            <span className="font-titillium text-[16px] text-[#8a8e91] leading-[28px] tracking-[-0.6px] truncate">
+            <span className="font-titillium text-[16px] max-w-[200px] lg:max-w-[400px] text-[#8a8e91] leading-[28px] tracking-[-0.6px] truncate">
               {address}
             </span>
           )}
