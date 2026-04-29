@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { uploadFileAction, deleteFileAction } from '@/app/actions/storageActions';
+import { deleteFileAction } from '@/app/actions/storageActions';
+import { uploadFileClientSide } from '@/lib/cloudinary-client';
 import Image from 'next/image';
 
 interface ImageUploadProps {
@@ -31,13 +32,8 @@ export default function ImageUpload({
         const oldMediaUrl = value;
         setIsUploading(true);
 
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', path);
-        formData.append('bucket', bucket);
-
         try {
-            const res = await uploadFileAction(formData);
+            const res = await uploadFileClientSide(file, path);
             if (res.success && res.url) {
                 onChange(res.url);
 

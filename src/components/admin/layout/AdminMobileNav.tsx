@@ -39,7 +39,7 @@ const MORE_MENU_ITEMS = [
     { label: 'Customers', icon: CustomersIcon, href: '/admin/customers' },
     { label: 'Sellers', icon: AnalyticsIcon, href: '/admin/sellers' },
     { label: 'Layouts', icon: LayoutsIcon, href: '/admin/layouts' },
-    { label: 'Coupons', icon: PreferencesIcon, href: '/admin/abandoned-cart' }, // Map correctly
+    { label: 'Coupons', icon: PreferencesIcon, href: '/admin/coupons' }, // Map correctly
     { label: 'Reviews', icon: PreferencesIcon, href: '/admin/reviews' },
     { label: 'QA', icon: PreferencesIcon, href: '/admin/qa' },
     { label: 'Store', icon: StoreSettingsIcon, href: '/admin/settings/store' },
