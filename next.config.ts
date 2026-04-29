@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   images: {
+    unoptimized: true,
     dangerouslyAllowSVG: true,
     formats: ['image/webp'],
     minimumCacheTTL: 60,
