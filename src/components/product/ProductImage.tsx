@@ -145,7 +145,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
           {displayImages.map((img, idx) => (
             <div key={`${img}-${idx}`} className="relative h-full w-full shrink-0">
               <Image
-                src={img}
+                src={img.trim()}
                 alt={productName}
                 fill
                 className="object-cover lg:object-cover"

@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
     dangerouslyAllowSVG: true,
+    formats: ['image/webp'],
+    minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: 'https',

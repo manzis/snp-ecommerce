@@ -125,7 +125,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     };
 
     const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
-    const itemImage = selectedFlavour?.image_url || product.images?.[0] || '/images/protein.jpg';
+    const itemImage = (selectedFlavour?.image_url || product.images?.[0] || '/images/protein.png').trim();
 
     addItem({
       id: getCartItemId(itemData),
@@ -172,7 +172,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
 
       if (!alreadyInCart) {
         const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
-        const itemImage = selectedFlavour?.image_url || product.images?.[0] || '/images/protein.jpg';
+        const itemImage = (selectedFlavour?.image_url || product.images?.[0] || '/images/protein.png').trim();
 
         addItem({
           id: itemId,
