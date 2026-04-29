@@ -48,7 +48,7 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
         
         list.push({
           id: banner.id,
-          image_url: banner.image_url,
+          image_url: banner.image_url.trim(),
           title: banner.title || 'Special Promotion',
           link: link,
           type: banner.display_type || 'promo'
@@ -63,7 +63,7 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
         seenIds.add(id);
         list.push({
           id,
-          image_url: url!,
+          image_url: url!.trim(),
           title: 'Promotion',
           link: null,
           type: 'legacy'
