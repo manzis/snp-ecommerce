@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
+import { optimizeImage } from '@/lib/optimizeImage';
 
 import { Product } from '@/services/productService';
 
@@ -22,7 +23,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
       <div className="relative w-full aspect-[200/200] flex flex-col justify-end lg:aspect-[250/240] overflow-hidden">
         {/* Optimized Image with Hover Scale Effect */}
         <Image
-          src={product.images?.[0] || '/images/protein.jpg'}
+          src={optimizeImage(product.images?.[0], 500) || '/images/protein.jpg'}
           alt={product.title}
           fill
           className={`object-contain p-[20px] lg:p-[20px] transition-transform duration-300 group-hover:scale-105 ${product.stock_status === 'out_of_stock' ? 'opacity-40' : ''}`}

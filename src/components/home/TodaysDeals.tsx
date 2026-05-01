@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { optimizeImage } from '@/lib/optimizeImage';
 
 interface Deal {
     id: string;
@@ -116,7 +117,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
 
             {/* IMAGE CONTAINER */}
             <div className={`relative rounded-[12px] flex items-center justify-center overflow-hidden min-h-0 shrink-0 ${isWide ? 'w-[80px] h-full lg:w-[250px]' : 'w-full flex-1'}`}>
-                <Image src={deal.image} alt={deal.title} fill className="object-contain p-[8px]" />
+                <Image src={optimizeImage(deal.image, 400)} alt={deal.title} fill className="object-contain p-[8px]" />
             </div>
 
             {/* INFO BLOCK */}

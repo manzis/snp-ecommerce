@@ -1,6 +1,6 @@
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { optimizeImage } from '@/lib/optimizeImage';
 
 // --- TYPES ---
 export interface FeaturedProductCardProps {
@@ -44,7 +44,7 @@ export default function FeaturedProductCard({
                 {/* --- Product Image Container --- */}
                 <div className={`flex h-[159px] w-full items-center self-stretch shrink-0 rounded-[8px] relative overflow-hidden ${stockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}>
                     <Image
-                        src={imageUrl}
+                        src={optimizeImage(imageUrl, 300)}
                         alt={title}
                         fill
                         sizes="(max-width: 768px) 159px, 169px"

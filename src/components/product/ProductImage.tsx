@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { optimizeImage } from '@/lib/optimizeImage';
 import ActionButton from './ActionButton';
 import StarIcon from '@/components/icons/GreenStar';
 import ShareIcon from '@/components/icons/Share';
@@ -145,8 +146,8 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
           {displayImages.map((img, idx) => (
             <div key={`${img}-${idx}`} className="relative h-full w-full shrink-0">
               <Image
-                src={img.trim()}
-                alt={productName}
+                src={optimizeImage(img, 1000)}
+                alt={`${productName} view ${idx + 1}`}
                 fill
                 className="object-cover lg:object-cover"
                 priority={idx === 0}

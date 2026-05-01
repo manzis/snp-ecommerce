@@ -1,6 +1,6 @@
-import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { optimizeImage } from '@/lib/optimizeImage';
 
 export interface Brand {
   id: number | string;
@@ -30,7 +30,7 @@ const RecommendedBrands: React.FC<RecommendedBrandsProps> = ({ brands = [] }) =>
           >
             <div className="relative flex flex-1 overflow-hidden rounded-[12px] border border-[#f1f5f9]">
               <Image
-                src={brand.image}
+                src={optimizeImage(brand.image, 150)}
                 alt={brand.name}
                 fill
                 className="object-cover"

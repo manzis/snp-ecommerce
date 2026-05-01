@@ -1,4 +1,5 @@
 import React from 'react';
+import { optimizeImage } from '@/lib/optimizeImage';
 import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
@@ -53,7 +54,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* PRODUCT IMAGE - SCALABLE AREA */}
             <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden rounded-[12px]">
                 <Image
-                    src={image}
+                    src={optimizeImage(image, 500)}
                     alt={title}
                     fill
                     className={`object-contain p-[8px] transition-transform duration-300 group-hover:scale-105 ${finalStockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
