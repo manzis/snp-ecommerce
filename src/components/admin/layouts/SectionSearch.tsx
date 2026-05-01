@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Product, fetchProducts } from '@/services/productService';
+import { Product, fetchBasicProducts } from '@/services/productService';
 import Image from 'next/image';
 
 interface SectionSearchProps {
@@ -10,7 +10,7 @@ interface SectionSearchProps {
 
 const SectionSearch: React.FC<SectionSearchProps> = ({ onSelectProduct }) => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Product[]>([]);
+  const [results, setResults] = useState<Partial<Product>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,7 +22,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ onSelectProduct }) => {
         return;
       }
       setIsLoading(true);
-      const data = await fetchProducts({ search: query });
+      const data = await fetchBasicProducts({ search: query });
       setResults(data.slice(0, 5));
       setIsLoading(false);
       setIsOpen(true);
@@ -68,7 +68,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ onSelectProduct }) => {
                 <li 
                   key={product.id}
                   onClick={() => {
-                    onSelectProduct(product);
+                    onSelectProduct(product as Product);
                     setIsOpen(false);
                     setQuery('');
                   }}
@@ -77,7 +77,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ onSelectProduct }) => {
                   <div className="relative w-[32px] h-[32px] shrink-0 border border-[#f1f5f9] rounded-[4px] overflow-hidden">
                     <Image 
                       src={product.images?.[0] || '/images/protein.jpg'} 
-                      alt={product.name} 
+                      alt={product.name || ''} 
                       fill 
                       className="object-contain"
                     />

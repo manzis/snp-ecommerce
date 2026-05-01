@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import AdminModal from '@/components/admin/shared/AdminModal';
 import { Banner } from '@/services/bannerService';
-import { Product, fetchProducts } from '@/services/productService';
+import { Product, fetchBasicProducts } from '@/services/productService';
 import ImageUpload from '@/components/admin/products/ImageUpload';
 import SearchIcon from '@/components/icons/SearchIcon';
 
@@ -30,7 +30,7 @@ export default function BannerModal({
         display_type: 'home'
     });
 
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<Partial<Product>[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
 
@@ -63,7 +63,7 @@ export default function BannerModal({
         const delayDebounceFn = setTimeout(async () => {
             if (searchQuery.length > 2) {
                 setIsSearching(true);
-                const results = await fetchProducts({ search: searchQuery });
+                const results = await fetchBasicProducts({ search: searchQuery });
                 setProducts(results);
                 setIsSearching(false);
             } else if (searchQuery.length === 0) {

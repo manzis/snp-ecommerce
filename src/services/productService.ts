@@ -336,6 +336,32 @@ export async function fetchProducts(options?: { brandSlug?: string; categorySlug
 }
 
 /**
+ * Fetch basic products with minimal fields (id, title, images) for dropdowns
+ */
+export async function fetchBasicProducts(options?: { search?: string }): Promise<Partial<Product>[]> {
+  let query = supabase
+    .from('products')
+    .select('id, title, name, images, brands(name)')
+    .eq('is_published', true);
+
+  if (options?.search) {
+    query = query.ilike('title', `%${options.search}%`);
+  }
+
+  const { data, error } = await query.order('title', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching basic products:', error);
+    return [];
+  }
+  
+  return (data as any[]).map(p => ({
+    ...p,
+    brands: Array.isArray(p.brands) ? p.brands[0] : (p.brands || null)
+  })) as Partial<Product>[];
+}
+
+/**
  * Fetch products with pagination and total count
  */
 export async function fetchProductsPaginated(page: number, pageSize: number, options?: { brandSlug?: string; categorySlug?: string; search?: string }): Promise<{ products: Product[]; totalCount: number }> {

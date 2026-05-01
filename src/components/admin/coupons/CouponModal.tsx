@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminModal from '@/components/admin/shared/AdminModal';
 import { Coupon } from './CouponActionMenu';
-import { fetchProducts, Product } from '@/services/productService';
+import { fetchBasicProducts, Product } from '@/services/productService';
 import { Calendar, Tag, Percent, DollarSign, Package, EyeOff } from 'lucide-react';
 
 
@@ -35,13 +35,13 @@ export default function CouponModal({
         is_public: true
     });
 
-    const [products, setProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<Partial<Product>[]>([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
     useEffect(() => {
         const loadProducts = async () => {
             setIsLoadingProducts(true);
-            const data = await fetchProducts();
+            const data = await fetchBasicProducts();
             setProducts(data || []);
             setIsLoadingProducts(false);
         };
