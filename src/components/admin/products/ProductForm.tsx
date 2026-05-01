@@ -92,8 +92,8 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
     const loadMetadata = async () => {
         const { fetchBanners } = await import('@/services/bannerService');
         const [catData, brandData, sellerData, bannerData] = await Promise.all([
-            fetchCategories(),
-            fetchBrands(),
+            fetchCategories(false),
+            fetchBrands(false),
             fetchSellers(),
             fetchBanners()
         ]);

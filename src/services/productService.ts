@@ -199,15 +199,14 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
 }
 
 /**
- * Fetch all categories with product counts
+ * Fetch all categories
  */
-export async function fetchCategories(): Promise<Category[]> {
+export async function fetchCategories(includeCounts: boolean = true): Promise<Category[]> {
+  const selectQuery = includeCounts ? '*, products:products(count)' : '*';
+  
   const { data, error } = await supabase
     .from('categories')
-    .select(`
-      *,
-      products:products(count)
-    `)
+    .select(selectQuery)
     .order('name');
     
   if (error) {
@@ -215,10 +214,10 @@ export async function fetchCategories(): Promise<Category[]> {
     return [];
   }
 
-  // Map the product count from the nested array
+  // Map the product count from the nested array if requested
   return (data as any[]).map(cat => ({
     ...cat,
-    product_count: cat.products?.[0]?.count || 0
+    product_count: includeCounts ? (cat.products?.[0]?.count || 0) : undefined
   })) as Category[];
 }
 
@@ -236,13 +235,12 @@ export async function fetchCategoryBySlug(slug: string): Promise<Category | null
   return data as Category;
 }
 
-export async function fetchBrands(): Promise<Brand[]> {
+export async function fetchBrands(includeCounts: boolean = true): Promise<Brand[]> {
+  const selectQuery = includeCounts ? '*, products:products(count)' : '*';
+
   const { data, error } = await supabase
     .from('brands')
-    .select(`
-      *,
-      products:products(count)
-    `)
+    .select(selectQuery)
     .order('name');
     
   if (error) {
@@ -252,7 +250,7 @@ export async function fetchBrands(): Promise<Brand[]> {
 
   return (data as any[]).map(b => ({
     ...b,
-    product_count: b.products?.[0]?.count || 0
+    product_count: includeCounts ? (b.products?.[0]?.count || 0) : undefined
   })) as Brand[];
 }
 

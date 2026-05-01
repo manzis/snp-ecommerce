@@ -61,7 +61,6 @@ export async function updateProductAction(id: string, updates: any) {
     // 4. Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
-    revalidatePath('/', 'layout'); // Force refresh for storefront
     revalidatePath('/product/[slug]', 'page');
     
     return { success: true, data: data[0] };
@@ -115,7 +114,6 @@ export async function updateProductVariantPricesAction(productId: string, varian
 
     // 4. Revalidate cache
     revalidatePath('/admin/products');
-    revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
     
     return { success: true };
@@ -393,7 +391,6 @@ export async function createProductAction(productData: any) {
 
     // 9. Revalidate cache
     revalidatePath('/admin/products');
-    revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
     revalidateTag('products', 'max');
 
@@ -490,7 +487,6 @@ export async function deleteProductAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/products');
-    revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
     return { success: true };
   } catch (error: any) {
@@ -828,7 +824,6 @@ export async function updateProductDeepAction(id: string, productData: any) {
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/edit/${id}`);
     revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
-    revalidatePath('/', 'layout');
     revalidatePath('/product/[slug]', 'page');
     revalidateTag('products', 'max');
 
