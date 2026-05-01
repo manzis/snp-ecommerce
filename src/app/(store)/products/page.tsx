@@ -10,9 +10,9 @@ export async function generateMetadata(): Promise<Metadata> {
     getSeoGlobal(),
   ]);
 
-  const title = pSeo?.title || 'Buy Supplements Online Nepal | Best Price | Bright Supplements';
-  const description = pSeo?.description || gSeo?.default_description || "Browse Nepal's widest collection of 100% authentic supplements. Whey protein, mass gainers, creatine, vitamins & more — best prices with fast nationwide delivery. Cash on delivery available.";
-  const keywords = pSeo?.keywords || 'buy supplements online nepal, protein powder price nepal, mass gainer nepal, creatine nepal, supplement store kathmandu, pre-workout nepal, gym nutrition nepal';
+  const title = pSeo?.title || 'Buy Supplements Online Nepal | Best Price | Supplyment Nepal';
+  const description = pSeo?.description || gSeo?.default_description || "Browse Supplyment Nepal's widest collection of 100% authentic supplements. Whey protein, mass gainers, creatine, vitamins & more — best prices with fast nationwide delivery. Cash on delivery available.";
+  const keywords = pSeo?.keywords || 'buy supplements online nepal, protein powder price nepal, mass gainer nepal, creatine nepal, supplement store kathmandu, pre-workout nepal, gym nutrition nepal, Supplyment Nepal, Bright Supplements Nepal';
   const canonical = pSeo?.canonical_url || 'https://brightsupplements.store/products';
   const ogImage = pSeo?.og_image || gSeo?.default_og_image || '';
 
@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: canonical,
       type: 'website',
-      siteName: 'Bright Supplements',
+      siteName: 'Supplyment Nepal',
       locale: 'en_NP',
       images: [
         {

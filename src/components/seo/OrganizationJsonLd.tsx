@@ -4,16 +4,18 @@ export default function OrganizationJsonLd() {
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Bright Supplements',
+    name: 'Supplyment Nepal',
+    alternateName: 'Bright Supplements',
+    legalName: 'Supplyment Nepal',
     url: 'https://brightsupplements.store',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://brightsupplements.store/images/logo.png',
+      url: 'https://brightsupplements.store/images/shoplogo.png',
       width: 200,
       height: 60,
     },
     description:
-      'Nepal\'s most trusted online supplement store. Buy authentic whey protein, mass gainers, creatine, pre-workout, and vitamins with fast nationwide delivery.',
+      'Supplyment Nepal — Nepal\'s most trusted online supplement store. Buy authentic whey protein, mass gainers, creatine, pre-workout, and vitamins with fast nationwide delivery.',
     foundingDate: '2023',
     address: {
       '@type': 'PostalAddress',
@@ -29,6 +31,7 @@ export default function OrganizationJsonLd() {
     sameAs: [
       'https://www.facebook.com/brightsupplementsnepal',
       'https://www.instagram.com/brightsupplements.np',
+      'https://brightsupplements.store',
     ],
     areaServed: {
       '@type': 'Country',
@@ -39,9 +42,10 @@ export default function OrganizationJsonLd() {
   const websiteSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Bright Supplements',
+    name: 'Supplyment Nepal',
+    alternateName: 'Bright Supplements',
     url: 'https://brightsupplements.store',
-    description: 'Buy authentic supplements in Nepal — best prices on protein, creatine & more.',
+    description: 'Buy authentic supplements in Nepal — best prices on protein, creatine & more at Supplyment Nepal.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {

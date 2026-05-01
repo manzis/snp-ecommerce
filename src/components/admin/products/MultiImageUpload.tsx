@@ -26,11 +26,11 @@ export default function MultiImageUpload({
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDragStart = (idx: number) => setDraggedIndex(idx);
-    
+
     const handleDragOver = (e: React.DragEvent, idx: number) => {
         e.preventDefault(); // Necessary to allow dropping
     };
-    
+
     const handleDrop = (idx: number) => {
         if (draggedIndex === null || draggedIndex === idx) return;
         const newImages = [...images];
@@ -98,7 +98,7 @@ export default function MultiImageUpload({
                 const afterUpload = parts[1];
                 const withoutVersion = afterUpload.replace(/^v\d+\//, '');
                 const publicId = withoutVersion.split('.')[0];
-                
+
                 if (publicId && urlToRemove.includes('res.cloudinary.com')) {
                     await deleteFileAction(publicId, 'image');
                 }
@@ -134,7 +134,7 @@ export default function MultiImageUpload({
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         <AnimatePresence mode="popLayout">
                             {images.map((url, index) => (
-                                <motion.div 
+                                <motion.div
                                     key={url}
                                     layout
                                     initial={{ opacity: 0, scale: 0.9 }}
@@ -146,10 +146,10 @@ export default function MultiImageUpload({
                                     onDrop={() => handleDrop(index)}
                                     className={`relative aspect-square group rounded-xl overflow-hidden border ${index === 0 ? 'border-[#308026] ring-2 ring-[#308026]/10' : 'border-gray-100'} bg-gray-50 cursor-grab active:cursor-grabbing`}
                                 >
-                                    <Image 
-                                        src={url} 
+                                    <Image
+                                        src={url}
                                         alt={`Product ${index + 1}`}
-                                        fill 
+                                        fill
                                         className="object-cover transition-transform group-hover:scale-110"
                                     />
 
@@ -159,11 +159,11 @@ export default function MultiImageUpload({
                                             <span className="px-2 py-1 bg-[#308026] text-white text-[9px] font-bold rounded-md shadow-sm uppercase tracking-tight">Main</span>
                                         </div>
                                     )}
-                                    
+
                                     {/* Overlay for actions */}
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
                                         {index !== 0 ? (
-                                            <button 
+                                            <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setMainImage(index);
@@ -177,9 +177,9 @@ export default function MultiImageUpload({
                                             <span className="text-white text-[11px] font-medium bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/30">Primary Image</span>
                                         )}
                                     </div>
-                                    
+
                                     {/* Quick remove button (top right) */}
-                                    <button 
+                                    <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             removeImage(url);
@@ -202,7 +202,7 @@ export default function MultiImageUpload({
 
                         {/* Direct "Add" slot if we have space and images */}
                         {images.length > 0 && images.length < maxImages && (
-                            <button 
+                            <button
                                 onClick={() => fileInputRef.current?.click()}
                                 className="aspect-square rounded-xl border border-gray-100 bg-gray-50/30 hover:bg-[#242424] hover:text-white transition-all flex flex-col items-center justify-center gap-1 group/add"
                             >
@@ -217,25 +217,25 @@ export default function MultiImageUpload({
 
             {/* Upload Area - Only show when empty */}
             {images.length === 0 && (
-                <div 
+                <div
                     onClick={() => fileInputRef.current?.click()}
                     className="relative group cursor-pointer border-2 border-dashed border-gray-200 hover:border-black rounded-2xl transition-all flex flex-col items-center justify-center p-8 bg-gray-50/50 hover:bg-white"
                 >
-                    <input 
-                        type="file" 
-                        className="hidden" 
+                    <input
+                        type="file"
+                        className="hidden"
                         accept="image/*"
                         multiple
                         ref={fileInputRef}
                         onChange={handleFileChange}
                     />
-                    
+
                     <div className="flex flex-col items-center gap-3">
                         <CloudIcon className="w-8 h-8 text-[#a1a1aa] mb-1" />
                         <div className="text-center">
                             <p className="text-[14px] font-medium text-[#242424]">Click to upload product images</p>
                             <p className="text-[12px] text-[#71717a] mt-1">Select up to {maxImages} images (JPG, PNG or WEBP)</p>
-                            <button 
+                            <button
                                 className="mt-4 px-6 py-2 bg-white border border-gray-200 text-[#242424] text-[12px] font-medium rounded-full hover:bg-[#242424] hover:text-white hover:border-[#242424] transition-all"
                             >
                                 Browse file
@@ -251,7 +251,7 @@ export default function MultiImageUpload({
 function PlusIcon({ className }: { className?: string }) {
     return (
         <svg fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className={className}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
     );
 }
@@ -259,7 +259,7 @@ function PlusIcon({ className }: { className?: string }) {
 function CrossIcon({ className }: { className?: string }) {
     return (
         <svg fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className={className}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
     );
 }
@@ -267,7 +267,7 @@ function CrossIcon({ className }: { className?: string }) {
 function SwapIcon({ className }: { className?: string }) {
     return (
         <svg fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className={className}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
         </svg>
     );
 }
@@ -275,7 +275,7 @@ function SwapIcon({ className }: { className?: string }) {
 function CloudIcon({ className }: { className?: string }) {
     return (
         <svg fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className={className}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
         </svg>
     );
 }

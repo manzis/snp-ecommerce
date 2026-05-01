@@ -18,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL('https://brightsupplements.store'),
     title: {
-      default: gSeo?.default_title || 'Bright Supplements | Buy Authentic Supplements Online in Nepal',
-      template: gSeo?.title_template || '%s | Bright Supplements Nepal',
+      default: gSeo?.default_title || 'Supplyment Nepal | Buy Authentic Supplements Online in Nepal',
+      template: gSeo?.title_template || '%s | Supplyment Nepal',
     },
     description: gSeo?.default_description || "Nepal's most trusted supplement store. Buy 100% genuine whey protein, mass gainer, creatine & vitamins with fast delivery.",
     keywords: gSeo?.default_title
@@ -29,31 +29,41 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: 'website',
       locale: 'en_NP',
-      siteName: 'Bright Supplements',
+      siteName: 'Supplyment Nepal',
       images: [
         {
           url: gSeo?.default_og_image || '/images/shoplogo.png',
           width: 1200,
           height: 630,
-          alt: 'Bright Supplements Nepal',
+          alt: 'Supplyment Nepal — Buy Authentic Supplements in Nepal',
         }
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      site: '@brightsupplements',
+      site: '@supplymentnepal',
     },
     alternates: {
       canonical: 'https://brightsupplements.store',
+      languages: { 'en-NP': 'https://brightsupplements.store' },
     },
     icons: {
       icon: [
-        { url: '/images/shoplogo.png', sizes: 'any' },
-        { url: '/icon.png', type: 'image/png' },
+        { url: '/favicon.ico', sizes: 'any', type: 'image/x-icon' },
+        { url: '/images/shoplogo.png', sizes: '32x32', type: 'image/png' },
+        { url: '/images/shoplogo.png', sizes: '192x192', type: 'image/png' },
       ],
       apple: [
-        { url: '/apple-icon.png', type: 'image/png' },
+        { url: '/images/shoplogo.png', sizes: '180x180', type: 'image/png' },
       ],
+      shortcut: '/favicon.ico',
+    },
+    manifest: '/site.webmanifest',
+    other: {
+      'geo.region': 'NP',
+      'geo.placename': 'Kathmandu, Nepal',
+      'geo.position': '27.7172;85.3240',
+      'ICBM': '27.7172, 85.3240',
     },
     verification: {
       google: process.env.GOOGLE_SITE_VERIFICATION,

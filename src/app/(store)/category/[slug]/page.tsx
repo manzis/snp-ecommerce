@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getSeoGlobal(),
   ]);
 
-  if (!catData) return { title: 'Category Not Found | Bright Supplements Nepal' };
+  if (!catData) return { title: 'Category Not Found | Supplyment Nepal' };
 
   const fallback = generateCategoryFallbackSeo(catData);
   const canonical = `https://brightsupplements.store/category/${slug}`;
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: fallback.description,
       url: canonical,
       type: 'website',
-      siteName: 'Bright Supplements',
+      siteName: 'Supplyment Nepal',
       locale: 'en_NP',
       images: [
         {

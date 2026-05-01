@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: canonical,
       type: 'website',
-      siteName: 'Bright Supplements',
+      siteName: 'Supplyment Nepal',
       locale: 'en_NP',
       images: [
         {
@@ -59,7 +59,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image' as const,
       title,
       description,
-      site: '@brightsupplements',
+      site: '@supplymentnepal',
       images: [ogImage || '/images/shoplogo.png'],
     },
   };

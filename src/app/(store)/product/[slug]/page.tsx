@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     getSeoProductBySlug(slug), 
   ]);
 
-  if (!product) return { title: 'Product Not Found | Bright Supplements Nepal' };
+  if (!product) return { title: 'Product Not Found | Supplyment Nepal' };
 
 
   const fallback = generateProductFallbackSeo(product);
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       description: ogDescription,
       url: canonical,
       type: 'website',
-      siteName: 'Bright Supplements',
+      siteName: 'Supplyment Nepal',
       locale: 'en_NP',
       images: [
         {
@@ -152,10 +152,10 @@ async function ProductContent({ slug }: { slug: string }) {
       {/* Rich Product JSON-LD for Google Rich Results */}
       <ProductJsonLd
         name={product.title || product.name}
-        description={`Buy authentic ${product.title} by ${product.brands?.name || 'Bright Supplements'} in Nepal. ${product.categories?.name || 'Premium supplement'} available at the best price with fast delivery.`}
+        description={`Buy authentic ${product.title} by ${product.brands?.name || 'Supplyment Nepal'} in Nepal. ${product.categories?.name || 'Premium supplement'} available at the best price with fast delivery from Supplyment Nepal (brightsupplements.store).`}
         images={product.images || []}
         slug={dbOverride?.custom_slug || product.slug}
-        brand={product.brands?.name || 'Bright Supplements'}
+        brand={product.brands?.name || 'Supplyment Nepal'}
         originalPrice={product.original_price}
         discountedPrice={product.discounted_price}
         stockStatus={product.stock_status || 'in_stock'}

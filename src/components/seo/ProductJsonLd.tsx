@@ -87,7 +87,8 @@ export default function ProductJsonLd({
       availability,
       seller: {
         '@type': 'Organization',
-        name: 'Bright Supplements',
+        name: 'Supplyment Nepal',
+        url: 'https://brightsupplements.store',
       },
       priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
     },

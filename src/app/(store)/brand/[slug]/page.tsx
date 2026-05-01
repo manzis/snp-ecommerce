@@ -9,6 +9,7 @@ import BackButton from '@/components/ui/BackButton';
 import type { Metadata } from 'next';
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import { generateBrandFallbackSeo } from '@/lib/seo/seoFallback';
+import BrandJsonLd from '@/components/seo/BrandJsonLd';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -31,13 +32,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: fallback.title,
     description: fallback.description,
     keywords: fallback.keywords,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: { 'en-NP': canonical },
+    },
     robots: gSeo?.default_robots || 'index, follow',
     openGraph: {
       title: fallback.title,
       description: fallback.description,
       url: canonical,
       type: 'website',
+      siteName: 'Supplyment Nepal',
+      locale: 'en_NP',
       images: [
         {
           url: ogImage,
@@ -101,6 +107,24 @@ async function BrandDataWrapper({ slug }: { slug: string }) {
 
   return (
     <div className="flex flex-col w-full lg:items-center">
+      {/* Brand + ItemList + Breadcrumb structured data — enables Google product card carousels */}
+      <BrandJsonLd
+        brandName={brand.name}
+        brandSlug={slug}
+        brandDescription={brand.description || undefined}
+        brandLogo={brand.image_url || undefined}
+        brandCover={brand.cover_image || undefined}
+        products={products.map(p => ({
+          name: p.title || p.name,
+          slug: p.slug,
+          image: p.images?.[0],
+          price: String(p.original_price),
+          discountedPrice: String(p.discounted_price),
+          rating: p.rating,
+          reviewCount: p.reviews_count ? Number(p.reviews_count) : 0,
+          stockStatus: p.stock_status || 'in_stock',
+        }))}
+      />
       <DynamicPageNav title={brandInfo.name} subtitle={`${brandInfo.totalProducts} Products`} />
       
       <header className="relative w-full h-[140px] lg:h-[300px] shrink-0">

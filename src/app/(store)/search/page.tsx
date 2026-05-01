@@ -4,17 +4,19 @@ import { fetchProducts, fetchBrands } from '@/services/productService.server';
 import SearchPageClient from './SearchPageClient';
 
 export const metadata: Metadata = {
-  title: 'Search Products | Bright Supplements Nepal',
-  description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal.',
+  title: 'Search Supplements | Supplyment Nepal',
+  description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal at Supplyment Nepal (brightsupplements.store).',
+  keywords: 'search supplements nepal, buy supplements online nepal, Supplyment Nepal, Bright Supplements Nepal',
   openGraph: {
-    title: 'Search Products | Bright Supplements Nepal',
+    title: 'Search Supplements | Supplyment Nepal',
     description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal.',
+    siteName: 'Supplyment Nepal',
     images: [
       {
         url: '/images/shoplogo.png',
         width: 1200,
         height: 630,
-        alt: 'Bright Supplements Nepal',
+        alt: 'Supplyment Nepal — Search Supplements',
       }
     ],
   },

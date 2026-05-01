@@ -53,7 +53,7 @@ export default function SeoPreviewTab() {
       ]);
       const page = pageRes.data;
       const global = globalRes.data;
-      const resolvedTitle = page?.title || global?.default_title || 'Bright Supplements | Buy Authentic Supplements in Nepal';
+      const resolvedTitle = page?.title || global?.default_title || 'Supplyment Nepal | Buy Authentic Supplements in Nepal';
       const resolvedDesc = page?.description || global?.default_description || '';
       setTitle(resolvedTitle);
       setDescription(resolvedDesc);
@@ -209,7 +209,7 @@ export default function SeoPreviewTab() {
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 bg-[#242424] rounded-full flex items-center justify-center text-white text-[14px] font-bold shrink-0">S</div>
                 <div className="flex flex-col overflow-hidden">
-                <span className="text-[14px] text-[#202124] font-medium leading-tight">Bright Supplements</span>
+                <span className="text-[14px] text-[#202124] font-medium leading-tight">Supplyment Nepal</span>
                   <span className="text-[12px] text-[#4d5156] leading-tight truncate">
                     https://www.brightsupplements.store{urlPath ? ` › ${urlPath.split('/')[0]}` : ''}
                   </span>

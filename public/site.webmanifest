@@ -1,0 +1,39 @@
+{
+  "name": "Supplyment Nepal",
+  "short_name": "SNP Store",
+  "description": "Nepal's most trusted supplement store — buy authentic protein, creatine, pre-workout & vitamins online with fast delivery.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "lang": "en-NP",
+  "icons": [
+    {
+      "src": "/images/shoplogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/shoplogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "food", "fitness"],
+  "shortcuts": [
+    {
+      "name": "Shop All Supplements",
+      "short_name": "Products",
+      "url": "/products",
+      "icons": [{ "src": "/images/shoplogo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Shop by Brand",
+      "short_name": "Brands",
+      "url": "/brands",
+      "icons": [{ "src": "/images/shoplogo.png", "sizes": "192x192" }]
+    }
+  ]
+}

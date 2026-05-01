@@ -6,7 +6,8 @@ import { Product, Category, Brand } from '@/services/productService';
  * Keyword strategy targets: local intent, brand trust, price comparison, COD signals.
  */
 
-const BRAND_NAME = 'Bright Supplements';
+const BRAND_NAME = 'Supplyment Nepal';
+const BRAND_ALIAS = 'Bright Supplements'; // Secondary known name — kept for dual-brand discoverability
 const SITE_URL = 'https://brightsupplements.store';
 const DEFAULT_OG_IMAGE = '/images/shoplogo.png';
 
@@ -41,11 +42,11 @@ export function generateProductFallbackSeo(
     discountedPrice < Number(product.original_price);
 
   // Intent-rich title targeting "buy X in Nepal" pattern (proven high CTR)
-  const title = `Buy ${productTitle} in Nepal | Best Price | ${brandSub}`;
+  const title = `Buy ${productTitle} in Nepal | Best Price | ${brandSub} – ${BRAND_NAME}`;
 
   // Description with price signal + trust + local intent
   const description = hasDiscount
-    ? `Buy authentic ${productTitle} by ${brandSub} in Nepal at Rs. ${product.discounted_price}. ${catSub} with guaranteed genuine quality. Fast delivery Kathmandu & nationwide. Cash on delivery available.`
+    ? `Buy authentic ${productTitle} by ${brandSub} in Nepal at Rs. ${product.discounted_price}. ${catSub} with guaranteed genuine quality. Fast delivery Kathmandu & nationwide. Cash on delivery available. Shop at ${BRAND_NAME} (brightsupplements.store).`
     : `Buy original ${productTitle} by ${brandSub} online in Nepal. Best price on authentic ${catSub} at ${BRAND_NAME}. Free shipping above Rs. 2000. Genuine product guaranteed.`;
 
   // Long-tail keyword cluster for the product
@@ -62,6 +63,8 @@ export function generateProductFallbackSeo(
     `supplement shop Nepal`,
     `${productTitle} cash on delivery Nepal`,
     `${productTitle} cod Nepal`,
+    `${BRAND_NAME} ${productTitle}`,
+    `${BRAND_ALIAS} ${productTitle} Nepal`,
   ].join(', ');
 
   return { title, description, keywords };
@@ -72,10 +75,10 @@ export function generateCategoryFallbackSeo(category: Category) {
   const catName = category.name;
 
   // Category title targets "Best X Supplements in Nepal" — high-volume pattern
-  const title = `Buy ${catName} Supplements Online Nepal | Best Price | ${BRAND_NAME}`;
+  const title = `Buy ${catName} Supplements in Nepal | Best Price | ${BRAND_NAME}`;
 
   const description =
-    `Shop 100% authentic ${catName} supplements in Nepal. Explore ${BRAND_NAME}'s premium range of ${catName} products — best prices, fast delivery to Kathmandu & all Nepal. ` +
+    `Shop 100% authentic ${catName} supplements in Nepal at ${BRAND_NAME} (brightsupplements.store). Premium range of ${catName} products — best prices, fast delivery to Kathmandu & all Nepal. ` +
     `Genuine brands, cash on delivery available.`;
 
   const keywords = [
@@ -91,6 +94,8 @@ export function generateCategoryFallbackSeo(category: Category) {
     `buy ${catName} online Nepal cod`,
     `genuine supplement Nepal`,
     `supplement store Kathmandu`,
+    `${BRAND_NAME} ${catName}`,
+    `${BRAND_ALIAS} ${catName} Nepal`,
   ].join(', ');
 
   return { title, description, keywords };
@@ -101,10 +106,10 @@ export function generateBrandFallbackSeo(brand: Brand) {
   const brandName = brand.name;
 
   // Brand title targets: "[Brand] Nepal" — exactly what users search when brand-aware
-  const title = `Buy ${brandName} Supplements in Nepal | 100% Authentic | ${BRAND_NAME}`;
+  const title = `Buy ${brandName} Products in Nepal | 100% Authentic | ${BRAND_NAME}`;
 
   const description =
-    `Buy 100% authentic ${brandName} supplements in Nepal. ${BRAND_NAME} is an authorized dealer of ${brandName} — get genuine products at the best Nepal price. ` +
+    `Buy 100% authentic ${brandName} supplements in Nepal. ${BRAND_NAME} (brightsupplements.store) is an authorized dealer of ${brandName} — get genuine products at the best Nepal price. ` +
     `Fast delivery to Kathmandu, Pokhara & all of Nepal. Cash on delivery available.`;
 
   const keywords = [
@@ -120,6 +125,8 @@ export function generateBrandFallbackSeo(brand: Brand) {
     `buy ${brandName} cod Nepal`,
     `genuine ${brandName} Nepal`,
     `${brandName} cheapest price Nepal`,
+    `${BRAND_NAME} ${brandName}`,
+    `${BRAND_ALIAS} ${brandName} Nepal`,
   ].join(', ');
 
   return { title, description, keywords };
@@ -130,7 +137,7 @@ export function generateHomeFallbackSeo() {
   const title = `${BRAND_NAME} | Buy Authentic Supplements Online in Nepal`;
 
   const description =
-    `Nepal's most trusted supplement store. Buy 100% genuine whey protein, mass gainer, creatine, pre-workout & vitamins online. ` +
+    `${BRAND_NAME} — Nepal's most trusted supplement store (brightsupplements.store). Buy 100% genuine whey protein, mass gainer, creatine, pre-workout & vitamins online. ` +
     `Best prices in Nepal with fast delivery to Kathmandu, Pokhara & nationwide. Cash on delivery available.`;
 
   const keywords = [
@@ -154,6 +161,9 @@ export function generateHomeFallbackSeo() {
     'muscle gainer Nepal',
     'bcaa Nepal',
     'vitamin supplements Nepal',
+    'Supplyment Nepal supplements',
+    'Bright Supplements Nepal',
+    'brightsupplements.store',
   ].join(', ');
 
   return { title, description, keywords };
@@ -168,8 +178,8 @@ export function generatePageFallbackSeo(pageId: string): {
   const pages: Record<string, { title: string; description: string; keywords: string }> = {
     home: generateHomeFallbackSeo(),
     products: {
-      title: `All Supplement Products | Best Price in Nepal | ${BRAND_NAME}`,
-      description: `Browse Nepal's widest collection of authentic supplements. Whey protein, mass gainers, creatine, pre-workout & vitamins — all at the best prices with nationwide delivery.`,
+      title: `Buy Supplements Online Nepal | Best Price | ${BRAND_NAME}`,
+      description: `Browse ${BRAND_NAME}'s widest collection of authentic supplements. Whey protein, mass gainers, creatine, pre-workout & vitamins — all at the best prices with fast nationwide delivery. Shop at brightsupplements.store.`,
       keywords: `all supplements Nepal, buy protein online Nepal, supplement collection Nepal, buy vitamins Nepal, gym supplements store`,
     },
     brands: {
@@ -180,7 +190,7 @@ export function generatePageFallbackSeo(pageId: string): {
     contact: {
       title: `Contact Us | ${BRAND_NAME} Nepal`,
       description: `Get in touch with ${BRAND_NAME}. We are Nepal's trusted supplement store based in Kathmandu. Reach us for orders, queries or partnerships.`,
-      keywords: `contact supplement store Nepal, Bright Supplements Kathmandu, supplement help Nepal`,
+      keywords: `contact supplement store Nepal, Supplyment Nepal Kathmandu, Bright Supplements contact, supplement help Nepal`,
     },
     shipping: {
       title: `Shipping & Delivery Info | ${BRAND_NAME} Nepal`,
@@ -195,7 +205,7 @@ export function generatePageFallbackSeo(pageId: string): {
     terms: {
       title: `Terms & Conditions | ${BRAND_NAME} Nepal`,
       description: `Read the terms and conditions for shopping at ${BRAND_NAME}, Nepal's premier supplement store.`,
-      keywords: `supplement store terms Nepal, Bright Supplements terms conditions`,
+      keywords: `supplement store terms Nepal, Supplyment Nepal terms conditions, Bright Supplements terms`,
     },
     distributor: {
       title: `Become a Distributor | ${BRAND_NAME} Nepal`,
