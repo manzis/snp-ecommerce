@@ -78,9 +78,10 @@ export default function BannerModal({
         await onSave(banner?.id || null, formData);
     };
 
-    const handleSelectProduct = (product: Product) => {
+    const handleSelectProduct = (product: Partial<Product>) => {
+        if (!product.id) return;
         setFormData({ ...formData, target_product_id: product.id });
-        setSearchQuery(product.title || product.name);
+        setSearchQuery(product.title || product.name || '');
         setProducts([]); // Clear results
     };
 
@@ -163,7 +164,7 @@ export default function BannerModal({
                                                 className="w-full text-left p-3 hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3 group"
                                             >
                                                 <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-100 relative shrink-0">
-                                                    <Image src={product.images[0] || '/images/product-placeholder.png'} alt={product.name} fill className="object-cover" />
+                                                    <Image src={product.images?.[0] || '/images/product-placeholder.png'} alt={product.name || ''} fill className="object-cover" />
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
                                                     <span className="text-[13px] font-medium text-[#242424] truncate">{product.title || product.name}</span>
