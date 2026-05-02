@@ -38,6 +38,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
                 <Link 
                     href="/products" 
                     className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
+                    aria-label={`View all ${title}`}
                 >
                     View All
                 </Link>

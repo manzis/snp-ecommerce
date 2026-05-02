@@ -70,7 +70,7 @@ const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false, deals =
                         <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-r from-transparent via-white/30 to-transparent w-full h-full animate-shimmer-custom" />
 
                         <span className="relative z-10 font-titillium text-[12px] font-[400] uppercase tracking-[0.05em] opacity-90 lg:text-[14px]">
-                            upto
+                            up to
                         </span>
                         <div className="relative z-10 flex flex-col items-start">
                             <span className="font-custom text-[24px] leading-tight lg:text-[28px]">

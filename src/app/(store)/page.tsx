@@ -72,7 +72,6 @@ export default async function HomePage() {
     popularProducts,
     todaysDealsProducts,
     newArrivalsProducts,
-    allProducts, // Keep if needed for other sections, but user wants manual New Arrivals
     dbBrands,
     activeBannersRes,
     homeTestimonials
@@ -81,7 +80,6 @@ export default async function HomePage() {
     fetchHomepageProducts('popular_products'),
     fetchHomepageProducts('todays_deals'),
     fetchHomepageProducts('new_arrivals'),
-    fetchProducts(),
     fetchBrands(),
     fetchActiveBannersAction(),
     fetchHomeTestimonials()
@@ -180,10 +178,12 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* RANDOM FEATURED PRODUCTS */}
-        {allProducts.length > 0 && (
-          <HomeFeaturedProducts products={allProducts} limit={15} />
-        )}
+        {/* SEO Content Block */}
+        <section className="w-full px-[24px] py-[40px] text-center max-w-[800px] mx-auto opacity-70">
+          <p className="font-titillium text-[14px] leading-[22px] text-[#535353]">
+            Supplyment Nepal is your most trusted destination for authentic dietary supplements, sports nutrition, and fitness accessories in Nepal. We are dedicated to providing high-quality protein powders, mass gainers, creatine, and wellness products at the best prices with nationwide delivery.
+          </p>
+        </section>
 
       </main>
     </div>

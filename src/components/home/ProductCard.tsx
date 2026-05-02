@@ -79,9 +79,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#818B73] uppercase">
                             {brand}
                         </span>
-                        <h3 className="h-[16px] self-stretch overflow-hidden truncate font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c]">
+                        <div className="h-[16px] self-stretch overflow-hidden truncate font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c]">
                             {title}
-                        </h3>
+                        </div>
                     </div>
 
                     {/* PRICING ROW */}

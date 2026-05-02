@@ -60,7 +60,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
             <div className="absolute top-[31.96px] left-[-24px] flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
                 {/* LEFT SCATTER PARTICLES */}
                 <motion.div animate={{ x: [-5, 5, -5], y: [0, 15, 0], opacity: [0.4, 0.7, 0.4] }} transition={floatingTransition(0.2)} className="absolute left-[-20px] top-[40px] z-30 h-[24px] w-[24px] blur-[2px] lg:left-[-40px]">
-                    <Image src="/images/athelete.jpg" alt="" fill className="rounded-full object-cover" />
+                    <Image src="/images/athelete.jpg" alt="Professional athlete testimonial" fill className="rounded-full object-cover" />
                 </motion.div>
 
                 {/* Image 1 */}
@@ -96,7 +96,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
 
                 {/* RIGHT SCATTER PARTICLES */}
                 <motion.div animate={{ x: [5, -5, 5], y: [10, -10, 10], opacity: [0.3, 0.6, 0.3] }} transition={floatingTransition(0.8)} className="absolute right-[-10px] top-[20px] z-30 h-[20px] w-[20px] blur-[3px] lg:right-[-30px]">
-                    <Image src="/images/athelete-2.png" alt="" fill className="rounded-full object-cover" />
+                    <Image src="/images/athelete-2.png" alt="Fitness enthusiast testimonial" fill className="rounded-full object-cover" />
                 </motion.div>
             </div>
 
