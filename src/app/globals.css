@@ -15,19 +15,11 @@
 }
 
 /* 
-   1. COLD LOAD REVEAL SYSTEM
-   This prevents the "zoom-out jitter" when first opening the site.
-   We hide the body strictly until the Head Script confirms scaling is locked.
+   1. VIEWPORT STABILITY
+   Ensures the background color is consistent during initial load.
 */
-html.initial-loading body {
-  opacity: 0;
-  visibility: hidden;
-}
-
-html.viewport-ready body {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.3s ease-in;
+html, body {
+  background-color: #ffffff;
 }
 
 @layer base {

@@ -16,12 +16,12 @@ import Script from 'next/script';
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
   return {
-    metadataBase: new URL('https://brightsupplements.store'),
+    metadataBase: new URL('https://www.brightsupplements.store'),
     title: {
-      default: gSeo?.default_title || 'Supplyment Nepal | Buy Authentic Supplements Online in Nepal',
+      default: gSeo?.default_title || 'Supplyment Nepal | Buy Authentic Whey Protein, Creatine & MuscleBlaze in Nepal',
       template: gSeo?.title_template || '%s | Supplyment Nepal',
     },
-    description: gSeo?.default_description || "Nepal's most trusted supplement store. Buy 100% genuine whey protein, mass gainer, creatine & vitamins with fast delivery.",
+    description: gSeo?.default_description || "Nepal's trusted supplement store. Buy 100% genuine Whey Protein, Creatine Monohydrate, MuscleBlaze, and Naturaltein with fast delivery in Nepal. Best prices for gym supplements and sports nutrition.",
     keywords: gSeo?.default_title
       ? undefined
       : 'buy supplements online nepal, best supplement store nepal, authentic whey protein nepal, protein powder price nepal, gym supplements nepal, mass gainer nepal, creatine nepal',
@@ -44,8 +44,8 @@ export async function generateMetadata(): Promise<Metadata> {
       site: '@supplymentnepal',
     },
     alternates: {
-      canonical: 'https://brightsupplements.store',
-      languages: { 'en-NP': 'https://brightsupplements.store' },
+      canonical: 'https://www.brightsupplements.store',
+      languages: { 'en-NP': 'https://www.brightsupplements.store' },
     },
     icons: {
       icon: [
@@ -104,34 +104,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   }
                   setViewport();
                   
-                  // Reveal Safety Timeout: Ensure site shows even if observer fails
-                  var revealTimeout = setTimeout(function() {
-                    document.documentElement.classList.add('viewport-ready');
-                    document.documentElement.classList.remove('initial-loading');
-                  }, 2000);
-
                   var observer = new MutationObserver(function(mutations) {
                     mutations.forEach(function(mutation) {
                       mutation.addedNodes.forEach(function(node) {
                         if (node.name === 'viewport') { 
                           setViewport();
-                          clearTimeout(revealTimeout);
-                          document.documentElement.classList.add('viewport-ready');
-                          document.documentElement.classList.remove('initial-loading');
                         }
                       });
                     });
                   });
                   observer.observe(document.head, { childList: true });
-                  
-                  // Initial reveal if script gets this far
-                  document.documentElement.classList.add('viewport-ready');
-                  document.documentElement.classList.remove('initial-loading');
-                  clearTimeout(revealTimeout);
                 } catch (e) {
                   console.error('Viewport script error:', e);
-                  document.documentElement.classList.remove('initial-loading');
-                  document.documentElement.classList.add('viewport-ready');
                 }
               })();
             `,

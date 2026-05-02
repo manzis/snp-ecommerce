@@ -9,7 +9,7 @@ const CATEGORIES = [
     { name: 'Creatine', slug: 'creatine', img: '/images/creatine.png' },
     { name: 'Multivitamins', slug: 'multivitamins', img: '/images/vitamin.png' },
     { name: 'Essentials', slug: 'essentials', img: '/images/essentials.png' },
-    { name: 'Accessories', slug: 'accessories', img: '/images/accessories.png' },
+    { name: 'Accessories', slug: 'accessories', img: '/images/essentials.png' },
 ];
 
 const HomeCategories: React.FC = () => {
@@ -28,7 +28,8 @@ const HomeCategories: React.FC = () => {
                                 src={cat.img}
                                 alt={cat.name}
                                 fill
-                                className="object-cover p-[12px]"
+                                className="object-contain p-[12px]"
+                                sizes="(max-width: 768px) 75px, (max-width: 1024px) 100px, 120px"
                             />
                         </div>
                         <span className="font-titillium text-[13px] font-semibold text-[#242424] md:text-[16px]">

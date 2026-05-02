@@ -54,11 +54,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* PRODUCT IMAGE - SCALABLE AREA */}
             <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden rounded-[12px]">
                 <Image
-                    src={optimizeImage(image, 500)}
+                    src={optimizeImage(image, 400)}
                     alt={title}
                     fill
                     className={`object-contain p-[8px] transition-transform duration-300 group-hover:scale-105 ${finalStockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
-                    sizes="(max-width: 768px) 199px, 250px"
+                    sizes="(max-width: 768px) 200px, 250px"
                 />
                 
                 {finalStockStatus === 'out_of_stock' && (

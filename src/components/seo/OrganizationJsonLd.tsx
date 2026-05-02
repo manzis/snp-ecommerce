@@ -7,10 +7,10 @@ export default function OrganizationJsonLd() {
     name: 'Supplyment Nepal',
     alternateName: 'Bright Supplements',
     legalName: 'Supplyment Nepal',
-    url: 'https://brightsupplements.store',
+    url: 'https://www.brightsupplements.store',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://brightsupplements.store/images/shoplogo.png',
+      url: 'https://www.brightsupplements.store/images/shoplogo.png',
       width: 200,
       height: 60,
     },
@@ -31,7 +31,7 @@ export default function OrganizationJsonLd() {
     sameAs: [
       'https://www.facebook.com/brightsupplementsnepal',
       'https://www.instagram.com/brightsupplements.np',
-      'https://brightsupplements.store',
+      'https://www.brightsupplements.store',
     ],
     areaServed: {
       '@type': 'Country',
@@ -44,13 +44,13 @@ export default function OrganizationJsonLd() {
     '@type': 'WebSite',
     name: 'Supplyment Nepal',
     alternateName: 'Bright Supplements',
-    url: 'https://brightsupplements.store',
+    url: 'https://www.brightsupplements.store',
     description: 'Buy authentic supplements in Nepal — best prices on protein, creatine & more at Supplyment Nepal.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://brightsupplements.store/search?q={search_term_string}',
+        urlTemplate: 'https://www.brightsupplements.store/search?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },

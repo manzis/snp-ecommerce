@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactCompiler: true,
   images: {
-    unoptimized: true,
+    unoptimized: false,
     dangerouslyAllowSVG: true,
-    formats: ['image/webp'],
+    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
     remotePatterns: [
       {

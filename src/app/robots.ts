@@ -28,7 +28,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://brightsupplements.store/sitemap.xml',
-    host: 'https://brightsupplements.store',
+    sitemap: 'https://www.brightsupplements.store/sitemap.xml',
+    host: 'https://www.brightsupplements.store',
   };
 }

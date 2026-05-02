@@ -166,7 +166,7 @@ const TestimonialCard = ({ review, onMediaClick }: { review: PartialReview, onMe
                 <div className="absolute inset-0 z-0 select-none">
                     {isVideo
                         ? <video src={review.image as string} autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
-                        : <Image src={review.image as string} alt="Review Media" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+                        : <Image src={review.image as string} alt="Review Media" fill className="object-contain transition-transform duration-500 group-hover:scale-110" sizes="(max-width: 768px) 220px, 320px" />
                     }
                     {/* OPTIMIZED OVERLAY: Slight dark top, clear center, medium dark bottom */}
                     <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0)_15%,rgba(0,0,0,0)_80%,rgba(0,0,0,0.7)_100%)]" />

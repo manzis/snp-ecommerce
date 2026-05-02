@@ -8,7 +8,7 @@ import { Product, Category, Brand } from '@/services/productService';
 
 const BRAND_NAME = 'Supplyment Nepal';
 const BRAND_ALIAS = 'Bright Supplements'; // Secondary known name — kept for dual-brand discoverability
-const SITE_URL = 'https://brightsupplements.store';
+const SITE_URL = 'https://www.brightsupplements.store';
 const DEFAULT_OG_IMAGE = '/images/shoplogo.png';
 
 // Keyword-rich location + intent modifiers

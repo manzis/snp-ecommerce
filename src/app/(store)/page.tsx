@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = pSeo?.title || gSeo?.default_title || homeFallback.title;
   const description = pSeo?.description || gSeo?.default_description || homeFallback.description;
   const keywords = pSeo?.keywords || homeFallback.keywords;
-  const canonical = pSeo?.canonical_url || 'https://brightsupplements.store';
+  const canonical = pSeo?.canonical_url || 'https://www.brightsupplements.store';
   const ogImage = pSeo?.og_image || gSeo?.default_og_image || '';
 
   return {
@@ -181,7 +181,7 @@ export default async function HomePage() {
         {/* SEO Content Block */}
         <section className="w-full px-[24px] py-[40px] text-center max-w-[800px] mx-auto opacity-70">
           <p className="font-titillium text-[14px] leading-[22px] text-[#535353]">
-            Supplyment Nepal is your most trusted destination for authentic dietary supplements, sports nutrition, and fitness accessories in Nepal. We are dedicated to providing high-quality protein powders, mass gainers, creatine, and wellness products at the best prices with nationwide delivery.
+            Supplyment Nepal is your most trusted destination for authentic dietary supplements, including Whey Protein, Creatine Monohydrate, and sports nutrition in Nepal. We stock world-class brands like MuscleBlaze and Naturaltein to ensure you get 100% genuine products with fast nationwide delivery.
           </p>
         </section>
 
