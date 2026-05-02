@@ -121,7 +121,7 @@ export default function AdminHeader() {
                         aria-expanded={isProfileMenuOpen}
                     >
                         <div className="relative w-8 h-8 rounded-[8px] overflow-hidden bg-gray-100 flex-shrink-0 border border-black/5">
-                            <Image src="/images/avatar.svg" alt="Admin Profile" fill className="object-cover" />
+                            <Image src="/images/avatar.svg" alt="Admin Profile" fill sizes="32px" className="object-cover" />
                         </div>
                         {!isProfileMenuOpen && (
                             <ChevronDownIcon className="text-[#71717a] w-[14px] h-[14px]" />

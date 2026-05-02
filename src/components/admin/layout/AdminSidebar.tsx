@@ -473,7 +473,7 @@ export default function AdminSidebar() {
                             >
                                 {isActive('/admin/profile') && <ActiveIndicator isCollapsed={isCollapsed} />}
                                 <div className={`relative shrink-0 overflow-hidden bg-gray-100 ${isActive('/admin/profile') ? 'ring-1 ring-black/10' : ''} ${isCollapsed ? 'w-[40px] h-[40px] rounded-[11px]' : 'w-[31px] h-[32px] rounded-[8px]'}`}>
-                                    <Image src="/images/avatar.svg" alt="Admin Profile" fill className="object-cover" />
+                                    <Image src="/images/avatar.svg" alt="Admin Profile" fill sizes="40px" className="object-cover" />
                                 </div>
                                 {!isCollapsed && (
                                     <div className="flex flex-col items-start self-stretch flex-grow basis-0 min-h-0 justify-center ">

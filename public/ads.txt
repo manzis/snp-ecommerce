@@ -1,0 +1,3 @@
+# ads.txt for Supplyment Nepal
+# This file is used to specify authorized digital sellers of your ad inventory.
+# Since this is an e-commerce site, you can add your ad network credentials here if you use services like Google AdSense.

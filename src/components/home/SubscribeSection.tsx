@@ -61,6 +61,7 @@ const SubscribeSection: React.FC = () => {
                         alt="Subscribe Rewards"
                         fill
                         className="object-contain object-right-bottom"
+                        sizes="(max-width: 1024px) 100vw, 450px"
                         priority
                     />
                 </div>

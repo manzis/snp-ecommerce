@@ -19,6 +19,7 @@ import ProductJsonLd from '@/components/seo/ProductJsonLd';
 import { fetchProducts, fetchProductBySlug, fetchRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
+import { preload } from 'react-dom';
 import type { Metadata } from 'next';
 import { getSeoProduct, getSeoGlobal, getSeoProductBySlug } from '@/lib/seo/getSeoData';
 import { generateProductFallbackSeo } from '@/lib/seo/seoFallback';
@@ -90,6 +91,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       description: ogDescription,
       images: [ogImage],
     },
+    other: {
+      'prev-image-preload': ogImage // This helps some scanners, but we really want a link tag
+    }
   };
 }
 
@@ -132,6 +136,11 @@ async function ProductContent({ slug }: { slug: string }) {
 
   if (!product) {
     notFound();
+  }
+
+  // Preload the first image immediately for LCP
+  if (product.images?.[0]) {
+    preload(product.images[0], { as: 'image', fetchPriority: 'high' });
   }
 
 

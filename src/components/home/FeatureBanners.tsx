@@ -52,7 +52,7 @@ const FeatureBanners: React.FC = () => {
                             alt="Promo Banner"
                             fill
                             className="object-cover transition-transform duration-500 hover:scale-105"
-                            sizes="(max-w-410px) 293px, 600px"
+                            sizes="(max-width: 1024px) 293px, 700px"
                         />
 
                         {/* SHOP NOW BUTTON AREA */}

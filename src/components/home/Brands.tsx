@@ -70,6 +70,7 @@ const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
                                         src={brand.logo}
                                         alt={brand.name}
                                         fill
+                                        sizes="(max-width: 768px) 100px, (max-width: 1024px) 130px, 180px"
                                         className="object-cover p-0 transition-all duration-300 group-hover:scale-110"
                                     />
                                 </div>

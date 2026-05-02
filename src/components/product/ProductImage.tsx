@@ -149,8 +149,11 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
                 src={optimizeImage(img, 1000)}
                 alt={`${productName} view ${idx + 1}`}
                 fill
+                sizes="(max-width: 1024px) 100vw, 600px"
                 className="object-cover lg:object-cover"
                 priority={idx === 0}
+                loading={idx === 0 ? undefined : "lazy"}
+                {...(idx === 0 ? { fetchPriority: "high" } : {})}
               />
             </div>
           ))}

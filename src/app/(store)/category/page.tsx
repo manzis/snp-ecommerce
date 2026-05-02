@@ -18,6 +18,15 @@ export default async function CategoriesPage() {
     return theme.cardColors;
   };
 
+  const getCategoryFallbackImage = (slug: string) => {
+    const s = slug.toLowerCase();
+    if (s.includes('protein')) return '/images/protein.png';
+    if (s.includes('creatine')) return '/images/creatine.png';
+    if (s.includes('vitamin')) return '/images/vitamin.png';
+    if (s.includes('essential')) return '/images/essentials.png';
+    return '/images/shoplogo.png';
+  };
+
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1280px] bg-white mt-[80px] pb-[60px]">
       {/* Reusable Dynamic Nav */}
@@ -37,7 +46,7 @@ export default async function CategoriesPage() {
                 title={cat.name}
                 count={cat.product_count || 0}
                 slug={cat.slug}
-                image={cat.image_url || '/images/categories/creatine-category.png'}
+                image={cat.image_url || getCategoryFallbackImage(cat.slug)}
                 colors={getCategoryColors(cat.slug)}
               />
             ))}
@@ -58,7 +67,7 @@ export default async function CategoriesPage() {
                   title={cat.name}
                   count={cat.product_count || 0}
                   slug={cat.slug}
-                  image={cat.image_url || '/images/categories/creatine-category.png'}
+                  image={cat.image_url || getCategoryFallbackImage(cat.slug)}
                   colors={getCategoryColors(cat.slug)}
                 />
               ))}

@@ -228,6 +228,7 @@ export default function OrderDetailsModal({
                                         src={item.products?.images?.[0] || order.image || '/images/product.png'}
                                         alt={item.products?.name || order.title || 'Product'}
                                         fill
+                                        sizes="56px"
                                         className="object-contain p-1.5"
                                     />
                                 </div>
@@ -561,6 +562,7 @@ export default function OrderDetailsModal({
                                                     src={order.payment_screenshot_url}
                                                     alt="Payment Receipt"
                                                     fill
+                                                    sizes="(max-width: 1024px) 100vw, 600px"
                                                     className="object-contain p-2"
                                                 />
                                                 <a

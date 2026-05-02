@@ -22,6 +22,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         priority
                         className="object-cover md:rounded-br-[32px] lg:rounded-none"
                         sizes="(max-width: 1200px) 100vw, 1200px"
+                        fetchPriority="high"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/80 via-[#000000]/20 to-transparent md:rounded-br-[32px] lg:rounded-none" />
                 </div>
