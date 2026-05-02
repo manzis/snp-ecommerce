@@ -411,7 +411,7 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
       <DetailCard title="Sender Details">
         <div className="flex flex-col gap-[2px]">
           <p className="font-titillium text-[14px] font-[600] text-[#242424]">Bright Nepcare Pvt. Ltd.</p>
-          <p className="font-titillium text-[13px] text-[#626262]">Supplyment Nepal</p>
+          <p className="font-titillium text-[13px] text-[#626262]">Bright Supplements</p>
           <p className="font-titillium text-[13px] text-[#626262]">Kathmandu, Nepal</p>
           <p className="font-titillium text-[13px] text-[#626262]">support@supplymentnepal.com</p>
         </div>
@@ -470,7 +470,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
                  </div>
                </div>
                <div className="flex flex-col text-left">
-                 <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
+                 <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Bright Supplements</span>
                  <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
                </div>
              </div>
@@ -575,7 +575,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
             <div className="flex flex-col gap-[2px]">
               <span className="font-titillium font-bold text-[13px] text-[#A16207] uppercase tracking-[0.5px]">Important Security Notice</span>
               <span className="font-titillium text-[13px] text-[#626262]">
-                Supplyment Nepal will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
+                Bright Supplements will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
               </span>
             </div>
           </div>

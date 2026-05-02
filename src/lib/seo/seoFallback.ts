@@ -6,7 +6,7 @@ import { Product, Category, Brand } from '@/services/productService';
  * Keyword strategy targets: local intent, brand trust, price comparison, COD signals.
  */
 
-const BRAND_NAME = 'Supplyment Nepal';
+const BRAND_NAME = 'Bright Supplements';
 const BRAND_ALIAS = 'Bright Supplements'; // Secondary known name — kept for dual-brand discoverability
 const SITE_URL = 'https://www.brightsupplements.store';
 const DEFAULT_OG_IMAGE = '/images/shoplogo.png';
@@ -161,7 +161,7 @@ export function generateHomeFallbackSeo() {
     'muscle gainer Nepal',
     'bcaa Nepal',
     'vitamin supplements Nepal',
-    'Supplyment Nepal supplements',
+    'Bright Supplements supplements',
     'Bright Supplements Nepal',
     'brightsupplements.store',
   ].join(', ');
@@ -190,7 +190,7 @@ export function generatePageFallbackSeo(pageId: string): {
     contact: {
       title: `Contact Us | ${BRAND_NAME} Nepal`,
       description: `Get in touch with ${BRAND_NAME}. We are Nepal's trusted supplement store based in Kathmandu. Reach us for orders, queries or partnerships.`,
-      keywords: `contact supplement store Nepal, Supplyment Nepal Kathmandu, Bright Supplements contact, supplement help Nepal`,
+      keywords: `contact supplement store Nepal, Bright Supplements Kathmandu, Bright Supplements contact, supplement help Nepal`,
     },
     shipping: {
       title: `Shipping & Delivery Info | ${BRAND_NAME} Nepal`,
@@ -205,7 +205,7 @@ export function generatePageFallbackSeo(pageId: string): {
     terms: {
       title: `Terms & Conditions | ${BRAND_NAME} Nepal`,
       description: `Read the terms and conditions for shopping at ${BRAND_NAME}, Nepal's premier supplement store.`,
-      keywords: `supplement store terms Nepal, Supplyment Nepal terms conditions, Bright Supplements terms`,
+      keywords: `supplement store terms Nepal, Bright Supplements terms conditions, Bright Supplements terms`,
     },
     distributor: {
       title: `Become a Distributor | ${BRAND_NAME} Nepal`,

@@ -18,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL('https://www.brightsupplements.store'),
     title: {
-      default: gSeo?.default_title || 'Supplyment Nepal | Buy Authentic Whey Protein, Creatine & MuscleBlaze in Nepal',
-      template: gSeo?.title_template || '%s | Supplyment Nepal',
+      default: gSeo?.default_title || 'Bright Supplements | Buy Authentic Whey Protein, Creatine & MuscleBlaze in Nepal',
+      template: gSeo?.title_template || '%s | Bright Supplements',
     },
     description: gSeo?.default_description || "Nepal's trusted supplement store. Buy 100% genuine Whey Protein, Creatine Monohydrate, MuscleBlaze, and Naturaltein with fast delivery in Nepal. Best prices for gym supplements and sports nutrition.",
     keywords: gSeo?.default_title
@@ -29,13 +29,13 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: 'website',
       locale: 'en_NP',
-      siteName: 'Supplyment Nepal',
+      siteName: 'Bright Supplements',
       images: [
         {
           url: gSeo?.default_og_image || '/images/shoplogo.png',
           width: 1200,
           height: 630,
-          alt: 'Supplyment Nepal — Buy Authentic Supplements in Nepal',
+          alt: 'Bright Supplements — Buy Authentic Supplements in Nepal',
         }
       ],
     },

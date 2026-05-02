@@ -45,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: canonical,
       type: 'website',
-      siteName: 'Supplyment Nepal',
+      siteName: 'Bright Supplements',
       locale: 'en_NP',
       images: [
         {
@@ -219,7 +219,7 @@ export default async function HomePage() {
         {/* SEO Content Block */}
         <section className="w-full px-[24px] py-[40px] text-center max-w-[800px] mx-auto opacity-70">
           <p className="font-titillium text-[14px] leading-[22px] text-[#535353]">
-            Supplyment Nepal is your most trusted destination for authentic dietary supplements, including Whey Protein, Creatine Monohydrate, and sports nutrition in Nepal. We stock world-class brands like MuscleBlaze and Naturaltein to ensure you get 100% genuine products with fast nationwide delivery.
+            Bright Supplements is your most trusted destination for authentic dietary supplements, including Whey Protein, Creatine Monohydrate, and sports nutrition in Nepal. We stock world-class brands like MuscleBlaze and Naturaltein to ensure you get 100% genuine products with fast nationwide delivery.
           </p>
         </section>
 

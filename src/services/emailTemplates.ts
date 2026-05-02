@@ -37,7 +37,7 @@ interface OrderEmailData {
 
 export const STORE_NAME = process.env.STORE_NAME || 'Supplyment Nepal';
 const STORE_URL = process.env.STORE_URL || 'https://brightsupplements.store';
-const SUPPORT_EMAIL = process.env.GMAIL_USER || 'support@brightsupplements.store';
+const SUPPORT_EMAIL = process.env.GMAIL_USER || 'support@supplymentnepal.store';
 
 // ─── Shared Layout Helpers ───────────────────────────────────────────
 

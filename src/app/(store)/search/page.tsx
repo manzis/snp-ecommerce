@@ -6,7 +6,7 @@ import SearchPageClient from './SearchPageClient';
 export const metadata: Metadata = {
   title: 'Search Supplements | Supplyment Nepal',
   description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal at Supplyment Nepal (brightsupplements.store).',
-  keywords: 'search supplements nepal, buy supplements online nepal, Supplyment Nepal, Bright Supplements Nepal',
+  keywords: 'search supplements nepal, buy supplements online nepal, Supplyment Nepal, Supplyment Nepal Nepal',
   openGraph: {
     title: 'Search Supplements | Supplyment Nepal',
     description: 'Search for 100% genuine supplements, whey protein, and vitamins in Nepal.',
