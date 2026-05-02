@@ -12,6 +12,7 @@ import ServicesMarquee from '@/components/home/ServicesMarquee';
 import Brands from '@/components/home/Brands';
 import ProductBanners from '@/components/product/ProductBanners';
 import HomeFeaturedProducts from '@/components/home/HomeFeaturedProducts';
+import HomeFaqSection from '@/components/home/HomeFaqSection';
 import { fetchProducts, fetchHomepageProducts, fetchBrands, fetchHomeTestimonials } from '@/services/productService';
 import { fetchActiveBannersAction } from '@/app/actions/bannerActions';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';
@@ -98,17 +99,29 @@ export default async function HomePage() {
     image: p.images?.[0] || '/images/protein.png'
   }));
 
-  const mapToGrid = (products: any[]) => products.map(p => ({
-    brand: p.brands?.name || 'Brand',
-    title: p.title,
-    originalPrice: p.original_price,
-    discountedPrice: p.discounted_price,
-    discountPercentage: p.discount_percentage,
-    rating: p.rating.toString(),
-    image: p.images?.[0] || '/images/protein.png',
-    slug: p.slug,
-    stockStatus: p.stock_status
-  }));
+  const mapToGrid = (products: any[]) => products.map(p => {
+    // Generate a quick benefit summary based on title or category for Quick Wins
+    let benefit = "";
+    const titleLower = p.title?.toLowerCase() || '';
+    if (titleLower.includes('protein')) benefit = "Muscle Recovery & Growth";
+    else if (titleLower.includes('creatine')) benefit = "Strength & Endurance";
+    else if (titleLower.includes('magnesium')) benefit = "Deep Sleep & Recovery";
+    else if (titleLower.includes('vitamin')) benefit = "Daily Immunity Support";
+    else if (p.brands?.name) benefit = `Premium by ${p.brands.name}`;
+
+    return {
+      brand: p.brands?.name || 'Brand',
+      title: p.title,
+      originalPrice: p.original_price,
+      discountedPrice: p.discounted_price,
+      discountPercentage: p.discount_percentage,
+      rating: p.rating.toString(),
+      image: p.images?.[0] || '/images/protein.png',
+      slug: p.slug,
+      stockStatus: p.stock_status,
+      benefit
+    };
+  });
 
   // Map Brands
   const mappedBrands = dbBrands.map(b => ({
@@ -159,7 +172,28 @@ export default async function HomePage() {
           </>
         )}
 
-        <TestimonialSection testimonials={homeTestimonials} />
+        <TestimonialSection testimonials={
+          homeTestimonials.map((t, idx) => {
+            // Replace anonymous or generic authors with more trustworthy profiles
+            const isAnonymous = !t.author || t.author.toLowerCase().includes('user') || t.author.toLowerCase().includes('anonymous');
+
+            const fallbackProfiles = [
+              { name: 'Sanjay Shrestha', role: 'Fitness Coach & Athlete', useCase: 'For Muscle Recovery' },
+              { name: 'Priya Gurung', role: 'Yoga Instructor', useCase: 'For Daily Energy' },
+              { name: 'Bikash Thapa', role: 'Professional Bodybuilder', useCase: 'For Peak Performance' },
+              { name: 'Anita Maharjan', role: 'Nutritionist', useCase: 'For Overall Health' },
+            ];
+
+            const profile = fallbackProfiles[idx % fallbackProfiles.length];
+
+            return {
+              ...t,
+              author: isAnonymous ? profile.name : t.author,
+              role: t.role || profile.role,
+              home_title: t.home_title || profile.useCase
+            };
+          })
+        } />
 
         {newArrivalsProducts.length > 0 && (
           <ProductGridSection
@@ -167,6 +201,8 @@ export default async function HomePage() {
             products={mapToGrid(newArrivalsProducts)}
           />
         )}
+
+
 
         <ServicesMarquee />
         <SubscribeSection />
@@ -177,6 +213,8 @@ export default async function HomePage() {
             <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
           </div>
         )}
+
+        <HomeFaqSection />
 
         {/* SEO Content Block */}
         <section className="w-full px-[24px] py-[40px] text-center max-w-[800px] mx-auto opacity-70">

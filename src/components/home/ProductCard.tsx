@@ -15,6 +15,7 @@ interface ProductCardProps {
     slug: string;
     stockStatus?: string;
     stock_status?: string;
+    benefit?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -28,6 +29,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     slug,
     stockStatus,
     stock_status,
+    benefit,
 }) => {
     const finalStockStatus = stockStatus || stock_status;
 
@@ -82,6 +84,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <div className="h-[16px] self-stretch overflow-hidden truncate font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c]">
                             {title}
                         </div>
+                        {benefit && (
+                            <span className="font-titillium text-[11px] font-medium leading-[14px] text-[#5ca452] truncate w-full mt-[2px]">
+                                ✓ {benefit}
+                            </span>
+                        )}
                     </div>
 
                     {/* PRICING ROW */}
