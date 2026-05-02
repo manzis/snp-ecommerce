@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import InfoIcon from '@/components/icons/PriceInfoIcon';
 import { useAuthModal } from '@/context/AuthModalContext';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface CartCheckoutBarProps {
   totalAmount: string;
@@ -26,20 +26,31 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   const { openLogin } = useAuthModal();
   const { user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const [isVisible, setIsVisible] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  useEffect(() => {
+    if (pathname !== '/checkout') {
+      router.prefetch('/checkout');
+    }
+  }, [router, pathname]);
 
   const handleAction = () => {
     if (user) {
+      if (pathname !== '/checkout') {
+        setIsNavigating(true);
+      }
       if (onCheckout) onCheckout();
-      router.push('/checkout');
+      
+      if (pathname !== '/checkout') {
+        router.push('/checkout');
+      }
     } else {
       openLogin();
     }
   };
-
-  const [isVisible, setIsVisible] = useState(true);
-
-  // The scroll listener that hides the bar at the bottom of the page
-  // has been removed per your request so it remains permanently visible.
 
   const Content = (
     <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row pt-[10px] lg:pt-0 lg:items-center">
@@ -79,14 +90,24 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       <div className="flex flex-1 basis-0 h-full items-start lg:items-center justify-center bg-white px-[16px] lg:bg-transparent lg:pr-0">
         <button
           onClick={handleAction}
-          className={`w-full h-[60px] lg:h-[52px] flex items-center justify-center rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' 
+          disabled={isNavigating || buttonText === 'Processing...'}
+          className={`w-full h-[60px] lg:h-[52px] flex items-center justify-center rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' || isNavigating
             ? 'bg-[#3f9633] text-white' 
             : 'bg-[#ffe900] active:bg-[#f5e000] text-[#1e1e1e]'
           }`}
         >
-          <span className={`font-custom text-[18px] uppercase tracking-[0.2px] ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
-            {buttonText}
-          </span>
+          {isNavigating ? (
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="font-custom text-[18px] uppercase tracking-[0.2px] text-white">
+                Preparing...
+              </span>
+            </div>
+          ) : (
+            <span className={`font-custom text-[18px] uppercase tracking-[0.2px] ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
+              {buttonText}
+            </span>
+          )}
         </button>
       </div>
     </div>
