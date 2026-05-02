@@ -150,7 +150,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
                 alt={`${productName} view ${idx + 1}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 600px"
-                className="object-cover lg:object-cover"
+                className="object-cover lg:object-contain"
                 priority={idx === 0}
                 loading={idx === 0 ? undefined : "lazy"}
                 {...(idx === 0 ? { fetchPriority: "high" } : {})}
