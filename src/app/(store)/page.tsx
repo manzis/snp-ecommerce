@@ -159,6 +159,8 @@ export default async function HomePage() {
           <Brands brands={mappedBrands} />
         </LazySection>
 
+
+
         {popularProducts.length > 0 && (
           <LazySection minHeight="350px" rootMargin="300px" className="w-full">
             <ProductGridSection
@@ -167,6 +169,11 @@ export default async function HomePage() {
             />
           </LazySection>
         )}
+
+        {/* FEATURE BANNERS - Always visible */}
+        <LazySection minHeight="300px" rootMargin="300px" className="w-full">
+          <FeatureBanners />
+        </LazySection>
 
         {/* DYNAMIC BANNERS SECTION - POSITION 1 (Below Popular Products) */}
         {activeBanners.length > 0 && (
@@ -178,11 +185,8 @@ export default async function HomePage() {
         )}
 
         {activeBanners.length === 0 && (
-          <LazySection minHeight="300px" rootMargin="200px" className="w-full">
-            <>
-              <ServicesMarquee />
-              <FeatureBanners />
-            </>
+          <LazySection minHeight="200px" rootMargin="200px" className="w-full">
+            <ServicesMarquee />
           </LazySection>
         )}
 
