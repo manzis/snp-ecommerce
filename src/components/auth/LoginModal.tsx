@@ -63,19 +63,89 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         return () => clearInterval(timer);
     }, [resendCooldown]);
 
-    // Logic: Validation
-    const validateIdentifier = (val: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^\d{10}$/; // Basic 10 digit check
-        return emailRegex.test(val) || phoneRegex.test(val);
+    // Logic: Validation — catches common domain typos before wasting an OTP send
+    const KNOWN_DOMAINS: Record<string, string> = {
+        // Gmail typos
+        'gamil.com': 'gmail.com', 'gmal.com': 'gmail.com', 'gmial.com': 'gmail.com',
+        'gmaill.com': 'gmail.com', 'gmali.com': 'gmail.com', 'gmil.com': 'gmail.com',
+        'gnail.com': 'gmail.com', 'gmaik.com': 'gmail.com', 'gmaio.com': 'gmail.com',
+        'gmail.co': 'gmail.com', 'gmail.om': 'gmail.com', 'gmail.cm': 'gmail.com',
+        'gmail.con': 'gmail.com', 'gmail.cpm': 'gmail.com', 'gmail.comm': 'gmail.com',
+        'gmail.vom': 'gmail.com', 'gmail.xom': 'gmail.com', 'gmai.com': 'gmail.com',
+        'gmaiil.com': 'gmail.com', 'gmaul.com': 'gmail.com', 'gemail.com': 'gmail.com',
+        'gimail.com': 'gmail.com', 'gmsil.com': 'gmail.com', 'gmeil.com': 'gmail.com',
+        // Yahoo typos
+        'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'yhoo.com': 'yahoo.com',
+        'yahoo.co': 'yahoo.com', 'yahoo.om': 'yahoo.com', 'yahoo.con': 'yahoo.com',
+        'yhaoo.com': 'yahoo.com', 'yaoo.com': 'yahoo.com',
+        // Hotmail / Outlook typos
+        'hotmal.com': 'hotmail.com', 'hotmial.com': 'hotmail.com', 'hotmail.co': 'hotmail.com',
+        'hotmail.con': 'hotmail.com', 'hotmil.com': 'hotmail.com', 'hotamil.com': 'hotmail.com',
+        'outlok.com': 'outlook.com', 'outloo.com': 'outlook.com', 'outlook.co': 'outlook.com',
+        'outlook.con': 'outlook.com', 'outllook.com': 'outlook.com',
+        // Others
+        'icloud.co': 'icloud.com', 'icloud.con': 'icloud.com',
+        'protonmail.co': 'protonmail.com', 'protonmail.con': 'protonmail.com',
     };
 
+    const VALID_DOMAINS = new Set([
+        'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com',
+        'protonmail.com', 'proton.me', 'aol.com', 'mail.com', 'zoho.com',
+        'yandex.com', 'live.com', 'msn.com', 'me.com', 'mac.com',
+        'rediffmail.com', 'inbox.com', 'fastmail.com',
+    ]);
+
+    const validateIdentifier = (val: string): { valid: boolean; suggestion?: string } => {
+        const trimmed = val.trim().toLowerCase();
+        const phoneRegex = /^\d{10}$/;
+        if (phoneRegex.test(trimmed)) return { valid: true };
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmed)) return { valid: false };
+
+        // Extract domain part
+        const domain = trimmed.split('@')[1];
+        if (!domain) return { valid: false };
+
+        // Check for known typos
+        const corrected = KNOWN_DOMAINS[domain];
+        if (corrected) {
+            return { valid: false, suggestion: corrected };
+        }
+
+        // Check TLD validity (must end with at least a 2-char TLD)
+        const tldMatch = domain.match(/\.([a-z]{2,})$/);
+        if (!tldMatch) return { valid: false };
+
+        // If domain is in the known-good list, instant pass
+        if (VALID_DOMAINS.has(domain)) return { valid: true };
+
+        // For unknown domains, still allow — but warn if TLD looks suspect
+        const suspiciousTlds = ['co', 'om', 'cm', 'con', 'cpm', 'comm', 'vom', 'xom'];
+        if (suspiciousTlds.includes(tldMatch[1])) {
+            return { valid: false, suggestion: domain.replace(/\.[a-z]+$/, '.com') };
+        }
+
+        return { valid: true };
+    };
+
+    const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
+
     const handleSendOtp = async () => {
-        if (!validateIdentifier(identifier)) {
-            setError("Please enter a valid email or phone number");
+        const result = validateIdentifier(identifier);
+        if (!result.valid) {
+            if (result.suggestion) {
+                const correctedEmail = identifier.trim().split('@')[0] + '@' + result.suggestion;
+                setEmailSuggestion(correctedEmail);
+                setError(`Did you mean ${correctedEmail}?`);
+            } else {
+                setEmailSuggestion(null);
+                setError("Please enter a valid email or phone number");
+            }
             return;
         }
         setError(null);
+        setEmailSuggestion(null);
         setIsSending(true);
 
         try {
@@ -281,9 +351,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 <div className="flex flex-col gap-[16px]">
                                     <div className={`group flex h-[54px] items-center gap-[8px] rounded-[12px] border ${error ? 'border-red-500' : 'border-[#eaebf0]'} px-[12px] transition-all focus-within:border-[#3f9633] focus-within:ring-1 focus-within:ring-[#3f9633]`}>
                                         <MailIcon className="w-[18px] h-[18px] text-[#68727d]" />
-                                        <input type="text" placeholder="Email or phone no" value={identifier} onChange={(e) => { setIdentifier(e.target.value); setError(null); }} className="flex-1 bg-transparent text-[18px] text-[#242424] outline-none placeholder:text-[#68727d]" />
+                                        <input type="text" placeholder="Email or phone no" value={identifier} onChange={(e) => { setIdentifier(e.target.value); setError(null); setEmailSuggestion(null); }} className="flex-1 bg-transparent text-[18px] text-[#242424] outline-none placeholder:text-[#68727d]" />
                                     </div>
-                                    {error && <span className="text-red-500 text-[12px] font-titillium mt-[-10px]">{error}</span>}
+                                    {error && (
+                                        <div className="flex items-center gap-[8px] mt-[-10px]">
+                                            <span className="text-red-500 text-[12px] font-titillium">{error}</span>
+                                            {emailSuggestion && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setIdentifier(emailSuggestion); setError(null); setEmailSuggestion(null); }}
+                                                    className="text-[12px] font-[600] text-[#308026] bg-[#e8ffe5] px-[8px] py-[2px] rounded-[6px] hover:bg-[#d0f5cc] transition-colors whitespace-nowrap"
+                                                >
+                                                    Yes, fix it
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                     <div className="flex items-center gap-[6px]">
                                         <div className="flex h-[16px] w-[16px] items-center justify-center rounded-[4px] bg-[#308026]">
                                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M8.33331 2.5L3.74998 7.08333L1.66665 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>

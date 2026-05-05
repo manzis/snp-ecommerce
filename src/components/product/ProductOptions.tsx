@@ -26,15 +26,15 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
   const { showToast } = useToast();
   const router = useRouter();
 
-  const { 
-    selectedSize, 
-    selectedFlavorId, 
-    currentPrice, 
-    originalPrice, 
-    setSizeError, 
-    setFlavorError, 
-    setFlavorId, 
-    setPrice 
+  const {
+    selectedSize,
+    selectedFlavorId,
+    currentPrice,
+    originalPrice,
+    setSizeError,
+    setFlavorError,
+    setFlavorId,
+    setPrice
   } = useProductSelectionStore();
   const { addItem } = useCartStore();
 
@@ -163,9 +163,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       }
       const { currentPrice, originalPrice } = useProductSelectionStore.getState();
       const itemData = {
-          product_id: product.id,
-          selected_size: selectedSize,
-          selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
+        product_id: product.id,
+        selected_size: selectedSize,
+        selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
       };
       const itemId = getCartItemId(itemData);
       const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
@@ -272,13 +272,13 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
           {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
         </button>
       </div>
-      
+
       <OfferCard />
 
       {product.stock_status !== 'out_of_stock' && (
-        <BundleDealCard 
+        <BundleDealCard
           mainProduct={product}
-          currentProductImage={flavours.find(f => f.id === selectedFlavorId)?.image_url || product.images?.[0]} 
+          currentProductImage={flavours.find(f => f.id === selectedFlavorId)?.image_url || product.images?.[0]}
         />
       )}
 

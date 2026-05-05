@@ -80,56 +80,56 @@ export default function BrandJsonLd({
   const itemListSchema =
     products.length > 0
       ? {
-          '@context': 'https://schema.org',
-          '@type': 'ItemList',
-          name: `Buy ${brandName} Products in Nepal | ${STORE_NAME}`,
-          description: `Shop authentic ${brandName} supplements in Nepal at the best prices. Fast delivery & cash on delivery available.`,
-          url: brandUrl,
-          numberOfItems: products.length,
-          itemListElement: products.slice(0, 20).map((p, idx) => {
-            const priceVal = Number(p.discountedPrice) || Number(p.price) || 0;
-            const productUrl = `${SITE_URL}/product/${p.slug}`;
-            return {
-              '@type': 'ListItem',
-              position: idx + 1,
-              item: {
-                '@type': 'Product',
-                name: p.name,
-                url: productUrl,
-                ...(p.image && { image: p.image }),
-                brand: {
-                  '@type': 'Brand',
-                  name: brandName,
-                },
-                offers: {
-                  '@type': 'Offer',
-                  url: productUrl,
-                  priceCurrency: 'NPR',
-                  price: priceVal > 0 ? priceVal : undefined,
-                  availability:
-                    STOCK_STATUS_MAP[p.stockStatus || 'in_stock'] ||
-                    'https://schema.org/InStock',
-                  seller: {
-                    '@type': 'Organization',
-                    name: STORE_NAME,
-                    url: SITE_URL,
-                  },
-                },
-                ...(p.rating && p.reviewCount && p.reviewCount > 0
-                  ? {
-                      aggregateRating: {
-                        '@type': 'AggregateRating',
-                        ratingValue: p.rating.toFixed(1),
-                        reviewCount: p.reviewCount,
-                        bestRating: '5',
-                        worstRating: '1',
-                      },
-                    }
-                  : {}),
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: `Buy ${brandName} Products in Nepal | ${STORE_NAME}`,
+        description: `Shop authentic ${brandName} supplements in Nepal at the best prices. Fast delivery & cash on delivery available.`,
+        url: brandUrl,
+        numberOfItems: products.length,
+        itemListElement: products.slice(0, 20).map((p, idx) => {
+          const priceVal = Number(p.discountedPrice) || Number(p.price) || 0;
+          const productUrl = `${SITE_URL}/product/${p.slug}`;
+          return {
+            '@type': 'ListItem',
+            position: idx + 1,
+            item: {
+              '@type': 'Product',
+              name: p.name,
+              url: productUrl,
+              ...(p.image && { image: p.image }),
+              brand: {
+                '@type': 'Brand',
+                name: brandName,
               },
-            };
-          }),
-        }
+              offers: {
+                '@type': 'Offer',
+                url: productUrl,
+                priceCurrency: 'NPR',
+                price: priceVal > 0 ? priceVal : undefined,
+                availability:
+                  STOCK_STATUS_MAP[p.stockStatus || 'in_stock'] ||
+                  'https://schema.org/InStock',
+                seller: {
+                  '@type': 'Organization',
+                  name: STORE_NAME,
+                  url: SITE_URL,
+                },
+              },
+              ...(p.rating && p.reviewCount && p.reviewCount > 0
+                ? {
+                  aggregateRating: {
+                    '@type': 'AggregateRating',
+                    ratingValue: p.rating.toFixed(1),
+                    reviewCount: p.reviewCount,
+                    bestRating: '5',
+                    worstRating: '1',
+                  },
+                }
+                : {}),
+            },
+          };
+        }),
+      }
       : null;
 
   return (

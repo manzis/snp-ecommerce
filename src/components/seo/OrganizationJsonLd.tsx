@@ -29,8 +29,8 @@ export default function OrganizationJsonLd() {
       availableLanguage: ['English', 'Nepali'],
     },
     sameAs: [
-      'https://www.facebook.com/brightsupplementsnepal',
-      'https://www.instagram.com/brightsupplements.np',
+      'https://www.facebook.com/supplynp/',
+      'https://www.instagram.com/supply_np/',
       'https://www.brightsupplements.store',
     ],
     areaServed: {
