@@ -38,9 +38,16 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
     return () => window.removeEventListener('addToCartSuccess', handleSuccess);
   }, []);
 
-  // Buy Now: listen for cart add success triggered by Buy Now path, then redirect
+  // Prefetch cart route for snappy Buy Now navigation
   useEffect(() => {
-    const handleBuyNowSuccess = () => {
+    router.prefetch('/cart');
+  }, [router]);
+
+  // Buy Now: wait for Zustand persist flush before navigating
+  useEffect(() => {
+    const handleBuyNowSuccess = async () => {
+      // Allow Zustand persist middleware to flush to localStorage
+      await new Promise(resolve => setTimeout(resolve, 100));
       router.push('/cart');
     };
     window.addEventListener('buyNowCartSuccess', handleBuyNowSuccess);

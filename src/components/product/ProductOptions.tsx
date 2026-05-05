@@ -195,12 +195,58 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     return () => window.removeEventListener('requestBuyNow', handleBuyNow);
   }, [selectedSize, selectedFlavorId, product, sizes.length, filteredFlavours.length, setSizeError, setFlavorError, addItem, flavours]);
 
+  // Prefetch /cart for snappy Buy Now navigation
+  useEffect(() => {
+    router.prefetch('/cart');
+  }, [router]);
+
   const handleAddToCart = () => {
     if (!isInCart) {
       executeAddToCart();
     } else {
       router.push('/cart');
     }
+  };
+
+  const handleDesktopBuyNow = async () => {
+    // Validate selections
+    let isValid = true;
+    if (sizes.length > 0 && !selectedSize) { setSizeError(true); isValid = false; }
+    if (filteredFlavours.length > 0 && !selectedFlavorId) { setFlavorError(true); isValid = false; }
+    if (!isValid) {
+      document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    const { currentPrice, originalPrice } = useProductSelectionStore.getState();
+    const itemData = {
+      product_id: product.id,
+      selected_size: selectedSize,
+      selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
+    };
+    const itemId = getCartItemId(itemData);
+    const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
+
+    if (!alreadyInCart) {
+      const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
+      const itemImage = (selectedFlavour?.image_url || product.images?.[0] || '/images/protein.webp').trim();
+      addItem({
+        id: itemId,
+        ...itemData,
+        name: product.name,
+        slug: product.slug,
+        brand: product.brands?.name || 'Store Product',
+        price: currentPrice || parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
+        mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
+        image: itemImage,
+        quantity: 1,
+        stock_status: product.stock_status || 'in_stock'
+      });
+      window.dispatchEvent(new CustomEvent('addToCartSuccess'));
+    }
+
+    // Wait for Zustand persist middleware to flush to localStorage
+    await new Promise(resolve => setTimeout(resolve, 100));
+    router.push('/cart');
   };
 
   return (
@@ -219,6 +265,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         </button>
         <button
           type="button"
+          onClick={handleDesktopBuyNow}
           disabled={product.stock_status === 'out_of_stock'}
           className={`flex-1 h-[60px] rounded-[12px] font-titillium text-[18px] font-semibold transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
         >
