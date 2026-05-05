@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
         {
           url: ogImage || '/icon.png',
           width: 1200,
-          height: 630,
+          height: 1200,
           alt: title,
         }
       ],

@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
         {
           url: gSeo?.default_og_image || '/icon.png',
           width: 1200,
-          height: 630,
+          height: 1200,
           alt: 'Supplyment Nepal — Buy Authentic Supplements in Nepal',
         }
       ],

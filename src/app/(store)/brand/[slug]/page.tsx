@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     {
       url: brandCover,
       width: 1200,
-      height: 630,
+      height: 1200,
       alt: fallback.title,
     },
     ...productImages,
