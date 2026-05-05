@@ -35,7 +35,7 @@ const AdminProductCard: React.FC<AdminProductCardProps> = ({ product, isSelected
       {/* IMAGE CONTAINER */}
       <div className="relative w-full aspect-square flex flex-col justify-end overflow-hidden">
         <Image
-          src={product.images?.[0] || '/images/protein.jpg'}
+          src={product.images?.[0] || '/images/protein.webp'}
           alt={product.title}
           fill
           className="object-contain p-[10px]"

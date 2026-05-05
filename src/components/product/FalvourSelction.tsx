@@ -111,7 +111,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
               `}>
                 <div className={`relative w-full flex-grow transition-all duration-200 ease-in ${isSelected ? 'h-[67px]' : 'h-[63px]'}`}>
                   <Image
-                    src={(item.image_url || '/images/protein.png').trim()}
+                    src={(item.image_url || '/images/protein.webp').trim()}
                     alt={item.flavour_name || 'flavour'}
                     fill
                     className="object-contain"

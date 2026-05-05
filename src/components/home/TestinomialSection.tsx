@@ -60,7 +60,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
             <div className="absolute top-[31.96px] left-[-24px] flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
                 {/* LEFT SCATTER PARTICLES */}
                 <motion.div animate={{ x: [-5, 5, -5], y: [0, 15, 0], opacity: [0.4, 0.7, 0.4] }} transition={floatingTransition(0.2)} className="absolute left-[-20px] top-[40px] z-30 h-[24px] w-[24px] blur-[2px] lg:left-[-40px]">
-                    <Image src="/images/athelete.jpg" alt="Professional athlete testimonial" fill sizes="24px" loading="lazy" className="rounded-full object-cover" />
+                    <Image src="/images/athelete.webp" alt="Professional athlete testimonial" fill sizes="24px" loading="lazy" className="rounded-full object-cover" />
                 </motion.div>
 
                 {/* Image 1 */}
@@ -69,16 +69,16 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
                     transition={floatingTransition(0)}
                     className="absolute left-0 top-[32.10px] h-[94.85px] w-[82.05px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[140px] lg:top-[45px] lg:left-0"
                 >
-                    <Image src="/images/athelete.jpg" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
+                    <Image src="/images/athelete.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
                     <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_right,black_0%,transparent_30%)]" />
                 </motion.div>
                 {/* Image 2 */}
                 <motion.div animate={{ y: [0, 10, 0], rotate: [-4.89, -2.89, -4.89] }} transition={floatingTransition(0.5)} className="absolute left-[98px] top-0 h-[95.07px] w-[82.31px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[140px] lg:top-0 lg:left-[170px]">
-                    <Image src="/images/athelete-2.png" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
+                    <Image src="/images/athelete-2.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
                 </motion.div>
                 {/* Image 3 */}
                 <motion.div animate={{ y: [0, -12, 0], rotate: [0, 3, 0] }} transition={floatingTransition(1)} className="absolute left-[196px] top-[26.03px] h-[89px] w-[82px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[130px] lg:top-[35px] lg:left-[340px]">
-                    <Image src="/images/athelete4.jpg" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
+                    <Image src="/images/athelete4.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
                 </motion.div>
                 {/* Image 4 */}
                 <motion.div animate={{ y: [0, 8, 0], rotate: [7.72, 5.72, 7.72] }} transition={floatingTransition(1.5)} className="absolute left-[288px] top-[4.40px] h-[98.26px] w-[86.27px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[125px] lg:h-[145px] lg:top-[6px] lg:left-[510px]">
@@ -90,13 +90,13 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
                     transition={floatingTransition(2)}
                     className="absolute left-[390px] top-[25.25px] h-[90.56px] w-[76.86px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[115px] lg:h-[135px] lg:top-[35px] lg:left-[680px]"
                 >
-                    <Image src="/images/athelete4.jpg" alt="Athlete" fill sizes="(max-width: 1024px) 76px, 115px" loading="lazy" className="object-cover" />
+                    <Image src="/images/athelete4.webp" alt="Athlete" fill sizes="(max-width: 1024px) 76px, 115px" loading="lazy" className="object-cover" />
                     <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_left,black_0%,transparent_30%)]" />
                 </motion.div>
 
                 {/* RIGHT SCATTER PARTICLES */}
                 <motion.div animate={{ x: [5, -5, 5], y: [10, -10, 10], opacity: [0.3, 0.6, 0.3] }} transition={floatingTransition(0.8)} className="absolute right-[-10px] top-[20px] z-30 h-[20px] w-[20px] blur-[3px] lg:right-[-30px]">
-                    <Image src="/images/athelete-2.png" alt="Fitness enthusiast testimonial" fill sizes="20px" loading="lazy" className="rounded-full object-cover" />
+                    <Image src="/images/athelete-2.webp" alt="Fitness enthusiast testimonial" fill sizes="20px" loading="lazy" className="rounded-full object-cover" />
                 </motion.div>
             </div>
 

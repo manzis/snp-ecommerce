@@ -174,7 +174,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                     discountedPrice={product.discounted_price}
                                     discountPercentage={product.discount_percentage}
                                     rating={product.rating.toString()}
-                                    image={product.images?.[0] || '/images/protein.jpg'}
+                                    image={product.images?.[0] || '/images/protein.webp'}
                                     slug={product.slug}
                                     stockStatus={product.stock_status}
                                 />

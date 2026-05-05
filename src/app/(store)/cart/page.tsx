@@ -158,7 +158,7 @@ export default function CartPage() {
               <div className="flex flex-col w-full items-center justify-center py-[100px] px-[24px] gap-[16px]">
                 <div className="relative w-[125px] h-[125px] lg:w-[150px] lg:h-[150px] mb-[8px]">
                   <Image
-                    src="/images/empty-cart.png"
+                    src="/images/empty-cart.webp"
                     alt="Empty Cart"
                     fill
                     className="object-contain"

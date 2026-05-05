@@ -76,7 +76,7 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ onSelectProduct }) => {
                 >
                   <div className="relative w-[32px] h-[32px] shrink-0 border border-[#f1f5f9] rounded-[4px] overflow-hidden">
                     <Image 
-                      src={product.images?.[0] || '/images/protein.jpg'} 
+                      src={product.images?.[0] || '/images/protein.webp'} 
                       alt={product.name || ''} 
                       fill 
                       className="object-contain"

@@ -5,11 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const CATEGORIES = [
-    { name: 'Proteins', slug: 'proteins', img: '/images/protein.png' },
-    { name: 'Creatine', slug: 'creatine', img: '/images/creatine.png' },
-    { name: 'Multivitamins', slug: 'multivitamins', img: '/images/vitamin.png' },
-    { name: 'Essentials', slug: 'essentials', img: '/images/essentials.png' },
-    { name: 'Accessories', slug: 'accessories', img: '/images/essentials.png' },
+    { name: 'Proteins', slug: 'proteins', img: '/images/protein.webp' },
+    { name: 'Creatine', slug: 'creatine', img: '/images/creatine.webp' },
+    { name: 'Multivitamins', slug: 'multivitamins', img: '/images/vitamin.webp' },
+    { name: 'Essentials', slug: 'essentials', img: '/images/essentials.webp' },
+    { name: 'Accessories', slug: 'accessories', img: '/images/essentials.webp' },
 ];
 
 const HomeCategories: React.FC = () => {

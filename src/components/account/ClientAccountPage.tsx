@@ -38,7 +38,7 @@ export default function ClientAccountPage({ user }: ClientAccountPageProps) {
                 >
                     <div className="fixed h-[55%] w-full opacity-7">
                         <Image
-                            src="/images/line-pattern.png"
+                            src="/images/line-pattern.webp"
                             alt="Background Pattern"
                             fill
                             className="object-cover"

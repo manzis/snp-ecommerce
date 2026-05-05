@@ -7,13 +7,13 @@ const FeatureBanners: React.FC = () => {
     const banners = [
         {
             id: 1,
-            image: '/images/banner-1.png',
+            image: '/images/banner-1.webp',
             buttonBg: 'bg-[#3f9633]',
             href: '/products'
         },
         {
             id: 2,
-            image: '/images/banner-2.png',
+            image: '/images/banner-2.webp',
             buttonBg: 'bg-[#337596]',
             href: '/products'
         }

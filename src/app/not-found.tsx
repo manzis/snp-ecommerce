@@ -10,7 +10,7 @@ export default function NotFound() {
       <main className="flex flex-col items-center justify-center px-6 pt-32 pb-20 text-center max-w-[600px] mx-auto">
         <div className="relative w-full max-w-[300px] aspect-square mb-8">
           <Image
-            src="/images/empty-cart.png" 
+            src="/images/empty-cart.webp" 
             alt="404 Not Found"
             fill
             className="object-contain grayscale opacity-50"

@@ -29,7 +29,7 @@ export default function OtherShipmentItems({ items, total }: OtherShipmentItemsP
                             <div className="relative flex h-[62px] w-[55px] shrink-0 items-center justify-center rounded-[6px] border border-[#e2e8f0] p-[6px]">
                                 <div className="relative h-full w-full">
                                     <Image
-                                        src={item.products?.images?.[0] || "/images/protein.jpg"}
+                                        src={item.products?.images?.[0] || "/images/protein.webp"}
                                         alt={item.products?.name}
                                         fill
                                         className="object-contain"

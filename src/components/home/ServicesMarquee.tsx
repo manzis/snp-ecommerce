@@ -38,13 +38,13 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ title, icon, bgColor = "bg-wh
 const ServicesMarquee: React.FC = () => {
     const row1 = [
         { title: "Pre Order", icon: "pre-order.png", bgColor: "bg-[#ecf6ff]", width: { mobile: "198px", desktop: "400px" } },
-        { title: "Cash on Delivery", icon: "cod.svg", width: { mobile: "198px", desktop: "400px" } },
-        { title: "Easy Returns", icon: "moneyback.svg", bgColor: "bg-[#eaffe8]", width: { mobile: "165px", desktop: "350px" } },
+        { title: "Cash on Delivery", icon: "cod.webp", width: { mobile: "198px", desktop: "400px" } },
+        { title: "Easy Returns", icon: "moneyback.webp", bgColor: "bg-[#eaffe8]", width: { mobile: "165px", desktop: "350px" } },
     ];
 
     const row2 = [
         { title: "Trusted", icon: "trusted.png", bgColor: "bg-[#3f9633]", textColor: "text-white", width: { mobile: "154px", desktop: "320px" } },
-        { title: "Authenticity Guarantee", icon: "authentic.svg", width: { mobile: "200px", desktop: "450px" } },
+        { title: "Authenticity Guarantee", icon: "authentic.webp", width: { mobile: "200px", desktop: "450px" } },
         { title: "Vast Options", icon: "options.png", bgColor: "bg-[#ffe900]", width: { mobile: "200px", desktop: "420px" } },
     ];
 

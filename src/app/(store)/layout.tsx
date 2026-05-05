@@ -79,6 +79,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased initial-loading`}
     >
       <head>
+        {/* DNS prefetch + preconnect — eliminates DNS lookup latency for external resources */}
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <Script
           id="viewport-scaler-script"
           strategy="beforeInteractive"

@@ -14,7 +14,7 @@ const WhyChooseUs: React.FC = () => {
 
       <div className="relative h-full w-full self-stretch overflow-x-auto no-scrollbar rounded-[8px] bg-white  z-[1]">
         <Image
-          src="/images/whychoose.png"
+          src="/images/whychoose.webp"
           alt="Why choose Supplement Nepal - Premium quality and fast delivery"
           fill
           className="object-cover rounded-[8px]"

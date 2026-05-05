@@ -1,9 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Core Performance */
   poweredByHeader: false,
   reactCompiler: true,
+  compress: true, // Enable gzip/brotli compression for all responses
+
   images: {
     unoptimized: true,
     dangerouslyAllowSVG: true,
@@ -37,10 +39,58 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb',
     },
+  },
+
+  // ── Cache Headers — fixes "Add Expires headers" F grade ──────────────────
+  async headers() {
+    return [
+      {
+        // Static assets in _next/static (JS, CSS bundles) — immutable, hashed filenames
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+      {
+        // Images served from /images/ directory
+        source: '/images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+      {
+        // Fonts (woff2, woff, ttf)
+        source: '/_next/static/media/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+        ],
+      },
+      {
+        // Favicon and app icons
+        source: '/:path(favicon.ico|icon.png|apple-icon.png|site.webmanifest)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' },
+        ],
+      },
+      {
+        // All pages — short cache with revalidation for dynamic content
+        source: '/:path*',
+        headers: [
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
   },
 };
 

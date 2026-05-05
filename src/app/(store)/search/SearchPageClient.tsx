@@ -160,7 +160,7 @@ export default function SearchPageClient({ initialProducts, initialBrands }: Sea
                 id: p.id,
                 brand: p.brands?.name || '',
                 name: p.title,
-                image: p.images?.[0] || '/images/protein.jpg',
+                image: p.images?.[0] || '/images/protein.webp',
                 slug: p.slug
               }))} 
             />

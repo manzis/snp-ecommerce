@@ -20,10 +20,10 @@ export default async function CategoriesPage() {
 
   const getCategoryFallbackImage = (slug: string) => {
     const s = slug.toLowerCase();
-    if (s.includes('protein')) return '/images/protein.png';
-    if (s.includes('creatine')) return '/images/creatine.png';
-    if (s.includes('vitamin')) return '/images/vitamin.png';
-    if (s.includes('essential')) return '/images/essentials.png';
+    if (s.includes('protein')) return '/images/protein.webp';
+    if (s.includes('creatine')) return '/images/creatine.webp';
+    if (s.includes('vitamin')) return '/images/vitamin.webp';
+    if (s.includes('essential')) return '/images/essentials.webp';
     return '/icon.png';
   };
 

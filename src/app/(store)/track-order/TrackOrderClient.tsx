@@ -335,7 +335,7 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
               <li key={idx} className="flex w-full items-center gap-[12px]">
                 <div className="relative flex h-[62px] w-[55px] shrink-0 items-center justify-center rounded-[6px] border border-[#e2e8f0] p-[6px]">
                   <div className="relative h-full w-full">
-                    <Image src={item.products?.images?.[0] || "/images/protein.jpg"} alt={item.products?.name} fill className="object-contain" sizes="55px" />
+                    <Image src={item.products?.images?.[0] || "/images/protein.webp"} alt={item.products?.name} fill className="object-contain" sizes="55px" />
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col gap-[4px]">
@@ -459,7 +459,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
       >
         {/* ── LEFT: GREEN BRANDING PANEL (identical to LoginModal) ── */}
         <div className="absolute top-0 left-0 w-full h-[40%] lg:h-full opacity-40 pointer-events-none z-0">
-          <Image src="/images/supplement-pattern.png" alt="Supplement Pattern" fill className="object-cover object-top" priority />
+          <Image src="/images/supplement-pattern.webp" alt="Supplement Pattern" fill className="object-cover object-top" priority />
         </div>
         <section className="relative z-10 flex-1 flex flex-col justify-between p-[24px] lg:p-[48px] lg:gap-[32px]">
           <div className="flex items-center justify-between lg:justify-start gap-[10px]">

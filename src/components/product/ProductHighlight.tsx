@@ -111,7 +111,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
               />
             ) : (
               <Image
-                src={(highlights[activeTab]?.src || '/images/protein.png').trim()}
+                src={(highlights[activeTab]?.src || '/images/protein.webp').trim()}
                 alt={highlights[activeTab]?.alt || 'Highlight Image'}
                 fill draggable={false}
                 className="object-cover"
@@ -172,7 +172,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
                 `}
               >
                 <Image
-                  src={(item.type === 'video' ? (item.poster || '/images/protein.png') : (item.src || '/images/protein.png')).trim()}
+                  src={(item.type === 'video' ? (item.poster || '/images/protein.webp') : (item.src || '/images/protein.webp')).trim()}
                   alt={`Thumbnail ${idx + 1}`}
                   fill
                   className="object-cover"

@@ -97,7 +97,7 @@ export default async function HomePage() {
     originalPrice: String(p.original_price),
     discountedPrice: String(p.discounted_price),
     discount: String(p.discount_percentage),
-    image: p.images?.[0] || '/images/protein.png'
+    image: p.images?.[0] || '/images/protein.webp'
   }));
 
   const mapToGrid = (products: any[]) => products.map(p => {
@@ -117,7 +117,7 @@ export default async function HomePage() {
       discountedPrice: p.discounted_price,
       discountPercentage: p.discount_percentage,
       rating: p.rating.toString(),
-      image: p.images?.[0] || '/images/protein.png',
+      image: p.images?.[0] || '/images/protein.webp',
       slug: p.slug,
       stockStatus: p.stock_status,
       benefit

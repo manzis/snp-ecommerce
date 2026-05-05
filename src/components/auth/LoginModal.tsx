@@ -238,7 +238,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     `}
         >
             <div className="absolute top-0 left-0 w-full h-[40%] lg:h-full opacity-40 pointer-events-none z-0">
-                <Image src="/images/supplement-pattern.png" alt="Supplement Pattern" fill className="object-cover object-top" priority />
+                <Image src="/images/supplement-pattern.webp" alt="Supplement Pattern" fill className="object-cover object-top" priority />
             </div>
             <section className="relative z-10 flex-1 flex flex-col justify-between p-[24px] lg:p-[48px] lg:gap-[32px]">
                 <div className="flex items-center justify-between lg:justify-start gap-[10px]">
