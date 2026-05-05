@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import MediaLightbox from '@/components/ui/MediaLightBox';
 
 import type { ProductHighlightItem } from '@/services/productService';
@@ -119,17 +120,37 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
               />
             )}
 
-            {/* Mobile-only Pagination (Hides on Desktop) */}
-            <div className="absolute bottom-[16px] left-0 right-0 z-30 flex lg:hidden justify-center items-center gap-[6px] pointer-events-auto">
-              {highlights.map((_, idx) => (
-                <button
-                  key={`hl-pag-${idx}`}
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); setActiveTab(idx); }}
-                  className={`h-[2.5px] rounded-[20px] transition-all duration-300 ${idx === activeTab ? 'bg-black w-[32px]' : 'bg-white/60 w-[24px]'}`}
-                />
-              ))}
-            </div>
+            {/* Cinematic Progress Indicators — matching ProductBanners style */}
+            {highlights.length > 1 && (
+              <div className="absolute bottom-[14px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-2 rounded-full bg-black/20 backdrop-blur-xl border border-white/5 pointer-events-auto">
+                {highlights.map((_, idx) => (
+                  <motion.button
+                    key={`hl-pag-${idx}`}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setActiveTab(idx); }}
+                    initial={false}
+                    animate={{
+                      width: activeTab === idx ? 32 : 8,
+                      opacity: activeTab === idx ? 1 : 0.4
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      ease: [0.32, 0.72, 0, 1]
+                    }}
+                    className="relative h-1.5 rounded-full bg-white/40 overflow-hidden outline-none"
+                  >
+                    {activeTab === idx && (
+                      <motion.div
+                        className="absolute inset-0 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                        initial={{ width: 0 }}
+                        animate={{ width: '100%' }}
+                        transition={{ duration: highlights[idx]?.type === 'video' ? 0 : 5, ease: "linear" }}
+                      />
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

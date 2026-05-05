@@ -4,8 +4,8 @@
  * This ensures lightning-fast image loading since Next.js unoptimized=true is set.
  */
 
-export function optimizeImage(url: string | undefined | null, width: number = 800): string {
-  if (!url) return '/images/shoplogo.png';
+export function optimizeImage(url: string | undefined | null, width: number = 800, quality: 'auto' | 'auto:low' | 'auto:eco' | 'auto:good' | 'auto:best' = 'auto'): string {
+  if (!url) return '/icon.png';
 
   // Only apply to Cloudinary URLs
   if (url.includes('res.cloudinary.com') && url.includes('/image/upload/')) {
@@ -14,8 +14,8 @@ export function optimizeImage(url: string | undefined | null, width: number = 80
       return url;
     }
 
-    // Inject format auto (WebP/AVIF), quality auto, and a max width
-    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+    // Inject format auto (WebP/AVIF), quality, max width, and DPR awareness
+    return url.replace('/upload/', `/upload/f_auto,q_${quality},w_${width},dpr_auto/`);
   }
 
   // Return Supabase or local URLs as-is

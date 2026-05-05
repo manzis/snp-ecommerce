@@ -48,7 +48,11 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
         router.push('/checkout');
       }
     } else {
-      openLogin();
+      // Open login modal with a callback that auto-navigates to checkout after login
+      openLogin(() => {
+        if (onCheckout) onCheckout();
+        router.push('/checkout');
+      });
     }
   };
 

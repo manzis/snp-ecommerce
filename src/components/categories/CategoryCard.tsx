@@ -28,6 +28,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, count, image, slug, 
           src={image}
           alt={title}
           fill
+          loading="lazy"
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 300px"
         />

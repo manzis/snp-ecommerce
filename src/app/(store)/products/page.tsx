@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'en_NP',
       images: [
         {
-          url: ogImage || '/images/shoplogo.png',
+          url: ogImage || '/icon.png',
           width: 1200,
           height: 630,
           alt: title,
@@ -45,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage || '/images/shoplogo.png'],
+      images: [ogImage || '/icon.png'],
     },
   };
 }

@@ -10,7 +10,7 @@ export default function OrganizationJsonLd() {
     url: 'https://www.brightsupplements.store',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://www.brightsupplements.store/images/shoplogo.png',
+      url: 'https://www.brightsupplements.store/icon.png',
       width: 200,
       height: 60,
     },

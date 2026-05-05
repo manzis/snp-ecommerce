@@ -24,7 +24,7 @@ export default async function CategoriesPage() {
     if (s.includes('creatine')) return '/images/creatine.png';
     if (s.includes('vitamin')) return '/images/vitamin.png';
     if (s.includes('essential')) return '/images/essentials.png';
-    return '/images/shoplogo.png';
+    return '/icon.png';
   };
 
   return (

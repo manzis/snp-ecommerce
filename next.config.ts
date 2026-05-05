@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     dangerouslyAllowSVG: true,
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: 'https',

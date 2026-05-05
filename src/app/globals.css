@@ -135,4 +135,30 @@ html, body {
   .group:hover .group-hover\:animate-shine-once {
     animation: shine-once 0.6s ease-in-out;
   }
+
+  /* === PERFORMANCE OPTIMIZATIONS === */
+
+  /* Touch scrolling momentum — smooth inertial scrolling on iOS/mobile */
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* GPU-accelerated scroll containers */
+  .scroll-gpu {
+    -webkit-overflow-scrolling: touch;
+    will-change: scroll-position;
+    transform: translateZ(0);
+  }
+
+  /* Content-visibility: auto — tells browser to skip rendering off-screen sections */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 400px;
+  }
+
+  /* Lightweight image containers — prevent layout shift + enable GPU compositing */
+  .img-container {
+    contain: layout style paint;
+    will-change: auto;
+  }
 }

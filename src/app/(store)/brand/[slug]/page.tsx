@@ -17,16 +17,39 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const [brand, gSeo] = await Promise.all([
+  const [brand, gSeo, products] = await Promise.all([
     fetchBrandBySlug(slug),
     getSeoGlobal(),
+    fetchProducts({ brandSlug: slug }),
   ]);
 
   if (!brand) return { title: 'Brand Not Found | SNP Store' };
 
   const fallback = generateBrandFallbackSeo(brand);
   const canonical = `https://brightsupplements.store/brand/${slug}`;
-  const ogImage = brand.cover_image || gSeo?.default_og_image || '/images/shoplogo.png';
+  const brandCover = brand.cover_image || gSeo?.default_og_image || '/icon.png';
+
+  // Build a rich image array: brand cover first, then up to 8 product images
+  // Google uses multiple og:image tags to display visual grids in search results
+  const productImages = products
+    .filter((p: any) => p.images?.[0])
+    .slice(0, 8)
+    .map((p: any) => ({
+      url: p.images[0],
+      width: 1000,
+      height: 1000,
+      alt: `${p.title || p.name} — ${brand.name}`,
+    }));
+
+  const ogImages = [
+    {
+      url: brandCover,
+      width: 1200,
+      height: 630,
+      alt: fallback.title,
+    },
+    ...productImages,
+  ];
 
   return {
     title: fallback.title,
@@ -44,20 +67,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       siteName: 'Supplyment Nepal',
       locale: 'en_NP',
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: fallback.title,
-        }
-      ],
+      images: ogImages,
     },
     twitter: {
       card: 'summary_large_image',
       title: fallback.title,
       description: fallback.description,
-      images: [ogImage],
+      images: [brandCover, ...productImages.slice(0, 3).map(i => i.url)],
     },
   };
 }

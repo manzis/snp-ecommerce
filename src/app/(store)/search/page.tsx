@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     siteName: 'Supplyment Nepal',
     images: [
       {
-        url: '/images/shoplogo.png',
+        url: '/icon.png',
         width: 1200,
         height: 630,
         alt: 'Supplyment Nepal — Search Supplements',

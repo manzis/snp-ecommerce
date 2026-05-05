@@ -28,6 +28,7 @@ const HomeCategories: React.FC = () => {
                                 src={cat.img}
                                 alt={cat.name}
                                 fill
+                                loading="lazy"
                                 className="object-contain p-[12px]"
                                 sizes="(max-width: 768px) 75px, (max-width: 1024px) 100px, 120px"
                             />

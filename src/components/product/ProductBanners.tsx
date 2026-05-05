@@ -134,6 +134,7 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
                     className="object-cover object-center transition-transform duration-[2000ms]"
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1920px"
                     priority={currentIndex === 0}
+                    loading={currentIndex === 0 ? undefined : "lazy"}
                 />
                 
                 {/* Visual Depth Overlay */}

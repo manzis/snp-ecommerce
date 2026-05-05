@@ -9,9 +9,9 @@ export default function Template({ children }: { children: React.ReactNode }) {
     <motion.main
       // Ensure this key is purely the pathname
       key={pathname}
-      initial={{ opacity: 0, scale: 0.98, y: 8 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
       style={{ transformOrigin: 'top center' }}
       className="flex-grow flex flex-col w-full relative flex-1"
     >

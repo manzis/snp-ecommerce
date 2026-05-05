@@ -51,6 +51,7 @@ const FeatureBanners: React.FC = () => {
                             src={banner.image}
                             alt="Promo Banner"
                             fill
+                            loading="lazy"
                             className="object-cover transition-transform duration-500 hover:scale-105"
                             sizes="(max-width: 1024px) 293px, 700px"
                         />

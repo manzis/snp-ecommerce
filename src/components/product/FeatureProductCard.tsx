@@ -47,6 +47,7 @@ export default function FeaturedProductCard({
                         src={optimizeImage(imageUrl, 300)}
                         alt={title}
                         fill
+                        loading="lazy"
                         sizes="(max-width: 768px) 159px, 169px"
                         className={`p-[12px] object-contain object-center transition-transform duration-[300ms] ease-in-out group-hover:scale-110 ${stockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
                     />

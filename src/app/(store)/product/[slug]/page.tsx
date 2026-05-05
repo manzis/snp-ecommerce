@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const title = dbOverride?.custom_title || fallback.title;
   const description = dbOverride?.custom_description || fallback.description;
   const canonical = `https://brightsupplements.store/product/${dbOverride?.custom_slug || product.slug}`;
-  const ogImage = product.images?.[0] || gSeo?.default_og_image || '/images/shoplogo.png';
+  const ogImage = product.images?.[0] || gSeo?.default_og_image || '/icon.png';
   const ogTitle = title;
   const ogDescription = description;
 

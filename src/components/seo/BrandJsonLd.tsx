@@ -44,7 +44,7 @@ export default function BrandJsonLd({
     '@type': 'Brand',
     name: brandName,
     url: brandUrl,
-    logo: brandLogo ? brandLogo : `${SITE_URL}/images/shoplogo.png`,
+    logo: brandLogo ? brandLogo : `${SITE_URL}/icon.png`,
     description:
       brandDescription ||
       `Buy authentic ${brandName} supplements in Nepal at ${STORE_NAME}. 100% genuine products, best prices, fast delivery.`,

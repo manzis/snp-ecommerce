@@ -24,6 +24,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ title, icon, bgColor = "bg-wh
                 src={`/images/icons/${icon}`}
                 alt={title}
                 fill
+                loading="lazy"
                 sizes="(max-width: 1024px) 24px, 60px"
                 className="object-contain"
             />

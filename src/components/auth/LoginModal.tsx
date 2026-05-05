@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthModal } from '@/context/AuthModalContext';
 import { useToast } from '@/components/ui/ToastProvider'; // Assuming useToast exists per your project structure
 import { createClient } from '@/lib/supabase/client';
@@ -17,9 +17,10 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
-    const { isOpen, closeLogin } = useAuthModal();
+    const { isOpen, closeLogin, triggerLoginSuccess } = useAuthModal();
     const { showToast } = useToast();
     const router = useRouter();
+    const pathname = usePathname();
 
     // State Management initialized with persistence check
     const [identifier, setIdentifier] = useState(() => {
@@ -171,7 +172,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             
             showToast("Logged in successfully!", "success");
             closeLogin();
-            router.push('/account');
+            // Stay on the current page — just refresh to pick up the new auth state
+            router.refresh();
+            // Fire the onSuccess callback (e.g., auto-navigate to checkout from cart)
+            triggerLoginSuccess();
         } catch (err: any) {
             console.error("OTP Verify Failed:", err?.message || err);
             showToast(err?.message || "Invalid OTP", "error");
@@ -187,7 +191,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             // Get base URL for redirects (production or development)
             const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
                            (typeof window !== 'undefined' ? window.location.origin : '');
-            const redirectUrl = `${siteUrl.replace(/\/$/, '')}/auth/callback`;
+            // Pass current path as 'next' so auth callback returns user here, not /account
+            const nextPath = encodeURIComponent(pathname || '/');
+            const redirectUrl = `${siteUrl.replace(/\/$/, '')}/auth/callback?next=${nextPath}`;
 
             const { error: googleError } = await supabase.auth.signInWithOAuth({
                 provider: 'google',

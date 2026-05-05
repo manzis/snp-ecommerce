@@ -222,9 +222,9 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
 
               return (
                 <motion.div layout key={group.id} className="flex flex-col w-full mb-[12px]">
-                  <motion.div 
+                  <motion.div
                     layout
-                    className={`relative flex items-center justify-between w-full h-[36px] ${group.isCompleted ? 'bg-[#ECF7E8]' : 'bg-[#f8fafc]'} rounded-[10px] px-[12px] cursor-pointer hover:bg-gray-100 transition-colors z-20`} 
+                    className={`relative flex items-center justify-between w-full h-[36px] ${group.isCompleted ? 'bg-[#ECF7E8]' : 'bg-[#f8fafc]'} rounded-[10px] px-[12px] cursor-pointer hover:bg-gray-100 transition-colors z-20`}
                     onClick={() => toggleMilestone(group.id)}
                   >
                     <TimelineSegment isIncomingActive={isIncomingActive} isOutgoingActive={isOutgoingActive} isFirst={groupIndex === 0} isLast={isLastRenderedGroupNode} progressColor={progress.color} />
@@ -236,12 +236,12 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
                   </motion.div>
                   <AnimatePresence>
                     {isExpanded && (
-                      <motion.div 
+                      <motion.div
                         layout
-                        initial={{ height: 0, opacity: 0 }} 
-                        animate={{ height: 'auto', opacity: 1 }} 
-                        exit={{ height: 0, opacity: 0 }} 
-                        transition={{ duration: 0.35, ease: [0.33, 1, 0.68, 1] }} 
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.35, ease: [0.33, 1, 0.68, 1] }}
                         className="overflow-hidden ml-[-60px] pl-[60px]"
                       >
                         <div className="flex flex-col gap-[6px] mt-[8px]">
@@ -381,12 +381,12 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
       {/* Shipping Address */}
       <DetailCard title="Shipping Address">
         {addressDetails ? (
-           <div className="flex flex-col gap-[2px] font-titillium text-[14px]">
-              <p className="font-[600] text-[#242424]">{fullName}</p>
-              <p className="font-[400] text-[#626262]">{streetAddress}</p>
-              {email && <p className="font-[400] text-[#626262]">{email}</p>}
-              {phone && <p className="font-[600] text-[#242424] mt-[2px]">Ph: {phone}</p>}
-           </div>
+          <div className="flex flex-col gap-[2px] font-titillium text-[14px]">
+            <p className="font-[600] text-[#242424]">{fullName}</p>
+            <p className="font-[400] text-[#626262]">{streetAddress}</p>
+            {email && <p className="font-[400] text-[#626262]">{email}</p>}
+            {phone && <p className="font-[600] text-[#242424] mt-[2px]">Ph: {phone}</p>}
+          </div>
         ) : (
           <p className="font-titillium text-[14px] text-[#8a8e91]">Address not available</p>
         )}
@@ -411,7 +411,7 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
       <DetailCard title="Sender Details">
         <div className="flex flex-col gap-[2px]">
           <p className="font-titillium text-[14px] font-[600] text-[#242424]">Bright Nepcare Pvt. Ltd.</p>
-          <p className="font-titillium text-[13px] text-[#626262]">Bright Supplements</p>
+          <p className="font-titillium text-[13px] text-[#626262]">Supplyment Nepal</p>
           <p className="font-titillium text-[13px] text-[#626262]">Kathmandu, Nepal</p>
           <p className="font-titillium text-[13px] text-[#626262]">support@supplymentnepal.com</p>
         </div>
@@ -463,24 +463,24 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
         </div>
         <section className="relative z-10 flex-1 flex flex-col justify-between p-[24px] lg:p-[48px] lg:gap-[32px]">
           <div className="flex items-center justify-between lg:justify-start gap-[10px]">
-             <div className="flex items-center gap-[10px]">
-               <div className="relative w-[60px] h-[60px] shrink-0 rounded-[12px] p-[2px] bg-[linear-gradient(to_right,#3F9733,#EAFFCD)]">
-                 <div className="relative w-full h-full rounded-[10px] overflow-hidden bg-[#3f9633]">
-                   <Image src="/images/logo.png" alt="Supplement Nepal Logo" fill className="object-cover" />
-                 </div>
-               </div>
-               <div className="flex flex-col text-left">
-                 <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Bright Supplements</span>
-                 <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
-               </div>
-             </div>
-             <button onClick={() => window.location.href = '/'} className="lg:hidden flex w-[44px] h-[44px] items-center justify-center bg-[#edffe7] rounded-[12px]">
-               <CloseIcon className="w-[24px] h-[24px] text-[#3f9633]" />
-             </button>
+            <div className="flex items-center gap-[10px]">
+              <div className="relative w-[60px] h-[60px] shrink-0 rounded-[12px] p-[2px] bg-[linear-gradient(to_right,#3F9733,#EAFFCD)]">
+                <div className="relative w-full h-full rounded-[10px] overflow-hidden bg-[#3f9633]">
+                  <Image src="/images/logo.png" alt="Supplement Nepal Logo" fill className="object-cover" />
+                </div>
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
+                <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
+              </div>
+            </div>
+            <button onClick={() => window.location.href = '/'} className="lg:hidden flex w-[44px] h-[44px] items-center justify-center bg-[#edffe7] rounded-[12px]">
+              <CloseIcon className="w-[24px] h-[24px] text-[#3f9633]" />
+            </button>
           </div>
           <div className="hidden lg:flex flex-col gap-[12px] text-left">
-             <h2 className="font-custom text-[32px] text-white leading-tight">Track your order <br />in real time.</h2>
-             <p className="text-[#b1e7aa] text-[16px]">Enter your Order ID and get instant shipment updates.</p>
+            <h2 className="font-custom text-[32px] text-white leading-tight">Track your order <br />in real time.</h2>
+            <p className="text-[#b1e7aa] text-[16px]">Enter your Order ID and get instant shipment updates.</p>
           </div>
         </section>
 
@@ -575,7 +575,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
             <div className="flex flex-col gap-[2px]">
               <span className="font-titillium font-bold text-[13px] text-[#A16207] uppercase tracking-[0.5px]">Important Security Notice</span>
               <span className="font-titillium text-[13px] text-[#626262]">
-                Bright Supplements will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
+                Supplyment Nepal will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
               </span>
             </div>
           </div>

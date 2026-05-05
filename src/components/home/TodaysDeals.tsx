@@ -121,6 +121,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
                     src={optimizeImage(deal.image, 400)} 
                     alt={deal.title} 
                     fill 
+                    loading="lazy"
                     className="object-contain p-[8px]" 
                     sizes="(max-width: 768px) 150px, 300px"
                 />

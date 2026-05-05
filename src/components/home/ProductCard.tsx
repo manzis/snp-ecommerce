@@ -59,6 +59,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     src={optimizeImage(image, 400)}
                     alt={title}
                     fill
+                    loading="lazy"
                     className={`object-contain p-[8px] transition-transform duration-300 group-hover:scale-105 ${finalStockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
                     sizes="(max-width: 768px) 200px, 250px"
                 />
