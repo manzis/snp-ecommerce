@@ -1,19 +1,20 @@
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { Metadata } from 'next';
-import FloatingNav from '@/components/layout/FloatingNav';
 import HomeHero from '@/components/home/HomeHero';
 import HomeCategories from '@/components/home/HomeCategory';
 import TodaysDeals from '@/components/home/TodaysDeals';
-import ProductGridSection from '@/components/home/ProductGridSection';
-import SubscribeSection from '@/components/home/SubscribeSection';
-import TestimonialSection from '@/components/home/TestinomialSection';
-import FeatureBanners from '@/components/home/FeatureBanners';
-import ServicesMarquee from '@/components/home/ServicesMarquee';
-import Brands from '@/components/home/Brands';
-import ProductBanners from '@/components/product/ProductBanners';
-import HomeFeaturedProducts from '@/components/home/HomeFeaturedProducts';
-import HomeFaqSection from '@/components/home/HomeFaqSection';
-import LazySection from '@/components/optimization/LazySection';
+
+// Dynamic imports for below-the-fold / heavy sections
+const ProductGridSection = dynamic(() => import('@/components/home/ProductGridSection'));
+const Brands = dynamic(() => import('@/components/home/Brands'));
+const FeatureBanners = dynamic(() => import('@/components/home/FeatureBanners'));
+const TestimonialSection = dynamic(() => import('@/components/home/TestinomialSection'));
+const ServicesMarquee = dynamic(() => import('@/components/home/ServicesMarquee'));
+const SubscribeSection = dynamic(() => import('@/components/home/SubscribeSection'));
+const HomeFaqSection = dynamic(() => import('@/components/home/HomeFaqSection'));
+const ProductBanners = dynamic(() => import('@/components/product/ProductBanners'));
+const LazySection = dynamic(() => import('@/components/optimization/LazySection'));
 import { fetchHomepageProducts, fetchBrands, fetchHomeTestimonials } from '@/services/productService.server';
 import { fetchActiveBannersCached } from '@/services/bannerService.cached';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';
@@ -184,12 +185,6 @@ export default async function HomePage() {
           </LazySection>
         )}
 
-        {activeBanners.length === 0 && (
-          <LazySection minHeight="200px" rootMargin="200px" className="w-full">
-            <ServicesMarquee />
-          </LazySection>
-        )}
-
         <LazySection minHeight="400px" rootMargin="200px" className="w-full">
           <TestimonialSection testimonials={
             homeTestimonials.map((t, idx) => {
@@ -233,10 +228,10 @@ export default async function HomePage() {
         </LazySection>
 
         {/* DYNAMIC BANNERS SECTION - POSITION 2 (Below Subscribe) */}
-        {activeBanners.length > 0 && (
+        {activeBanners.length > 1 && (
           <LazySection minHeight="500px" rootMargin="200px" className="w-full">
             <div className="w-full">
-              <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
+              <ProductBanners linkedBanners={activeBanners.slice(1).map(b => ({ banner: b }))} />
             </div>
           </LazySection>
         )}

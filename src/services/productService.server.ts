@@ -61,11 +61,13 @@ export const fetchProductQA = cache(unstable_cache(
  * Aggressively cached to eliminate DB queries on every homepage visit.
  */
 
-export const fetchHomepageProducts = cache(unstable_cache(
-  async (sectionKey?: string) => baseService.fetchHomepageProducts(sectionKey),
-  ['homepage-products'],
-  { revalidate: 120, tags: ['products', 'homepage'] }
-));
+export const fetchHomepageProducts = cache(async (sectionKey?: string) => {
+  return unstable_cache(
+    async (key?: string) => baseService.fetchHomepageProducts(key),
+    ['homepage-products', sectionKey || 'default'],
+    { revalidate: 120, tags: ['products', 'homepage'] }
+  )(sectionKey);
+});
 
 export const fetchBrands = cache(unstable_cache(
   async (includeCounts: boolean = true) => baseService.fetchBrands(includeCounts),
