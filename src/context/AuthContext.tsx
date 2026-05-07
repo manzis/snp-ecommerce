@@ -28,26 +28,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
-
-      if (session?.user) {
-        console.log("User Logged In");
-      } else {
-        console.log("User Not Logged In");
-      }
     };
 
-    initSession();
+    // Defer auth check so it doesn't compete with initial rendering
+    const scheduleInit = typeof window !== 'undefined' && 'requestIdleCallback' in window
+      ? (cb: () => void) => (window as any).requestIdleCallback(cb, { timeout: 2000 })
+      : (cb: () => void) => setTimeout(cb, 100);
+
+    scheduleInit(initSession);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-
-        if (session?.user) {
-          console.log("User Logged In");
-        } else {
-          console.log("User Not Logged In");
-        }
       }
     );
 

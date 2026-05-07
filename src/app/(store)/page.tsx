@@ -14,8 +14,8 @@ import ProductBanners from '@/components/product/ProductBanners';
 import HomeFeaturedProducts from '@/components/home/HomeFeaturedProducts';
 import HomeFaqSection from '@/components/home/HomeFaqSection';
 import LazySection from '@/components/optimization/LazySection';
-import { fetchProducts, fetchHomepageProducts, fetchBrands, fetchHomeTestimonials } from '@/services/productService';
-import { fetchActiveBannersAction } from '@/app/actions/bannerActions';
+import { fetchHomepageProducts, fetchBrands, fetchHomeTestimonials } from '@/services/productService.server';
+import { fetchActiveBannersCached } from '@/services/bannerService.cached';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';
 import { generateHomeFallbackSeo } from '@/lib/seo/seoFallback';
 
@@ -67,6 +67,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// ISR: Serve from CDN cache, revalidate every 2 minutes
+export const revalidate = 120;
+
 export default async function HomePage() {
   // Fetch dynamic sections from database
   const [
@@ -83,11 +86,11 @@ export default async function HomePage() {
     fetchHomepageProducts('todays_deals'),
     fetchHomepageProducts('new_arrivals'),
     fetchBrands(),
-    fetchActiveBannersAction(),
+    fetchActiveBannersCached(),
     fetchHomeTestimonials()
   ]);
 
-  const activeBanners = activeBannersRes.success ? activeBannersRes.data : [];
+  const activeBanners = activeBannersRes || [];
 
   // Map Todays Deals
   const deals = todaysDealsProducts.map(p => ({

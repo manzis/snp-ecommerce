@@ -1,8 +1,11 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Footer from '@/components/layout/footer';
-import HomeBottomNav from '@/components/home/HomeBottomNav';
+import dynamic from 'next/dynamic';
+
+// Lazy-load below-fold / non-critical layout elements
+const Footer = dynamic(() => import('@/components/layout/footer'), { ssr: false });
+const HomeBottomNav = dynamic(() => import('@/components/home/HomeBottomNav'), { ssr: false });
 
 const HIDDEN_ROUTES = ['/login', '/signup', '/forgot-password', '/checkout/success', '/pay'];
 

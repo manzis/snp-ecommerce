@@ -2,12 +2,15 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import MenuIcon from '@/components/icons/MenuIcon';
 import HeartIcon from '@/components/icons/SearchIcon';
 import CartIcon from '@/components/icons/CartIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
 import { useCart } from '@/context/CartContext';
-import Sidebar from '@/components/layout/Sidebar';
+
+// Lazy-load Sidebar — it's hidden by default, only shown on menu click
+const Sidebar = dynamic(() => import('@/components/layout/Sidebar'), { ssr: false });
 
 interface FloatingNavProps {
     bannerText?: string;

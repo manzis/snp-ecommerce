@@ -55,3 +55,26 @@ export const fetchProductQA = cache(unstable_cache(
   ['product-qa'],
   { revalidate: 300, tags: ['products'] }
 ));
+
+/**
+ * HOMEPAGE-SPECIFIC CACHED FETCHERS
+ * Aggressively cached to eliminate DB queries on every homepage visit.
+ */
+
+export const fetchHomepageProducts = cache(unstable_cache(
+  async (sectionKey?: string) => baseService.fetchHomepageProducts(sectionKey),
+  ['homepage-products'],
+  { revalidate: 120, tags: ['products', 'homepage'] }
+));
+
+export const fetchBrands = cache(unstable_cache(
+  async (includeCounts: boolean = true) => baseService.fetchBrands(includeCounts),
+  ['brands-list'],
+  { revalidate: 120, tags: ['brands'] }
+));
+
+export const fetchHomeTestimonials = cache(unstable_cache(
+  async () => baseService.fetchHomeTestimonials(),
+  ['home-testimonials'],
+  { revalidate: 120, tags: ['reviews'] }
+));

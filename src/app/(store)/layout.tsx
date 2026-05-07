@@ -5,13 +5,13 @@ import { ToastProvider } from '@/components/ui/ToastProvider';
 import { AuthModalProvider } from '@/context/AuthModalContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
-import LoginModal from '@/components/auth/LoginModal';
 import { titillium, inter, customFont } from "@/lib/fonts";
 import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElements";
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
 import Script from 'next/script';
+import LazyLoginModal from '@/components/auth/LazyLoginModal';
 
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
@@ -84,6 +84,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        {/* Preconnect Supabase — eliminates DNS+TLS latency for client auth check */}
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL!} crossOrigin="anonymous" />
         <Script
           id="viewport-scaler-script"
           strategy="beforeInteractive"
@@ -142,7 +145,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {children}
 
                 <ConditionalLayoutElements />
-                <LoginModal key="global-login-modal" />
+                <LazyLoginModal />
 
               </AuthModalProvider>
             </CartProvider>
