@@ -8,6 +8,7 @@ import TickIcon from '@/components/icons/TickIcon';
 import CaretDownIcon from '@/components/icons/CaretDownIcon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdminToast } from '../ui/AdminToastProvider';
+import { resolveOrderPhone, openWhatsAppForOrder, getWhatsAppButtonLabel } from '@/lib/whatsappTemplates';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -183,14 +184,45 @@ export default function OrderDetailsModal({
         </div>
     );
 
-    const headerActions = (
-        <div className="flex items-center gap-1.5 border-r border-gray-200 pr-2 mr-2">
+    const customerPhone = resolveOrderPhone(order);
+
+    const handleWhatsApp = (overrideStatus?: string) => {
+        if (!customerPhone) {
+            showAdminToast('No phone number available for this order', 'error');
+            return;
+        }
+        const sent = openWhatsAppForOrder(order, overrideStatus);
+        if (sent) {
+            showAdminToast('WhatsApp opened — tap Send to deliver the message', 'success');
+        }
+    };
+
+    const titleActions = (
+        <div className="flex items-center gap-1 ml-2 translate-y-[1px]">
+            {/* WhatsApp Quick Send */}
             <button
-                onClick={() => handleShare('tracking')}
-                className="p-1.5 hover:bg-zinc-100 rounded-md text-[#71717a] hover:text-black transition-colors"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleWhatsApp();
+                }}
+                disabled={!customerPhone}
+                className="p-1 hover:bg-gray-100 rounded-md text-[#52525b] hover:text-[#242424] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                title={customerPhone ? `Send WhatsApp to ${customerPhone}` : 'No phone number'}
+            >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+            </button>
+            {/* Share Tracking Link */}
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare('tracking');
+                }}
+                className="p-1 hover:bg-gray-100 rounded-md text-[#52525b] hover:text-[#242424] transition-colors"
                 title="Share Tracking Link"
             >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             </button>
         </div>
     );
@@ -199,10 +231,14 @@ export default function OrderDetailsModal({
         <AdminSheet
             isOpen={isOpen}
             onClose={onClose}
-            title={`Order Fulfillment`}
+            title={
+                <div className="flex items-center">
+                    <span>Order Fulfillment</span>
+                    {titleActions}
+                </div>
+            }
             description={`#${order.shortId} — Ordered ${getRelativeDate(order.createdAt)}`}
             footerActions={footerActions}
-            headerActions={headerActions}
         >
             <div className="space-y-12">
 
@@ -226,7 +262,7 @@ export default function OrderDetailsModal({
                                 <div className="w-14 h-14 bg-zinc-50 rounded-[6px] border border-gray-100 relative shrink-0 overflow-hidden">
                                     <Image
                                         src={item.products?.images?.[0] || order.image || '/images/product.png'}
-                                        alt={item.products?.name || order.title || 'Product'}
+                                        alt={item.products?.title || item.products?.name || order.title || 'Product'}
                                         fill
                                         sizes="56px"
                                         className="object-contain p-1.5"
@@ -239,7 +275,7 @@ export default function OrderDetailsModal({
                                         {item.products?.brands?.name || order.brand || '—'}
                                     </span>
                                     <h5 className="text-[13px] font-medium text-[#242424] truncate leading-snug mt-0.5">
-                                        {item.products?.name || order.title || 'Product'}
+                                        {item.products?.title || item.products?.name || order.title || 'Product'}
                                     </h5>
                                     {/* Size, Flavor, Qty, Price — all inline below name */}
                                     <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-1.5">
@@ -693,6 +729,21 @@ export default function OrderDetailsModal({
                                 </div>
                             </div>
                         </div>
+
+                        {/* WhatsApp Update Button */}
+                        <button
+                            onClick={() => handleWhatsApp()}
+                            disabled={!customerPhone}
+                            className={`w-full flex items-center justify-center gap-2.5 py-4 text-[12px] font-semibold uppercase  transition-all active:scale-[0.99] ${customerPhone
+                                ? 'bg-zinc-50 hover:bg-zinc-200 text-[#242424]'
+                                : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                                }`}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill={customerPhone ? '#25D366' : '#d1d5db'}>
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                            </svg>
+                            {customerPhone ? getWhatsAppButtonLabel(normalizedStatus) : 'No Phone Number'}
+                        </button>
                     </div>
                 </section>
 

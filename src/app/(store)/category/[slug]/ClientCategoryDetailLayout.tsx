@@ -9,6 +9,7 @@ import Pagination from '@/components/search/Pagination';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import { CATEGORY_THEMES } from '@/lib/CategoryThemes';
 import { Category, Product } from '@/services/productService';
+import { useUIStore } from '@/store/uiStore';
 
 interface ClientCategoryDetailLayoutProps {
   slug: string;
@@ -23,6 +24,7 @@ export default function ClientCategoryDetailLayout({
 }: ClientCategoryDetailLayoutProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isBenefitsExpanded, setIsBenefitsExpanded] = useState(false);
+  const setNavData = useUIStore(state => state.setNavData);
   const [activeFilters, setActiveFilters] = useState<SelectedFilters>({
     categories: [],
     brands: [],
@@ -63,16 +65,23 @@ export default function ClientCategoryDetailLayout({
     setCurrentPage(1);
   }, [activeFilters]);
 
+  // Set navigation data on mount, reset on unmount
+  useEffect(() => {
+    setNavData({
+      navTitle: categoryMetadata?.name || theme.title,
+      navSubtitle: `${filteredProducts.length} Products`,
+      showBack: true,
+      onBack: undefined
+    });
+    return () => setNavData({ navTitle: '', navSubtitle: undefined });
+  }, [categoryMetadata?.name, theme.title, filteredProducts.length, setNavData]);
+
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
     <div className="min-h-screen mx-auto w-full max-w-[1440px] bg-white mt-[80px] pb-[60px]">
-      <DynamicPageNav
-        title={categoryMetadata?.name || theme.title}
-        subtitle={`${filteredProducts.length} Products`}
-      />
 
       <main className="mx-auto w-full max-w-[410px] lg:px-[48px] lg:max-w-[1440px]">
         <section className="px-[24px] py-[24px]" style={{ background: theme.gradient }}>

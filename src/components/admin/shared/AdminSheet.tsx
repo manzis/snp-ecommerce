@@ -8,7 +8,7 @@ import CloseIcon from '@/components/icons/CloseIcon';
 interface AdminSheetProps {
     isOpen: boolean;
     onClose: () => void;
-    title: string;
+    title: React.ReactNode;
     description?: string | React.ReactNode;
     children: React.ReactNode;
     footerActions?: React.ReactNode;
@@ -64,7 +64,7 @@ export default function AdminSheet({
                         {/* Header */}
                         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
                             <div className="space-y-1">
-                                <h3 className="text-[18px] font-medium text-[#242424] tracking-tight">{title}</h3>
+                                <div className="text-[18px] font-medium text-[#242424] tracking-tight">{title}</div>
                                 {description && (
                                     <p className="text-[12px] text-[#71717a] font-regular">{description}</p>
                                 )}
