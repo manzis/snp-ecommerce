@@ -227,7 +227,7 @@ export async function cancelOrderAction(orderId: string, reason: string) {
 /**
  * Server action to fetch all orders for admin dashboard
  */
-export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20) {
+export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20, options?: { search?: string, status?: string }) {
   const supabase = await createClient();
   
   // 1. Verify Admin Role using the session client
@@ -245,14 +245,13 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
   }
 
   // 2. Use the service-role admin client for the actual data fetch
-  // This bypasses RLS on `products` and `brands` tables so the nested join resolves correctly
   const adminClient = getSupabaseAdmin() || supabase;
 
   try {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    const { data, error, count } = await adminClient
+    let query = adminClient
       .from('orders')
       .select(`
         id, total_amount, mrp_amount, status, payment_method, created_at,
@@ -265,7 +264,67 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
           id, quantity, price, mrp, selected_size, selected_flavor,
           products (name, images, brands (name))
         )
-      `, { count: 'estimated' })
+      `, { count: 'estimated' });
+
+    // Apply Status Filter
+    if (options?.status && options.status !== 'all') {
+      query = query.eq('status', options.status.toLowerCase());
+    }
+
+    // Apply Comprehensive Search Filter
+    if (options?.search) {
+      const searchStr = options.search.trim();
+      
+      // 1. Find orders that contain products matching the search string
+      // First, get matching product IDs from the products table
+      const { data: matchingProducts } = await adminClient
+        .from('products')
+        .select('id')
+        .or(`name.ilike.%${searchStr}%,title.ilike.%${searchStr}%`);
+      
+      const productIds = matchingProducts?.map(p => p.id) || [];
+      
+      let orderIdsFromProducts: string[] = [];
+      if (productIds.length > 0) {
+        // Then, get order IDs that contain these products
+        const { data: itemData } = await adminClient
+          .from('order_items')
+          .select('order_id')
+          .in('product_id', productIds);
+        
+        orderIdsFromProducts = itemData?.map(i => i.order_id) || [];
+      }
+      
+      // 2. Build the OR clauses for the main query
+      let orClauses = [
+        `contact_details->>name.ilike.%${searchStr}%`,
+        `contact_details->>phone.ilike.%${searchStr}%`,
+        `shipping_address->>first_name.ilike.%${searchStr}%`,
+        `shipping_address->>last_name.ilike.%${searchStr}%`,
+        `shipping_address->addressDetails->>first_name.ilike.%${searchStr}%`,
+        `shipping_address->addressDetails->>last_name.ilike.%${searchStr}%`,
+        `shipping_address->addressDetails->>phone.ilike.%${searchStr}%`
+      ];
+
+      // If we found orders by product name, include them in the OR filter
+      if (orderIdsFromProducts.length > 0) {
+        const uniqueIds = Array.from(new Set(orderIdsFromProducts)).slice(0, 200); // Cap at 200 to keep URL length safe
+        orClauses.push(`id.in.(${uniqueIds.join(',')})`);
+      }
+      
+      // Search by ID if it's a valid hex string (partial match attempt)
+      if (searchStr.length >= 4 && /^[0-9a-fA-F\-]+$/.test(searchStr)) {
+          // Note: PostgreSQL UUIDs don't support ILIKE directly without cast, 
+          // but we can use 'id.in' for exact UUID matches if the string is 36 chars.
+          if (searchStr.length === 36) {
+              orClauses.push(`id.eq.${searchStr}`);
+          }
+      }
+
+      query = query.or(orClauses.join(','));
+    }
+
+    const { data, error, count } = await query
       .order('created_at', { ascending: false })
       .range(from, to);
 

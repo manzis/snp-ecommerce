@@ -10,6 +10,7 @@ import NotificationIcon from '@/components/icons/NotificationIcon';
 import CategoryIcon from '@/components/icons/CategoryIcon';
 import BrandIcon from '@/components/icons/BrandIcon';
 import SettingsIcon from '@/components/icons/SettingsIcon';
+import DownloadIcon from '@/components/icons/DropDownIcon';
 import Breadcrumb from './AdminBreadcrumb';
 import Link from 'next/link';
 
@@ -40,6 +41,11 @@ const MOBILE_ACTIONS: Record<string, { label: string; icon: any; href?: string; 
     '/admin/qa': [
         { label: 'Add QA', icon: PlusIcon, triggerModal: true },
         { label: 'QA Settings', icon: SettingsIcon, href: '/admin/settings/qa' },
+        { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
+    ],
+    '/admin/finance': [
+        { label: 'Export Report', icon: DownloadIcon, href: '/admin/export/finance' },
+        { label: 'Audit Log', icon: SettingsIcon, href: '/admin/finance/audit' },
         { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
     ],
     '/admin/categories': [
@@ -98,6 +104,7 @@ const PRIMARY_ACTIONS: Record<string, { label: string; href?: string; type: 'lin
     '/admin/products': { label: 'Add Product', href: '/admin/products/add', type: 'link' },
     '/admin/orders': { label: 'Create Order', href: '/admin/orders/create', type: 'link' },
     '/admin/customers': { label: 'Create Customer', href: '/admin/customers/add', type: 'link' },
+    '/admin/finance': { label: 'Export Report', href: '/admin/export/finance', type: 'link' },
     '/admin/reviews': { label: 'Create Review', type: 'modal' },
     '/admin/qa': { label: 'Create QA', type: 'modal' },
     '/admin/categories': { label: 'Create Category', type: 'modal' },
@@ -135,7 +142,7 @@ const DynamicAdminNav = ({ children, onPrimaryAction, overrideTitle }: DynamicAd
                 {/* Desktop Primary Actions */}
                 {primaryAction && (
                     primaryAction.type === 'link' ? (
-                        <Link 
+                        <Link
                             href={primaryAction.href!}
                             className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
                         >
@@ -143,7 +150,7 @@ const DynamicAdminNav = ({ children, onPrimaryAction, overrideTitle }: DynamicAd
                             {primaryAction.label}
                         </Link>
                     ) : (
-                        <button 
+                        <button
                             onClick={() => onPrimaryAction?.()}
                             className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
                         >

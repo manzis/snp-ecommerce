@@ -27,7 +27,8 @@ export default function ProductTableView({
     onDuplicate,
     onUpdatePrice
 }: ProductTableViewProps) {
-    const isAllSelected = products.length > 0 && selectedIds.length === products.length;
+    const safeProducts = products || [];
+    const isAllSelected = safeProducts.length > 0 && selectedIds.length === safeProducts.length;
 
     return (
         <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
@@ -53,7 +54,7 @@ export default function ProductTableView({
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                     <AnimatePresence mode="popLayout">
-                        {products.map((product) => (
+                        {safeProducts.map((product) => (
                             <motion.tr
                                 key={product.id}
                                 layout

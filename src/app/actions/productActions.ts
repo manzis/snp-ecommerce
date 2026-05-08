@@ -870,3 +870,62 @@ export async function fetchAllProductsAction() {
     return { success: false, message: error.message || 'Failed to fetch products.' };
   }
 }
+
+/**
+ * Server action to fetch paginated products for admin dashboard
+ */
+export async function fetchProductsPaginatedAction(page: number, pageSize: number, options?: { search?: string }) {
+  const supabase = await createClient();
+  
+  // 1. Verify Admin Role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, products: [], totalCount: 0 };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') return { success: false, products: [], totalCount: 0 };
+
+  try {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    let query = supabase
+      .from('products')
+      .select(`
+        id, slug, name, title, images,
+        original_price, discounted_price, discount_percentage,
+        stock_count, stock_status, is_published, is_draft,
+        rating, reviews_count, created_at,
+        brands (id, name, slug),
+        product_sizes (id, size_label),
+        product_flavours (id, flavour_name),
+        product_variants (id, original_price, discounted_price, stock_count, is_available)
+      `, { count: 'estimated' });
+
+    if (options?.search) {
+      query = query.or(`name.ilike.%${options.search}%,title.ilike.%${options.search}%`);
+    }
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(from, to);
+      
+    if (error) throw error;
+    
+    return { 
+      success: true,
+      products: (data as any[]).map(p => ({
+        ...p,
+        brands: Array.isArray(p.brands) ? p.brands[0] || null : p.brands,
+      })), 
+      totalCount: count || 0 
+    };
+  } catch (error: any) {
+    console.error('Action Error: fetchProductsPaginatedAction:', error);
+    return { success: false, products: [], totalCount: 0, message: error.message || 'Failed to fetch products' };
+  }
+}

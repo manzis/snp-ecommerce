@@ -5,14 +5,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 import FilterIcon from '@/components/icons/FilterIcon';
 import ChevronDownIcon from '@/components/icons/ArrowDown';
 
-export default function CustomerFilters() {
+interface CustomerFiltersProps {
+    status: string;
+    onStatusChange: (status: any) => void;
+    onSortChange?: (sort: string) => void;
+}
+
+export default function CustomerFilters({ status, onStatusChange, onSortChange }: CustomerFiltersProps) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+    const statuses = [
+        { label: 'All Customers', value: 'all' },
+        { label: 'VIP Members', value: 'vip' },
+        { label: 'Active Shoppers', value: 'active' },
+        { label: 'Recently Joined', value: 'new' }
+    ];
 
     return (
         <div className="relative">
             <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center gap-2 px-[8px] py-[8px] rounded-[10px] border transition-all duration-200 font-medium text-[14px] ${isFilterOpen ? 'border-[#242424] bg-white text-[#242424]' : 'border-gray-200 text-[#71717a] hover:border-[#242424] hover:text-[#242424]'}`}
+                className={`flex items-center gap-2 px-[12px] py-[8px] rounded-[10px] border transition-all duration-200 font-medium text-[14px] ${isFilterOpen ? 'border-[#242424] bg-white text-[#242424]' : 'border-gray-200 text-[#71717a] hover:border-[#242424] hover:text-[#242424]'}`}
             >
                 <FilterIcon className="w-4 h-4" />
                 <span>Filter</span>
@@ -28,27 +41,43 @@ export default function CustomerFilters() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                             transition={{ duration: 0.15, ease: "easeOut" }}
-                            className="absolute right-0 top-[calc(100%+8px)] w-64 bg-white border border-gray-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_1px_0_rgba(0,0,0,0.1)] z-[60] p-4 flex flex-col gap-4"
+                            className="absolute right-0 top-[calc(100%+8px)] w-64 bg-white border border-gray-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_1px_0_rgba(0,0,0,0.1)] z-[60] p-4 flex flex-col gap-4 font-rubik"
                         >
                             <div>
-                                <h3 className="text-[12px] font-semibold text-[#a1a1aa] uppercase tracking-wider mb-2">Customer Segment</h3>
+                                <h3 className="text-[11px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em] mb-3 px-1">Sort Patterns</h3>
                                 <div className="flex flex-col gap-1">
-                                    {['All Customers', 'New Customers', 'Returning Customers', 'VIP Customers', 'Wholesale'].map((segment) => (
-                                        <button key={segment} className="text-left text-[14px] py-1.5 px-2 rounded-lg hover:bg-zinc-100 transition-colors text-[#242424]">
-                                            {segment}
+                                    {['Highest LTV', 'Most Frequent', 'Recently Active', 'Alphabetical'].map((s) => (
+                                        <button 
+                                            key={s} 
+                                            onClick={() => onSortChange?.(s)}
+                                            className="text-left text-[13px] py-2 px-3 rounded-lg hover:bg-zinc-50 transition-colors text-[#242424] font-medium"
+                                        >
+                                            {s}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="h-px bg-gray-100" />
+                            <div className="h-px bg-gray-100 mx-1" />
 
                             <div>
-                                <h3 className="text-[12px] font-semibold text-[#a1a1aa] uppercase tracking-wider mb-2">Registration</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {['Anytime', 'Today', 'This Week', 'This Month'].map((time) => (
-                                        <button key={time} className={`px-3 py-1 rounded-full text-[12px] font-medium transition-all ${time === 'Anytime' ? 'bg-[#242424] text-white' : 'bg-gray-50 text-[#71717a] hover:bg-zinc-100'}`}>
-                                            {time}
+                                <h3 className="text-[11px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em] mb-3 px-1">Customer Tier</h3>
+                                <div className="flex flex-col gap-1">
+                                    {statuses.map((s) => (
+                                        <button 
+                                            key={s.value} 
+                                            onClick={() => {
+                                                onStatusChange(s.value);
+                                                setIsFilterOpen(false);
+                                            }}
+                                            className={`text-left text-[13px] py-2 px-3 rounded-lg transition-all flex items-center justify-between ${
+                                                status === s.value 
+                                                ? 'bg-[#242424] text-white' 
+                                                : 'hover:bg-zinc-50 text-[#71717a] hover:text-[#242424] font-medium'
+                                            }`}
+                                        >
+                                            <span>{s.label}</span>
+                                            {status === s.value && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />}
                                         </button>
                                     ))}
                                 </div>
@@ -57,11 +86,17 @@ export default function CustomerFilters() {
                             <div className="flex items-center gap-2 mt-2">
                                 <button
                                     onClick={() => setIsFilterOpen(false)}
-                                    className="flex-1 bg-[#242424] text-white text-[14px] font-medium py-2 rounded-xl active:scale-[0.98] transition-all"
+                                    className="flex-1 bg-[#242424] text-white text-[13px] font-bold py-2.5 rounded-xl active:scale-[0.98] transition-all shadow-sm"
                                 >
                                     Apply Filters
                                 </button>
-                                <button className="px-3 py-2 text-[14px] font-medium text-[#71717a] hover:bg-zinc-100 hover:text-[#242424] rounded-lg transition-colors">
+                                <button 
+                                    onClick={() => {
+                                        onStatusChange('all');
+                                        setIsFilterOpen(false);
+                                    }}
+                                    className="px-4 py-2.5 text-[13px] font-bold text-[#71717a] hover:bg-zinc-50 hover:text-[#242424] rounded-xl transition-colors"
+                                >
                                     Reset
                                 </button>
                             </div>

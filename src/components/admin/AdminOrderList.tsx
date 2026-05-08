@@ -46,7 +46,7 @@ export function AdminOrderList({
   onUpdatePaymentStatus,
   onDeleteOrder
 }: AdminOrderListProps) {
-  const [orders, setOrders] = useState<OrderProps[]>(initialOrders);
+  const [orders, setOrders] = useState<OrderProps[]>(initialOrders || []);
   const [updating, setUpdating] = useState<string | null>(null);
 
   // Sync when parent refreshes data (e.g. pagination)
@@ -214,10 +214,10 @@ export function AdminOrderList({
                       <div className="flex items-center gap-2">
                         <span className="text-[14px] font-bold text-[#242424] tracking-tight">#{order.shortId}</span>
                         {isNew && (
-                          <span className="h-[14px] px-1 bg-[#242424] text-white text-[8px] font-black rounded flex items-center justify-center tracking-tighter">NEW</span>
+                          <span className="h-[14px] px-1 bg-[#242424] text-white text-[8px] font-bold rounded flex items-center justify-center tracking-tighter">NEW</span>
                         )}
                         {isPaymentAttempted && (
-                          <span className="h-[14px] px-1.5 bg-[#74a134] text-white text-[8px] font-black rounded flex items-center justify-center tracking-tighter shadow-sm animate-pulse">ATTEMPTED</span>
+                          <span className="h-[14px] px-1.5 bg-[#74a134] text-white text-[8px] font-bold rounded flex items-center justify-center tracking-tighter shadow-sm animate-pulse">ATTEMPTED</span>
                         )}
                       </div>
                       <span className="text-[12px] text-[#a1a1aa] font-medium">
@@ -289,7 +289,7 @@ export function AdminOrderList({
                     {order.paymentStatus === 'paid' && (
                       <div className="mt-1 flex items-center gap-1 ml-1 text-green-600">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
-                        <span className="text-[9px] font-black uppercase">PAID</span>
+                        <span className="text-[9px] font-bold uppercase">PAID</span>
                       </div>
                     )}
                   </td>
