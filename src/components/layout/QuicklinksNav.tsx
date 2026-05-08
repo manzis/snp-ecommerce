@@ -12,10 +12,10 @@ export default function QuickLinksNav() {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const navSections =[
+  const navSections = [
     {
       label: 'Quick Links',
-      items:[
+      items: [
         { text: 'Products', href: '/products', type: 'link' },
         { text: 'Brands', href: '/brand', type: 'link' },
         { text: 'Categories', href: '/category', type: 'link' },
@@ -24,7 +24,7 @@ export default function QuickLinksNav() {
     },
     {
       label: 'Partner with us',
-      items:[
+      items: [
         { text: 'Contact us', href: '/contact', type: 'link' },
         { text: 'Mail us', href: 'mailto:partner@yourstore.com', type: 'link' },
         { text: 'Become a Seller', href: '/distributor', type: 'button' },
@@ -32,7 +32,7 @@ export default function QuickLinksNav() {
     },
     {
       label: 'Policies',
-      items:[
+      items: [
         { text: 'Terms and condition', href: '/terms', type: 'link' },
         { text: 'Shipping policy', href: '/shipping', type: 'link' },
         { text: 'Return policy', href: '/return', type: 'link' },
@@ -41,9 +41,9 @@ export default function QuickLinksNav() {
     },
     {
       label: 'Contact us',
-      items:[
+      items: [
         { text: 'Kathmandu, Nepal', href: '#', type: 'text' },
-        { text: '+977 9800000000', href: 'tel:+9779800000000', type: 'link' },
+        { text: '+977 9767609390', href: 'tel:+977 9767609390', type: 'link' },
         { text: 'Contact Us', href: '/contact', type: 'button' },
       ]
     }
@@ -57,7 +57,7 @@ export default function QuickLinksNav() {
         return (
           <div key={section.label} className="w-full  pb-[8px] md:border-none md:pb-0">
             {/* 1. The Trigger Button */}
-            <button 
+            <button
               onClick={() => toggleDropdown(index)}
               className="flex justify-between items-center w-full self-stretch shrink-0 group focus:outline-none"
               aria-expanded={isOpen}
@@ -65,28 +65,26 @@ export default function QuickLinksNav() {
               <span className="font-custom text-[20px] font-normal leading-[32px] text-white transition-colors hover:text-gray-300">
                 {section.label}
               </span>
-              <ArrowDown 
-                className={`w-[20px] h-[20px] text-white opacity-80 transition-transform duration-300 ease-in-out ${
-                  isOpen ? 'rotate-180' : 'rotate-0'
-                }`} 
+              <ArrowDown
+                className={`w-[20px] h-[20px] text-white opacity-80 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : 'rotate-0'
+                  }`}
               />
             </button>
 
             {/* 2. The Smooth Animated Dropdown Container */}
-            <div 
-              className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
-                isOpen ? 'grid-rows-[1fr] opacity-100 mt-[8px]' : 'grid-rows-[0fr] opacity-0'
-              }`}
+            <div
+              className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-[8px]' : 'grid-rows-[0fr] opacity-0'
+                }`}
             >
               <div className="overflow-hidden flex flex-col gap-[10px] pl-[4px]">
                 {/* 3. Dropdown Content Mapping */}
                 {section.items.map((item, itemIndex) => {
-                  
+
                   // Render as a highlighted Button
                   if (item.type === 'button') {
                     return (
-                      <Link 
-                        key={itemIndex} 
+                      <Link
+                        key={itemIndex}
                         href={item.href}
                         className="inline-flex mt-[4px] px-[16px] py-[8px] justify-center items-center bg-white text-black text-[16px] font-medium rounded-[4px] hover:bg-gray-200 transition-colors self-start"
                       >
@@ -106,8 +104,8 @@ export default function QuickLinksNav() {
 
                   // Render as a normal Link
                   return (
-                    <Link 
-                      key={itemIndex} 
+                    <Link
+                      key={itemIndex}
                       href={item.href}
                       className="text-[16px] text-white/70 leading-[20px] hover:text-white transition-colors"
                     >

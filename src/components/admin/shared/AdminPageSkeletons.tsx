@@ -4,7 +4,7 @@ import Skeleton from '@/components/ui/Skeleton';
 /**
  * Skeleton for the Admin Orders Table
  */
-export const OrderTableSkeleton = ({ rows = 8 }: { rows?: number }) => {
+export const OrderTableSkeleton = ({ rows = 8, cols = 7 }: { rows?: number; cols?: number }) => {
     return (
         <div className="w-full bg-white rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-500">
             <div className="flex bg-[#fafafa] px-6 py-4 border-b border-gray-100 gap-4">
@@ -168,7 +168,7 @@ export const ProductGridSkeleton = ({ count = 8 }: { count?: number }) => {
 /**
  * Skeleton for Admin Products Table
  */
-export const ProductTableSkeleton = ({ rows = 8 }: { rows?: number }) => {
+export const ProductTableSkeleton = ({ rows = 8, cols = 6 }: { rows?: number; cols?: number }) => {
     return (
         <div className="w-full bg-white rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-500">
             <div className="flex bg-[#fafafa] px-6 py-4 border-b border-gray-100 gap-4">
@@ -223,7 +223,26 @@ export const ProductTableSkeleton = ({ rows = 8 }: { rows?: number }) => {
 /**
  * Generic Table Skeleton (Backward compatibility)
  */
-export const TableSkeleton = OrderTableSkeleton;
+export const TableSkeleton = ({ rows = 8, cols = 5 }: { rows?: number; cols?: number }) => {
+    return (
+        <div className="w-full bg-white rounded-xl border border-gray-100 overflow-hidden animate-in fade-in duration-500">
+            <div className="flex bg-[#fafafa] px-6 py-4 border-b border-gray-100 gap-4">
+                <div className="w-[40px] flex justify-center"><Skeleton variant="rectangular" width={18} height={18} className="rounded" /></div>
+                {Array.from({ length: cols }).map((_, i) => (
+                    <div key={i} className="flex-1"><Skeleton variant="text" width="60%" height={14} /></div>
+                ))}
+            </div>
+            {Array.from({ length: rows }).map((_, rowIndex) => (
+                <div key={rowIndex} className="flex px-6 py-5 border-b border-gray-50 gap-4 items-center">
+                    <div className="w-[40px] flex justify-center"><Skeleton variant="rectangular" width={18} height={18} className="rounded" /></div>
+                    {Array.from({ length: cols }).map((_, i) => (
+                        <div key={i} className="flex-1"><Skeleton variant="text" width="80%" height={14} /></div>
+                    ))}
+                </div>
+            ))}
+        </div>
+    );
+};
 
 /**
  * Generic Card Grid Skeleton (Backward compatibility)
