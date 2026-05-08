@@ -1,12 +1,15 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath } from 'next/cache';
 
 export interface FinanceDashboardData {
     stats: {
         totalGrossRevenue: number;
+        totalDeliveredRevenue: number;
         totalNetRevenue: number;
+        totalDeliveredPendingRevenue: number;
         totalPendingRevenue: number;
         totalDeliveryCharges: number;
         totalCouponDiscount: number;
@@ -51,25 +54,38 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
         return { success: false, message: 'Forbidden. Admin access required.' };
     }
 
+    // 2. Use the service-role admin client for the actual data fetch
+    const adminClient = getSupabaseAdmin() || supabase;
+
     try {
         // Build Date Range Filter
-        let query = supabase.from('orders').select('*');
+        let query = adminClient.from('orders').select('*');
         
         if (startDate) query = query.gte('created_at', startDate);
-        if (endDate) query = query.lte('created_at', endDate);
+        if (endDate) {
+            // Ensure end date includes the entire day
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            query = query.lte('created_at', end.toISOString());
+        }
         
         const { data: orders, error: ordersError } = await query.order('created_at', { ascending: false });
 
         if (ordersError) throw ordersError;
 
-        // Calculate Metrics
-        let totalGrossRevenue = 0;
-        let totalNetRevenue = 0;
-        let totalPendingRevenue = 0;
+        // Metrics for Top Cards (Delivered Only)
+        let deliveredGrossRevenue = 0; 
+        let deliveredNetRevenue = 0;
+        let deliveredPendingRevenue = 0;
+
+        // Metrics for Bottom Section (All Active)
+        let totalGrossRevenue = 0; // Total value of all non-cancelled orders
+        let totalPendingRevenue = 0; // Value of pending/receivable orders (unpaid)
+        
         let totalDeliveryCharges = 0;
         let totalCouponDiscount = 0;
         let totalCodFees = 0;
-        const totalOrders = orders.length;
+        const totalOrdersCount = orders.length;
 
         const paymentMethodMap: Record<string, { amount: number; count: number }> = {};
         const timeSeriesMap: Record<string, { revenue: number; orders: number }> = {};
@@ -79,36 +95,57 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
             const shipping = Number(order.shipping_amount) || 0;
             const coupon = Number(order.coupon_discount) || 0;
             const cod = Number(order.cod_fees) || 0;
-            const status = order.status?.toLowerCase();
-            const payStatus = order.payment_status?.toLowerCase();
-            const method = order.payment_method || 'Unknown';
+            const status = order.status?.toLowerCase() || 'pending';
+            const rawPayStatus = order.payment_status?.toLowerCase();
+            const payStatus = rawPayStatus === 'paid' ? 'paid' : 'pending';
+            let method = order.payment_method || 'Unknown';
+            // Differentiate QR Payment Types
+            if (method.toLowerCase() === 'qr') {
+                if (method === 'QR') {
+                    method = 'Link Payment (QR)';
+                } else if (method === 'qr') {
+                    method = 'QR on Purchase';
+                } else {
+                    method = 'QR Payment';
+                }
+            }
+
             const date = new Date(order.created_at).toISOString().split('T')[0];
 
             if (status !== 'cancelled') {
+                // Bottom Section: All Non-Cancelled
                 totalGrossRevenue += amount;
                 totalDeliveryCharges += shipping;
                 totalCouponDiscount += coupon;
                 totalCodFees += cod;
 
-                if (payStatus === 'paid') {
-                    totalNetRevenue += amount;
-                } else if (payStatus === 'pending') {
+                if (payStatus !== 'paid') {
                     totalPendingRevenue += amount;
+                }
+
+                // Top Cards: Delivered Only
+                if (status === 'delivered') {
+                    deliveredGrossRevenue += amount;
+                    if (payStatus === 'paid') {
+                        deliveredNetRevenue += amount;
+                    } else {
+                        deliveredPendingRevenue += amount;
+                    }
+
+                    // Chart follows delivered revenue
+                    if (!timeSeriesMap[date]) timeSeriesMap[date] = { revenue: 0, orders: 0 };
+                    timeSeriesMap[date].revenue += amount;
+                    timeSeriesMap[date].orders += 1;
                 }
 
                 // Payment Method Breakdown
                 if (!paymentMethodMap[method]) paymentMethodMap[method] = { amount: 0, count: 0 };
                 paymentMethodMap[method].amount += amount;
                 paymentMethodMap[method].count += 1;
-
-                // Time Series Breakdown
-                if (!timeSeriesMap[date]) timeSeriesMap[date] = { revenue: 0, orders: 0 };
-                timeSeriesMap[date].revenue += amount;
-                timeSeriesMap[date].orders += 1;
             }
         });
 
-        const avgOrderValue = totalOrders > 0 ? totalGrossRevenue / totalOrders : 0;
+        const avgOrderValue = totalOrdersCount > 0 ? totalGrossRevenue / totalOrdersCount : 0;
 
         const paymentMethods = Object.entries(paymentMethodMap).map(([method, data]) => ({
             method,
@@ -137,12 +174,14 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
             success: true,
             data: {
                 stats: {
-                    totalGrossRevenue,
-                    totalNetRevenue,
-                    totalPendingRevenue,
+                    totalGrossRevenue, // Bottom Total
+                    totalDeliveredRevenue: deliveredGrossRevenue, // Top Gross
+                    totalNetRevenue: deliveredNetRevenue, // Top Net
+                    totalDeliveredPendingRevenue: deliveredPendingRevenue,
+                    totalPendingRevenue, // Bottom Receivables
                     totalDeliveryCharges,
                     totalCouponDiscount,
-                    totalOrders,
+                    totalOrders: totalOrdersCount,
                     avgOrderValue,
                     totalCodFees
                 },

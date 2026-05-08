@@ -347,14 +347,21 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                 <span className="bg-gray-100 px-3 py-1 rounded-full">{processedData[processedData.length - 1].fullDate || processedData[processedData.length - 1].label}</span>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 xs:grid-cols-2 gap-6 relative z-10">
+            <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
                 <div className="flex flex-col">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Total Period Volume</span>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Delivered (Period)</span>
                     <span className="text-xl md:text-2xl font-bold text-[#242424] tracking-tight">रु {processedData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}</span>
+                    <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">Successfully Delivered</p>
                 </div>
-                <div className="flex flex-col border-l-0 xs:border-l border-gray-100 pl-0 xs:pl-6">
+                <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
+                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Total Orders Value</span>
+                    <span className="text-xl md:text-2xl font-bold text-blue-600 tracking-tight">रु {stats.totalGrossRevenue.toLocaleString()}</span>
+                    <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">All Orders (Excl. Cancelled)</p>
+                </div>
+                <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Overall Receivables</span>
                     <span className="text-xl md:text-2xl font-bold text-amber-600 tracking-tight">रु {stats.totalPendingRevenue.toLocaleString()}</span>
+                    <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">Pending Collection</p>
                 </div>
             </div>
         </div>
@@ -515,15 +522,18 @@ export default function FinanceClient() {
                         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                             <MetricCard
                                 title="Gross Revenue"
-                                value={`रु ${data.stats.totalGrossRevenue.toLocaleString()}`}
-                                subValue={`${data.stats.totalOrders} Orders`}
+                                value={`रु ${data.stats.totalDeliveredRevenue.toLocaleString()}`}
+                                subValue={`${data.stats.totalOrders} Total Orders`}
                                 icon={TrendingUp}
                                 trend={12.5}
                             />
                             <MetricCard
                                 title="Net Revenue"
                                 value={`रु ${data.stats.totalNetRevenue.toLocaleString()}`}
-                                subValue={`रु ${data.stats.totalPendingRevenue.toLocaleString()} P`}
+                                subValue={data.stats.totalDeliveredPendingRevenue > 0 
+                                    ? `रु ${data.stats.totalDeliveredPendingRevenue.toLocaleString()} Pending` 
+                                    : "Paid & Delivered"
+                                }
                                 icon={Wallet}
                             />
                             <MetricCard
@@ -627,22 +637,65 @@ export default function FinanceClient() {
                                                         exit={{ height: 0, opacity: 0 }}
                                                         className="overflow-hidden space-y-4 pb-4"
                                                     >
-                                                        {data.paymentMethods.map((m, i) => (
-                                                            <div key={i} className="space-y-1.5">
-                                                                <div className="flex justify-between items-center text-[11px]">
-                                                                    <span className="text-gray-500 font-bold uppercase tracking-wider">{m.method}</span>
-                                                                    <span className="text-[#242424] font-bold">रु {m.amount.toLocaleString()}</span>
-                                                                </div>
-                                                                <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-                                                                    <motion.div
-                                                                        initial={{ width: 0 }}
-                                                                        animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
-                                                                        className="h-full bg-[#242424] rounded-full"
-                                                                    ></motion.div>
-                                                                </div>
-                                                                <div className="text-[9px] text-gray-400 font-bold uppercase">{m.count} Sales</div>
-                                                            </div>
-                                                        ))}
+                                                        {(() => {
+                                                            const qrMethods = data.paymentMethods.filter(m => 
+                                                                m.method.toLowerCase().includes('qr')
+                                                            );
+                                                            const nonQrMethods = data.paymentMethods.filter(m => 
+                                                                !m.method.toLowerCase().includes('qr')
+                                                            );
+                                                            
+                                                            const qrTotalAmount = qrMethods.reduce((acc, m) => acc + m.amount, 0);
+
+                                                            return (
+                                                                <>
+                                                                    {qrMethods.length > 0 && (
+                                                                        <>
+                                                                            <div className="flex justify-between items-center text-[11px] mb-3 px-1">
+                                                                                <span className="text-[#242424] font-bold uppercase tracking-wider">
+                                                                                    QR (Combined)
+                                                                                </span>
+                                                                                <span className="text-[#242424] font-bold text-[13px]">रु {qrTotalAmount.toLocaleString()}</span>
+                                                                            </div>
+                                                                            <div className="space-y-2 mb-8">
+                                                                                {qrMethods.map((m, i) => (
+                                                                                    <div key={i} className="bg-gray-50/80 p-4 rounded-xl border-b border-gray-100 last:border-b-0 space-y-2">
+                                                                                        <div className="flex justify-between items-center text-[10px]">
+                                                                                            <span className="text-gray-600 font-bold uppercase tracking-wider">{m.method}</span>
+                                                                                            <span className="text-[#242424] font-bold">रु {m.amount.toLocaleString()}</span>
+                                                                                        </div>
+                                                                                        <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-gray-100">
+                                                                                            <motion.div
+                                                                                                initial={{ width: 0 }}
+                                                                                                animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
+                                                                                                className="h-full bg-[#242424] rounded-full"
+                                                                                            ></motion.div>
+                                                                                        </div>
+                                                                                        <div className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter">{m.count} Sales</div>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </>
+                                                                    )}
+                                                                    {nonQrMethods.map((m, i) => (
+                                                                        <div key={i} className="space-y-2 px-1 mb-6 last:mb-0">
+                                                                            <div className="flex justify-between items-center text-[11px]">
+                                                                                <span className="text-[#242424] font-bold uppercase tracking-wider">{m.method}</span>
+                                                                                <span className="text-[#242424] font-bold text-[13px]">रु {m.amount.toLocaleString()}</span>
+                                                                            </div>
+                                                                            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                                                                                <motion.div
+                                                                                    initial={{ width: 0 }}
+                                                                                    animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
+                                                                                    className="h-full bg-[#242424] rounded-full"
+                                                                                ></motion.div>
+                                                                            </div>
+                                                                            <div className="text-[9px] text-gray-400 font-bold uppercase">{m.count} Sales</div>
+                                                                        </div>
+                                                                    ))}
+                                                                </>
+                                                            );
+                                                        })()}
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
