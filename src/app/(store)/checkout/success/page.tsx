@@ -31,34 +31,33 @@ function ConfettiDoodles({ hasMounted }: { hasMounted: boolean }) {
       {Array.from({ length: lineCount }).map((_, i) => {
         const angle = (i * 360) / lineCount + (Math.random() * 20 - 10);
         const color = colors[i % colors.length];
-        const delay = 0.5 + (Math.random() * 0.1);
-        const distance = 140 + Math.random() * 80; // Splash radius
-        const duration = 1.2 + Math.random() * 0.8;
+        const delay = 0.6 + (Math.random() * 0.1);
+        const distance = 160 + Math.random() * 60;
+        const duration = 1.0 + Math.random() * 0.5;
 
         return (
           <motion.div
             key={i}
             initial={{ scale: 0, opacity: 0, x: 0, y: 0, rotate: angle }}
             animate={{
-              scale: [0, 1.4, 0.6],
+              scale: [0, 1.2, 0.4],
               opacity: [0, 1, 1, 0],
               x: Math.cos((angle * Math.PI) / 180) * distance,
-              y: Math.sin((angle * Math.PI) / 180) * distance + (distance * 0.3), // Gravity dip
-              rotate: angle + (Math.random() * 180 - 90)
+              y: Math.sin((angle * Math.PI) / 180) * distance + (distance * 0.2),
+              rotate: angle + 90
             }}
             transition={{
               duration: duration,
               delay: delay,
-              ease: [0.16, 1, 0.3, 1] // Organic splash easing
+              ease: [0.23, 1, 0.32, 1]
             }}
             style={{
-              width: `${12 + Math.random() * 25}px`,
-              height: '3px',
+              width: `${15 + Math.random() * 15}px`,
+              height: '4px',
               backgroundColor: color,
-              borderRadius: '10px',
+              borderRadius: '20px',
               position: 'absolute',
               transformOrigin: 'center',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}
           />
         );
@@ -165,19 +164,21 @@ function SuccessContent() {
       <section className="flex flex-1 w-full max-w-[410px] items-start justify-center relative z-[10] pt-[20px] pb-[60px]">
         <div className="relative">
           <ConfettiDoodles hasMounted={hasMounted} />
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{
-              type: "spring",
-              stiffness: 260,
-              damping: 20,
-              delay: 0.5
-            }}
-            className="flex items-center justify-center w-[140px] h-[140px] drop-shadow-[0_10px_30px_rgba(0,0,0,0.2)]"
-          >
-            <MemoizedCheckConfirmicon className="w-full h-full text-white" />
-          </motion.div>
+          {hasMounted && (
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 20,
+                delay: 0.5
+              }}
+              className="flex items-center justify-center w-[140px] h-[140px]"
+            >
+              <MemoizedCheckConfirmicon className="w-full h-full text-white" />
+            </motion.div>
+          )}
         </div>
       </section>
 

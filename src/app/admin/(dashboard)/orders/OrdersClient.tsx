@@ -21,8 +21,9 @@ import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaym
 const PAGE_SIZE = 20;
 
 export default function OrdersClient() {
-  const [orders, setOrders] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [orders, setOrders] = useState<OrderProps[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -59,7 +60,6 @@ export default function OrdersClient() {
   const lastSeenAtOnMount = useRef<string | null>(null);
   const hasEffectRun = useRef(false); // Guard for notification effect
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);

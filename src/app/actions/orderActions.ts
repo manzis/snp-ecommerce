@@ -106,8 +106,8 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
     // Revalidate relevant paths
     revalidatePath('/account/orders');
 
-    // Await email confirmations (Production fix for Vercel)
-    await Promise.allSettled([
+    // Fire-and-forget email confirmations (Asynchronous for instant feedback)
+    Promise.allSettled([
       sendOrderConfirmationEmail(result.id),
       sendAdminOrderReceivedEmail(result.id)
     ]).then(results => {
@@ -297,8 +297,11 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
       
       // 2. Build the OR clauses for the main query
       let orClauses = [
+        `contact_details->>full_name.ilike.%${searchStr}%`,
         `contact_details->>name.ilike.%${searchStr}%`,
+        `contact_details->>email.ilike.%${searchStr}%`,
         `contact_details->>phone.ilike.%${searchStr}%`,
+        `contact_details->>value.ilike.%${searchStr}%`,
         `shipping_address->>first_name.ilike.%${searchStr}%`,
         `shipping_address->>last_name.ilike.%${searchStr}%`,
         `shipping_address->addressDetails->>first_name.ilike.%${searchStr}%`,

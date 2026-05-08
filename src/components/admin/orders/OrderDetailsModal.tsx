@@ -419,51 +419,57 @@ export default function OrderDetailsModal({
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
-                                                className={`overflow-hidden border-l border-dotted ${isCompleted || isActive ? 'border-[#308026]' : 'border-gray-300'} ml-5 pl-5 mt-2 mb-4 space-y-4`}
+                                                className="overflow-hidden ml-5 mt-2 mb-4 relative"
                                             >
-                                                {/* Tracking Info for Shipping Milestone */}
-                                                {m.id === 'SHIPPING' && (order.carrierName || order.trackingNumber) && (
-                                                    <div className="mr-5 p-3.5 bg-zinc-50 rounded-[10px] border border-gray-100 flex items-center justify-between">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
-                                                                <span className="text-xs">🚚</span>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[9px] text-[#a1a1aa] uppercase font-bold tracking-wider">Carrier & Tracking</p>
-                                                                <p className="text-[12px] font-medium text-black">
-                                                                    {order.carrierName || 'Standard'} · {order.trackingNumber || 'Pending'}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                        {order.trackingNumber && (
-                                                            <button
-                                                                onClick={() => {
-                                                                    navigator.clipboard.writeText(order.trackingNumber || '');
-                                                                }}
-                                                                className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95"
-                                                            >
-                                                                <span className="text-[9px] uppercase font-bold text-[#71717a] hover:text-black">Copy</span>
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                {/* Vertical Timeline Line */}
+                                                <div className={`absolute left-[2px] top-0 bottom-0 border-l border-dotted ${isCompleted || isActive ? 'border-[#308026]' : 'border-gray-300'}`} />
 
-                                                {milestoneLogs.map((log, idx) => {
-                                                    const logRank = STATUS_RANK[log.status.toUpperCase()] || 0;
-                                                    const isLogCompleted = currentRank > logRank || isTerminal;
-                                                    return (
-                                                        <div key={idx} className="relative">
-                                                            <div className={`absolute -left-[23px] top-1.5 w-1 h-1 ${isLogCompleted ? 'bg-[#308026]' : 'bg-gray-300'} rounded-full`} />
-                                                            <div className="space-y-1">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-[11px] font-medium text-black uppercase">{log.status}</span>
-                                                                    <span className="text-[10px] text-[#a1a1aa] font-mono">{new Date(log.date).toLocaleDateString()}</span>
+                                                <div className="pl-6 space-y-4">
+                                                    {/* Tracking Info for Shipping Milestone */}
+                                                    {m.id === 'SHIPPING' && (order.carrierName || order.trackingNumber) && (
+                                                        <div className="mr-5 p-3.5 bg-zinc-50 rounded-[10px] border border-gray-100 flex items-center justify-between">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
+                                                                    <span className="text-xs">🚚</span>
                                                                 </div>
-                                                                <p className="text-[12px] text-[#71717a] leading-relaxed">{log.message}</p>
+                                                                <div>
+                                                                    <p className="text-[9px] text-[#a1a1aa] uppercase font-bold tracking-wider">Carrier & Tracking</p>
+                                                                    <p className="text-[12px] font-medium text-black">
+                                                                        {order.carrierName || 'Standard'} · {order.trackingNumber || 'Pending'}
+                                                                    </p>
+                                                                </div>
                                                             </div>
+                                                            {order.trackingNumber && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(order.trackingNumber || '');
+                                                                    }}
+                                                                    className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95"
+                                                                >
+                                                                    <span className="text-[9px] uppercase font-bold text-[#71717a] hover:text-black">Copy</span>
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                    );
-                                                })}
+                                                    )}
+
+                                                    {milestoneLogs.map((log, idx) => {
+                                                        const logRank = STATUS_RANK[log.status.toUpperCase()] || 0;
+                                                        const isLogCompleted = currentRank > logRank || isTerminal;
+                                                        return (
+                                                            <div key={idx} className="relative">
+                                                                {/* Dot - Offset to align with line at x=2, shifted down for text alignment */}
+                                                                <div className={`absolute -left-[24.5px] top-[5.5px] w-[5px] h-[5px] ${isLogCompleted ? 'bg-[#308026]' : 'bg-gray-300'} rounded-full z-10`} />
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-[11px] font-medium text-black uppercase">{log.status}</span>
+                                                                        <span className="text-[10px] text-[#a1a1aa] font-mono">{new Date(log.date).toLocaleDateString()}</span>
+                                                                    </div>
+                                                                    <p className="text-[12px] text-[#71717a] leading-relaxed">{log.message}</p>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>

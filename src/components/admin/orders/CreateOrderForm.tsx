@@ -167,9 +167,18 @@ export default function CreateOrderForm() {
             });
             // Auto-fill address if available in profile
             if (customer.address_data) {
+                const addr = customer.address_data.addressDetails || customer.address_data;
+                const deliveryOption = customer.address_data.option || (addr.type?.toLowerCase() === 'pickup' ? 'pickup' : 'home_delivery');
+                
                 setShippingAddress(prev => ({
                     ...prev,
-                    ...customer.address_data
+                    street: addr.street || '',
+                    area: addr.area || '',
+                    city: addr.city || '',
+                    state: addr.state || 'Bagmati',
+                    country: addr.country || 'Nepal',
+                    pincode: addr.pincode || '',
+                    option: deliveryOption === 'home' ? 'home_delivery' : (deliveryOption as 'home_delivery' | 'pickup')
                 }));
             }
         }
@@ -295,12 +304,33 @@ export default function CreateOrderForm() {
     const handleSubmit = async () => {
         setLoading(true);
         try {
+            const names = customerInfo.full_name.trim().split(' ');
+            const firstName = names[0] || '';
+            const lastName = names.slice(1).join(' ') || '';
+
             const orderData = {
                 user_id: selectedCustomerId || null,
                 customerEmail: customerInfo.email,
                 customerName: customerInfo.full_name,
                 customerPhone: customerInfo.phone,
-                shipping_address: shippingAddress,
+                shipping_address: {
+                    option: shippingAddress.option === 'home_delivery' ? 'home' : 'pickup',
+                    addressId: null,
+                    shippingPrice: totals.shipping,
+                    addressDetails: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: customerInfo.email,
+                        phone: customerInfo.phone,
+                        city: shippingAddress.city,
+                        area: shippingAddress.area,
+                        street: shippingAddress.street,
+                        pincode: shippingAddress.pincode,
+                        state: shippingAddress.state,
+                        country: shippingAddress.country,
+                        type: shippingAddress.option === 'home_delivery' ? 'Home' : 'Pickup'
+                    }
+                },
                 total_amount: totals.grandTotal,
                 mrp_amount: totals.mrpSubtotal,
                 discount_amount: totals.discountOnMRP + totals.couponDiscount + totals.bundleDiscount,

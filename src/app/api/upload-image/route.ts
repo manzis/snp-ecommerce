@@ -17,21 +17,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Unauthorized.' }, { status: 401 });
     }
 
-    // 2. Admin role check
+    // 2. Permission check: Admin can upload anywhere, customers only to their order folders
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ success: false, message: 'Forbidden. Admin access required.' }, { status: 403 });
-    }
+    const isAdmin = profile?.role === 'admin';
 
     // 3. Parse form data
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
     const folder = (formData.get('folder') as string) || 'snp-store';
+
+    if (!isAdmin) {
+      const isOrderFolder = folder.startsWith('orders/') || folder.startsWith('payment-proofs');
+      if (!isOrderFolder) {
+        return NextResponse.json({ success: false, message: 'Forbidden. Admin access required.' }, { status: 403 });
+      }
+    }
 
     if (!file) {
       return NextResponse.json({ success: false, message: 'No file provided.' }, { status: 400 });
