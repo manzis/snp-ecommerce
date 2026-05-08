@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAdminToast } from '../ui/AdminToastProvider';
 import { resolveOrderPhone, openWhatsAppForOrder, getWhatsAppButtonLabel } from '@/lib/whatsappTemplates';
 import PhoneIcon from '@/components/icons/PhoneIcon';
+import CopyIcon from '@/components/icons/CopyIcon';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -337,26 +338,18 @@ export default function OrderDetailsModal({
                                             <p className="text-[14px] font-mono font-medium text-black">#{order.trackingNumber || 'Pending'}</p>
                                             {order.trackingNumber && (
                                                 <button
-                                                    onClick={() => handleShare('tracking')}
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(order.trackingNumber || '');
+                                                        showAdminToast('Tracking ID copied!', 'success');
+                                                    }}
                                                     className="p-1 text-gray-400 hover:text-black transition-colors"
-                                                    title="Share Tracking URL"
+                                                    title="Copy Tracking ID"
                                                 >
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                                    <CopyIcon width="14" height="14" />
                                                 </button>
                                             )}
                                         </div>
                                     </div>
-                                    {order.trackingNumber && (
-                                        <button
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(order.trackingNumber || '');
-                                                showAdminToast('Tracking ID copied!', 'success');
-                                            }}
-                                            className="px-2.5 py-1.5 bg-white hover:bg-black hover:text-white rounded-[6px] border border-gray-200 transition-all text-[10px] font-bold uppercase active:scale-95"
-                                        >
-                                            Copy
-                                        </button>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -711,25 +704,79 @@ export default function OrderDetailsModal({
                             <div className="p-5 flex flex-col gap-1.5">
                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
                                 {order.shippingAddress ? (
-                                    <div className="text-[13px] leading-relaxed text-[#242424] space-y-0.5 max-w-sm">
+                                    <div className="text-[13px] leading-relaxed text-[#242424] space-y-1 max-w-sm">
                                         <p className="font-medium">
-                                            {order.shippingAddress.first_name || order.shippingAddress.addressDetails?.first_name || ''} {order.shippingAddress.last_name || order.shippingAddress.addressDetails?.last_name || ''}
-                                            {(!order.shippingAddress.first_name && !order.shippingAddress.addressDetails?.first_name) && (order.customerName || 'Manual Order Recipient')}
+                                            {(() => {
+                                                const addr = order.shippingAddress;
+                                                const details = addr.addressDetails || {};
+                                                const fName = addr.first_name || details.first_name || '';
+                                                const lName = addr.last_name || details.last_name || '';
+                                                if (!fName && !lName) return order.customerName || 'Manual Order Recipient';
+                                                return `${fName} ${lName}`.trim();
+                                            })()}
                                         </p>
-                                        <p className="text-[#71717a]">
-                                            {order.shippingAddress.street || order.shippingAddress.address_line_1 || order.shippingAddress.addressDetails?.address_line_1}
-                                            {order.shippingAddress.area ? `, ${order.shippingAddress.area}` : ''}
-                                            {order.shippingAddress.address_line_2 ? `, ${order.shippingAddress.address_line_2}` : ''}
-                                        </p>
+                                        <div className="text-[#71717a]">
+                                            {(() => {
+                                                const addr = order.shippingAddress;
+                                                const details = addr.addressDetails || {};
+
+                                                // Extract all possible address parts
+                                                const parts = [
+                                                    addr.address_line_1 || details.address_line_1,
+                                                    addr.street || details.street,
+                                                    addr.area || details.area,
+                                                    addr.address_line_2 || details.address_line_2
+                                                ].filter(Boolean) as string[];
+
+                                                // Deduplicate while preserving order (e.g. if street and area are same "Tokha")
+                                                const uniqueParts: string[] = [];
+                                                const seen = new Set<string>();
+
+                                                parts.forEach(p => {
+                                                    const normalized = p.trim().toLowerCase();
+                                                    if (!seen.has(normalized)) {
+                                                        uniqueParts.push(p.trim());
+                                                        seen.add(normalized);
+                                                    }
+                                                });
+
+                                                return uniqueParts.length > 0 ? uniqueParts.join(', ') : 'No street details';
+                                            })()}
+                                        </div>
                                         <p className="text-[#a1a1aa] text-[12px]">
-                                            {order.shippingAddress.city || order.shippingAddress.addressDetails?.city}, {order.shippingAddress.state || order.shippingAddress.addressDetails?.state}, {order.shippingAddress.pincode || order.shippingAddress.postal_code || order.shippingAddress.addressDetails?.pincode}
-                                            {order.shippingAddress.country ? ` (${order.shippingAddress.country})` : ''}
+                                            {(() => {
+                                                const addr = order.shippingAddress;
+                                                const details = addr.addressDetails || {};
+                                                const city = addr.city || details.city || '';
+                                                const state = addr.state || details.state || '';
+                                                const pincode = addr.pincode || addr.postal_code || details.pincode || '';
+                                                const country = addr.country || details.country || '';
+
+                                                const locationParts = [
+                                                    city,
+                                                    state,
+                                                    pincode
+                                                ].filter(Boolean).join(', ');
+
+                                                return (
+                                                    <>
+                                                        {locationParts}
+                                                        {country ? ` (${country})` : ''}
+                                                    </>
+                                                );
+                                            })()}
                                         </p>
-                                        {(order.shippingAddress.phone || order.shippingAddress.addressDetails?.phone || order.customerPhone) && (
-                                            <p className="text-[#242424] font-medium pt-1">
-                                                <span className="text-[#a1a1aa] font-normal">Phone:</span> {order.shippingAddress.phone || order.shippingAddress.addressDetails?.phone || order.customerPhone}
-                                            </p>
-                                        )}
+                                        {(() => {
+                                            const addr = order.shippingAddress;
+                                            const details = addr.addressDetails || {};
+                                            const phone = addr.phone || details.phone || order.customerPhone;
+                                            if (!phone) return null;
+                                            return (
+                                                <p className="text-[#242424] font-medium pt-1">
+                                                    <span className="text-[#a1a1aa] font-normal">Phone:</span> {phone}
+                                                </p>
+                                            );
+                                        })()}
                                     </div>
                                 ) : (
                                     <p className="text-[13px] text-gray-400 italic">Static address unassigned</p>
