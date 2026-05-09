@@ -18,6 +18,13 @@ export function optimizeImage(url: string | undefined | null, width: number = 80
     return url.replace('/upload/', `/upload/f_auto,q_${quality},w_${width},dpr_auto/`);
   }
 
-  // Return Supabase or local URLs as-is
+
+  if (url.includes('.supabase.co/storage/v1/object/public/')) {
+    return url
+      .replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
+      + `?width=${width}&quality=${quality === 'auto' ? 80 : 60}`;
+  }
+
+  // Return local or other URLs as-is
   return url;
 }

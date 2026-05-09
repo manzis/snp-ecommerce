@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   compress: true, // Enable gzip/brotli compression for all responses
 
   images: {
-    unoptimized: false,
+    unoptimized: true,
     dangerouslyAllowSVG: true,
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,
@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Fonts (woff2, woff, ttf)
+        // Fonts (woff2, woff, ttf) .
         source: '/_next/static/media/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
