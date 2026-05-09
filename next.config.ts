@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   compress: true, // Enable gzip/brotli compression for all responses
 
   images: {
-    unoptimized: false,
+    unoptimized: true,
     dangerouslyAllowSVG: true,
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,
@@ -43,7 +43,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    unoptimized: true,
   },
 
   experimental: {
@@ -60,7 +59,6 @@ const nextConfig: NextConfig = {
         source: '/_next/static/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
         ],
       },
       {
@@ -68,7 +66,6 @@ const nextConfig: NextConfig = {
         source: '/images/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
         ],
       },
       {
@@ -76,7 +73,6 @@ const nextConfig: NextConfig = {
         source: '/_next/static/media/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
         ],
       },
       {
