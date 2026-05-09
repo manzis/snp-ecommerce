@@ -175,4 +175,25 @@ html, body {
   .animate-page-enter {
     animation: page-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+
+  /* Subtle scrollbar for horizontal sections on desktop */
+  .subtle-scrollbar::-webkit-scrollbar {
+    height: 4px;
+    background: transparent;
+  }
+  .subtle-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+  }
+  .subtle-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+  }
+  @media (max-width: 768px) {
+    .subtle-scrollbar {
+      scrollbar-width: none;
+    }
+    .subtle-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+  }
 }

@@ -71,47 +71,12 @@ export async function recordSearchAction(query: string, resultsCount: number = 0
  */
 export async function getAnalyticsDataAction() {
   try {
-    const [stats, topViewed, trendingSearches] = await Promise.all([
+    const [stats, topViewed, trendingSearches, topSelling] = await Promise.all([
       analyticsService.getDashboardStats(),
-      analyticsService.getMostViewedProducts(5),
-      analyticsService.getTrendingSearches(50)
+      analyticsService.getMostViewedProducts(10),
+      analyticsService.getTrendingSearches(50),
+      analyticsService.getTopSellingProducts(10)
     ]);
-
-    // Fetch top selling products by aggregating orders
-    const supabase = await createClient();
-    
-    // We fetch order items and manually aggregate for now 
-    // (Better way is a Postgres View, but this works for most scales)
-    const { data: orderItems, error: orderError } = await supabase
-      .from('order_items')
-      .select('product_id, quantity, products(title, image_url, price)')
-      .limit(1000); // Fetch recent 1000 items to aggregate
-
-    let topSelling: any[] = [];
-    if (orderItems && orderItems.length > 0) {
-      const productMap: Record<string, any> = {};
-      
-      orderItems.forEach((item: any) => {
-        if (!item.product_id || !item.products) return;
-        
-        if (!productMap[item.product_id]) {
-          productMap[item.product_id] = {
-            id: item.product_id,
-            title: item.products.title,
-            image_url: item.products.image_url,
-            price: item.products.price,
-            quantity: 0,
-            order_count: 0
-          };
-        }
-        productMap[item.product_id].quantity += item.quantity || 1;
-        productMap[item.product_id].order_count += 1;
-      });
-
-      topSelling = Object.values(productMap)
-        .sort((a, b) => b.order_count - a.order_count)
-        .slice(0, 5);
-    }
 
     return {
       success: true,
@@ -119,7 +84,7 @@ export async function getAnalyticsDataAction() {
         stats,
         topViewed,
         trendingSearches,
-        topSelling
+        topSelling: topSelling || []
       }
     };
   } catch (error) {

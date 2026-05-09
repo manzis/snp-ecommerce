@@ -7,19 +7,28 @@ import { Eye } from 'lucide-react';
 interface MostViewedSectionProps {
   topViewed: any[];
   totalViews: number;
+  onViewAll?: () => void;
 }
 
-export const MostViewedSection = ({ topViewed, totalViews }: MostViewedSectionProps) => (
+export const MostViewedSection = ({ topViewed, totalViews, onViewAll }: MostViewedSectionProps) => (
   <div className="space-y-6 -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 py-2">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
         <h2 className="text-xl font-semibold text-[#242424] font-rubik tracking-tight">Most Viewed Products</h2>
       </div>
-      <p className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-[0.2em] hidden md:block">Real-time Performance</p>
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={onViewAll}
+          className="text-[11px] font-bold text-[#3f9633] hover:text-[#2d6e25] uppercase tracking-wider transition-colors px-3 py-1.5 bg-[#3f9633]/5 rounded-lg border border-[#3f9633]/10"
+        >
+          View All
+        </button>
+        <p className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-[0.2em] hidden md:block">Real-time Performance</p>
+      </div>
     </div>
 
     <div className="relative w-full">
-      <div className="flex overflow-x-auto gap-6 pb-4 snap-x no-scrollbar">
+      <div className="flex overflow-x-auto gap-6 pb-4 snap-x subtle-scrollbar">
         {topViewed.map((item: any, i: number) => (
           <motion.div 
             key={i}

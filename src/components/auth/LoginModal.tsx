@@ -204,11 +204,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     const handleResendOtp = async () => {
         setStatusMsg("Sending...");
 
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
+        const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
+
         try {
             const supabase = createClient();
-            const cleanIdentifier = identifier.trim().toLowerCase();
-            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
-            const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
 
             let formattedPhone = cleanIdentifier;
             if (isPhone) {
@@ -232,8 +233,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             }
         } catch (err: any) {
             console.error("Resend OTP Failed:", err?.message || err);
-            setStatusMsg(isUnsupported ? "Phone not supported" : "Failed to resend");
-            showToast(isUnsupported ? "Phone login not configured. Please use Email." : (err?.message || "Failed to resend OTP"), "error");
+            const unsupported = isPhone || err?.message?.includes("Phone");
+            setStatusMsg(unsupported ? "Phone not supported" : "Failed to resend");
+            showToast(unsupported ? "Phone login not configured. Please use Email." : (err?.message || "Failed to resend OTP"), "error");
         } finally {
             setTimeout(() => setStatusMsg(null), 3000);
         }

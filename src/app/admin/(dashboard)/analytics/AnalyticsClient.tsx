@@ -43,6 +43,8 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
   const [datePreset, setDatePreset] = React.useState('30d');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isViewedModalOpen, setIsViewedModalOpen] = useState(false);
+  const [isSellingModalOpen, setIsSellingModalOpen] = useState(false);
 
   const { setPrimaryAction, setOverrideTitle } = useAdminUI();
 
@@ -165,11 +167,12 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                 <MostViewedSection
                   topViewed={topViewed}
                   totalViews={stats.views || 1}
+                  onViewAll={() => setIsViewedModalOpen(true)}
                 />
 
                 <TopSellingSection
                   topSelling={topSelling}
-                  totalOrders={stats.orders || 1}
+                  onViewAll={() => setIsSellingModalOpen(true)}
                 />
 
                 {/* Main Analysis Section */}
@@ -228,32 +231,47 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                       data={trendingSearches}
                     />
 
-                    {/* Top Selling Small List */}
-                    <div className="bg-white p-6 rounded-[12px] border border-gray-100">
-                      <h3 className="text-base font-semibold text-[#242424] font-rubik mb-6 uppercase tracking-tight">Top Selling Products</h3>
-                      <div className="space-y-4">
-                        {topSelling.length > 0 ? topSelling.map((item: any, i: number) => (
-                          <div key={i} className="flex items-center gap-4 p-2.5 hover:bg-gray-50 rounded-xl transition-all cursor-pointer group border border-transparent hover:border-gray-100">
-                            <div className="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-50">
-                              <img
-                                src={item.image_url || '/images/protein.webp'}
-                                alt={item.title || 'Product'}
-                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
-                              />
+                    {/* Most Viewed Full List Modal */}
+                    <AdminModal
+                      isOpen={isViewedModalOpen}
+                      onClose={() => setIsViewedModalOpen(false)}
+                      title="All Trending Products"
+                    >
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                        {topViewed.map((item: any, i: number) => (
+                          <div key={i} className="flex flex-col gap-3 group">
+                            <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group-hover:border-[#bef264] transition-all">
+                              <img src={item.thumbnail || '/images/protein.webp'} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-[13px] font-semibold text-[#242424] truncate group-hover:text-green-600 transition-colors">{item.title}</h4>
-                              <p className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest mt-0.5">{item.order_count} orders</p>
-                            </div>
-                            <div className="text-right">
-                              <span className="text-[9px] font-semibold text-white bg-green-600 px-2 py-1 rounded-full uppercase tracking-tighter">TOP</span>
+                            <div>
+                              <h4 className="text-sm font-semibold text-[#242424] truncate">{item.name}</h4>
+                              <p className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-1">{item.view_count} Total Views</p>
                             </div>
                           </div>
-                        )) : (
-                          <p className="text-center text-gray-400 text-sm py-4">No sales data recorded.</p>
-                        )}
+                        ))}
                       </div>
-                    </div>
+                    </AdminModal>
+
+                    {/* Top Selling Full List Modal */}
+                    <AdminModal
+                      isOpen={isSellingModalOpen}
+                      onClose={() => setIsSellingModalOpen(false)}
+                      title="Best Selling Products"
+                    >
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                        {topSelling.map((item: any, i: number) => (
+                          <div key={i} className="flex flex-col gap-3 group">
+                            <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group-hover:border-green-600 transition-all">
+                              <img src={item.thumbnail || '/images/protein.webp'} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-semibold text-[#242424] truncate">{item.name}</h4>
+                              <p className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-1">{item.order_count} Orders Received</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </AdminModal>
                   </div>
                 </div>
               </>

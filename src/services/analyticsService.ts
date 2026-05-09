@@ -42,7 +42,8 @@ export const analyticsService = {
    * Fetches most viewed products from the new view
    */
   getMostViewedProducts: cache(async (limit = 5) => {
-    const supabase = await createClient();
+    const admin = getSupabaseAdmin();
+    const supabase = admin || await createClient();
     const { data, error } = await supabase
       .from('view_top_products_30d')
       .select('*')
@@ -52,12 +53,12 @@ export const analyticsService = {
       // Fallback: Query raw product_views if view doesn't exist
       const { data: rawData } = await supabase
         .from('product_views')
-        .select('product_id, products(title, image_url)')
+        .select('product_id, products(title, images)')
         .limit(100); // Get a sample and aggregate in JS for safety
 
       const aggregated = rawData?.reduce((acc: any, curr: any) => {
         const id = curr.product_id;
-        if (!acc[id]) acc[id] = { product_id: id, name: curr.products?.title, thumbnail: curr.products?.image_url, view_count: 0 };
+        if (!acc[id]) acc[id] = { product_id: id, name: curr.products?.title, thumbnail: curr.products?.images?.[0], view_count: 0 };
         acc[id].view_count += 1;
         return acc;
       }, {});
@@ -65,6 +66,45 @@ export const analyticsService = {
       return Object.values(aggregated || {}).sort((a: any, b: any) => b.view_count - a.view_count).slice(0, limit);
     }
     return data;
+  }),
+
+  /**
+   * Fetches top selling products based on order items
+   */
+  getTopSellingProducts: cache(async (limit = 5) => {
+    const admin = getSupabaseAdmin();
+    const supabase = admin || await createClient();
+
+    // We group and count based on order_items
+    const { data, error } = await supabase
+      .from('order_items')
+      .select('product_id, products(title, images, name)')
+      .limit(2000); // Get a larger sample size for accuracy
+
+    if (error || !data) {
+      console.error('Error fetching top selling:', error);
+      return [];
+    }
+
+    // Aggregate by product_id: Count entries (number of times it was ordered)
+    const aggregated = data.reduce((acc: any, curr: any) => {
+      const id = curr.product_id;
+      if (!acc[id]) {
+        const product = curr.products as any;
+        acc[id] = {
+          product_id: id,
+          name: product?.title || product?.name || 'Unknown Product',
+          thumbnail: product?.images?.[0] || '/images/protein.webp',
+          order_count: 0
+        };
+      }
+      acc[id].order_count += 1; // Count each order entry as 1 order received
+      return acc;
+    }, {});
+
+    return Object.values(aggregated || {})
+      .sort((a: any, b: any) => b.order_count - a.order_count)
+      .slice(0, limit);
   }),
 
   /**
@@ -113,7 +153,7 @@ export const analyticsService = {
           if (userIds.includes(authUser.id)) {
             const existing = profilesMap.get(authUser.id);
             const authAvatar = authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture;
-            
+
             profilesMap.set(authUser.id, {
               id: authUser.id,
               email: authUser.email || existing?.email || 'No email',
@@ -251,7 +291,8 @@ export const analyticsService = {
    * Fetches trending searches
    */
   getTrendingSearches: cache(async (limit = 10) => {
-    const supabase = await createClient();
+    const admin = getSupabaseAdmin();
+    const supabase = admin || await createClient();
     const { data, error } = await supabase
       .from('view_trending_searches')
       .select('*')
