@@ -13,7 +13,7 @@ interface MetricCardProps {
 }
 
 export const MetricCard = ({ title, value, subtext, icon: Icon, trend }: MetricCardProps) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     className="bg-white p-6 rounded-[12px] border border-gray-100 transition-all duration-300 group"

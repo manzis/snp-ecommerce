@@ -69,16 +69,32 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
         const profiles = profilesRes.data || [];
         const allOrders = ordersRes.data || [];
 
+        // 2.5 Fetch auth users to get Google metadata (e.g. avatars)
+        let authMetadataMap = new Map();
+        try {
+            const { data: { users: authUsers } } = await adminClient.auth.admin.listUsers();
+            authUsers.forEach(au => {
+                authMetadataMap.set(au.id, {
+                    avatar: au.user_metadata?.avatar_url || au.user_metadata?.picture || '',
+                    email: au.email || '',
+                    name: au.user_metadata?.full_name || au.email?.split('@')[0] || ''
+                });
+            });
+        } catch (e) {
+            console.error('Failed to fetch auth metadata for customers:', e);
+        }
+
         // 3. Aggregate Behavioral Data
         const customerMap: Record<string, CustomerData> = {};
 
         profiles.forEach(p => {
+            const authMeta = authMetadataMap.get(p.id);
             customerMap[p.id] = {
                 id: p.id,
-                email: p.email || 'N/A',
-                name: p.full_name || 'Customer User',
+                email: p.email || authMeta?.email || 'N/A',
+                name: p.full_name || authMeta?.name || 'Customer User',
                 phone: p.phone || 'N/A',
-                avatar: p.avatar_url || '',
+                avatar: p.avatar_url || authMeta?.avatar || '',
                 status: 'new',
                 createdAt: new Date(p.created_at).toLocaleDateString(),
                 behavior: {

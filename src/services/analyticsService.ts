@@ -99,36 +99,31 @@ export const analyticsService = {
 
     const [productsRes, profilesRes] = await Promise.all([
       supabase.from('products').select('id, name, images').in('id', productIds),
-      supabase.from('profiles').select('id, full_name, email').in('id', userIds)
+      supabase.from('profiles').select('id, full_name, email, avatar_url').in('id', userIds)
     ]);
 
     const productsMap = new Map(productsRes.data?.map(p => [p.id, p]));
     const profilesMap = new Map(profilesRes.data?.map(p => [p.id, p]));
 
-    // 2.5 Fetch missing emails/names from auth if admin client is available
+    // 2.5 Fetch auth users to get Google metadata (e.g. avatars) if admin client is available
     if (admin) {
-      const missingUserIds = userIds.filter(id => {
-        const p = profilesMap.get(id);
-        return !p || !p.email || p.full_name === 'Anonymous' || !p.full_name;
-      });
-
-      if (missingUserIds.length > 0) {
-        try {
-          // Fetch users from auth.users (requires service role)
-          const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
-          authUsers.forEach(authUser => {
-            if (missingUserIds.includes(authUser.id)) {
-              const existing = profilesMap.get(authUser.id);
-              profilesMap.set(authUser.id, {
-                id: authUser.id,
-                email: authUser.email || existing?.email || 'No email',
-                full_name: authUser.user_metadata?.full_name || existing?.full_name || authUser.email?.split('@')[0] || 'Anonymous'
-              });
-            }
-          });
-        } catch (e) {
-          console.error('Failed to fetch auth users:', e);
-        }
+      try {
+        const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
+        authUsers.forEach(authUser => {
+          if (userIds.includes(authUser.id)) {
+            const existing = profilesMap.get(authUser.id);
+            const authAvatar = authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture;
+            
+            profilesMap.set(authUser.id, {
+              id: authUser.id,
+              email: authUser.email || existing?.email || 'No email',
+              full_name: authUser.user_metadata?.full_name || existing?.full_name || authUser.email?.split('@')[0] || 'Anonymous',
+              avatar_url: existing?.avatar_url || authAvatar || ''
+            });
+          }
+        });
+      } catch (e) {
+        console.error('Failed to fetch auth users for metadata:', e);
       }
     }
 
@@ -158,7 +153,8 @@ export const analyticsService = {
         prod.users.push({
           id: item.user_id,
           name: profile?.full_name || 'Anonymous User',
-          email: profile?.email || 'No email'
+          email: profile?.email || 'No email',
+          avatar: profile?.avatar_url || ''
         });
       }
     });
@@ -193,9 +189,29 @@ export const analyticsService = {
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email, phone')
+        .select('id, full_name, email, phone, avatar_url')
         .in('id', userIds);
       profilesMap = new Map(profiles?.map(p => [p.id, p]));
+
+      // Fetch auth metadata for Google avatars
+      if (admin) {
+        try {
+          const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
+          authUsers.forEach(au => {
+            if (userIds.includes(au.id)) {
+              const existing = profilesMap.get(au.id);
+              const authAvatar = au.user_metadata?.avatar_url || au.user_metadata?.picture;
+              profilesMap.set(au.id, {
+                ...(existing || {}),
+                id: au.id,
+                avatar_url: existing?.avatar_url || authAvatar || ''
+              });
+            }
+          });
+        } catch (e) {
+          console.error('Failed to fetch auth users for abandoned checkouts metadata:', e);
+        }
+      }
     }
 
     // 3. Map and format
@@ -215,7 +231,8 @@ export const analyticsService = {
         customer: {
           name: profile?.full_name || details?.full_name || details?.addressDetails?.full_name || details?.delivery?.addressDetails?.full_name || details?.name || 'Anonymous',
           email: profile?.email || (contactValue.includes('@') ? contactValue : (details?.email || details?.delivery?.addressDetails?.email)) || 'No email',
-          phone: profile?.phone || (!contactValue.includes('@') && contactValue ? contactValue : (details?.phone || details?.delivery?.addressDetails?.phone || details?.addressDetails?.phone)) || 'No phone'
+          phone: profile?.phone || (!contactValue.includes('@') && contactValue ? contactValue : (details?.phone || details?.delivery?.addressDetails?.phone || details?.addressDetails?.phone)) || 'No phone',
+          avatar: profile?.avatar_url || ''
         },
         items: (record.items as any[])?.map(item => ({
           ...item,
