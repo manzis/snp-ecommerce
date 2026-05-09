@@ -153,66 +153,49 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 setError(`Did you mean ${correctedEmail}?`);
             } else {
                 setEmailSuggestion(null);
-                setError("Please enter a valid email or phone number");
+                setError("Please enter your email address");
             }
             return;
         }
         setError(null);
         setEmailSuggestion(null);
-        setIsSending(true);
+        // Validate type before switching UI
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
+        const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
 
-        // OPTIMISTIC UI: Switch to OTP step instantly
+        if (isPhone) {
+            setError("Phone number login is not available. Please use email instead.");
+            showToast("Please use your email address to log in.", "error");
+            setIsSending(false);
+            return;
+        }
+
+        if (!isEmail) {
+            setError("Please enter a valid email address.");
+            setIsSending(false);
+            return;
+        }
+
+        // OPTIMISTIC UI: Switch to OTP step instantly for email
         setStep('otp');
         setLoginMethod('supabase');
 
         try {
             const supabase = createClient();
-            const cleanIdentifier = identifier.trim().toLowerCase();
-            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
-            const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
-
-            if (!isEmail && !isPhone) {
-                throw new Error("Please enter a valid email or 10-digit phone number");
-            }
-
-            // Prepare phone number with country code if needed
-            let formattedPhone = cleanIdentifier;
-            if (isPhone) {
-                if (cleanIdentifier.startsWith('977')) {
-                    formattedPhone = `+${cleanIdentifier}`;
-                } else if (!cleanIdentifier.startsWith('+')) {
-                    formattedPhone = `+977${cleanIdentifier}`;
-                }
-            }
-
-            if (isEmail) {
-                setLoginMethod('supabase');
-                const { error } = await supabase.auth.signInWithOtp({ 
-                    email: cleanIdentifier, 
-                    options: { shouldCreateUser: true } 
-                });
-                if (error) throw error;
-                showToast("OTP sent to your email!", "success");
-            } else {
-                setLoginMethod('whatsapp');
-                const result = await sendWhatsappOtpAction(formattedPhone);
-                if (!result.success) throw new Error(result.error || "WhatsApp OTP failed");
-                showToast("OTP sent to your WhatsApp!", "success");
-            }
+            
+            setLoginMethod('supabase');
+            const { error } = await supabase.auth.signInWithOtp({ 
+                email: cleanIdentifier, 
+                options: { shouldCreateUser: true } 
+            });
+            if (error) throw error;
+            showToast("OTP sent to your email!", "success");
         } catch (err: any) {
             console.error("OTP Send Failed:", err?.message || err);
-
-            // REVERT UI: Move back to login step so user can correct the identifier
             setStep('login');
-
-            // Specific handling for unsupported phone provider
-            if (err?.message?.includes('unsupported phone provider')) {
-                setError("Phone login is temporarily unavailable. Please use Email.");
-                showToast("Phone login not configured. Please use Email for now.", "error");
-            } else {
-                setError(err?.message || "Failed to send OTP. Please try again.");
-                showToast(err?.message || "Failed to send OTP. Please try again.", "error");
-            }
+            setError(err?.message || "Failed to send OTP. Please try again.");
+            showToast(err?.message || "Failed to send OTP. Please try again.", "error");
         } finally {
             setIsSending(false);
         }
@@ -243,15 +226,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 });
                 if (error) throw error;
                 setStatusMsg("Email OTP resent!");
+                showToast("OTP has been resent to your email", "success");
             } else {
-                const result = await sendWhatsappOtpAction(formattedPhone);
-                if (!result.success) throw new Error(result.error || "WhatsApp OTP failed");
-                setStatusMsg("WhatsApp OTP resent!");
+                throw new Error("Phone login is not available.");
             }
-            showToast("OTP has been resent", "success");
         } catch (err: any) {
             console.error("Resend OTP Failed:", err?.message || err);
-            const isUnsupported = err?.message?.includes('unsupported phone provider');
             setStatusMsg(isUnsupported ? "Phone not supported" : "Failed to resend");
             showToast(isUnsupported ? "Phone login not configured. Please use Email." : (err?.message || "Failed to resend OTP"), "error");
         } finally {
@@ -496,7 +476,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 <div className="flex flex-col gap-[16px]">
                                     <div className={`group flex h-[54px] items-center gap-[8px] rounded-[12px] border ${error ? 'border-red-500' : 'border-[#eaebf0]'} px-[12px] transition-all focus-within:border-[#3f9633] focus-within:ring-1 focus-within:ring-[#3f9633]`}>
                                         <MailIcon className="w-[18px] h-[18px] text-[#68727d]" />
-                                        <input type="text" placeholder="Email or phone no" value={identifier} onChange={(e) => { setIdentifier(e.target.value); setError(null); setEmailSuggestion(null); }} className="flex-1 bg-transparent text-[18px] text-[#242424] outline-none placeholder:text-[#68727d]" />
+                                        <input type="text" placeholder="Enter your email" value={identifier} onChange={(e) => { setIdentifier(e.target.value); setError(null); setEmailSuggestion(null); }} className="flex-1 bg-transparent text-[18px] text-[#242424] outline-none placeholder:text-[#68727d]" />
                                     </div>
                                     {error && (
                                         <div className="flex items-center gap-[8px] mt-[-10px]">
@@ -530,15 +510,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                             </div>
                             <div className="flex flex-col gap-[16px] items-center">
                                 <span className="text-[12px] font-[600] text-[#7b838d] tracking-widest">OR LOGIN WITH</span>
-                                <div className="flex gap-[10px] w-full max-w-[250px]">
-                                    <button
-                                        onClick={handleWhatsappLogin}
-                                        className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98]"
-                                    >
-                                        <WhatsappIcon className="w-[18px] h-[18px]" />
-                                        <span className="text-[16px] font-[600] text-[#575757]">Whatsapp</span>
-                                    </button>
-                                    <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70">
+                                <div className="flex gap-[10px] w-full max-w-[250px] justify-center">
+                                    <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70">
                                         <GoogleIcon className="w-[18px] h-[18px]" />
                                         <span className="text-[16px] font-[600] text-[#575757]">Google</span>
                                     </button>
