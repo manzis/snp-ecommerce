@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
+        protocol: 'http',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
         protocol: 'https',
         hostname: '*.cloudinary.com',
         pathname: '/**',
@@ -38,6 +43,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    unoptimized: true,
   },
 
   experimental: {
