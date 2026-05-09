@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache';
 export async function sendBulkWhatsAppAction(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) return { success: false, error: 'Unauthorized' };
 
   // Role check
@@ -60,12 +60,12 @@ export async function sendBulkWhatsAppAction(formData: FormData) {
     // 3. Simulate/Integrate WhatsApp API (e.g., Twilio or Meta API)
     // Here you would call your WhatsApp service
     console.log(`Sending bulk message to ${customers.length} users: ${message}`);
-    
+
     // 4. Mark as sent
     await adminClient
       .from('marketing_campaigns')
-      .update({ 
-        status: 'sent', 
+      .update({
+        status: 'sent',
         recipient_count: customers.length,
         sent_at: new Date().toISOString()
       })
@@ -88,7 +88,7 @@ export async function sendBulkWhatsAppAction(formData: FormData) {
 export async function getAbandonedCartDataAction() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) return { success: false, error: 'Unauthorized' };
 
   // Role check
@@ -115,5 +115,70 @@ export async function getAbandonedCartDataAction() {
   } catch (error) {
     console.error('Failed to fetch abandoned cart data:', error);
     return { success: false, error: 'Failed to load data' };
+  }
+}
+
+/**
+ * Records an abandoned checkout session
+ */
+export async function recordAbandonedCheckoutAction(data: {
+  user_id?: string | null;
+  customer_details: any;
+  items: any[];
+  total_amount: number;
+  session_id?: string | null;
+}) {
+  const adminClient = getSupabaseAdmin();
+  if (!adminClient) return { success: false, error: 'Internal server error' };
+
+  try {
+    // 1. Check for an existing unrecovered checkout for this user/session
+    const identifierField = data.user_id ? 'user_id' : 'session_id';
+    const identifierValue = data.user_id || data.session_id;
+
+    if (!identifierValue) return { success: false, error: 'No identifier provided' };
+
+    const { data: existing } = await adminClient
+      .from('abandoned_checkouts')
+      .select('id')
+      .eq(identifierField, identifierValue)
+      .eq('recovered', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      // 2. Update the existing record with latest details
+      const { error: updateError } = await adminClient
+        .from('abandoned_checkouts')
+        .update({
+          customer_details: data.customer_details,
+          items: data.items,
+          total_amount: data.total_amount,
+          abandoned_at: new Date().toISOString()
+        })
+        .eq('id', existing.id);
+
+      if (updateError) throw updateError;
+      return { success: true, updated: true };
+    }
+
+    // 3. Insert new record if none exists
+    const { error: insertError } = await adminClient
+      .from('abandoned_checkouts')
+      .insert({
+        user_id: data.user_id,
+        customer_details: data.customer_details,
+        items: data.items,
+        total_amount: data.total_amount,
+        session_id: data.session_id
+      });
+
+    if (insertError) throw insertError;
+    return { success: true };
+
+  } catch (error: any) {
+    console.error('Failed to record abandoned checkout:', error);
+    return { success: false, error: error.message || 'Unexpected error' };
   }
 }

@@ -9,7 +9,7 @@ export const analyticsService = {
   getDashboardStats: cache(async () => {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
-    
+
     // In a real scenario, we'd use Promise.all for these
     const [revenueRes, orders, views, customers] = await Promise.all([
       supabase.rpc('get_total_revenue'),
@@ -26,7 +26,7 @@ export const analyticsService = {
         .from('orders')
         .select('total_amount')
         .eq('payment_status', 'paid');
-      
+
       revenue = orderData?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0;
     }
 
@@ -47,7 +47,7 @@ export const analyticsService = {
       .from('view_top_products_30d')
       .select('*')
       .limit(limit);
-      
+
     if (error) {
       // Fallback: Query raw product_views if view doesn't exist
       const { data: rawData } = await supabase
@@ -73,7 +73,7 @@ export const analyticsService = {
   getActiveCartAnalytics: cache(async () => {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
-    
+
     // 1. Get unique items in carts
     const { data: cartItems, error: cartError } = await supabase
       .from('cart_items')
@@ -148,10 +148,10 @@ export const analyticsService = {
           users: []
         });
       }
-      
+
       const prod = productMap.get(item.product_id);
       const profile = profilesMap.get(item.user_id);
-      
+
       // Add user if not already in the list for this product
       if (item.user_id && !prod.users.some((u: any) => u.id === item.user_id)) {
         prod.unique_cart_count += 1;
@@ -169,79 +169,64 @@ export const analyticsService = {
   }),
 
   /**
-   * Fetches abandoned orders (Orders that reached checkout but remained 'pending')
+   * Fetches abandoned checkouts (Users who filled details but exited)
    */
   getAbandonedOrdersAnalytics: cache(async () => {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
-    
-    // 1. Get pending orders
-    const { data: orders, error: ordersError } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        user_id,
-        total_amount,
-        created_at,
-        contact_details,
-        status,
-        order_items (
-          product_id,
-          quantity,
-          price,
-          selected_size,
-          selected_flavor,
-          products (
-            id,
-            name,
-            images
-          )
-        )
-      `)
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false });
 
-    if (ordersError) {
-      console.error('Error fetching abandoned orders:', ordersError);
+    // 1. Get abandoned checkouts
+    const { data: abandoned, error } = await supabase
+      .from('abandoned_checkouts')
+      .select('*')
+      .order('abandoned_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching abandoned checkouts:', error);
       return { abandonedOrders: [] };
     }
 
-    // 2. Fetch user profiles for these orders if they exist
-    const userIds = Array.from(new Set(orders?.map(o => o.user_id).filter(id => id)));
+    // 2. Fetch user profiles for these records if they exist
+    const userIds = Array.from(new Set(abandoned?.map(a => a.user_id).filter(id => id)));
     let profilesMap = new Map();
 
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('id, full_name, email, phone')
         .in('id', userIds);
       profilesMap = new Map(profiles?.map(p => [p.id, p]));
     }
 
     // 3. Map and format
-    const formattedOrders = orders?.map(order => {
-      const profile = profilesMap.get(order.user_id);
-      const contactInfo = typeof order.contact_details === 'string' 
-        ? JSON.parse(order.contact_details) 
-        : order.contact_details;
+    const formatted = abandoned?.map(record => {
+      const details = typeof record.customer_details === 'string'
+        ? JSON.parse(record.customer_details)
+        : record.customer_details;
+
+      const profile = profilesMap.get(record.user_id);
+      const contactValue = details?.contact_value || details?.value || '';
 
       return {
-        ...order,
+        id: record.id,
+        user_id: record.user_id,
+        created_at: record.abandoned_at,
+        total_amount: record.total_amount,
         customer: {
-          name: profile?.full_name || contactInfo?.full_name || contactInfo?.name || 'Anonymous',
-          email: profile?.email || contactInfo?.email || 'No email',
-          phone: contactInfo?.phone || 'No phone'
+          name: profile?.full_name || details?.full_name || details?.addressDetails?.full_name || details?.delivery?.addressDetails?.full_name || details?.name || 'Anonymous',
+          email: profile?.email || (contactValue.includes('@') ? contactValue : (details?.email || details?.delivery?.addressDetails?.email)) || 'No email',
+          phone: profile?.phone || (!contactValue.includes('@') && contactValue ? contactValue : (details?.phone || details?.delivery?.addressDetails?.phone || details?.addressDetails?.phone)) || 'No phone'
         },
-        items: order.order_items?.map((item: any) => ({
+        items: (record.items as any[])?.map(item => ({
           ...item,
-          product_name: item.products?.name,
-          thumbnail: item.products?.images?.[0]
+          product_name: item.name || item.product_name || 'Product',
+          thumbnail: item.image || item.images?.[0] || item.thumbnail
         }))
       };
     });
 
     return {
-      abandonedOrders: formattedOrders || []
+      abandonedOrders: formatted || []
     };
   }),
 
@@ -254,7 +239,7 @@ export const analyticsService = {
       .from('view_trending_searches')
       .select('*')
       .limit(limit);
-      
+
     if (error) {
       // Fallback: Query raw search_history
       const { data: rawData } = await supabase
@@ -291,7 +276,7 @@ export const analyticsService = {
   recordSearch: async (query: string, userId?: string, resultsCount: number = 0) => {
     const supabase = await createClient();
     const normalized = query.trim().toLowerCase().replace(/[^\w\s]/gi, ''); // Basic normalization
-    
+
     return supabase.from('search_history').insert({
       query,
       normalized_query: normalized,

@@ -128,7 +128,10 @@ export default function CartPage() {
   return (
     <div className={`min-h-screen bg-[#f7faf6] pt-[81px] ${items.length > 0 ? 'mb-[80px]' : ''}`}>
       {/* STICKY NAV */}
-      <DynamicPageNav title="My Cart" subtitle={`${items.length} Items`} />
+      <DynamicPageNav 
+        title="My Cart" 
+        subtitle={`${items.length} Items`} 
+      />
 
       <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
 

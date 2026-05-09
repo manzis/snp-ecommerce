@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import CheckoutPriceHeader from '@/components/checkout/CheckoutPriceHeader';
@@ -16,6 +16,9 @@ import { placeOrderAction } from '@/app/actions/orderActions';
 import { uploadFileAction } from '@/app/actions/storageActions';
 import { supabase } from '@/lib/supabase/client';
 import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
+import CheckoutCancelModal from '@/components/checkout/CheckoutCancelModal';
+import { recordAbandonedCheckoutAction } from '@/app/actions/marketingActions';
+import { useUIStore } from '@/store/uiStore';
 
 export default function CheckoutPage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -52,6 +55,11 @@ export default function CheckoutPage() {
   const [contactError, setContactError] = useState<string | null>(null);
   const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  // ABANDONED CART RECOVERY
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isAbandoning, setIsAbandoning] = useState(false);
+  const setHideBottomNav = useUIStore((state) => state.setHideBottomNav);
 
   // REFS
   const contactRef = useRef<ContactSectionHandle>(null);
@@ -236,6 +244,82 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleBackAttempt = () => {
+    // Only show modal if delivery is filled
+    if (completedSteps.includes('delivery')) {
+      setShowCancelModal(true);
+    } else {
+      router.back();
+    }
+  };
+
+  const handleConfirmExit = async () => {
+    setIsAbandoning(true);
+    try {
+      // Record Abandoned Checkout
+      await recordAbandonedCheckoutAction({
+        user_id: userId,
+        customer_details: {
+          ...contactData,
+          ...deliveryData,
+          ...deliveryData?.addressDetails,
+          contact_value: contactData.value // Explicitly store value
+        },
+        items: items,
+        total_amount: finalTotal,
+        session_id: typeof window !== 'undefined' ? localStorage.getItem('cart_session_id') : null
+      });
+      
+      // Clear flags and prepare for jump
+      sessionStorage.removeItem('checkout_initiated');
+      resetCheckout();
+      
+      // If we have pushed an extra state for back-button interception, go back 3 times
+      // to land on the Product page (skipping dummy, checkout, and cart).
+      if (completedSteps.includes('delivery')) {
+        window.history.go(-3);
+      } else {
+        router.back();
+      }
+
+      // Small delay fallback to ensure we leave checkout
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname.includes('/checkout')) {
+          window.location.replace('/cart');
+        }
+      }, 150);
+
+    } catch (error) {
+      console.error("Failed to record abandonment:", error);
+      window.location.replace('/cart');
+    } finally {
+      setIsAbandoning(false);
+      setShowCancelModal(false);
+    }
+  };
+
+  const hasPushedState = useRef(false);
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (completedSteps.includes('delivery') && !showCancelModal) {
+        // Stop browser back
+        window.history.pushState(null, '', window.location.href);
+        setShowCancelModal(true);
+      }
+    };
+
+    if (completedSteps.includes('delivery') && !hasPushedState.current) {
+      window.history.pushState(null, '', window.location.href);
+      hasPushedState.current = true;
+      window.addEventListener('popstate', handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [completedSteps, showCancelModal]);
+
   useEffect(() => {
     if (activeStep === 'delivery' && deliveryScrollRef.current) {
       deliveryScrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -276,8 +360,15 @@ export default function CheckoutPage() {
     <>
       <CheckoutLoader isLoading={isProcessing} />
       
-      <div className={`min-h-screen bg-[#f7faf6] pt-[81px] pb-[80px] transition-all duration-500 ${isProcessing ? 'blur-[8px] pointer-events-none grayscale-[0.2]' : ''}`}>
-        <DynamicPageNav title="Checkout" />
+      <div className={`min-h-screen bg-[#f7faf6] pt-[81px] pb-[80px] transition-all duration-500 ${isProcessing ? 'blur-[4px] pointer-events-none grayscale-[0.2]' : ''}`}>
+        <DynamicPageNav title="Checkout" onBack={handleBackAttempt} />
+        
+        <CheckoutCancelModal 
+          isOpen={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          onConfirm={handleConfirmExit}
+          isProcessing={isAbandoning}
+        />
         
         <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
           <div className="flex-1 flex flex-col gap-[12px]">

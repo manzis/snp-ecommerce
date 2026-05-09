@@ -3,7 +3,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { User, Package, Clock, CreditCard, ExternalLink, Mail, Phone } from 'lucide-react';
-import { format } from 'date-fns';
 
 interface AbandonedCheckoutsSectionProps {
   data: {
@@ -63,7 +62,15 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
                   </div>
                   <div className="flex items-center gap-2 text-[#71717a] mt-2">
                     <Clock className="w-3 h-3" />
-                    <span className="text-[11px]">{format(new Date(order.created_at), 'MMM dd, HH:mm')}</span>
+                    <span className="text-[11px]">
+                      {new Date(order.created_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: '2-digit', 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false 
+                      })}
+                    </span>
                   </div>
                 </div>
               </div>

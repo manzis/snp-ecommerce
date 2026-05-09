@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import BackIcon from '@/components/icons/BackIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
 import CartIcon from '@/components/icons/CartIcon';
+import PackageIcon2 from '@/components/icons/PackageIcon2';
 import { useCart } from '@/context/CartContext';
 
 /**
@@ -18,6 +19,11 @@ export default function ProductNav() {
   const handleBack = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
     router.back();
+  };
+
+  const handleHome = (e: React.PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+    router.push('/');
   };
 
   const handleSearchRedirect = (e: React.PointerEvent<HTMLButtonElement>) => {
@@ -62,24 +68,36 @@ export default function ProductNav() {
         </div>
       </button>
 
-      {/* Cart Button */}
-      <button
-        type="button"
-        aria-label="View cart"
-        onPointerUp={handleCart}
-        className="flex w-[42px] h-[42px] p-[8px] flex-col justify-center items-center shrink-0 flex-nowrap relative z-[7] outline-none transition-all duration-200 rounded-[6px] md:hover:bg-[#f2f3f5] active:scale-[0.98]"
-      >
-        <div className="flex px-[1px] py-[2px] items-start shrink-0 relative z-[8]">
-          <CartIcon className="w-[21.75px] h-[19.5px] shrink-0 relative z-[9] text-[#242424]" />
-          {cartCount > 0 && (
-            <div className="absolute -right-[10px] -top-[8px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] border-white bg-[#242424] px-[5px] py-[2px] z-[10]">
-              <span className="font-titillium text-[10px] font-normal leading-none text-white">
-                {cartCount}
-              </span>
-            </div>
-          )}
-        </div>
-      </button>
+      <div className="flex items-center gap-[4px]">
+        {/* Home Button */}
+        <button
+          type="button"
+          aria-label="Go to home"
+          onPointerUp={handleHome}
+          className="flex w-[42px] h-[42px] p-[8px] flex-col justify-center items-center shrink-0 flex-nowrap relative z-[7] outline-none transition-all duration-200 rounded-[6px] md:hover:bg-[#f2f3f5] active:scale-[0.98]"
+        >
+          <PackageIcon2 className="w-[22px] h-[22px] shrink-0 relative z-[8] text-[#242424]" />
+        </button>
+
+        {/* Cart Button */}
+        <button
+          type="button"
+          aria-label="View cart"
+          onPointerUp={handleCart}
+          className="flex w-[42px] h-[42px] p-[8px] flex-col justify-center items-center shrink-0 flex-nowrap relative z-[7] outline-none transition-all duration-200 rounded-[6px] md:hover:bg-[#f2f3f5] active:scale-[0.98]"
+        >
+          <div className="flex px-[1px] py-[2px] items-start shrink-0 relative z-[8]">
+            <CartIcon className="w-[21.75px] h-[19.5px] shrink-0 relative z-[9] text-[#242424]" />
+            {cartCount > 0 && (
+              <div className="absolute -right-[10px] -top-[8px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] border-white bg-[#242424] px-[5px] py-[2px] z-[10]">
+                <span className="font-titillium text-[10px] font-normal leading-none text-white">
+                  {cartCount}
+                </span>
+              </div>
+            )}
+          </div>
+        </button>
+      </div>
     </nav>
   );
 }
