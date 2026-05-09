@@ -77,16 +77,41 @@ export async function getAnalyticsDataAction() {
       analyticsService.getTrendingSearches(50)
     ]);
 
-    // Fetch top selling products (simple aggregation for now)
+    // Fetch top selling products by aggregating orders
     const supabase = await createClient();
-    const { data: topSelling } = await supabase
+    
+    // We fetch order items and manually aggregate for now 
+    // (Better way is a Postgres View, but this works for most scales)
+    const { data: orderItems, error: orderError } = await supabase
       .from('order_items')
-      .select('product_id, quantity, products(title, image_url)')
-      .order('quantity', { ascending: false })
-      .limit(5);
+      .select('product_id, quantity, products(title, image_url, price)')
+      .limit(1000); // Fetch recent 1000 items to aggregate
 
-    // Group and sum top selling if needed, but for now just the raw data or a mock that looks real
-    // In a real DB, you'd use a view for this.
+    let topSelling: any[] = [];
+    if (orderItems && orderItems.length > 0) {
+      const productMap: Record<string, any> = {};
+      
+      orderItems.forEach((item: any) => {
+        if (!item.product_id || !item.products) return;
+        
+        if (!productMap[item.product_id]) {
+          productMap[item.product_id] = {
+            id: item.product_id,
+            title: item.products.title,
+            image_url: item.products.image_url,
+            price: item.products.price,
+            quantity: 0,
+            order_count: 0
+          };
+        }
+        productMap[item.product_id].quantity += item.quantity || 1;
+        productMap[item.product_id].order_count += 1;
+      });
+
+      topSelling = Object.values(productMap)
+        .sort((a, b) => b.order_count - a.order_count)
+        .slice(0, 5);
+    }
 
     return {
       success: true,
@@ -94,7 +119,7 @@ export async function getAnalyticsDataAction() {
         stats,
         topViewed,
         trendingSearches,
-        topSelling: topSelling || []
+        topSelling
       }
     };
   } catch (error) {

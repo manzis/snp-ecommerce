@@ -23,6 +23,7 @@ import { SearchAnalysis } from '@/components/admin/analytics/SearchAnalysis';
 import { SearchModal } from '@/components/admin/analytics/SearchModal';
 import { MarketingPanel } from '@/components/admin/analytics/MarketingPanel';
 import { MostViewedSection } from '@/components/admin/analytics/MostViewedSection';
+import { TopSellingSection } from '@/components/admin/analytics/TopSellingSection';
 
 import { getAnalyticsDataAction } from '@/app/actions/analyticsActions';
 
@@ -166,6 +167,11 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                   totalViews={stats.views || 1}
                 />
 
+                <TopSellingSection
+                  topSelling={topSelling}
+                  totalOrders={stats.orders || 1}
+                />
+
                 {/* Main Analysis Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   <div className="lg:col-span-2 space-y-8">
@@ -230,14 +236,14 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                           <div key={i} className="flex items-center gap-4 p-2.5 hover:bg-gray-50 rounded-xl transition-all cursor-pointer group border border-transparent hover:border-gray-100">
                             <div className="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-50">
                               <img
-                                src={item.products?.image_url || '/images/protein.webp'}
-                                alt={item.products?.title || 'Product'}
+                                src={item.image_url || '/images/protein.webp'}
+                                alt={item.title || 'Product'}
                                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
                               />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-[13px] font-semibold text-[#242424] truncate group-hover:text-green-600 transition-colors">{item.products?.title}</h4>
-                              <p className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest mt-0.5">{item.quantity} units sold</p>
+                              <h4 className="text-[13px] font-semibold text-[#242424] truncate group-hover:text-green-600 transition-colors">{item.title}</h4>
+                              <p className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest mt-0.5">{item.order_count} orders</p>
                             </div>
                             <div className="text-right">
                               <span className="text-[9px] font-semibold text-white bg-green-600 px-2 py-1 rounded-full uppercase tracking-tighter">TOP</span>
