@@ -40,6 +40,7 @@ export default function CheckoutPage() {
     getCouponDiscount
   } = useCartStore();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingMessage, setProcessingMessage] = useState("Processing your order...");
   const [isValidating, setIsValidating] = useState(false);
 
   const contactData = useCheckoutStore((state) => state.contactData);
@@ -181,6 +182,7 @@ export default function CheckoutPage() {
     }
 
     setIsProcessing(true);
+    setProcessingMessage("Initializing...");
     try {
       const finalQrData = overrideQrData || qrData;
       let paymentScreenshotUrl = null;
@@ -199,6 +201,7 @@ export default function CheckoutPage() {
         formData.append('bucket', 'payment-proofs');
         formData.append('path', `orders/${currentUserId}`);
         
+        setProcessingMessage("Uploading receipt...");
         const uploadRes = await uploadFileAction(formData);
         if (uploadRes.success) {
           paymentScreenshotUrl = uploadRes.url;
@@ -209,6 +212,7 @@ export default function CheckoutPage() {
         }
       }
 
+      setProcessingMessage("Securing your order...");
       const result = await placeOrderAction({
         user_id: currentUserId,
         total_amount: finalTotal,
@@ -229,6 +233,7 @@ export default function CheckoutPage() {
       }, items);
 
       if (result.success) {
+        setProcessingMessage("Finalizing...");
         await clearCart();
         resetCheckout();
         sessionStorage.removeItem('checkout_initiated');
@@ -358,7 +363,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <CheckoutLoader isLoading={isProcessing} />
+      <CheckoutLoader isLoading={isProcessing} message={processingMessage} />
       
       <div className={`min-h-screen bg-[#f7faf6] pt-[81px] pb-[80px] transition-all duration-500 ${isProcessing ? 'blur-[4px] pointer-events-none grayscale-[0.2]' : ''}`}>
         <DynamicPageNav title="Checkout" onBack={handleBackAttempt} />

@@ -94,14 +94,7 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
   }
 
   try {
-    const result = await createOrder(orderData, items);
-    
-    // NEW: Log the initial status update in history
-    await supabase.rpc('update_order_status_v2', {
-      p_order_id: result.id,
-      p_new_status: 'pending',
-      p_message: 'Order Received'
-    });
+    const result = await createOrder(orderData, items, supabase);
 
     // Revalidate relevant paths
     revalidatePath('/account/orders');
@@ -717,15 +710,8 @@ export async function createManualOrderAction(orderData: any, items: any[]) {
       payment_remarks: orderData.payment_remarks || 'Manually created by Admin'
     };
 
-    // 4. Create Order using existing service
-    const result = await createOrder(finalOrderData, items);
-
-    // 5. Initial Status Update v2
-    await adminSupabase.rpc('update_order_status_v2', {
-      p_order_id: result.id,
-      p_new_status: 'pending',
-      p_message: 'Order Created Manually by Admin'
-    });
+    // 4. Create Order using existing service, passing the admin client
+    const result = await createOrder(finalOrderData, items, adminSupabase);
 
     revalidatePath('/admin/orders');
     

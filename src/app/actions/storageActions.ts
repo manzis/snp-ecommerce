@@ -18,10 +18,10 @@ export async function uploadFileAction(formData: FormData) {
 
     // 2. Permission check: Admin can upload anywhere, customers only to their order folders
     const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
     const isAdmin = profile?.role === 'admin';
     const folder = (formData.get('folder') as string || formData.get('path') as string) || 'snp-store';

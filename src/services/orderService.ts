@@ -114,7 +114,9 @@ export function mapToOrderProps(order: any): OrderProps {
 /**
  * Creates a new order using the atomic RPC function
  */
-export async function createOrder(orderData: OrderData, items: any[]) {
+export async function createOrder(orderData: OrderData, items: any[], supabaseClient?: any) {
+  const client = supabaseClient || supabase;
+  
   const formattedItems = items.map(item => ({
     product_id: item.product_id,
     quantity: item.quantity,
@@ -124,7 +126,7 @@ export async function createOrder(orderData: OrderData, items: any[]) {
     selected_flavor: item.selected_flavor
   }));
 
-  const { data, error } = await supabase.rpc('create_order_v3', {
+  const { data, error } = await client.rpc('create_order_v3', {
     p_user_id: orderData.user_id,
     p_total_amount: orderData.total_amount,
     p_mrp_amount: orderData.mrp_amount,

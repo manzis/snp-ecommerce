@@ -55,6 +55,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         }
     }, [identifier, step]);
 
+    // Initialize cooldown timer on mount
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const sentTime = parseInt(localStorage.getItem('otp_sent_time') || '0', 10);
+            const diff = Math.floor((Date.now() - sentTime) / 1000);
+            if (diff < 60 && diff >= 0) {
+                setResendCooldown(60 - diff);
+            }
+        }
+    }, []);
+
     // Auto-focus first OTP input when switching to OTP step
     React.useEffect(() => {
         if (step === 'otp') {
@@ -177,6 +188,19 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             return;
         }
 
+        const lastSentIdentifier = localStorage.getItem('auth_identifier_sent');
+        const sentTime = parseInt(localStorage.getItem('otp_sent_time') || '0', 10);
+        const diff = Math.floor((Date.now() - sentTime) / 1000);
+        
+        if (cleanIdentifier === lastSentIdentifier && diff < 60 && diff >= 0) {
+             setResendCooldown(60 - diff);
+             setStep('otp');
+             setLoginMethod('supabase');
+             showToast("Please use the previously sent OTP", "success");
+             setIsSending(false);
+             return;
+        }
+
         // OPTIMISTIC UI: Switch to OTP step instantly for email
         setStep('otp');
         setLoginMethod('supabase');
@@ -190,6 +214,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 options: { shouldCreateUser: true } 
             });
             if (error) throw error;
+            
+            localStorage.setItem('otp_sent_time', Date.now().toString());
+            localStorage.setItem('auth_identifier_sent', cleanIdentifier);
+            setResendCooldown(60);
+            
             showToast("OTP sent to your email!", "success");
         } catch (err: any) {
             console.error("OTP Send Failed:", err?.message || err);
@@ -226,6 +255,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                     options: { shouldCreateUser: true } 
                 });
                 if (error) throw error;
+                
+                localStorage.setItem('otp_sent_time', Date.now().toString());
+                localStorage.setItem('auth_identifier_sent', cleanIdentifier);
+                
                 setStatusMsg("Email OTP resent!");
                 showToast("OTP has been resent to your email", "success");
             } else {
@@ -310,6 +343,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             // Clear persistence on success
             localStorage.removeItem('auth_identifier');
             localStorage.removeItem('auth_step');
+            localStorage.removeItem('otp_sent_time');
+            localStorage.removeItem('auth_identifier_sent');
 
             showToast("Logged in successfully!", "success");
             closeLogin();
@@ -560,7 +595,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                         disabled={resendCooldown > 0}
                                         onClick={() => {
                                             handleResendOtp();
-                                            setResendCooldown(60); // 60 seconds cooldown
+                                            setResendCooldown(60);
                                         }}
                                         className={`text-[14px] font-semibold text-[#242424] hover:underline bg-transparent border-none outline-none cursor-pointer disabled:text-[#68727d] disabled:no-underline`}
                                     >

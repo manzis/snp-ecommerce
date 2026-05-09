@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   compress: true, // Enable gzip/brotli compression for all responses
 
   images: {
-    unoptimized: true,
     dangerouslyAllowSVG: true,
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 31536000,

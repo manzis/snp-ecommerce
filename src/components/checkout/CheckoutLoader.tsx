@@ -38,9 +38,20 @@ const CheckoutLoader: React.FC<CheckoutLoaderProps> = ({
             </div>
 
             {/* Small Minimalist Text */}
-            <span className="font-titillium text-[14px] text-[#3f9633] font-semibold tracking-tight whitespace-nowrap">
-              {message}
-            </span>
+            <div className="relative overflow-hidden h-[20px] flex items-center min-w-[150px]">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={message}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="font-titillium text-[14px] text-[#3f9633] font-semibold tracking-tight whitespace-nowrap block absolute"
+                >
+                  {message}
+                </motion.span>
+              </AnimatePresence>
+            </div>
           </motion.div>
         </motion.div>
       )}
