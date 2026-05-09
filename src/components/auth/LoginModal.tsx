@@ -165,7 +165,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
 
         if (isPhone) {
-            setError("Phone number login is not available. Please use email instead.");
+            setError("This method is not available. Please use email instead.");
             showToast("Please use your email address to log in.", "error");
             setIsSending(false);
             return;
@@ -229,13 +229,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 setStatusMsg("Email OTP resent!");
                 showToast("OTP has been resent to your email", "success");
             } else {
-                throw new Error("Phone login is not available.");
+                throw new Error("Login method not available.");
             }
         } catch (err: any) {
             console.error("Resend OTP Failed:", err?.message || err);
             const unsupported = isPhone || err?.message?.includes("Phone");
-            setStatusMsg(unsupported ? "Phone not supported" : "Failed to resend");
-            showToast(unsupported ? "Phone login not configured. Please use Email." : (err?.message || "Failed to resend OTP"), "error");
+            setStatusMsg(unsupported ? "Method not supported" : "Failed to resend");
+            showToast(unsupported ? "Please use your Email to login." : (err?.message || "Failed to resend OTP"), "error");
         } finally {
             setTimeout(() => setStatusMsg(null), 3000);
         }
@@ -349,45 +349,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     };
 
     const handleWhatsappLogin = async () => {
-        const cleanIdentifier = identifier.trim().toLowerCase();
-        const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
-
-        if (!isPhone) {
-            setError("Please enter your 10-digit phone number first");
-            showToast("Enter your phone number above to continue", "error");
-            return;
-        }
-
-        let formattedPhone = cleanIdentifier;
-        if (cleanIdentifier.startsWith('977')) {
-            formattedPhone = `+${cleanIdentifier}`;
-        } else if (!cleanIdentifier.startsWith('+')) {
-            formattedPhone = `+977${cleanIdentifier}`;
-        }
-
-        setStep('otp');
-        setLoginMethod('whatsapp');
-
-        try {
-            const formattedPhone = cleanIdentifier.startsWith('977')
-                ? `+${cleanIdentifier}`
-                : (cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}`);
-
-            const result = await sendWhatsappOtpAction(formattedPhone);
-
-            if (!result.success) {
-                throw new Error(result.error || "Failed to send WhatsApp OTP");
-            }
-
-            showToast("OTP sent to your WhatsApp!", "success");
-        } catch (err: any) {
-            console.error("WhatsApp OTP Failed:", err);
-            setStep('login');
-            setError(err.message || "WhatsApp service unavailable. Try Email.");
-            showToast(err.message || "Failed to send WhatsApp OTP", "error");
-        } finally {
-            setIsSending(false);
-        }
+        showToast("Not available Currently", "error");
     };
 
     const handleOtpChange = (value: string, index: number) => {
@@ -505,17 +467,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                     <button disabled={isSending} onClick={handleSendOtp} className="flex h-[48px] w-full items-center justify-center rounded-[12px] bg-[#ffe900] text-[16px] font-[600] text-[#242424] transition-all hover:bg-[#ebd700] active:scale-[0.98] disabled:opacity-70">
                                         {isSending ? "Processing..." : "Send OTP"}
                                     </button>
-                                    <p className="text-[14px] leading-[22px] text-[#68727d] text-left italic">
-                                        Note: This {identifier.includes('@') ? 'email' : 'phone number'} will be used to login to website
+                                    <p className="text-[14px] leading-[22px] text-[#68727d] text-left">
+                                        Note: This email will be used to login to website
                                     </p>
                                 </div>
                             </div>
                             <div className="flex flex-col gap-[16px] items-center">
                                 <span className="text-[12px] font-[600] text-[#7b838d] tracking-widest">OR LOGIN WITH</span>
-                                <div className="flex gap-[10px] w-full max-w-[250px] justify-center">
+                                <div className="flex gap-[12px] w-full max-w-[320px] justify-center">
                                     <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70">
                                         <GoogleIcon className="w-[18px] h-[18px]" />
                                         <span className="text-[16px] font-[600] text-[#575757]">Google</span>
+                                    </button>
+                                    <button disabled={isSending} onClick={handleWhatsappLogin} className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70">
+                                        <WhatsappIcon className="w-[20px] h-[20px]" />
+                                        <span className="text-[16px] font-[600] text-[#575757]">WhatsApp</span>
                                     </button>
                                 </div>
                             </div>
