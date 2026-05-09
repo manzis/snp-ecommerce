@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
                   <div className="w-2 h-2 bg-white" />
                 </div>
               </div>
-              <span className="text-[18px] font-medium tracking-tight">Bright Nepcare</span>
+              <span className="text-[18px] font-medium tracking-tight">BrightSNP</span>
             </div>
             <div className="px-3 py-1 border border-white/10 rounded-sm">
               <span className="text-[10px] font-bold text-white/40 tracking-[0.2em]">MEMBERS</span>
