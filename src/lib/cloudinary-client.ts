@@ -4,6 +4,8 @@
  * bypassing Vercel's 4.5MB Server Action limit.
  */
 
+import imageCompression from 'browser-image-compression';
+
 export interface ClientUploadResult {
     success: boolean;
     url?: string;
@@ -17,6 +19,25 @@ export async function uploadFileClientSide(
 ): Promise<ClientUploadResult> {
     try {
         const timestamp = Math.floor(Date.now() / 1000).toString();
+
+        // 0. Compress if it's an image
+        let fileToUpload = file;
+        const isImage = file.type.startsWith('image/');
+        const isAnim = file.type.includes('gif') || file.type.includes('svg');
+        
+        if (isImage && !isAnim) {
+            try {
+                const options = {
+                    maxSizeMB: 0.3, // Compress to max 300KB
+                    maxWidthOrHeight: 1200, // Max 1200px width/height
+                    useWebWorker: true,
+                    fileType: 'image/webp' as string, // Convert to webp
+                };
+                fileToUpload = await imageCompression(file, options);
+            } catch (error) {
+                console.error("Image compression failed, falling back to original:", error);
+            }
+        }
 
         // 1. Get signature from our API
         const signResponse = await fetch('/api/cloudinary/sign', {
@@ -34,14 +55,14 @@ export async function uploadFileClientSide(
 
         // 2. Prepare Form Data for Cloudinary
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', fileToUpload);
         formData.append('api_key', apiKey);
         formData.append('timestamp', timestamp);
         formData.append('signature', signature);
         formData.append('folder', folder);
 
         // Determine resource type (image vs video)
-        const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+        const resourceType = fileToUpload.type.startsWith('video/') ? 'video' : 'image';
         const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
 
         // 3. Upload directly to Cloudinary

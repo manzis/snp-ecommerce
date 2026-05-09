@@ -80,12 +80,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <meta name="facebook-domain-verification" content="7ishqpnop66zzwgrcpe0m7l77iqkbc" />
-        {/* DNS prefetch + preconnect — eliminates DNS lookup latency for external resources */}
+        {/* DNS prefetch — eliminates DNS lookup latency for external resources without expensive TLS handshakes */}
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
-        {/* Preconnect Supabase — eliminates DNS+TLS latency for client auth check */}
+        {/* Preconnect Supabase — critical for image loading and auth */}
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL!} crossOrigin="anonymous" />
         <Script
