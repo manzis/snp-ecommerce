@@ -87,13 +87,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // All pages — short cache with revalidation for dynamic content
+        // All pages
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
     ];
