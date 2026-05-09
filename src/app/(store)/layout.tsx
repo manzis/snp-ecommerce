@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../globals.css";
+import "../globals.css"; // Trigger build
 import { Suspense } from "react";
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { AuthModalProvider } from '@/context/AuthModalContext';
