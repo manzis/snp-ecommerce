@@ -594,6 +594,43 @@ export async function updateProductVariantPrices(productId: string, variants: Pa
  */
 
 /**
+ * Fetch all homepage products grouped by their section keys in a single query
+ */
+export async function fetchAllHomepageProductsGrouped(): Promise<Record<string, Product[]>> {
+  const { data, error } = await supabase
+    .from('homepage_products')
+    .select(`
+      section_key,
+      product:products (
+        *,
+        categories (*),
+        brands (*)
+      )
+    `)
+    .order('display_order', { ascending: true });
+
+  if (error) {
+    console.error('[productService] Error fetching grouped homepage products:', error);
+    return {};
+  }
+
+  const grouped: Record<string, Product[]> = {};
+  (data as any[]).forEach(item => {
+    if (!item.product) return;
+    const section = item.section_key || 'default';
+    if (!grouped[section]) grouped[section] = [];
+    
+    grouped[section].push({
+      ...item.product,
+      categories: Array.isArray(item.product.categories) ? item.product.categories[0] : (item.product.categories || null),
+      brands: Array.isArray(item.product.brands) ? item.product.brands[0] : (item.product.brands || null)
+    });
+  });
+
+  return grouped;
+}
+
+/**
  * Fetch products associated with a specific homepage section
  */
 export async function fetchHomepageProducts(sectionKey?: string): Promise<Product[]> {

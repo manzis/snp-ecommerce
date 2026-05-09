@@ -71,7 +71,9 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
                       {order.customer.avatar ? (
                         <img src={order.customer.avatar} alt={order.customer.name} className="w-full h-full object-cover" />
                       ) : (
-                        <User className="w-5 h-5 text-[#71717a]" />
+                        <span className="text-sm font-bold text-gray-300 uppercase">
+                          {order.customer.name ? order.customer.name.charAt(0) : <User className="w-5 h-5" />}
+                        </span>
                       )}
                     </div>
                     <div className="min-w-0">

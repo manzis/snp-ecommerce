@@ -15,7 +15,12 @@ const SubscribeSection = dynamic(() => import('@/components/home/SubscribeSectio
 const HomeFaqSection = dynamic(() => import('@/components/home/HomeFaqSection'));
 const ProductBanners = dynamic(() => import('@/components/product/ProductBanners'));
 const LazySection = dynamic(() => import('@/components/optimization/LazySection'));
-import { fetchHomepageProducts, fetchBrands, fetchHomeTestimonials } from '@/services/productService.server';
+import { 
+  fetchHomepageFullData,
+  fetchHomepageProducts, 
+  fetchBrands, 
+  fetchHomeTestimonials 
+} from '@/services/productService.server';
 import { fetchActiveBannersCached } from '@/services/bannerService.cached';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';
 import { generateHomeFallbackSeo } from '@/lib/seo/seoFallback';
@@ -72,26 +77,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export const revalidate = 120;
 
 export default async function HomePage() {
-  // Fetch dynamic sections from database
-  const [
-    bestSellingProducts,
-    popularProducts,
-    todaysDealsProducts,
-    newArrivalsProducts,
-    dbBrands,
-    activeBannersRes,
-    homeTestimonials
-  ] = await Promise.all([
-    fetchHomepageProducts('best_selling'),
-    fetchHomepageProducts('popular_products'),
-    fetchHomepageProducts('todays_deals'),
-    fetchHomepageProducts('new_arrivals'),
-    fetchBrands(),
-    fetchActiveBannersCached(),
-    fetchHomeTestimonials()
-  ]);
+  // Fetch ALL homepage data in ONE single cached call (Mega-Fetcher)
+  const { 
+    productsGrouped, 
+    brands: dbBrands, 
+    testimonials: homeTestimonials, 
+    banners: activeBanners 
+  } = await fetchHomepageFullData();
 
-  const activeBanners = activeBannersRes || [];
+  const bestSellingProducts = productsGrouped['best_selling'] || [];
+  const popularProducts = productsGrouped['popular_products'] || [];
+  const todaysDealsProducts = productsGrouped['todays_deals'] || [];
+  const newArrivalsProducts = productsGrouped['new_arrivals'] || [];
 
   // Map Todays Deals
   const deals = todaysDealsProducts.map(p => ({

@@ -84,11 +84,13 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
                 <div className="p-[8px] space-y-1">
                   {product.users.slice(0, 1).map((user: any, j: number) => (
                     <div key={j} className="flex items-center gap-2 p-1.5 rounded-md hover:bg-gray-50 transition-colors">
-                      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-100 shrink-0 overflow-hidden">
+                      <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0 overflow-hidden">
                         {user.avatar ? (
                           <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-3 h-3 text-[#71717a]" />
+                          <span className="text-[10px] font-bold text-gray-300 uppercase">
+                            {user.name ? user.name.charAt(0) : <User className="w-3 h-3" />}
+                          </span>
                         )}
                       </div>
                       <div className="min-w-0">

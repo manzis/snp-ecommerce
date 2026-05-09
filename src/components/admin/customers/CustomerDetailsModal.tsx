@@ -118,7 +118,11 @@ export default function CustomerDetailsModal({
                         {customer?.avatar ? (
                             <img src={customer.avatar} alt={customer.name} className="w-full h-full object-cover" />
                         ) : (
-                            <User className="w-10 h-10 text-gray-200" />
+                            <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                                <span className="text-3xl font-bold text-gray-300 uppercase">
+                                    {customer?.name ? customer.name.charAt(0) : <User className="w-10 h-10 text-gray-200" />}
+                                </span>
+                            </div>
                         )}
                     </div>
                     <div className="flex-1 flex flex-col items-center md:items-start gap-1">

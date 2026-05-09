@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 import * as baseService from './productService';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 // Re-export all types and non-cached functions from the base service
 export * from './productService';
@@ -79,4 +80,44 @@ export const fetchHomeTestimonials = cache(unstable_cache(
   async () => baseService.fetchHomeTestimonials(),
   ['home-testimonials'],
   { revalidate: 120, tags: ['reviews'] }
+));
+
+/**
+ * MEGA-FETCHER: fetchHomepageFullData
+ * Batches all core homepage data into ONE single cached blob.
+ * This is the ultimate optimization for homepage speed.
+ */
+export const fetchHomepageFullData = cache(unstable_cache(
+  async () => {
+    const [productsGrouped, brands, testimonials, banners] = await Promise.all([
+      baseService.fetchAllHomepageProductsGrouped(),
+      baseService.fetchBrands(true),
+      baseService.fetchHomeTestimonials(),
+      // Directly fetch banners to avoid nested unstable_cache issues
+      (async () => {
+        const admin = getSupabaseAdmin();
+        if (!admin) return [];
+        
+        const { data } = await admin
+          .from('banners')
+          .select('*, products!banners_target_product_id_fkey(id, name, title, slug)')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+        
+        return (data as any[] || []).map(b => ({
+          ...b,
+          product: Array.isArray(b.products) ? b.products[0] : (b.products || null)
+        }));
+      })()
+    ]);
+
+    return {
+      productsGrouped,
+      brands,
+      testimonials,
+      banners
+    };
+  },
+  ['homepage-full-data-v1'],
+  { revalidate: 120, tags: ['products', 'brands', 'banners', 'reviews', 'homepage'] }
 ));
