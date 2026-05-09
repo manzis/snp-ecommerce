@@ -22,7 +22,7 @@ export default function OrderFilters({ status: activeStatus, setStatus }: OrderF
         <div className="relative">
             <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center gap-2 px-[8px] py-[8px] rounded-[10px] border transition-all duration-200 font-medium text-[14px] ${isFilterOpen ? 'border-[#242424] bg-white text-[#242424]' : 'border-gray-200 text-[#71717a] hover:border-[#242424] hover:text-[#242424]'}`}
+                className={`flex items-center gap-2 px-[8px] py-[8px] rounded-[10px] border transition-all duration-200 font-medium text-[14px] ${isFilterOpen ? 'border-gray-300 bg-gray-100 text-[#242424]' : 'border-gray-200 bg-transparent text-[#71717a] hover:bg-gray-100 hover:border-gray-300 hover:text-[#242424]'}`}
             >
                 <FilterIcon className="w-4 h-4" />
                 <span>Filter</span>

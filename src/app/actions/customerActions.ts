@@ -2,28 +2,24 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-
-export interface CustomerBehavior {
-    lastActive: string;
-    totalOrders: number;
-    totalSpent: number;
-    avgOrderValue: number;
-    abandonedCarts: number;
-    isVIP: boolean;
-    isAtRisk: boolean;
-    frequentCategories: string[];
-    monthlyConsistency: boolean;
-}
+import { mapToOrderProps } from '@/services/orderService';
 
 export interface CustomerData {
     id: string;
-    name: string;
     email: string;
+    name: string;
     phone: string;
-    avatar?: string;
+    avatar: string;
+    status: 'new' | 'active' | 'vip' | 'inactive';
     createdAt: string;
-    status: 'active' | 'inactive' | 'new' | 'vip';
-    behavior: CustomerBehavior;
+    behavior: {
+        totalOrders: number;
+        totalSpent: number;
+        lastActive: string;
+        avgOrderValue: number;
+        isVIP: boolean;
+        monthlyConsistency: boolean;
+    }
 }
 
 export interface CustomerStats {
@@ -37,7 +33,7 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
     const supabase = await createClient();
     const adminClient = getSupabaseAdmin();
 
-    // 1. Verify Admin Role (Security check)
+    // 1. Verify Admin Role
     const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
     if (authError || !currentUser) return { success: false, message: 'Unauthorized.' };
 
@@ -51,97 +47,62 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
         return { success: false, message: 'Forbidden. Admin access required.' };
     }
 
+    if (!adminClient) {
+        return { success: false, message: 'Server configuration error (Admin Client).' };
+    }
+
     try {
-        // 2. Fetch data from multiple sources
-        // A. Auth Users (using service role admin client)
-        let authUsers: any[] = [];
-        if (adminClient) {
-            const { data: { users }, error: listError } = await adminClient.auth.admin.listUsers();
-            if (!listError) authUsers = users;
-        }
+        // 2. Fetch all profiles and orders using admin client to bypass RLS
+        const [profilesRes, ordersRes] = await Promise.all([
+            adminClient
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false }),
+            adminClient
+                .from('orders')
+                .select('id, user_id, total_amount, created_at, status')
+        ]);
 
-        // B. Profiles
-        const { data: profiles, error: profileError } = await supabase
-            .from('profiles')
-            .select('*');
-        if (profileError) throw profileError;
+        if (profilesRes.error) throw profilesRes.error;
+        if (ordersRes.error) throw ordersRes.error;
 
-        // C. Orders
-        const { data: orders, error: ordersError } = await supabase
-            .from('orders')
-            .select('user_id, total_amount, created_at, status')
-            .not('user_id', 'is', null);
-        if (ordersError) throw ordersError;
+        const profiles = profilesRes.data || [];
+        const allOrders = ordersRes.data || [];
 
-        // 3. Process and Merge Data
+        // 3. Aggregate Behavioral Data
         const customerMap: Record<string, CustomerData> = {};
-        const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]));
 
-        // Initialize from Auth Users (Truth source for existence)
-        authUsers.forEach(u => {
-            const p = profileMap[u.id];
-            
-            // SKIP current admin or anyone with admin role
-            if (u.id === currentUser.id || p?.role === 'admin') return;
-
-            customerMap[u.id] = {
-                id: u.id,
-                name: p?.full_name || u.user_metadata?.full_name || u.user_metadata?.name || 'Customer User',
-                email: u.email || p?.email || 'N/A',
-                phone: u.phone || p?.phone || u.user_metadata?.phone || 'N/A',
-                avatar: p?.avatar_url || u.user_metadata?.avatar_url || u.user_metadata?.picture,
-                createdAt: new Date(u.created_at).toLocaleDateString(),
-                status: 'new',
-                behavior: {
-                    lastActive: 'Never',
-                    totalOrders: 0,
-                    totalSpent: 0,
-                    avgOrderValue: 0,
-                    abandonedCarts: 0,
-                    isVIP: false,
-                    isAtRisk: false,
-                    frequentCategories: [],
-                    monthlyConsistency: false
-                }
-            };
-        });
-
-        // Add logic for profiles that might not be in authUsers (if any)
-        profiles?.forEach(p => {
-            if (customerMap[p.id] || p.role === 'admin' || p.id === currentUser.id) return;
-            
+        profiles.forEach(p => {
             customerMap[p.id] = {
                 id: p.id,
-                name: p.full_name || 'Guest/Profile Customer',
                 email: p.email || 'N/A',
+                name: p.full_name || 'Customer User',
                 phone: p.phone || 'N/A',
-                avatar: p.avatar_url,
-                createdAt: new Date(p.created_at).toLocaleDateString(),
+                avatar: p.avatar_url || '',
                 status: 'new',
+                createdAt: new Date(p.created_at).toLocaleDateString(),
                 behavior: {
-                    lastActive: 'Never',
                     totalOrders: 0,
                     totalSpent: 0,
+                    lastActive: 'Never',
                     avgOrderValue: 0,
-                    abandonedCarts: 0,
                     isVIP: false,
-                    isAtRisk: false,
-                    frequentCategories: [],
                     monthlyConsistency: false
                 }
             };
         });
 
-        // Calculate Behavioral Metrics from Orders
-        orders?.forEach(o => {
-            if (!customerMap[o.user_id]) return;
-            
-            const amount = Number(o.total_amount) || 0;
+        allOrders.forEach(o => {
+            if (!o.user_id || !customerMap[o.user_id]) return;
+
             const behavior = customerMap[o.user_id].behavior;
+            behavior.totalOrders++;
             
-            behavior.totalOrders += 1;
-            behavior.totalSpent += amount;
-            
+            // Only count non-cancelled/failed orders towards total spent
+            if (o.status !== 'CANCELLED' && o.status !== 'FAILED') {
+                behavior.totalSpent += o.total_amount || 0;
+            }
+
             const orderDate = new Date(o.created_at);
             if (behavior.lastActive === 'Never' || orderDate > new Date(behavior.lastActive)) {
                 behavior.lastActive = orderDate.toLocaleDateString();
@@ -243,10 +204,117 @@ export async function deleteCustomerAction(customerId: string): Promise<{ succes
 
         // 3. Delete from Profiles (Cleanup)
         await supabase.from('profiles').delete().eq('id', customerId);
+        
+        return { success: true, message: 'Customer successfully deleted from system.' };
 
-        return { success: true, message: 'Customer successfully deleted.' };
     } catch (error: any) {
         console.error('Action Error: deleteCustomerAction:', error);
-        return { success: false, message: 'An unexpected error occurred.' };
+        return { success: false, message: 'Internal server error during deletion.' };
+    }
+}
+
+export async function fetchDetailedCustomerDataAction(customerId: string) {
+    const supabase = await createClient();
+    const adminClient = getSupabaseAdmin();
+
+    // 1. Verify Admin Role
+    const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+    if (authError || !currentUser) return { success: false, message: 'Unauthorized.' };
+
+    const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', currentUser.id)
+        .single();
+
+    if (currentProfile?.role !== 'admin') {
+        return { success: false, message: 'Forbidden. Admin access required.' };
+    }
+
+    // Use admin client if available to bypass RLS for behavioral data
+    const queryClient = adminClient || supabase;
+
+    try {
+        // 2. Parallel Fetching for Efficiency
+        const [ordersRes, viewsRes, cartRes] = await Promise.all([
+            // Orders with items
+            queryClient
+                .from('orders')
+                .select(`
+                    *,
+                    order_items (
+                        *,
+                        products (id, name, title, images, brands(name))
+                    )
+                `)
+                .eq('user_id', customerId)
+                .order('created_at', { ascending: false }),
+
+            // Recent Views
+            queryClient
+                .from('product_views')
+                .select(`
+                    *,
+                    product:products (id, name, title, slug, images, brands(name), original_price, discounted_price)
+                `)
+                .eq('user_id', customerId)
+                .order('viewed_at', { ascending: false })
+                .limit(3),
+
+            // Current Cart
+            queryClient
+                .from('cart_items')
+                .select(`
+                    *,
+                    product:products (id, name, title, slug, images, brands(name), original_price, discounted_price)
+                `)
+                .eq('user_id', customerId)
+                .order('updated_at', { ascending: false })
+        ]);
+
+        const rawOrders = ordersRes.data || [];
+        const views = viewsRes.data || [];
+        const cartItems = cartRes.data || [];
+
+        // Map orders using standard helper
+        const orders = rawOrders.map(mapToOrderProps);
+
+        // 3. Calculate Advanced Metrics
+        const totalViews = views.length;
+        const totalOrders = orders.length;
+        const successBuyRate = totalViews > 0 ? (totalOrders / totalViews) * 100 : 0;
+        
+        // Active orders (not delivered or cancelled)
+        const activeOrders = orders.filter(o => 
+            !['DELIVERED', 'CANCELLED', 'RETURNED', 'FAILED'].includes(o.status)
+        );
+
+        // Revenue Metrics
+        const paidOrders = orders.filter(o => o.paymentStatus?.toLowerCase() === 'paid');
+        const ltv = paidOrders.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
+        const aov = paidOrders.length > 0 ? ltv / paidOrders.length : 0;
+
+        return {
+            success: true,
+            data: {
+                orders,
+                activeOrders,
+                views: views.map(v => v.product).filter(Boolean),
+                cartItems,
+                metrics: {
+                    successBuyRate: Math.round(successBuyRate),
+                    ltv,
+                    aov: Math.round(aov),
+                    totalOrders,
+                    totalViews,
+                    activeOrdersCount: activeOrders.length,
+                    cartItemsCount: cartItems.length
+                }
+            }
+        };
+
+    } catch (error: any) {
+        console.error('Action Error: fetchDetailedCustomerDataAction:', error);
+        return { success: false, message: 'Failed to load customer details.' };
     }
 }

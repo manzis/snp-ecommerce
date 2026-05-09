@@ -10,6 +10,8 @@ import SearchResults from '@/components/search/SearchResults';
 import RecentSearches from '@/components/search/RecentSearches';
 import { performSearch } from '@/lib/searchLogic';
 import { Product, Brand } from '@/services/productService';
+import { recordSearchAction } from '@/app/actions/analyticsActions';
+import { useSessionId } from '@/hooks/useSessionId';
 
 interface SearchPageClientProps {
   initialProducts: Product[];
@@ -28,6 +30,8 @@ export default function SearchPageClient({ initialProducts, initialBrands }: Sea
   const [isSearched, setIsSearched] = useState(!!searchParams.get('q'));
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const sessionId = useSessionId();
   
   const [products, setProducts] = useState<Product[]>([]);
   const [activeFilters, setActiveFilters] = useState<SelectedFilters>({
@@ -114,6 +118,9 @@ export default function SearchPageClient({ initialProducts, initialBrands }: Sea
     router.push(`/search?q=${encodeURIComponent(term)}`);
     setQuery(term);
     setIsSearched(true);
+
+    // Record search for analytics (non-blocking)
+    recordSearchAction(term, filteredResults.length, sessionId || undefined).catch(err => console.error('Failed to record search:', err));
 
     setRecentSearches((prev) => {
       const filtered = prev.filter((item) => item.toLowerCase() !== term.toLowerCase());

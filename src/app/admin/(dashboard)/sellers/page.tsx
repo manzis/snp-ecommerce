@@ -113,6 +113,8 @@ export default function SellersPage() {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onSearch={setSearchQuery}
+        onRefresh={loadSellers}
+        refreshLoading={isLoading}
         filterDropdown={
           <div className="flex items-center gap-2">
             <SellerFilters />

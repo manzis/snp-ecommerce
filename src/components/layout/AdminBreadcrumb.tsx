@@ -20,7 +20,7 @@ const ROUTE_MAP: Record<string, string[]> = {
     '/admin/abandoned-cart': ['Home', 'More Options', 'Abandoned Carts'],
     '/admin/reviews': ['Home', 'More Options', 'Reviews'],
     '/admin/qa': ['Home', 'More Options', 'QA'],
-    '/admin/settings/store': ['Home', 'Stores', 'Store Settings'],
+    '/admin/analytics': ['Home', 'Stores', 'Analytics'],
     '/admin/layouts': ['Home', 'Stores', 'Layouts'],
     '/admin/settings': ['Home', 'System', 'Settings'],
     '/admin/support': ['Home', 'System', 'Help & Support'],
@@ -36,7 +36,8 @@ const getSegmentHref = (segment: string, currentPath: string): string => {
         case 'Dashboard': return '/admin/dashboard';
         case 'Products': return '/admin/products';
         case 'More Options': return '/admin/abandoned-cart';
-        case 'Stores': return '/admin/settings/store';
+        case 'Stores': return '/admin/analytics';
+        case 'Analytics': return '/admin/analytics';
         case 'System': return '/admin/settings';
         default:
             // If it matches a route in the map, use that

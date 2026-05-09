@@ -24,6 +24,7 @@ import AnalyticsIcon from '@/components/icons/AnalyticsIcon';
 import PreferencesIcon from '@/components/icons/PreferencesIcon';
 
 import { AuthService } from '@/services/auth.service';
+import CartIcon from '@/components/icons/CartIcon';
 
 const NAV_ITEMS = [
     { label: 'Dashboard', icon: DashboardIcon, href: '/admin/dashboard' },
@@ -42,8 +43,8 @@ const MORE_MENU_ITEMS = [
     { label: 'Coupons', icon: PreferencesIcon, href: '/admin/coupons' }, // Map correctly
     { label: 'Reviews', icon: PreferencesIcon, href: '/admin/reviews' },
     { label: 'QA', icon: PreferencesIcon, href: '/admin/qa' },
-    { label: 'Store', icon: StoreSettingsIcon, href: '/admin/settings/store' },
-    { label: 'Settings', icon: SettingsIcon, href: '/admin/settings' },
+    { label: 'Analytics', icon: AnalyticsIcon, href: '/admin/analytics' },
+    { label: 'Abandoned Cart', icon: CartIcon, href: '/admin/abandoned-cart' },
 ];
 
 const AdminMobileNav: React.FC = () => {

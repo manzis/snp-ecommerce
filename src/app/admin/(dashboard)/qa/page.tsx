@@ -17,6 +17,7 @@ export default function QAPage() {
         onViewModeChange={setViewMode}
         searchPlaceholder="Search questions..."
         onSearch={(query) => {}}
+        onRefresh={() => window.location.reload()}
         filterDropdown={<QAFilters />}
       />
       

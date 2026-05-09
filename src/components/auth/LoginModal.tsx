@@ -52,6 +52,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         }
     }, [identifier, step]);
 
+    // Auto-focus first OTP input when switching to OTP step
+    React.useEffect(() => {
+        if (step === 'otp') {
+            // Small delay to allow the animation to complete/DOM to render
+            setTimeout(() => {
+                inputRefs[0].current?.focus();
+            }, 300);
+        }
+    }, [step]);
+
     // Resend Cooldown Timer
     React.useEffect(() => {
         let timer: any;
@@ -148,14 +158,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         setEmailSuggestion(null);
         setIsSending(true);
 
+        // OPTIMISTIC UI: Switch to OTP step instantly while request processes in background
+        setStep('otp');
+
         try {
             const supabase = createClient();
-            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+            const cleanIdentifier = identifier.trim().toLowerCase();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
 
             // Wrap the Supabase call with a timeout to prevent infinite hangs
             const otpPromise = isEmail
-                ? supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
-                : supabase.auth.signInWithOtp({ phone: identifier.startsWith('+') ? identifier : `+977${identifier}` });
+                ? supabase.auth.signInWithOtp({ email: cleanIdentifier, options: { shouldCreateUser: true } })
+                : supabase.auth.signInWithOtp({ phone: cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}` });
 
             const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error("Request timed out. Please check your connection and try again.")), 15000)
@@ -164,15 +178,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             const { error } = await Promise.race([otpPromise, timeoutPromise]);
             if (error) throw error;
 
-            // Only transition to OTP view AFTER confirmed success
-            setStep('otp');
             showToast("OTP sent successfully!", "success");
         } catch (err: any) {
             console.error("OTP Send Failed:", err?.message || err);
-            setStep('login'); // Ensure we're on login step
+            // REVERT UI: If send fails, move back to login step
+            setStep('login');
             showToast(err?.message || "Failed to send OTP. Please try again.", "error");
         } finally {
-            // Always reset sending state, no matter what happens
             setIsSending(false);
         }
     };
@@ -182,11 +194,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
 
         try {
             const supabase = createClient();
-            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+            const cleanIdentifier = identifier.trim().toLowerCase();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
 
             const otpPromise = isEmail
-                ? supabase.auth.signInWithOtp({ email: identifier, options: { shouldCreateUser: true } })
-                : supabase.auth.signInWithOtp({ phone: identifier.startsWith('+') ? identifier : `+977${identifier}` });
+                ? supabase.auth.signInWithOtp({ email: cleanIdentifier, options: { shouldCreateUser: true } })
+                : supabase.auth.signInWithOtp({ phone: cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}` });
 
             const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error("Request timed out. Please try again.")), 15000)
@@ -207,25 +220,28 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     };
 
     const handleVerifyOtp = async () => {
+        if (isVerifying) return;
+
         if (otp.some(digit => digit === '')) {
             showToast("Please enter all 6 digits", "error");
             return;
         }
         setIsVerifying(true);
-        const otpString = otp.join('');
+        const otpString = otp.join('').trim();
 
         try {
             const supabase = createClient();
-            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+            const cleanIdentifier = identifier.trim().toLowerCase();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
 
             let verifyParams: any = {
                 token: otpString,
                 type: isEmail ? 'email' : 'sms',
             };
             if (isEmail) {
-                verifyParams.email = identifier;
+                verifyParams.email = cleanIdentifier;
             } else {
-                verifyParams.phone = identifier.startsWith('+') ? identifier : `+977${identifier}`;
+                verifyParams.phone = cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}`;
             }
 
             const verifyPromise = supabase.auth.verifyOtp(verifyParams);
@@ -233,18 +249,25 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 setTimeout(() => reject(new Error("Verification timed out. Please try again.")), 15000)
             );
 
-            const { error: verifyError } = await Promise.race([verifyPromise, timeoutPromise]);
-            if (verifyError) throw verifyError;
+            const { data, error: verifyError } = await Promise.race([verifyPromise, timeoutPromise]);
+
+            if (verifyError) {
+                // If we're already logged in, Supabase might return an error for a used token
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    console.log("Already logged in, ignoring verification error");
+                } else {
+                    throw verifyError;
+                }
+            }
 
             // Clear persistence on success
             localStorage.removeItem('auth_identifier');
             localStorage.removeItem('auth_step');
-            
+
             showToast("Logged in successfully!", "success");
             closeLogin();
-            // Stay on the current page — just refresh to pick up the new auth state
             router.refresh();
-            // Fire the onSuccess callback (e.g., auto-navigate to checkout from cart)
             triggerLoginSuccess();
         } catch (err: any) {
             console.error("OTP Verify Failed:", err?.message || err);
@@ -259,8 +282,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         try {
             const supabase = createClient();
             // Get base URL for redirects (production or development)
-            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                           (typeof window !== 'undefined' ? window.location.origin : '');
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+                (typeof window !== 'undefined' ? window.location.origin : '');
             // Pass current path as 'next' so auth callback returns user here, not /account
             const nextPath = encodeURIComponent(pathname || '/');
             const redirectUrl = `${siteUrl.replace(/\/$/, '')}/auth/callback?next=${nextPath}`;
@@ -280,6 +303,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     };
 
     const handleOtpChange = (value: string, index: number) => {
+        // Handle multi-character input (paste/autofill)
+        if (value.length > 1) {
+            const digits = value.replace(/\D/g, '').slice(0, 6).split('');
+            if (digits.length > 0) {
+                const newOtp = [...otp];
+                digits.forEach((digit, i) => {
+                    if (index + i < 6) newOtp[index + i] = digit;
+                });
+                setOtp(newOtp);
+                // Focus the next empty field or the last one
+                const nextToFocus = Math.min(index + digits.length, 5);
+                inputRefs[nextToFocus].current?.focus();
+                return;
+            }
+        }
+
         if (isNaN(Number(value))) return;
         const newOtp = [...otp];
         newOtp[index] = value.substring(value.length - 1);
@@ -336,11 +375,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             <section className={`relative z-10 bg-white w-full lg:w-[450px] rounded-t-[32px] lg:rounded-[24px] flex flex-col p-[36px_24px_32px_24px] lg:p-[36px] lg:justify-center gap-[30px] shadow-lg lg:shadow-none overflow-hidden  ${isPage ? 'h-auto rounded-none' : 'h-full '} `}>
                 <AnimatePresence mode="wait" initial={false}>
                     {step === 'login' ? (
-                        <motion.div 
-                            key="login-form" 
-                            initial={{ y: 20, opacity: 0 }} 
-                            animate={{ y: 0, opacity: 1 }} 
-                            exit={{ y: -20, opacity: 0 }} 
+                        <motion.div
+                            key="login-form"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -20, opacity: 0 }}
                             transition={{ duration: 0.3, ease: "easeOut" }}
                             className="flex flex-col gap-[30px]"
                         >
@@ -452,6 +491,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 </div>
                                 <div className="flex flex-col gap-[12px] items-center">
                                     <button
+                                        type="button"
                                         disabled={isVerifying}
                                         onClick={handleVerifyOtp}
                                         className="flex h-[48px] w-full items-center justify-center rounded-[12px] bg-[#ffe900] text-[16px] font-[600] text-[#242424] transition-all hover:bg-[#ebd700] active:scale-[0.98] disabled:opacity-70"

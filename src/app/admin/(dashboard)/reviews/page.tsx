@@ -117,6 +117,8 @@ export default function ReviewsPage() {
         onViewModeChange={setViewMode}
         searchPlaceholder="Search reviews..."
         onSearch={setSearchQuery}
+        onRefresh={loadReviews}
+        refreshLoading={isLoading}
         filterDropdown={<ReviewFilters />}
       />
 

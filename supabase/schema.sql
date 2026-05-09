@@ -175,7 +175,13 @@ CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name VARCHAR(255),
   phone VARCHAR(20),
+  email TEXT,
+  profession VARCHAR(255),
+  dob DATE,
+  avatar_url TEXT,
+  role VARCHAR(20) DEFAULT 'user',
   addresses JSONB DEFAULT '[]'::jsonb,
+  address_data JSONB, -- Consolidated primary address storage
   preferences JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -185,6 +191,34 @@ ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own profile" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- 9.1 PROFILE CREATION UTILITY (Deprecated Trigger for verified-only logic)
+-- Profile creation is now handled in the application logic (AuthContext) 
+-- to ensure only successfully logged-in/verified users get a profile.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Trigger disabled to fulfill 'only create on successful login' requirement.
+  -- Logic moved to ensureUserProfileExistsAction in addressActions.ts
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 9.2 AUTOMATIC ADDRESS SYNC TRIGGER
+-- Syncs phone and contact details to profile when an address is saved
+CREATE OR REPLACE FUNCTION public.sync_profile_from_address()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.profiles
+  SET 
+    phone = COALESCE(NEW.phone, phone),
+    full_name = COALESCE(NEW.first_name || ' ' || NEW.last_name, full_name),
+    email = COALESCE(NEW.email, email),
+    updated_at = NOW()
+  WHERE id = NEW.user_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 9.5 USER ADDRESSES TABLE
 CREATE TABLE IF NOT EXISTS user_addresses (
@@ -211,6 +245,11 @@ CREATE POLICY "Users can view own addresses" ON user_addresses FOR SELECT USING 
 CREATE POLICY "Users can insert own addresses" ON user_addresses FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own addresses" ON user_addresses FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own addresses" ON user_addresses FOR DELETE USING (auth.uid() = user_id);
+
+DROP TRIGGER IF EXISTS on_address_saved ON public.user_addresses;
+CREATE TRIGGER on_address_saved
+  AFTER INSERT OR UPDATE ON public.user_addresses
+  FOR EACH ROW EXECUTE FUNCTION public.sync_profile_from_address();
 
 -- 10. ORDERS TABLE
 DO $$ BEGIN

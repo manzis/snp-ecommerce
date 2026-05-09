@@ -20,6 +20,27 @@ async function verifyAdmin() {
   return profile?.role === 'admin';
 }
 
+/**
+ * Synchronizes key contact details from an address to the user's profile.
+ */
+async function syncProfileFromAddress(supabase: any, userId: string, address: UserAddress) {
+  try {
+    const fullName = `${address.first_name} ${address.last_name}`.trim();
+    
+    await supabase
+      .from('profiles')
+      .update({
+        full_name: fullName,
+        phone: address.phone,
+        email: address.email,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+  } catch (error) {
+    console.error('Error syncing profile from address:', error);
+  }
+}
+
 export async function saveUserAddressAction(address: UserAddress, targetUserId?: string): Promise<{ data: UserAddress | null; error: string | null }> {
   try {
     const supabase = await createClient();
@@ -65,6 +86,9 @@ export async function saveUserAddressAction(address: UserAddress, targetUserId?:
     if (error) {
       return { data: null, error: `${error.message} - ${error.details || ''}` };
     }
+
+    // AUTOMATIC SYNC: Update profile with these contact details
+    await syncProfileFromAddress(supabase, finalUserId, address);
     
     return { data: data as UserAddress, error: null };
   } catch (err: any) {
@@ -135,5 +159,45 @@ export async function deleteUserAddressAction(addressId: string, targetUserId?: 
     return { success: true, error: null };
   } catch (err: any) {
     return { success: false, error: err.message || 'Unknown Server Error' };
+  }
+}
+
+/**
+ * Ensures that a profile entry exists for the currently logged-in user.
+ * This can be called after login or on app initialization.
+ */
+export async function ensureUserProfileExistsAction(): Promise<{ success: boolean; message?: string }> {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) return { success: false, message: 'No active session' };
+
+    // Check if profile exists
+    const { data: profile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      // Create profile
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          full_name: user.user_metadata?.full_name || user.user_metadata?.name || 'User',
+          email: user.email,
+          avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture,
+          role: 'user'
+        });
+
+      if (insertError) throw insertError;
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('ensureUserProfileExistsAction Error:', error);
+    return { success: false, message: error.message };
   }
 }

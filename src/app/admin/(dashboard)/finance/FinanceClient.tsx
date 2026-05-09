@@ -45,9 +45,9 @@ const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
             )}
         </div>
         <div>
-            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">{title}</p>
-            <h3 className="text-xl md:text-2xl font-bold font-rubik text-[#242424] tracking-tight">{value}</h3>
-            {subValue && <p className="text-[10px] text-gray-400 mt-1 font-medium">{subValue}</p>}
+            <p className="text-[#71717a] text-[10px] font-semibold uppercase tracking-wider mb-1">{title}</p>
+            <h3 className="text-xl md:text-2xl font-semibold font-rubik text-[#242424] tracking-tight">{value}</h3>
+            {subValue && <p className="text-[10px] text-[#a1a1aa] mt-1 font-normal">{subValue}</p>}
         </div>
     </motion.div>
 );
@@ -58,10 +58,10 @@ const SectionHeader = ({ title, description, isOpen, onToggle }: any) => (
         className="w-full flex items-center justify-between py-4 group"
     >
         <div className="text-left">
-            <h4 className="text-sm font-bold text-[#242424] group-hover:text-blue-600 transition-colors">{title}</h4>
-            <p className="text-[11px] text-gray-400 font-medium">{description}</p>
+            <h4 className="text-sm font-semibold text-[#242424] group-hover:text-blue-600 transition-colors">{title}</h4>
+            <p className="text-[11px] text-[#71717a] font-normal">{description}</p>
         </div>
-        {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        {isOpen ? <ChevronUp className="w-4 h-4 text-[#a1a1aa]" /> : <ChevronDown className="w-4 h-4 text-[#a1a1aa]" />}
     </button>
 );
 
@@ -118,8 +118,8 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 md:mb-10 gap-6 relative z-10">
                 <div>
-                    <h3 className="font-bold text-base text-[#242424]">Revenue Analytics</h3>
-                    <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Financial performance visualization</p>
+                    <h3 className="font-semibold text-base text-[#242424]">Revenue Analytics</h3>
+                    <p className="text-[11px] text-[#71717a] font-normal uppercase tracking-wider">Financial performance visualization</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 bg-gray-50/80 p-1.5 rounded-2xl w-full sm:w-auto">
@@ -136,14 +136,14 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                         />
                         <button
                             onClick={() => setChartMode('bar')}
-                            className={`relative z-10 flex-1 sm:flex-none px-4 py-2 flex items-center justify-center gap-2 text-[11px] font-bold transition-colors ${chartMode === 'bar' ? 'text-white' : 'text-gray-400 hover:text-[#242424]'}`}
+                            className={`relative z-10 flex-1 sm:flex-none px-4 py-2 flex items-center justify-center gap-2 text-[11px] font-semibold transition-colors ${chartMode === 'bar' ? 'text-white' : 'text-[#a1a1aa] hover:text-[#242424]'}`}
                         >
                             <BarChart3 className="w-3.5 h-3.5" />
                             <span className="hidden xs:inline">Bar</span>
                         </button>
                         <button
                             onClick={() => setChartMode('line')}
-                            className={`relative z-10 flex-1 sm:flex-none px-4 py-2 flex items-center justify-center gap-2 text-[11px] font-bold transition-colors ${chartMode === 'line' ? 'text-white' : 'text-gray-400 hover:text-[#242424]'}`}
+                            className={`relative z-10 flex-1 sm:flex-none px-4 py-2 flex items-center justify-center gap-2 text-[11px] font-semibold transition-colors ${chartMode === 'line' ? 'text-white' : 'text-[#a1a1aa] hover:text-[#242424]'}`}
                         >
                             <LineChartIcon className="w-3.5 h-3.5" />
                             <span className="hidden xs:inline">Line</span>
@@ -157,7 +157,7 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                             <button
                                 key={int}
                                 onClick={() => setInterval(int)}
-                                className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${interval === int ? 'bg-white text-[#242424] shadow-sm border border-gray-100' : 'text-gray-400 hover:text-[#242424]'}`}
+                                className={`flex-1 sm:flex-none px-3 py-2 rounded-xl text-[10px] font-semibold uppercase tracking-widest transition-all ${interval === int ? 'bg-white text-[#242424] shadow-sm border border-gray-100' : 'text-[#a1a1aa] hover:text-[#242424]'}`}
                             >
                                 {int[0]}
                             </button>
@@ -183,14 +183,14 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                                         <div key={i} className="relative flex-1 flex flex-col items-center group h-full justify-end min-w-0">
                                             {/* Static Amount Label */}
                                             <div className="absolute transition-all duration-300" style={{ bottom: `${heightPercent + 2}%` }}>
-                                                <span className="text-[7px] md:text-[8px] font-bold text-gray-400 group-hover:text-[#242424] whitespace-nowrap">
+                                                <span className="text-[7px] md:text-[8px] font-semibold text-[#a1a1aa] group-hover:text-[#242424] whitespace-nowrap">
                                                     {d.revenue >= 1000 ? `${(d.revenue / 1000).toFixed(1)}k` : d.revenue}
                                                 </span>
                                             </div>
 
                                             {/* Tooltip on Hover */}
-                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#242424] text-white text-[10px] font-bold px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[150] shadow-2xl pointer-events-none scale-75 group-hover:scale-100">
-                                                <div className="text-[8px] text-gray-400 font-bold uppercase mb-0.5 tracking-widest">{d.fullDate}</div>
+                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#242424] text-white text-[10px] font-semibold px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[150] shadow-2xl pointer-events-none scale-75 group-hover:scale-100">
+                                                <div className="text-[8px] text-gray-400 font-semibold uppercase mb-0.5 tracking-widest">{d.fullDate}</div>
                                                 रु {d.revenue.toLocaleString()}
                                                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#242424]"></div>
                                             </div>
@@ -206,7 +206,7 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                                     );
                                 })}
                             </div>
-                            <div className="h-6 flex justify-between items-center mt-3 px-1 text-[8px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-50 pt-2">
+                            <div className="h-6 flex justify-between items-center mt-3 px-1 text-[8px] md:text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-t border-gray-50 pt-2">
                                 {processedData.map((d, i) => (
                                     <span key={i} className="flex-1 text-center truncate">{d.label}</span>
                                 ))}
@@ -221,14 +221,12 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                             className="flex-1 flex flex-col"
                         >
                             <div className="flex-1 flex gap-2 md:gap-4 min-h-0">
-                                {/* Y-Axis - Precise Alignment */}
-                                <div className="flex flex-col justify-between py-6 text-[8px] md:text-[9px] font-semibold text-gray-400 uppercase tracking-tighter w-8 md:w-14 text-right select-none relative">
+                                {/* Y-Axis - Precise Alignment                                 <div className="flex flex-col justify-between py-6 text-[8px] md:text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-tighter w-8 md:w-14 text-right select-none relative">
                                     {[1, 0.75, 0.5, 0.25, 0].map((step) => {
                                         const val = chartMax * step;
                                         const formatted = val >= 10000
                                             ? `रु ${(val / 1000).toFixed(step === 0 ? 0 : 1)}k`
                                             : `रु ${Math.round(val).toLocaleString()}`;
-
                                         return (
                                             <div key={step} className="h-0 flex items-center justify-end">
                                                 <span className="whitespace-nowrap">{formatted}</span>
@@ -236,6 +234,7 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                                         );
                                     })}
                                 </div>
+     </div>
 
                                 {/* Main Chart & X-Axis Column */}
                                 <div className="flex-1 flex flex-col min-w-0">
@@ -307,8 +306,8 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                                                             style={{ left: `${left}%`, top: `${top}%`, transform: 'translate(-50%, -50%)' }}
                                                         >
                                                             <div className="w-2.5 h-2.5 bg-[#242424] rounded-full border-2 border-white shadow-sm transition-all group-hover:scale-150 cursor-pointer" />
-                                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#242424] text-white text-[10px] font-bold px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[150] shadow-2xl pointer-events-none scale-75 group-hover:scale-100">
-                                                                <div className="text-[8px] text-gray-400 font-bold uppercase mb-0.5 tracking-widest">{d.fullDate}</div>
+                                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#242424] text-white text-[10px] font-semibold px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[150] shadow-2xl pointer-events-none scale-75 group-hover:scale-100">
+                                                                <div className="text-[8px] text-[#a1a1aa] font-semibold uppercase mb-0.5 tracking-widest">{d.fullDate}</div>
                                                                 रु {d.revenue.toLocaleString()}
                                                                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#242424]"></div>
                                                             </div>
@@ -327,7 +326,7 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                                             return (
                                                 <span
                                                     key={i}
-                                                    className="absolute -translate-x-1/2 text-[8px] md:text-[9px] font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap"
+                                                    className="absolute -translate-x-1/2 text-[8px] md:text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-widest whitespace-nowrap"
                                                     style={{ left: `${left}%` }}
                                                 >
                                                     {d.label}
@@ -342,26 +341,26 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                 </AnimatePresence>
             </div>
 
-            <div className="mt-12 flex justify-between text-[8px] md:text-[10px] font-semibold text-gray-400 uppercase tracking-widest border-t border-gray-100 pt-5 relative z-10">
+            <div className="mt-12 flex justify-between text-[8px] md:text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-t border-gray-100 pt-5 relative z-10">
                 <span className="bg-gray-100 px-3 py-1 rounded-full">{processedData[0].fullDate || processedData[0].label}</span>
                 <span className="bg-gray-100 px-3 py-1 rounded-full">{processedData[processedData.length - 1].fullDate || processedData[processedData.length - 1].label}</span>
             </div>
 
             <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
                 <div className="flex flex-col">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Delivered (Period)</span>
-                    <span className="text-xl md:text-2xl font-bold text-[#242424] tracking-tight">रु {processedData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}</span>
-                    <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">Successfully Delivered</p>
+                    <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Delivered (Period)</span>
+                    <span className="text-xl md:text-2xl font-semibold text-[#242424] tracking-tight">रु {processedData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}</span>
+                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Successfully Delivered</p>
                 </div>
                 <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Total Orders Value</span>
-                    <span className="text-xl md:text-2xl font-bold text-blue-600 tracking-tight">रु {stats.totalGrossRevenue.toLocaleString()}</span>
-                    <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">All Orders (Excl. Cancelled)</p>
+                    <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Total Orders Value</span>
+                    <span className="text-xl md:text-2xl font-semibold text-blue-600 tracking-tight">रु {stats.totalGrossRevenue.toLocaleString()}</span>
+                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">All Orders (Excl. Cancelled)</p>
                 </div>
                 <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
-                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.15em] mb-2">Overall Receivables</span>
-                    <span className="text-xl md:text-2xl font-bold text-amber-600 tracking-tight">रु {stats.totalPendingRevenue.toLocaleString()}</span>
-                    <p className="text-[9px] text-gray-400 mt-1 uppercase font-bold">Pending Collection</p>
+                    <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Overall Receivables</span>
+                    <span className="text-xl md:text-2xl font-semibold text-amber-600 tracking-tight">रु {stats.totalPendingRevenue.toLocaleString()}</span>
+                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Pending Collection</p>
                 </div>
             </div>
         </div>
@@ -477,6 +476,9 @@ export default function FinanceClient() {
             <AdminSubNav
                 onSearch={setSearchQuery}
                 searchPlaceholder="Search transactions..."
+                searchOnLeft={true}
+                onRefresh={loadFinanceData}
+                refreshLoading={isLoading}
                 filterDropdown={
                     <div className="flex items-center gap-3">
                         {(datePreset === 'custom') && (
@@ -488,7 +490,7 @@ export default function FinanceClient() {
                                     onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                                     className="bg-transparent text-[11px] font-bold outline-none text-[#242424] w-28"
                                 />
-                                <span className="text-gray-300 text-[10px] font-bold uppercase">To</span>
+                                <span className="text-[#a1a1aa] text-[10px] font-bold uppercase">To</span>
                                 <input
                                     type="date"
                                     value={dateRange.end}
@@ -518,192 +520,195 @@ export default function FinanceClient() {
                     </div>
                 ) : data && (
                     <>
-                        {/* Primary KPI Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                            <MetricCard
-                                title="Gross Revenue"
-                                value={`रु ${data.stats.totalDeliveredRevenue.toLocaleString()}`}
-                                subValue={`${data.stats.totalOrders} Total Orders`}
-                                icon={TrendingUp}
-                                trend={12.5}
-                            />
-                            <MetricCard
-                                title="Net Revenue"
-                                value={`रु ${data.stats.totalNetRevenue.toLocaleString()}`}
-                                subValue={data.stats.totalDeliveredPendingRevenue > 0 
-                                    ? `रु ${data.stats.totalDeliveredPendingRevenue.toLocaleString()} Pending` 
-                                    : "Paid & Delivered"
-                                }
-                                icon={Wallet}
-                            />
-                            <MetricCard
-                                title="Avg Order"
-                                value={`रु ${Math.round(data.stats.avgOrderValue).toLocaleString()}`}
-                                subValue="Per sale"
-                                icon={ShoppingBag}
-                                trend={5.2}
-                            />
-                            <MetricCard
-                                title="Coupons"
-                                value={`रु ${data.stats.totalCouponDiscount.toLocaleString()}`}
-                                subValue="Given out"
-                                icon={Tag}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
-                            {/* Main Revenue Chart */}
-                            <div className="lg:col-span-2">
-                                <RevenueChart timeSeries={data.timeSeries} stats={data.stats} />
+                        {!searchQuery && (
+                            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                                <MetricCard
+                                    title="Gross Revenue"
+                                    value={`रु ${data.stats.totalDeliveredRevenue.toLocaleString()}`}
+                                    subValue={`${data.stats.totalOrders} Total Orders`}
+                                    icon={TrendingUp}
+                                    trend={12.5}
+                                />
+                                <MetricCard
+                                    title="Net Revenue"
+                                    value={`रु ${data.stats.totalNetRevenue.toLocaleString()}`}
+                                    subValue={data.stats.totalDeliveredPendingRevenue > 0 
+                                        ? `रु ${data.stats.totalDeliveredPendingRevenue.toLocaleString()} Pending` 
+                                        : "Paid & Delivered"
+                                    }
+                                    icon={Wallet}
+                                />
+                                <MetricCard
+                                    title="Avg Order"
+                                    value={`रु ${Math.round(data.stats.avgOrderValue).toLocaleString()}`}
+                                    subValue="Per sale"
+                                    icon={ShoppingBag}
+                                    trend={5.2}
+                                />
+                                <MetricCard
+                                    title="Coupons"
+                                    value={`रु ${data.stats.totalCouponDiscount.toLocaleString()}`}
+                                    subValue="Given out"
+                                    icon={Tag}
+                                />
                             </div>
+                        )}
 
-                            {/* Finance Detail Breakdown */}
-                            <div className="space-y-6">
-                                <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
-                                    <h3 className="font-bold text-base text-[#242424] mb-6 flex items-center gap-2">
-                                        <Activity className="w-4 h-4 text-[#242424]" />
-                                        Finance Insights
-                                    </h3>
+                        {!searchQuery && (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
+                                {/* Main Revenue Chart */}
+                                <div className="lg:col-span-2">
+                                    <RevenueChart timeSeries={data.timeSeries} stats={data.stats} />
+                                </div>
 
-                                    <div className="divide-y divide-gray-50">
-                                        <div className="py-1 md:py-2">
-                                            <SectionHeader
-                                                title="Revenue Distribution"
-                                                description="Gross vs Fees"
-                                                isOpen={openSections.revenue}
-                                                onToggle={() => toggleSection('revenue')}
-                                            />
-                                            <AnimatePresence>
-                                                {openSections.revenue && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        className="overflow-hidden space-y-3 pb-4"
-                                                    >
-                                                        <div className="flex justify-between items-center text-[11px]">
-                                                            <span className="text-gray-500 font-medium">Gross Sales</span>
-                                                            <span className="text-[#242424] font-bold">रु {data.stats.totalGrossRevenue.toLocaleString()}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-[11px]">
-                                                            <span className="text-gray-500 font-medium">COD Collection Fees</span>
-                                                            <span className="text-[#242424] font-bold">रु {data.stats.totalCodFees.toLocaleString()}</span>
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
+                                {/* Finance Detail Breakdown */}
+                                <div className="space-y-6">
+                                    <div className="bg-white rounded-xl border border-gray-100 p-5 md:p-6 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)]">
+                                        <h3 className="font-bold text-base text-[#242424] mb-6 flex items-center gap-2">
+                                            <Activity className="w-4 h-4 text-[#242424]" />
+                                            Finance Insights
+                                        </h3>
 
-                                        <div className="py-1 md:py-2">
-                                            <SectionHeader
-                                                title="Cost & Discounts"
-                                                description="Coupons/Delivery"
-                                                isOpen={openSections.expenses}
-                                                onToggle={() => toggleSection('expenses')}
-                                            />
-                                            <AnimatePresence>
-                                                {openSections.expenses && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        className="overflow-hidden space-y-3 pb-4"
-                                                    >
-                                                        <div className="flex justify-between items-center text-[11px]">
-                                                            <span className="text-gray-500 font-medium">Coupons Applied</span>
-                                                            <span className="text-red-500 font-bold">- रु {data.stats.totalCouponDiscount.toLocaleString()}</span>
-                                                        </div>
-                                                        <div className="flex justify-between items-center text-[11px]">
-                                                            <span className="text-gray-500 font-medium">Delivery Charges</span>
-                                                            <span className="text-green-600 font-bold">रु {data.stats.totalDeliveryCharges.toLocaleString()}</span>
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
+                                        <div className="divide-y divide-gray-50">
+                                            <div className="py-1 md:py-2">
+                                                <SectionHeader
+                                                    title="Revenue Distribution"
+                                                    description="Gross vs Fees"
+                                                    isOpen={openSections.revenue}
+                                                    onToggle={() => toggleSection('revenue')}
+                                                />
+                                                <AnimatePresence>
+                                                    {openSections.revenue && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            className="overflow-hidden space-y-3 pb-4"
+                                                        >
+                                                            <div className="flex justify-between items-center text-[11px]">
+                                                                <span className="text-[#71717a] font-medium">Gross Sales</span>
+                                                                <span className="text-[#242424] font-semibold">रु {data.stats.totalGrossRevenue.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-[11px]">
+                                                                <span className="text-[#71717a] font-medium">COD Collection Fees</span>
+                                                                <span className="text-[#242424] font-semibold">रु {data.stats.totalCodFees.toLocaleString()}</span>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
 
-                                        <div className="py-1 md:py-2">
-                                            <SectionHeader
-                                                title="Payment Channels"
-                                                description="Distribution"
-                                                isOpen={openSections.payment}
-                                                onToggle={() => toggleSection('payment')}
-                                            />
-                                            <AnimatePresence>
-                                                {openSections.payment && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        className="overflow-hidden space-y-4 pb-4"
-                                                    >
-                                                        {(() => {
-                                                            const qrMethods = data.paymentMethods.filter(m => 
-                                                                m.method.toLowerCase().includes('qr')
-                                                            );
-                                                            const nonQrMethods = data.paymentMethods.filter(m => 
-                                                                !m.method.toLowerCase().includes('qr')
-                                                            );
-                                                            
-                                                            const qrTotalAmount = qrMethods.reduce((acc, m) => acc + m.amount, 0);
+                                            <div className="py-1 md:py-2">
+                                                <SectionHeader
+                                                    title="Cost & Discounts"
+                                                    description="Coupons/Delivery"
+                                                    isOpen={openSections.expenses}
+                                                    onToggle={() => toggleSection('expenses')}
+                                                />
+                                                <AnimatePresence>
+                                                    {openSections.expenses && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            className="overflow-hidden space-y-3 pb-4"
+                                                        >
+                                                            <div className="flex justify-between items-center text-[11px]">
+                                                                <span className="text-[#71717a] font-medium">Coupons Applied</span>
+                                                                <span className="text-red-500 font-semibold">- रु {data.stats.totalCouponDiscount.toLocaleString()}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-[11px]">
+                                                                <span className="text-[#71717a] font-medium">Delivery Charges</span>
+                                                                <span className="text-green-600 font-semibold">रु {data.stats.totalDeliveryCharges.toLocaleString()}</span>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
 
-                                                            return (
-                                                                <>
-                                                                    {qrMethods.length > 0 && (
-                                                                        <>
-                                                                            <div className="flex justify-between items-center text-[11px] mb-3 px-1">
-                                                                                <span className="text-[#242424] font-bold uppercase tracking-wider">
-                                                                                    QR (Combined)
-                                                                                </span>
-                                                                                <span className="text-[#242424] font-bold text-[13px]">रु {qrTotalAmount.toLocaleString()}</span>
-                                                                            </div>
-                                                                            <div className="space-y-2 mb-8">
-                                                                                {qrMethods.map((m, i) => (
-                                                                                    <div key={i} className="bg-gray-50/80 p-4 rounded-xl border-b border-gray-100 last:border-b-0 space-y-2">
-                                                                                        <div className="flex justify-between items-center text-[10px]">
-                                                                                            <span className="text-gray-600 font-bold uppercase tracking-wider">{m.method}</span>
-                                                                                            <span className="text-[#242424] font-bold">रु {m.amount.toLocaleString()}</span>
+                                            <div className="py-1 md:py-2">
+                                                <SectionHeader
+                                                    title="Payment Channels"
+                                                    description="Distribution"
+                                                    isOpen={openSections.payment}
+                                                    onToggle={() => toggleSection('payment')}
+                                                />
+                                                <AnimatePresence>
+                                                    {openSections.payment && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            className="overflow-hidden space-y-4 pb-4"
+                                                        >
+                                                            {(() => {
+                                                                const qrMethods = data.paymentMethods.filter(m => 
+                                                                    m.method.toLowerCase().includes('qr')
+                                                                );
+                                                                const nonQrMethods = data.paymentMethods.filter(m => 
+                                                                    !m.method.toLowerCase().includes('qr')
+                                                                );
+                                                                
+                                                                const qrTotalAmount = qrMethods.reduce((acc, m) => acc + m.amount, 0);
+
+                                                                return (
+                                                                    <>
+                                                                        {qrMethods.length > 0 && (
+                                                                            <>
+                                                                                <div className="flex justify-between items-center text-[11px] mb-3 px-1">
+                                                                                    <span className="text-[#242424] font-semibold uppercase tracking-wider">
+                                                                                        QR (Combined)
+                                                                                    </span>
+                                                                                    <span className="text-[#242424] font-semibold text-[13px]">रु {qrTotalAmount.toLocaleString()}</span>
+                                                                                </div>
+                                                                                <div className="space-y-2 mb-8">
+                                                                                    {qrMethods.map((m, i) => (
+                                                                                        <div key={i} className="bg-gray-50/80 p-4 rounded-xl border-b border-gray-100 last:border-b-0 space-y-2">
+                                                                                            <div className="flex justify-between items-center text-[10px]">
+                                                                                                <span className="text-gray-600 font-semibold uppercase tracking-wider">{m.method}</span>
+                                                                                                <span className="text-[#242424] font-semibold">रु {m.amount.toLocaleString()}</span>
+                                                                                            </div>
+                                                                                            <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-gray-100">
+                                                                                                <motion.div
+                                                                                                    initial={{ width: 0 }}
+                                                                                                    animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
+                                                                                                    className="h-full bg-[#242424] rounded-full"
+                                                                                                ></motion.div>
+                                                                                            </div>
+                                                                                            <div className="text-[8px] text-[#a1a1aa] font-semibold uppercase tracking-tighter">{m.count} Sales</div>
                                                                                         </div>
-                                                                                        <div className="w-full h-1.5 bg-white rounded-full overflow-hidden border border-gray-100">
-                                                                                            <motion.div
-                                                                                                initial={{ width: 0 }}
-                                                                                                animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
-                                                                                                className="h-full bg-[#242424] rounded-full"
-                                                                                            ></motion.div>
-                                                                                        </div>
-                                                                                        <div className="text-[8px] text-gray-400 font-bold uppercase tracking-tighter">{m.count} Sales</div>
-                                                                                    </div>
-                                                                                ))}
+                                                                                    ))}
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+                                                                        {nonQrMethods.map((m, i) => (
+                                                                            <div key={i} className="space-y-2 px-1 mb-6 last:mb-0">
+                                                                                <div className="flex justify-between items-center text-[11px]">
+                                                                                    <span className="text-[#242424] font-semibold uppercase tracking-wider">{m.method}</span>
+                                                                                    <span className="text-[#242424] font-semibold text-[13px]">रु {m.amount.toLocaleString()}</span>
+                                                                                </div>
+                                                                                <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+                                                                                    <motion.div
+                                                                                        initial={{ width: 0 }}
+                                                                                        animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
+                                                                                        className="h-full bg-[#242424] rounded-full"
+                                                                                    ></motion.div>
+                                                                                </div>
+                                                                                <div className="text-[9px] text-[#a1a1aa] font-semibold uppercase">{m.count} Sales</div>
                                                                             </div>
-                                                                        </>
-                                                                    )}
-                                                                    {nonQrMethods.map((m, i) => (
-                                                                        <div key={i} className="space-y-2 px-1 mb-6 last:mb-0">
-                                                                            <div className="flex justify-between items-center text-[11px]">
-                                                                                <span className="text-[#242424] font-bold uppercase tracking-wider">{m.method}</span>
-                                                                                <span className="text-[#242424] font-bold text-[13px]">रु {m.amount.toLocaleString()}</span>
-                                                                            </div>
-                                                                            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-                                                                                <motion.div
-                                                                                    initial={{ width: 0 }}
-                                                                                    animate={{ width: `${(m.amount / data.stats.totalGrossRevenue) * 100}%` }}
-                                                                                    className="h-full bg-[#242424] rounded-full"
-                                                                                ></motion.div>
-                                                                            </div>
-                                                                            <div className="text-[9px] text-gray-400 font-bold uppercase">{m.count} Sales</div>
-                                                                        </div>
-                                                                    ))}
-                                                                </>
-                                                            );
-                                                        })()}
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
+                                                                        ))}
+                                                                    </>
+                                                                );
+                                                            })()}
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Recent Transactions Section */}
                         <div className="grid grid-cols-1">
@@ -714,19 +719,26 @@ export default function FinanceClient() {
                                             <History className="w-4 h-4 text-gray-600" />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-base text-[#242424]">Recent Transactions</h3>
-                                            <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Audit trail</p>
+                                            <h3 className="font-semibold text-base text-[#242424]">Recent Transactions</h3>
+                                            <p className="text-[11px] text-[#71717a] font-normal uppercase tracking-wider">Audit trail</p>
                                         </div>
                                     </div>
-                                    <button className="text-[11px] font-bold text-blue-600 flex items-center gap-1 hover:underline">
+                                    <button className="text-[11px] font-semibold text-blue-600 flex items-center gap-1 hover:underline">
                                         Export
                                         <Download className="w-3 h-3" />
                                     </button>
                                 </div>
+                                {searchQuery && (
+                                    <div className="px-6 py-4 bg-[#bef264]/10 border-b border-[#bef264]/20">
+                                        <p className="text-[11px] font-semibold text-[#242424] uppercase tracking-wider">
+                                            Search Results for "{searchQuery}" — {filteredTransactions.length} found
+                                        </p>
+                                    </div>
+                                )}
                                 <div className="overflow-x-auto scrollbar-hide">
                                     <table className="w-full text-left border-collapse min-w-[600px]">
                                         <thead>
-                                            <tr className="bg-gray-50/50 text-gray-400 text-[10px] uppercase tracking-[0.1em] font-semibold">
+                                            <tr className="bg-gray-50/50 text-[#a1a1aa] text-[10px] uppercase tracking-[0.1em] font-semibold">
                                                 <th className="px-6 py-5">Customer</th>
                                                 <th className="px-6 py-5">Method</th>
                                                 <th className="px-6 py-5 text-center">Status</th>
@@ -739,23 +751,23 @@ export default function FinanceClient() {
                                                 <tr key={tx.id} className="group hover:bg-gray-50/80 transition-colors">
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
-                                                            <span className="text-[13px] font-bold text-[#242424] tracking-tight">{tx.customer}</span>
-                                                            <span className="text-[10px] text-gray-400 font-medium uppercase mt-0.5 tracking-wider">#{tx.id.split('-')[0]}</span>
+                                                            <span className="text-[13px] font-semibold text-[#242424] tracking-tight">{tx.customer}</span>
+                                                            <span className="text-[10px] text-[#a1a1aa] font-normal uppercase mt-0.5 tracking-wider">#{tx.id.split('-')[0]}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-tighter">{tx.method}</span>
+                                                        <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-tighter">{tx.method}</span>
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${tx.status.toLowerCase() === 'paid' ? 'bg-green-50 text-green-600' :
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-widest ${tx.status.toLowerCase() === 'paid' ? 'bg-green-50 text-green-600' :
                                                             tx.status.toLowerCase() === 'pending' ? 'bg-amber-50 text-amber-600' :
                                                                 'bg-red-50 text-red-600'
                                                             }`}>
                                                             {tx.status}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 text-[11px] text-gray-500 font-bold uppercase">{tx.date}</td>
-                                                    <td className="px-6 py-4 text-right text-[14px] font-bold text-[#242424]">रु {tx.amount.toLocaleString()}</td>
+                                                    <td className="px-6 py-4 text-[11px] text-[#a1a1aa] font-semibold uppercase">{tx.date}</td>
+                                                    <td className="px-6 py-4 text-right text-[14px] font-semibold text-[#242424]">रु {tx.amount.toLocaleString()}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

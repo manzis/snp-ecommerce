@@ -134,6 +134,8 @@ export default function ProductsClient() {
           setSearchQuery(query);
           setCurrentPage(1);
         }}
+        onRefresh={() => loadProducts(currentPage, searchQuery)}
+        refreshLoading={isLoading}
         filterDropdown={<ProductFilters />}
       />
 

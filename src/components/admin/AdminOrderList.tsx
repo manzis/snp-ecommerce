@@ -11,6 +11,7 @@ interface AdminOrderListProps {
   lastSeenAt?: string;
   viewMode?: 'grid' | 'list';
   selectedIds?: string[];
+  totalCount?: number;
   onToggleSelect?: (id: string) => void;
   onToggleSelectAll?: () => void;
   onViewDetails?: (order: OrderProps) => void;
@@ -39,6 +40,7 @@ export function AdminOrderList({
   lastSeenAt,
   viewMode = 'list',
   selectedIds = [],
+  totalCount = 0,
   onToggleSelect,
   onToggleSelectAll,
   onViewDetails,
@@ -341,8 +343,15 @@ export function AdminOrderList({
 
       {/* All Orders Section */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-[12px] font-medium text-[#71717a] uppercase ">All Orders</h2>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[12px] font-medium text-[#71717a] uppercase ">All Orders</h2>
+            {totalCount > 0 && (
+              <span className="px-2 py-0.5 bg-gray-100 text-[#71717a] text-[10px] font-bold rounded-full border border-gray-200/50">
+                {totalCount}
+              </span>
+            )}
+          </div>
         </div>
         {viewMode === 'grid' ? renderGrid(otherOrders) : renderTable(otherOrders)}
 

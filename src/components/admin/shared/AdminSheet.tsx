@@ -13,6 +13,7 @@ interface AdminSheetProps {
     children: React.ReactNode;
     footerActions?: React.ReactNode;
     headerActions?: React.ReactNode;
+    maxWidth?: string;
 }
 
 export default function AdminSheet({
@@ -23,6 +24,7 @@ export default function AdminSheet({
     children,
     footerActions,
     headerActions,
+    maxWidth
 }: AdminSheetProps) {
     const [mounted, setMounted] = useState(false);
 
@@ -59,7 +61,7 @@ export default function AdminSheet({
                         animate={{ x: 0 }}
                         exit={{ x: '100%' }}
                         transition={{ type: 'spring', damping: 30, stiffness: 300, mass: 0.8 }}
-                        className="relative w-full max-w-[500px] h-full bg-white shadow-2xl flex flex-col font-rubik"
+                        className={`relative w-full ${maxWidth || 'max-w-[500px]'} h-full bg-white shadow-2xl flex flex-col font-rubik`}
                     >
                         {/* Header */}
                         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">

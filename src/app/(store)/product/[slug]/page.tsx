@@ -23,6 +23,7 @@ import { preload } from 'react-dom';
 import type { Metadata } from 'next';
 import { getSeoProduct, getSeoGlobal, getSeoProductBySlug } from '@/lib/seo/getSeoData';
 import { generateProductFallbackSeo } from '@/lib/seo/seoFallback';
+import ProductViewTracker from '@/components/product/ProductViewTracker';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -143,7 +144,6 @@ async function ProductContent({ slug }: { slug: string }) {
     preload(product.images[0], { as: 'image', fetchPriority: 'high' });
   }
 
-
   const breadcrumbPath = [
     { name: "Supplements", href: "/supplements" },
     { name: product.categories?.name || "Category", href: `/category/${product.categories?.slug || ''}` },
@@ -158,6 +158,7 @@ async function ProductContent({ slug }: { slug: string }) {
 
   return (
     <>
+      <ProductViewTracker productId={product.id} />
       {/* Rich Product JSON-LD for Google Rich Results */}
       <ProductJsonLd
         name={product.title || product.name}

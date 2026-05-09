@@ -56,7 +56,7 @@ const MORE_OPTIONS_SUB_MENU = [
 
 
 const STORE_MENU_ITEMS: MenuItem[] = [
-    { name: 'Store Settings', icon: StoreSettingsIcon, href: '/admin/settings/store' },
+    { name: 'Analytics', icon: AnalyticsIcon, href: '/admin/analytics' },
     { name: 'Layouts', icon: LayoutsIcon, href: '/admin/layouts' },
     { name: 'SEO', icon: SearchIcon, href: '/admin/seo' },
 ];

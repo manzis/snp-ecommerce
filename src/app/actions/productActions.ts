@@ -848,6 +848,8 @@ export async function fetchAllProductsAction() {
       .select(`
         id, 
         name, 
+        title,
+        slug,
         images, 
         original_price, 
         discounted_price,

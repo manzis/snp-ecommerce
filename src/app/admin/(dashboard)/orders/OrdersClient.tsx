@@ -222,16 +222,18 @@ export default function OrdersClient() {
         onViewModeChange={setViewMode}
         searchPlaceholder="Search by ID or Name..."
         onSearch={(query) => {
-            setSearchQuery(query);
-            setCurrentPage(1);
+          setSearchQuery(query);
+          setCurrentPage(1);
         }}
+        onRefresh={() => loadOrders(currentPage)}
+        refreshLoading={isLoading}
         filterDropdown={<OrderFilters status={statusFilter} setStatus={(s) => {
             setStatusFilter(s);
             setCurrentPage(1);
         }} />}
       />
 
-      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[100px]">
+      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden pb-[100px]">
         <AnimatePresence mode="wait">
           {isLoading && orders.length === 0 ? (
             <motion.div
@@ -256,6 +258,7 @@ export default function OrdersClient() {
                 lastSeenAt={lastSeenAtOnMount.current || undefined}
                 viewMode={viewMode}
                 selectedIds={selectedIds}
+                totalCount={totalCount}
                 onToggleSelect={handleToggleSelect}
                 onToggleSelectAll={handleToggleSelectAll}
                 onViewDetails={handleOpenDetails}

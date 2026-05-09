@@ -39,7 +39,7 @@ export default function AdminModal({
     const modalContent = (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[99999] flex items-end md:items-center justify-center">
+                <div className="fixed inset-0 z-[100001] flex items-end md:items-center justify-center">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}

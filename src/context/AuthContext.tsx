@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { ensureUserProfileExistsAction } from '@/app/actions/addressActions';
 
 interface AuthContextType {
   user: User | null;
@@ -24,9 +25,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+      const currentUser = currentSession?.user ?? null;
+      setUser(currentUser);
+      
+      // Auto-initialize profile if it doesn't exist
+      if (currentUser) {
+        ensureUserProfileExistsAction();
+      }
+      
       setIsLoading(false);
     };
 
@@ -38,9 +46,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     scheduleInit(initSession);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      (event, currentSession) => {
+        setSession(currentSession);
+        const currentUser = currentSession?.user ?? null;
+        setUser(currentUser);
+        
+        // Trigger profile check on login or session update
+        if (event === 'SIGNED_IN' && currentUser) {
+          ensureUserProfileExistsAction();
+        }
       }
     );
 

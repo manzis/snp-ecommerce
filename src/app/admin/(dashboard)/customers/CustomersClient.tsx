@@ -17,6 +17,8 @@ import {
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { AlertTriangle, Trash2, Users, Star, Zap, UserPlus, ArrowUpRight, Zap as ZapIcon, Trophy, TrendingUp, Medal, ChevronLeft, ChevronRight } from 'lucide-react';
 
+import CustomerDetailsModal from '@/components/admin/customers/CustomerDetailsModal';
+
 // --- Types ---
 type FilterStatus = 'all' | 'active' | 'new' | 'vip' | 'at_risk';
 
@@ -25,7 +27,7 @@ const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)] flex flex-col gap-4 group hover:shadow-lg hover:shadow-gray-200/40 transition-all duration-500"
+        className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 flex flex-col gap-4 group hover:bg-gray-50/50 transition-all duration-500"
     >
         <div className="flex justify-between items-start">
             <div className="p-2.5 bg-gray-50 rounded-xl group-hover:bg-[#242424] group-hover:text-white transition-colors duration-300">
@@ -39,23 +41,33 @@ const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
             )}
         </div>
         <div>
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{title}</p>
+            <p className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1">{title}</p>
             <h3 className="text-2xl font-semibold text-[#242424] tracking-tighter">{value}</h3>
-            <p className="text-[10px] text-gray-500 font-medium mt-1 uppercase tracking-wider">{subValue}</p>
+            <p className="text-[10px] text-[#a1a1aa] font-normal mt-1 uppercase tracking-wider">{subValue}</p>
         </div>
     </motion.div>
 );
 
 // --- Customer Card (Grid View - Parity with OrderCard) ---
-const DashboardCustomerCard = ({ customer, isNew, onDelete }: { customer: CustomerData, isNew?: boolean, onDelete?: (c: CustomerData) => void }) => {
+const DashboardCustomerCard = ({
+    customer,
+    isNew,
+    onDelete,
+    onClick
+}: {
+    customer: CustomerData,
+    isNew?: boolean,
+    onDelete?: (c: CustomerData) => void,
+    onClick?: (c: CustomerData) => void
+}) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [imgError, setImgError] = useState(false);
 
     const getStatusColors = (status: string, isConstant?: boolean) => {
-        if (status === 'vip') return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', dot: 'bg-amber-500' };
+        if (status === 'vip') return { bg: 'bg-[#242424]', text: 'text-white', border: 'border-[#242424]', dot: 'bg-white' };
         if (isConstant) return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', dot: 'bg-emerald-500' };
 
-        // Active and New now stay Gray as per user request
+        // Active and New
         return { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-100', dot: 'bg-gray-400' };
     };
 
@@ -63,7 +75,8 @@ const DashboardCustomerCard = ({ customer, isNew, onDelete }: { customer: Custom
 
     return (
         <article
-            className={`flex w-full max-w-[378px] mx-auto flex-col rounded-[12px] relative group transition-all duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] font-rubik tracking-tight hover:shadow-[0_16px_40px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-[2px] border cursor-pointer ${isMenuOpen ? 'z-[60]' : 'z-[1]'} ${isNew ? 'border-transparent' : 'bg-white border-gray-50/50 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)]'}`}
+            onClick={() => !isMenuOpen && onClick?.(customer)}
+            className={`flex w-full max-w-[378px] mx-auto flex-col rounded-[12px] relative group transition-all duration-[500ms] ease-[cubic-bezier(0.25,0.46,0.45,0.94)] font-rubik tracking-tight hover:-translate-y-[2px] border cursor-pointer ${isMenuOpen ? 'z-[60]' : 'z-[1]'} ${isNew ? 'border-transparent' : 'bg-white border-gray-100'}`}
             style={isNew ? {
                 background: 'linear-gradient(white, white) padding-box, linear-gradient(to bottom, #ffffff, #18181b) border-box',
                 border: '1px solid transparent',
@@ -97,8 +110,8 @@ const DashboardCustomerCard = ({ customer, isNew, onDelete }: { customer: Custom
                             )}
                         </div>
                         {customer.behavior.monthlyConsistency && (
-                            <span className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold uppercase tracking-tighter">
-                                <Zap className="w-3 h-3 fill-emerald-600" /> Constant
+                            <span className="flex items-center gap-1 text-[10px] text-[#242424] font-bold uppercase tracking-tighter">
+                                <Zap className="w-3 h-3 fill-emerald-500 text-emerald-500" /> Constant
                             </span>
                         )}
                     </div>
@@ -118,13 +131,13 @@ const DashboardCustomerCard = ({ customer, isNew, onDelete }: { customer: Custom
                         </div>
 
                         <div className="flex flex-col gap-[4px] justify-center items-start self-stretch grow relative z-[15] overflow-hidden">
-                            <h4 className="text-[15px] font-bold text-[#242424] truncate w-full group-hover:text-blue-600 transition-colors">
+                            <h4 className="text-[15px] font-semibold text-[#242424] truncate w-full group-hover:text-blue-600 transition-colors">
                                 {customer.name}
                             </h4>
-                            <span className="text-[11px] text-[#71717a] truncate w-full font-medium tracking-tight">
+                            <span className="text-[11px] text-[#71717a] truncate w-full font-normal tracking-tight">
                                 {customer.email}
                             </span>
-                            <span className="text-[11px] text-[#71717a] truncate w-full font-medium tracking-tight">
+                            <span className="text-[11px] text-[#71717a] truncate w-full font-normal tracking-tight">
                                 {customer.phone}
                             </span>
                         </div>
@@ -133,15 +146,15 @@ const DashboardCustomerCard = ({ customer, isNew, onDelete }: { customer: Custom
                     <div className="flex h-[72px] items-start self-stretch shrink-0 rounded-[8px] border-[1px] border-[#f3f4f6] relative overflow-hidden z-[24] bg-white mt-2">
                         <div className="flex w-[68px] px-[12px] py-[10px] flex-col gap-[4px] items-start self-stretch shrink-0 border-r-[1px] border-[#f3f4f6] relative z-[25]">
                             <span className="shrink-0 text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-wider">Orders</span>
-                            <span className="shrink-0 text-[14px] font-bold text-[#242424]">{customer.behavior.totalOrders}</span>
+                            <span className="shrink-0 text-[14px] font-semibold text-[#242424]">{customer.behavior.totalOrders}</span>
                         </div>
                         <div className="flex px-[12px] py-[10px] flex-col gap-[4px] items-start self-stretch grow basis-[0px] relative z-[28] overflow-hidden border-r-[1px] border-[#f3f4f6]">
                             <span className="shrink-0 text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-wider">AOV</span>
-                            <span className="text-[13px] font-bold text-[#242424] truncate">रु {Math.round(customer.behavior.avgOrderValue).toLocaleString()}</span>
+                            <span className="text-[13px] font-semibold text-[#242424] truncate">रु {Math.round(customer.behavior.avgOrderValue).toLocaleString()}</span>
                         </div>
-                        <div className={`flex w-[100px] px-[12px] py-[10px] flex-col gap-[4px] items-start self-stretch shrink-0 ${customer.status === 'vip' ? 'bg-amber-50' : customer.behavior.monthlyConsistency ? 'bg-emerald-50/50' : 'bg-gray-50/50'} relative z-[31]`}>
-                            <span className={`shrink-0 text-[9px] font-semibold ${customer.status === 'vip' ? 'text-amber-700' : customer.behavior.monthlyConsistency ? 'text-emerald-700' : 'text-gray-400'} uppercase tracking-wider`}>LTV Amount</span>
-                            <span className={`shrink-0 text-[14px] font-bold ${customer.status === 'vip' ? 'text-amber-700' : customer.behavior.monthlyConsistency ? 'text-emerald-700' : 'text-[#242424]'}`}>रु {customer.behavior.totalSpent.toLocaleString()}</span>
+                        <div className={`flex w-[100px] px-[12px] py-[10px] flex-col gap-[4px] items-start self-stretch shrink-0 ${customer.status === 'vip' ? 'bg-[#242424]' : 'bg-gray-50/50'} relative z-[31]`}>
+                            <span className={`shrink-0 text-[9px] font-semibold ${customer.status === 'vip' ? 'text-white/70' : 'text-[#a1a1aa]'} uppercase tracking-wider`}>LTV Amount</span>
+                            <span className={`shrink-0 text-[14px] font-semibold ${customer.status === 'vip' ? 'text-white' : 'text-[#242424]'}`}>रु {customer.behavior.totalSpent.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
@@ -165,6 +178,10 @@ export default function CustomersClient() {
     // Deletion State
     const [customerToDelete, setCustomerToDelete] = useState<CustomerData | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Details Modal State
+    const [selectedCustomerForDetails, setSelectedCustomerForDetails] = useState<CustomerData | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
     const { showAdminToast } = useAdminToast();
 
@@ -274,30 +291,41 @@ export default function CustomersClient() {
                     customer={c}
                     isNew={recently.includes(c)}
                     onDelete={setCustomerToDelete}
+                    onClick={(customer) => {
+                        setSelectedCustomerForDetails(customer);
+                        setIsDetailsOpen(true);
+                    }}
                 />
             ))}
         </div>
     );
 
     const renderTable = (list: CustomerData[]) => (
-        <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] font-rubik">
+        <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white font-rubik">
             <table className="w-full text-left border-separate border-spacing-0">
                 <thead>
                     <tr className="border-b border-gray-50 bg-[#fafafa]">
                         <th className="py-4 px-6 w-[40px] border-b border-gray-100 first:rounded-tl-[12px]">
                             <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#242424] cursor-pointer" />
                         </th>
-                        <th className="py-4 px-6 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Customer</th>
-                        <th className="py-4 px-6 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Contact</th>
-                        <th className="py-4 px-6 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Behavior</th>
-                        <th className="py-4 px-6 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100 text-right">LTV Metric</th>
-                        <th className="py-4 px-6 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100 text-center last:rounded-tr-[12px]">Action</th>
+                        <th className="py-4 px-6 text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-b border-gray-100">Customer</th>
+                        <th className="py-4 px-6 text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-b border-gray-100">Contact</th>
+                        <th className="py-4 px-6 text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-b border-gray-100">Behavior</th>
+                        <th className="py-4 px-6 text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-b border-gray-100 text-right">LTV Metric</th>
+                        <th className="py-4 px-6 text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-b border-gray-100 text-center last:rounded-tr-[12px]">Action</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                     {list.map((c) => (
-                        <tr key={c.id} className="group hover:bg-[#fafafa] transition-colors duration-200">
-                            <td className="py-5 px-6 text-center">
+                        <tr
+                            key={c.id}
+                            className="group hover:bg-[#fafafa] transition-colors duration-200 cursor-pointer"
+                            onClick={() => {
+                                setSelectedCustomerForDetails(c);
+                                setIsDetailsOpen(true);
+                            }}
+                        >
+                            <td className="py-5 px-6 text-center" onClick={(e) => e.stopPropagation()}>
                                 <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#242424] cursor-pointer" />
                             </td>
                             <td className="py-5 px-6">
@@ -306,39 +334,39 @@ export default function CustomersClient() {
                                         {c.avatar ? <img src={c.avatar} alt={c.name} className="w-full h-full object-cover" /> : c.name[0]}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[14px] font-bold text-[#242424] tracking-tight">{c.name}</span>
-                                        <span className="text-[11px] text-gray-400 font-medium">ID: {c.id.slice(0, 8)}</span>
+                                        <span className="text-[14px] font-semibold text-[#242424] tracking-tight">{c.name}</span>
+                                        <span className="text-[11px] text-[#a1a1aa] font-normal">ID: {c.id.slice(0, 8)}</span>
                                     </div>
                                 </div>
                             </td>
                             <td className="py-5 px-6">
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[13px] font-medium text-gray-600">{c.email}</span>
-                                    <span className="text-[11px] text-gray-400">{c.phone}</span>
+                                    <span className="text-[13px] font-normal text-[#71717a]">{c.email}</span>
+                                    <span className="text-[11px] text-[#a1a1aa]">{c.phone}</span>
                                 </div>
                             </td>
                             <td className="py-5 px-6">
                                 <div className="flex items-center gap-3">
-                                    <div className={`px-2 py-0.5 rounded-full border text-[9px] font-semibold uppercase tracking-widest ${c.status === 'vip' ? 'bg-amber-50 border-amber-100 text-amber-700' :
-                                        c.behavior.monthlyConsistency ? 'bg-emerald-50 border-emerald-100 text-emerald-700' :
-                                            'bg-gray-50 border-gray-100 text-gray-500'
+                                    <div className={`px-2 py-0.5 rounded-full border text-[9px] font-semibold uppercase tracking-widest ${c.status === 'vip' ? 'bg-[#242424] border-[#242424] text-white' :
+                                            c.behavior.monthlyConsistency ? 'bg-emerald-50 border-emerald-100 text-emerald-700' :
+                                                'bg-gray-50 border-gray-100 text-gray-500'
                                         }`}>
                                         {c.behavior.monthlyConsistency ? 'Constant' : c.status}
                                     </div>
                                     {c.behavior.monthlyConsistency && (
-                                        <div className="flex items-center gap-1 text-green-600 text-[10px] font-bold uppercase">
-                                            <Zap className="w-3 h-3 fill-green-600" />
+                                        <div className="flex items-center gap-1 text-[#242424] text-[10px] font-bold uppercase">
+                                            <Zap className="w-3 h-3 fill-emerald-500 text-emerald-500" />
                                         </div>
                                     )}
                                 </div>
                             </td>
                             <td className="py-5 px-6 text-right">
                                 <div className="flex flex-col items-end">
-                                    <span className="text-[15px] font-bold text-[#242424] tracking-tighter">रु {c.behavior.totalSpent.toLocaleString()}</span>
-                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{c.behavior.totalOrders} Orders</span>
+                                    <span className="text-[15px] font-semibold text-[#242424] tracking-tighter">रु {c.behavior.totalSpent.toLocaleString()}</span>
+                                    <span className="text-[10px] text-[#a1a1aa] font-semibold uppercase tracking-wider">{c.behavior.totalOrders} Orders</span>
                                 </div>
                             </td>
-                            <td className="py-5 px-6 text-center">
+                            <td className="py-5 px-6 text-center" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex justify-center">
                                     <CustomerActionMenu
                                         customer={c}
@@ -357,8 +385,8 @@ export default function CustomersClient() {
         if (totalPages <= 1) return null;
         return (
             <div className="flex items-center justify-between px-2 py-6 border-t border-gray-50 mt-4 font-rubik">
-                <p className="text-[12px] font-medium text-gray-400">
-                    Showing <span className="text-[#242424] font-bold">{(currentPage - 1) * PAGE_SIZE + 1}</span> to <span className="text-[#242424] font-bold">{Math.min(currentPage * PAGE_SIZE, others.length)}</span> of <span className="text-[#242424] font-bold">{others.length}</span> customers
+                <p className="text-[12px] font-normal text-[#a1a1aa]">
+                    Showing <span className="text-[#242424] font-semibold">{(currentPage - 1) * PAGE_SIZE + 1}</span> to <span className="text-[#242424] font-semibold">{Math.min(currentPage * PAGE_SIZE, others.length)}</span> of <span className="text-[#242424] font-semibold">{others.length}</span> customers
                 </p>
                 <div className="flex items-center gap-2">
                     <button
@@ -373,7 +401,7 @@ export default function CustomersClient() {
                             <button
                                 key={i}
                                 onClick={() => setCurrentPage(i + 1)}
-                                className={`w-8 h-8 rounded-lg text-[12px] font-bold transition-all ${currentPage === i + 1 ? 'bg-[#242424] text-white' : 'text-gray-400 hover:bg-gray-50'}`}
+                                className={`w-8 h-8 rounded-lg text-[12px] font-semibold transition-all ${currentPage === i + 1 ? 'bg-[#242424] text-white' : 'text-gray-400 hover:bg-gray-50'}`}
                             >
                                 {i + 1}
                             </button>
@@ -400,6 +428,8 @@ export default function CustomersClient() {
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
                 onSearch={setSearchQuery}
+                onRefresh={loadData}
+                refreshLoading={isLoading}
                 searchPlaceholder="Search customers by name, email or phone..."
                 filterDropdown={
                     <CustomerFilters
@@ -418,85 +448,91 @@ export default function CustomersClient() {
                     </div>
                 ) : data && (
                     <>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                            <MetricCard
-                                title="All Customers"
-                                value={data.stats.totalCustomers.toLocaleString()}
-                                subValue="Registered Users"
-                                icon={Users}
-                            />
-                            <MetricCard
-                                title="Active Monthly"
-                                value={data.stats.activeCustomers.toLocaleString()}
-                                subValue="Constant Shoppers"
-                                icon={Zap}
-                                trend={12.4}
-                            />
-                            <MetricCard
-                                title="New Growth"
-                                value={data.stats.newThisMonth.toLocaleString()}
-                                subValue="Past 30 Days"
-                                icon={UserPlus}
-                                trend={5.2}
-                            />
-                            <MetricCard
-                                title="VIP Loyalty"
-                                value={data.stats.highValueCustomers.toLocaleString()}
-                                subValue="High LTV Segment"
-                                icon={Star}
-                            />
-                        </div>
-
-                        {/* Monthly Insights Section */}
-                        {insights && (
-                            <div className="flex flex-col gap-4">
-                                <h2 className="text-[12px] font-bold text-[#71717a] uppercase tracking-[0.2em] px-1 flex items-center gap-2">
-                                    <TrendingUp className="w-4 h-4" /> Monthly Insights
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
-                                        <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
-                                            <Trophy className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Highest Spender</span>
-                                            <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.topSpender.name}</span>
-                                            <span className="text-[11px] text-[#242424] font-bold">रु {insights.topSpender.behavior.totalSpent.toLocaleString()} LTV</span>
-                                        </div>
-                                    </div>
-                                    <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
-                                        <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
-                                            <ZapIcon className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Most Frequent</span>
-                                            <span className="text-[15px] font-bold text-[#242424] truncate max-w-[150px]">{insights.mostOrders.name}</span>
-                                            <span className="text-[11px] text-[#242424] font-bold">{insights.mostOrders.behavior.totalOrders} Orders Placed</span>
-                                        </div>
-                                    </div>
-                                    <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
-                                        <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
-                                            <Medal className="w-6 h-6" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Highest AOV</span>
-                                            <span className="text-[15px] font-bold text-[#242424] truncate max-w-[150px]">{insights.highestAOV.name}</span>
-                                            <span className="text-[11px] text-[#242424] font-bold">रु {Math.round(insights.highestAOV.behavior.avgOrderValue).toLocaleString()} Average</span>
-                                        </div>
-                                    </div>
+                        {!searchQuery && (
+                            <>
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                                    <MetricCard
+                                        title="All Customers"
+                                        value={data.stats.totalCustomers.toLocaleString()}
+                                        subValue="Registered Users"
+                                        icon={Users}
+                                    />
+                                    <MetricCard
+                                        title="Active Monthly"
+                                        value={data.stats.activeCustomers.toLocaleString()}
+                                        subValue="Constant Shoppers"
+                                        icon={Zap}
+                                        trend={12.4}
+                                    />
+                                    <MetricCard
+                                        title="New Growth"
+                                        value={data.stats.newThisMonth.toLocaleString()}
+                                        subValue="Past 30 Days"
+                                        icon={UserPlus}
+                                        trend={5.2}
+                                    />
+                                    <MetricCard
+                                        title="VIP Loyalty"
+                                        value={data.stats.highValueCustomers.toLocaleString()}
+                                        subValue="High LTV Segment"
+                                        icon={Star}
+                                    />
                                 </div>
-                            </div>
+
+                                {/* Monthly Insights Section */}
+                                {insights && (
+                                    <div className="flex flex-col gap-4">
+                                        <h2 className="text-[12px] font-semibold text-[#71717a] uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                            <TrendingUp className="w-4 h-4" /> Monthly Insights
+                                        </h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
+                                                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
+                                                    <Trophy className="w-6 h-6" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-wider">Highest Spender</span>
+                                                    <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.topSpender.name}</span>
+                                                    <span className="text-[11px] text-[#242424] font-semibold">रु {insights.topSpender.behavior.totalSpent.toLocaleString()} LTV</span>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
+                                                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
+                                                    <ZapIcon className="w-6 h-6" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest">Most Frequent</span>
+                                                    <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.mostOrders.name}</span>
+                                                    <span className="text-[11px] text-[#242424] font-semibold">{insights.mostOrders.behavior.totalOrders} Orders Placed</span>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
+                                                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
+                                                    <Medal className="w-6 h-6" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest">Highest AOV</span>
+                                                    <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.highestAOV.name}</span>
+                                                    <span className="text-[11px] text-[#242424] font-semibold">रु {Math.round(insights.highestAOV.behavior.avgOrderValue).toLocaleString()} Average</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
 
                         {recently.length > 0 && (
                             <div className="flex flex-col gap-4">
-                                <h2 className="text-[12px] font-bold text-[#71717a] uppercase tracking-[0.2em] px-1">Recently Joined</h2>
+                                <h2 className="text-[12px] font-semibold text-[#71717a] uppercase tracking-[0.2em] px-1">Recently Joined</h2>
                                 {viewMode === 'grid' ? renderGrid(recently) : renderTable(recently)}
                             </div>
                         )}
 
                         <div className="flex flex-col gap-4 mt-4">
-                            <h2 className="text-[12px] font-bold text-[#71717a] uppercase tracking-[0.2em] px-1">All Customers</h2>
+                            <h2 className="text-[12px] font-bold text-[#71717a] uppercase tracking-[0.2em] px-1">
+                                {searchQuery ? `Search Results for "${searchQuery}"` : 'All Customers'}
+                            </h2>
                             {viewMode === 'grid' ? renderGrid(paginatedOthers) : renderTable(paginatedOthers)}
                             <Pagination />
 
@@ -550,6 +586,12 @@ export default function CustomersClient() {
                     </p>
                 </div>
             </AdminModal>
+
+            <CustomerDetailsModal
+                isOpen={isDetailsOpen}
+                onClose={() => setIsDetailsOpen(false)}
+                customer={selectedCustomerForDetails}
+            />
         </div>
     );
 }

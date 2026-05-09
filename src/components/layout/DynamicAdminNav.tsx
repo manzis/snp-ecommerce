@@ -11,6 +11,7 @@ import CategoryIcon from '@/components/icons/CategoryIcon';
 import BrandIcon from '@/components/icons/BrandIcon';
 import SettingsIcon from '@/components/icons/SettingsIcon';
 import DownloadIcon from '@/components/icons/DropDownIcon';
+import AnalyticsIcon from '@/components/icons/AnalyticsIcon';
 import Breadcrumb from './AdminBreadcrumb';
 import Link from 'next/link';
 
@@ -68,7 +69,7 @@ const MOBILE_ACTIONS: Record<string, { label: string; icon: any; href?: string; 
     ],
     'default': [
         { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
-        { label: 'Store Settings', icon: SettingsIcon, href: '/admin/settings/store' },
+        { label: 'Analytics', icon: AnalyticsIcon, href: '/admin/analytics' },
     ]
 };
 
@@ -88,7 +89,7 @@ const TITLE_MAP: Record<string, string> = {
     '/admin/reviews': 'Reviews',
     '/admin/qa': 'Question & Answers',
     '/admin/sellers': 'Sellers',
-    '/admin/settings/store': 'Store Settings',
+    '/admin/analytics': 'Analytics',
     '/admin/layouts': 'Layouts',
     '/admin/settings': 'System Settings',
     '/admin/support': 'Help & Support',
