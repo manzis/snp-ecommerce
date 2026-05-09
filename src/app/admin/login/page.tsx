@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
                   <div className="w-2 h-2 bg-white" />
                 </div>
               </div>
-              <span className="text-[20px] font-medium tracking-tight">Bright Nepcare</span>
+              <span className="text-[18px] font-medium tracking-tight">Bright Nepcare</span>
             </div>
             <div className="px-3 py-1 border border-white/10 rounded-sm">
               <span className="text-[10px] font-bold text-white/40 tracking-[0.2em]">MEMBERS</span>
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="space-y-3">
-            <h1 className="text-[36px] font-bold tracking-tight leading-tight">Welcome Back</h1>
+            <h1 className="text-[30px] font-bold tracking-tight leading-tight">Welcome Back</h1>
             <p className="text-[14px] text-[#71717a] font-light">Sign in to continue building</p>
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function AdminLoginPage() {
               {loading ? 'Processing...' : 'Sign In'}
             </button>
 
-            <p className="text-center text-[12px] text-[#71717a]">
+            <p className="text-center text-[10px] text-[#71717a]">
               Don't have an account? <button type="button" className="text-white hover:underline uppercase font-bold tracking-wider ml-1">Sign Up</button>
             </p>
           </div>
