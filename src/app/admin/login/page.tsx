@@ -56,8 +56,8 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="space-y-3">
-            <h1 className="text-[30px] font-bold tracking-tight leading-tight">Welcome Back</h1>
-            <p className="text-[14px] text-[#71717a] font-light">Sign in to continue building</p>
+            <h1 className="text-[24px] font-bold tracking-tight leading-tight">Welcome Back</h1>
+            <p className="text-[12px] text-[#71717a] font-light">Sign in to continue building</p>
           </div>
         </div>
 
