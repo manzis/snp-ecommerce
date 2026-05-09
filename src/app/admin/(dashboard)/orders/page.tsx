@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function OrdersPage() {
-  return <OrdersClient />;
+  return (
+    <React.Suspense fallback={null}>
+      <OrdersClient />
+    </React.Suspense>
+  );
 }
