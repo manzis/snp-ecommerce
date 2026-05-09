@@ -153,7 +153,7 @@ async function HomeDeferredSections() {
   return (
     <>
       {bestSellingProducts.length > 0 && (
-        <LazySection minHeight="350px" rootMargin="400px" className="w-full">
+        <LazySection minHeight="350px" rootMargin="1000px" className="w-full">
           <ProductGridSection
             title="Best Sellers"
             products={mapToGrid(bestSellingProducts)}
@@ -161,12 +161,12 @@ async function HomeDeferredSections() {
         </LazySection>
       )}
 
-      <LazySection minHeight="200px" rootMargin="300px" className="w-full">
+      <LazySection minHeight="200px" rootMargin="1000px" className="w-full">
         <Brands brands={mappedBrands} />
       </LazySection>
 
       {popularProducts.length > 0 && (
-        <LazySection minHeight="350px" rootMargin="300px" className="w-full">
+        <LazySection minHeight="350px" rootMargin="1000px" className="w-full">
           <ProductGridSection
             title="Popular Products"
             products={mapToGrid(popularProducts)}
@@ -174,19 +174,19 @@ async function HomeDeferredSections() {
         </LazySection>
       )}
 
-      <LazySection minHeight="300px" rootMargin="300px" className="w-full">
+      <LazySection minHeight="300px" rootMargin="1000px" className="w-full">
         <FeatureBanners />
       </LazySection>
 
       {activeBanners.length > 0 && (
-        <LazySection minHeight="500px" rootMargin="200px" className="w-full">
+        <LazySection minHeight="500px" rootMargin="1000px" className="w-full">
           <div className="w-full">
             <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
           </div>
         </LazySection>
       )}
 
-      <LazySection minHeight="400px" rootMargin="200px" className="w-full">
+      <LazySection minHeight="400px" rootMargin="1000px" className="w-full">
         <TestimonialSection testimonials={
           homeTestimonials.map((t, idx) => {
             const isAnonymous = !t.author || t.author.toLowerCase().includes('user') || t.author.toLowerCase().includes('anonymous');
@@ -210,7 +210,7 @@ async function HomeDeferredSections() {
       </LazySection>
 
       {newArrivalsProducts.length > 0 && (
-        <LazySection minHeight="350px" rootMargin="200px" className="w-full">
+        <LazySection minHeight="350px" rootMargin="1000px" className="w-full">
           <ProductGridSection
             title="New Arrivals"
             products={mapToGrid(newArrivalsProducts)}
@@ -218,23 +218,23 @@ async function HomeDeferredSections() {
         </LazySection>
       )}
 
-      <LazySection minHeight="200px" rootMargin="200px" className="w-full">
+      <LazySection minHeight="200px" rootMargin="1000px" className="w-full">
         <ServicesMarquee />
       </LazySection>
 
-      <LazySection minHeight="200px" rootMargin="200px" className="w-full">
+      <LazySection minHeight="200px" rootMargin="1000px" className="w-full">
         <SubscribeSection />
       </LazySection>
 
       {activeBanners.length > 1 && (
-        <LazySection minHeight="500px" rootMargin="200px" className="w-full">
+        <LazySection minHeight="500px" rootMargin="1000px" className="w-full">
           <div className="w-full">
             <ProductBanners linkedBanners={activeBanners.slice(1).map(b => ({ banner: b }))} />
           </div>
         </LazySection>
       )}
 
-      <LazySection minHeight="300px" rootMargin="200px" className="w-full">
+      <LazySection minHeight="300px" rootMargin="1000px" className="w-full">
         <HomeFaqSection />
       </LazySection>
 

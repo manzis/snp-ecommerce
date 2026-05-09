@@ -24,7 +24,7 @@ interface LazySectionProps {
 const LazySection: React.FC<LazySectionProps> = ({
   children,
   minHeight = '200px',
-  rootMargin = '300px',
+  rootMargin = '800px',
   className = '',
   id,
 }) => {
@@ -70,12 +70,8 @@ const LazySection: React.FC<LazySectionProps> = ({
       style={
         !isVisible
           ? {
-              minHeight,
-              // content-visibility: auto tells the browser to skip rendering
-              // of off-screen content, dramatically reducing initial paint cost
-              contentVisibility: 'auto' as any,
-              containIntrinsicSize: `auto ${minHeight}` as any,
-            }
+            minHeight,
+          }
           : undefined
       }
     >
