@@ -23,8 +23,8 @@ import {
 } from 'lucide-react';
 import { fetchFinanceDashboardDataAction, FinanceDashboardData } from '@/app/actions/financeActions';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import FinanceFilters from '@/components/admin/finance/FinanceFilters';
 
 const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
@@ -440,8 +440,12 @@ export default function FinanceClient() {
         }
     };
 
+    const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
     useEffect(() => {
         setIsMounted(true);
+        setOverrideTitle(null);
+        setPrimaryAction(null);
         loadFinanceData();
     }, [dateRange]);
 
@@ -471,7 +475,7 @@ export default function FinanceClient() {
     return (
         <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik tracking-tight">
 
-            <DynamicAdminNav />
+            {/* DynamicAdminNav is now in Layout */}
 
             <AdminSubNav
                 onSearch={setSearchQuery}

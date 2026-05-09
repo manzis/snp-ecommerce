@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import ReviewFilters from '@/components/admin/reviews/ReviewFilters';
 import ReviewGrid from '@/components/admin/reviews/ReviewCard';
@@ -11,6 +10,7 @@ import { Review } from '@/services/productService';
 import { fetchReviewsAction, createReviewAction, updateReviewAction, deleteReviewAction } from '@/app/actions/reviewActions';
 import { TableSkeleton, CardGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 export default function ReviewsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -30,7 +30,11 @@ export default function ReviewsPage() {
     setIsLoading(false);
   };
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
+    setOverrideTitle(null);
+    setPrimaryAction(() => handleAddReview);
     loadReviews();
   }, []);
 
@@ -110,7 +114,7 @@ export default function ReviewsPage() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav onPrimaryAction={handleAddReview} />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}

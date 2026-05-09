@@ -114,18 +114,17 @@ const PRIMARY_ACTIONS: Record<string, { label: string; href?: string; type: 'lin
     '/admin/coupons': { label: 'Create Coupon', type: 'modal' },
 };
 
-import AdminModal from '@/components/admin/shared/AdminModal';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 interface DynamicAdminNavProps {
     children?: React.ReactNode;
-    onPrimaryAction?: () => void;
-    overrideTitle?: string;
 }
 
-const DynamicAdminNav = ({ children, onPrimaryAction, overrideTitle }: DynamicAdminNavProps) => {
+const DynamicAdminNav = ({ children }: DynamicAdminNavProps) => {
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { primaryAction: contextPrimaryAction, overrideTitle } = useAdminUI();
 
     // Auto-close menu on navigation
     React.useEffect(() => {
@@ -152,7 +151,7 @@ const DynamicAdminNav = ({ children, onPrimaryAction, overrideTitle }: DynamicAd
                         </Link>
                     ) : (
                         <button
-                            onClick={() => onPrimaryAction?.()}
+                            onClick={() => contextPrimaryAction?.()}
                             className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
                         >
                             <PlusIcon className="w-[16px] h-[16px]" />
@@ -197,7 +196,7 @@ const DynamicAdminNav = ({ children, onPrimaryAction, overrideTitle }: DynamicAd
                                                     key={item.label}
                                                     onClick={() => {
                                                         setIsMenuOpen(false);
-                                                        onPrimaryAction?.();
+                                                        contextPrimaryAction?.();
                                                     }}
                                                     className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-regular text-[#242424] hover:bg-zinc-100 transition-colors"
                                                 >

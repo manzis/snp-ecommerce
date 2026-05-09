@@ -79,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased initial-loading`}
     >
       <head>
+        <meta name="facebook-domain-verification" content="7ishqpnop66zzwgrcpe0m7l77iqkbc" />
         {/* DNS prefetch + preconnect — eliminates DNS lookup latency for external resources */}
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />

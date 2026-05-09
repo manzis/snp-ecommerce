@@ -1,23 +1,25 @@
 import Link from 'next/link';
 import { fetchAllOrdersAdminAction } from '@/app/actions/orderActions';
+import React, { Suspense } from 'react';
 
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
+function DashboardStatsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="h-32 bg-gray-50 rounded-2xl border border-gray-100" />
+      ))}
+    </div>
+  );
+}
 
-export default async function DashboardPage() {
+async function DashboardContent() {
   const result = await fetchAllOrdersAdminAction(1, 10);
   
   const totalOrders = result.success ? result.totalCount : 0;
   const recentOrders = result.success ? (result.orders || []).slice(0, 5) : [];
 
   return (
-    <>
-      <DynamicAdminNav />
-      <div className="space-y-8 p-6">
-      <div>
-        <h1 className="text-3xl font-black text-[#111827] tracking-tight">System Overview</h1>
-        <p className="mt-1 text-sm text-gray-500 font-medium">Welcome to your store's administrative command center.</p>
-      </div>
-
+    <div className="space-y-8">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
@@ -84,6 +86,20 @@ export default async function DashboardPage() {
         </div>
       </div>
     </div>
-    </>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <div className="space-y-8 p-6">
+      <div>
+        <h1 className="text-3xl font-black text-[#111827] tracking-tight">System Overview</h1>
+        <p className="mt-1 text-sm text-gray-500 font-medium">Welcome to your store's administrative command center.</p>
+      </div>
+
+      <Suspense fallback={<DashboardStatsSkeleton />}>
+        <DashboardContent />
+      </Suspense>
+    </div>
   );
 }

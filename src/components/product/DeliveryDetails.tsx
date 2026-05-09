@@ -21,19 +21,19 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
 
   const getDeliveryText = () => {
     const today = new Date();
-    
+
     if (stockStatus === 'pre_order') {
       const start = new Date(today);
       start.setDate(start.getDate() + 4);
       const end = new Date(today);
       end.setDate(end.getDate() + 6);
-      
+
       const formatMonth = (d: Date) => new Intl.DateTimeFormat('en-US', { month: 'short' }).format(d);
       return `Delivery By ${start.getDate()}${formatMonth(start)} - ${end.getDate()}${formatMonth(end)}`;
     } else {
       const delivery = new Date(today);
       delivery.setDate(delivery.getDate() + 2);
-      
+
       const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(delivery);
       const monthName = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(delivery);
       return `Delivery By ${delivery.getDate()} ${monthName}, ${dayName}`;
@@ -73,7 +73,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
                   Home Delivery
                 </span>
                 <span className="font-titillium text-[16px] font-[300] leading-[16px] tracking-[-0.02em] text-[#242424]">
-                  Kathmandu, Baneshwor, 40
+                  Kathmandu, Nepal
                 </span>
               </div>
             </div>

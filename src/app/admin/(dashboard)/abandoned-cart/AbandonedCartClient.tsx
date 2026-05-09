@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import { ActiveCartsSection } from '@/components/admin/analytics/ActiveCartsSection';
 import { AbandonedCheckoutsSection } from '@/components/admin/analytics/AbandonedCheckoutsSection';
 import AnalyticsFilters from '@/components/admin/analytics/AnalyticsFilters';
 import { ShoppingCart, RefreshCcw } from 'lucide-react';
 import { getAbandonedCartDataAction } from '@/app/actions/marketingActions';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 interface AbandonedCartClientProps {
   initialData?: any;
@@ -19,8 +19,12 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
   const [loading, setLoading] = useState(!initialData);
   const [datePreset, setDatePreset] = useState('30d');
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
     setMounted(true);
+    setOverrideTitle(null);
+    setPrimaryAction(null);
     if (!initialData) {
       refreshData();
     }
@@ -36,8 +40,8 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#FAFAFA] font-rubik overflow-hidden">
-      <DynamicAdminNav />
+    <div className="flex flex-col h-full bg-[#FAFAFA] font-rubik overflow-hidden">
+      {/* DynamicAdminNav is now in Layout */}
 
       <AdminSubNav 
         onSearch={() => {}} 

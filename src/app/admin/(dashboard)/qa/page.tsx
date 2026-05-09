@@ -1,16 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
+import { useAdminUI } from '@/context/AdminUIContext';
 import QAFilters from '@/components/admin/qa/QAFilters';
 
 export default function QAPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
+  React.useEffect(() => {
+    setOverrideTitle(null);
+    setPrimaryAction(null);
+  }, []);
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}

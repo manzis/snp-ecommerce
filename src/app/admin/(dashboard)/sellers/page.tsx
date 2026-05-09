@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import SellerGrid from '@/components/admin/sellers/SellerCard';
 import SellerTable from '@/components/admin/sellers/SellerTable';
@@ -12,6 +11,7 @@ import { fetchSellers, Seller } from '@/services/productService';
 import { deleteSellerAction, updateSellerAction, createSellerAction } from '@/app/actions/sellerActions';
 import { TableSkeleton, CardGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 export default function SellersPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
@@ -31,7 +31,11 @@ export default function SellersPage() {
     setIsLoading(false);
   };
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
+    setOverrideTitle(null);
+    setPrimaryAction(() => handleCreateSeller);
     loadSellers();
   }, []);
 
@@ -107,7 +111,7 @@ export default function SellersPage() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav onPrimaryAction={handleCreateSeller} />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}

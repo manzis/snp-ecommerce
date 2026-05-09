@@ -13,10 +13,10 @@ import {
   X
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import AnalyticsFilters from '@/components/admin/analytics/AnalyticsFilters';
 import AdminModal from '@/components/admin/shared/AdminModal';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import { SearchAnalysis } from '@/components/admin/analytics/SearchAnalysis';
@@ -43,8 +43,12 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
     setMounted(true);
+    setOverrideTitle(null); // Use default title from TITLE_MAP
+    setPrimaryAction(null); // No primary action for analytics
     if (!initialData) {
       loadData();
     }
@@ -66,8 +70,7 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
 
   return (
     <div className="flex flex-col h-full bg-[#FAFAFA] rounded-[12px] overflow-hidden font-rubik tracking-tight">
-      {/* Layer 1: Global Actions & Title */}
-      <DynamicAdminNav />
+      {/* Layer 1: Global Actions & Title (Now in Layout) */}
 
       {/* Layer 2: Search & Filters */}
       <AdminSubNav

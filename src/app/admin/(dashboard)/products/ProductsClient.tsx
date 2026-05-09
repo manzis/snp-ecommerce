@@ -7,12 +7,12 @@ import ProductTableView from '@/components/admin/products/ProductTableView';
 import Pagination from '@/components/admin/products/Pagination';
 import UpdatePriceModal from '@/components/admin/products/UpdatePriceModal';
 import { Product } from '@/services/productService';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import ProductFilters from '@/components/admin/products/ProductFilters';
 import { updateProductAction, deleteProductAction, duplicateProductAction, fetchProductsPaginatedAction } from '@/app/actions/productActions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductTableSkeleton, ProductGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 const PAGE_SIZE = 8;
 
@@ -26,8 +26,12 @@ export default function ProductsClient() {
   const { showAdminToast } = useAdminToast();
   const [isMounted, setIsMounted] = useState(false);
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
     setIsMounted(true);
+    setOverrideTitle(null);
+    setPrimaryAction(null);
   }, []);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -124,7 +128,7 @@ export default function ProductsClient() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import CouponTable from '@/components/admin/coupons/CouponTable';
 import CouponGrid from '@/components/admin/coupons/CouponCard';
@@ -10,6 +9,7 @@ import { Coupon } from '@/components/admin/coupons/CouponActionMenu';
 import { fetchCouponsAction, deleteCouponAction, updateCouponAction, createCouponAction } from '@/app/actions/couponActions';
 import { TableSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 export default function CouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -32,7 +32,11 @@ export default function CouponsPage() {
     setIsLoading(false);
   };
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
+    setOverrideTitle(null);
+    setPrimaryAction(() => handleCreateCoupon);
     loadCoupons();
   }, []);
 
@@ -126,7 +130,7 @@ export default function CouponsPage() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav onPrimaryAction={handleCreateCoupon} />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         searchPlaceholder="Search coupons by code or description..."
         onSearch={setSearchQuery}

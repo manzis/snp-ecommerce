@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import AdminModal from '@/components/admin/shared/AdminModal';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import CustomerActionMenu from '@/components/admin/customers/CustomerActionMenu';
 import CustomerFilters from '@/components/admin/customers/CustomerFilters';
@@ -15,6 +14,7 @@ import {
     CustomerStats
 } from '@/app/actions/customerActions';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 import { AlertTriangle, Trash2, Users, Star, Zap, UserPlus, ArrowUpRight, Zap as ZapIcon, Trophy, TrendingUp, Medal, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import CustomerDetailsModal from '@/components/admin/customers/CustomerDetailsModal';
@@ -190,8 +190,12 @@ export default function CustomersClient() {
         setCurrentPage(1);
     }, [statusFilter, searchQuery, viewMode]);
 
+    const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
     useEffect(() => {
         setIsMounted(true);
+        setOverrideTitle(null);
+        setPrimaryAction(null);
 
         // 1. Load seen IDs from localStorage
         const stored = localStorage.getItem('snp_admin_seen_customers');
@@ -421,7 +425,7 @@ export default function CustomersClient() {
 
     return (
         <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik tracking-tight">
-            <DynamicAdminNav />
+            {/* DynamicAdminNav is now in Layout */}
 
             <AdminSubNav
                 showViewMode

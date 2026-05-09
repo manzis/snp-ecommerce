@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import CategoryFilters from '@/components/admin/categories/CategoryFilters';
 import CategoryGrid from '@/components/admin/categories/CategoryCard';
@@ -11,6 +10,7 @@ import { fetchCategories, Category } from '@/services/productService';
 import { deleteCategoryAction, updateCategoryAction, createCategoryAction } from '@/app/actions/categoryActions';
 import { TableSkeleton, CardGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 export default function CategoriesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -30,7 +30,11 @@ export default function CategoriesPage() {
     setIsLoading(false);
   };
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
+    setOverrideTitle(null);
+    setPrimaryAction(() => handleCreateCategory);
     loadCategories();
   }, []);
 
@@ -106,7 +110,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav onPrimaryAction={handleCreateCategory} />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}

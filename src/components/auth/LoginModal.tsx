@@ -12,6 +12,8 @@ import MailIcon from '@/components/icons/MailIcon';
 import GoogleIcon from '@/components/icons/GoogleIcon';
 import WhatsappIcon from '@/components/icons/WhatsAppIcon2';
 
+import { sendWhatsappOtpAction, verifyWhatsappOtpAction } from '@/app/actions/whatsappAuthActions';
+
 interface LoginModalProps {
     isPage?: boolean;
 }
@@ -37,6 +39,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         return 'login';
     });
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [loginMethod, setLoginMethod] = useState<'supabase' | 'whatsapp'>('supabase');
     const [statusMsg, setStatusMsg] = useState<string | null>(null);
     const [isSending, setIsSending] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -107,7 +110,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
 
     const validateIdentifier = (val: string): { valid: boolean; suggestion?: string } => {
         const trimmed = val.trim().toLowerCase();
-        const phoneRegex = /^\d{10}$/;
+        const phoneRegex = /^(?:\+977|977)?\d{10}$/;
         if (phoneRegex.test(trimmed)) return { valid: true };
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -158,32 +161,58 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         setEmailSuggestion(null);
         setIsSending(true);
 
-        // OPTIMISTIC UI: Switch to OTP step instantly while request processes in background
+        // OPTIMISTIC UI: Switch to OTP step instantly
         setStep('otp');
+        setLoginMethod('supabase');
 
         try {
             const supabase = createClient();
             const cleanIdentifier = identifier.trim().toLowerCase();
             const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
+            const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
 
-            // Wrap the Supabase call with a timeout to prevent infinite hangs
-            const otpPromise = isEmail
-                ? supabase.auth.signInWithOtp({ email: cleanIdentifier, options: { shouldCreateUser: true } })
-                : supabase.auth.signInWithOtp({ phone: cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}` });
+            if (!isEmail && !isPhone) {
+                throw new Error("Please enter a valid email or 10-digit phone number");
+            }
 
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Request timed out. Please check your connection and try again.")), 15000)
-            );
+            // Prepare phone number with country code if needed
+            let formattedPhone = cleanIdentifier;
+            if (isPhone) {
+                if (cleanIdentifier.startsWith('977')) {
+                    formattedPhone = `+${cleanIdentifier}`;
+                } else if (!cleanIdentifier.startsWith('+')) {
+                    formattedPhone = `+977${cleanIdentifier}`;
+                }
+            }
 
-            const { error } = await Promise.race([otpPromise, timeoutPromise]);
-            if (error) throw error;
-
-            showToast("OTP sent successfully!", "success");
+            if (isEmail) {
+                setLoginMethod('supabase');
+                const { error } = await supabase.auth.signInWithOtp({ 
+                    email: cleanIdentifier, 
+                    options: { shouldCreateUser: true } 
+                });
+                if (error) throw error;
+                showToast("OTP sent to your email!", "success");
+            } else {
+                setLoginMethod('whatsapp');
+                const result = await sendWhatsappOtpAction(formattedPhone);
+                if (!result.success) throw new Error(result.error || "WhatsApp OTP failed");
+                showToast("OTP sent to your WhatsApp!", "success");
+            }
         } catch (err: any) {
             console.error("OTP Send Failed:", err?.message || err);
-            // REVERT UI: If send fails, move back to login step
+
+            // REVERT UI: Move back to login step so user can correct the identifier
             setStep('login');
-            showToast(err?.message || "Failed to send OTP. Please try again.", "error");
+
+            // Specific handling for unsupported phone provider
+            if (err?.message?.includes('unsupported phone provider')) {
+                setError("Phone login is temporarily unavailable. Please use Email.");
+                showToast("Phone login not configured. Please use Email for now.", "error");
+            } else {
+                setError(err?.message || "Failed to send OTP. Please try again.");
+                showToast(err?.message || "Failed to send OTP. Please try again.", "error");
+            }
         } finally {
             setIsSending(false);
         }
@@ -196,24 +225,35 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             const supabase = createClient();
             const cleanIdentifier = identifier.trim().toLowerCase();
             const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
+            const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
 
-            const otpPromise = isEmail
-                ? supabase.auth.signInWithOtp({ email: cleanIdentifier, options: { shouldCreateUser: true } })
-                : supabase.auth.signInWithOtp({ phone: cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}` });
+            let formattedPhone = cleanIdentifier;
+            if (isPhone) {
+                if (cleanIdentifier.startsWith('977')) {
+                    formattedPhone = `+${cleanIdentifier}`;
+                } else if (!cleanIdentifier.startsWith('+')) {
+                    formattedPhone = `+977${cleanIdentifier}`;
+                }
+            }
 
-            const timeoutPromise = new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Request timed out. Please try again.")), 15000)
-            );
-
-            const { error } = await Promise.race([otpPromise, timeoutPromise]);
-            if (error) throw error;
-
-            setStatusMsg("OTP resent successfully!");
-            showToast("OTP has been resent to your inbox", "success");
+            if (isEmail) {
+                const { error } = await supabase.auth.signInWithOtp({ 
+                    email: cleanIdentifier, 
+                    options: { shouldCreateUser: true } 
+                });
+                if (error) throw error;
+                setStatusMsg("Email OTP resent!");
+            } else {
+                const result = await sendWhatsappOtpAction(formattedPhone);
+                if (!result.success) throw new Error(result.error || "WhatsApp OTP failed");
+                setStatusMsg("WhatsApp OTP resent!");
+            }
+            showToast("OTP has been resent", "success");
         } catch (err: any) {
             console.error("Resend OTP Failed:", err?.message || err);
-            setStatusMsg("Failed to resend");
-            showToast(err?.message || "Failed to resend OTP", "error");
+            const isUnsupported = err?.message?.includes('unsupported phone provider');
+            setStatusMsg(isUnsupported ? "Phone not supported" : "Failed to resend");
+            showToast(isUnsupported ? "Phone login not configured. Please use Email." : (err?.message || "Failed to resend OTP"), "error");
         } finally {
             setTimeout(() => setStatusMsg(null), 3000);
         }
@@ -233,31 +273,55 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             const supabase = createClient();
             const cleanIdentifier = identifier.trim().toLowerCase();
             const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanIdentifier);
+            const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
 
-            let verifyParams: any = {
-                token: otpString,
-                type: isEmail ? 'email' : 'sms',
-            };
-            if (isEmail) {
-                verifyParams.email = cleanIdentifier;
-            } else {
-                verifyParams.phone = cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}`;
+            let formattedPhone = cleanIdentifier;
+            if (isPhone) {
+                if (cleanIdentifier.startsWith('977')) {
+                    formattedPhone = `+${cleanIdentifier}`;
+                } else if (!cleanIdentifier.startsWith('+')) {
+                    formattedPhone = `+977${cleanIdentifier}`;
+                }
             }
 
-            const verifyPromise = supabase.auth.verifyOtp(verifyParams);
+            let verifyPromise;
+
+            if (loginMethod === 'whatsapp') {
+                const formattedPhone = cleanIdentifier.startsWith('977')
+                    ? `+${cleanIdentifier}`
+                    : (cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}`);
+                verifyPromise = verifyWhatsappOtpAction(formattedPhone, otpString);
+            } else {
+                let verifyParams: any = {
+                    token: otpString,
+                    type: isEmail ? 'email' : 'sms',
+                };
+                if (isEmail) {
+                    verifyParams.email = cleanIdentifier;
+                } else {
+                    verifyParams.phone = formattedPhone;
+                }
+                verifyPromise = supabase.auth.verifyOtp(verifyParams);
+            }
+
             const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error("Verification timed out. Please try again.")), 15000)
             );
 
-            const { data, error: verifyError } = await Promise.race([verifyPromise, timeoutPromise]);
+            const result = await Promise.race([verifyPromise, timeoutPromise]);
 
-            if (verifyError) {
+            // Handle different result shapes from Supabase vs Custom Action
+            const error = (result as any).error;
+            const data = (result as any).data;
+            const success = (result as any).success;
+
+            if (error || (loginMethod === 'whatsapp' && !success)) {
                 // If we're already logged in, Supabase might return an error for a used token
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session) {
                     console.log("Already logged in, ignoring verification error");
                 } else {
-                    throw verifyError;
+                    throw new Error(error?.message || (result as any).error || "Invalid OTP");
                 }
             }
 
@@ -298,6 +362,48 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         } catch (err: any) {
             console.error("Google Login Failed", err);
             showToast(err?.message || "Google Login Failed", "error");
+            setIsSending(false);
+        }
+    };
+
+    const handleWhatsappLogin = async () => {
+        const cleanIdentifier = identifier.trim().toLowerCase();
+        const isPhone = /^(?:\+977|977)?\d{10}$/.test(cleanIdentifier);
+
+        if (!isPhone) {
+            setError("Please enter your 10-digit phone number first");
+            showToast("Enter your phone number above to continue", "error");
+            return;
+        }
+
+        let formattedPhone = cleanIdentifier;
+        if (cleanIdentifier.startsWith('977')) {
+            formattedPhone = `+${cleanIdentifier}`;
+        } else if (!cleanIdentifier.startsWith('+')) {
+            formattedPhone = `+977${cleanIdentifier}`;
+        }
+
+        setStep('otp');
+        setLoginMethod('whatsapp');
+
+        try {
+            const formattedPhone = cleanIdentifier.startsWith('977')
+                ? `+${cleanIdentifier}`
+                : (cleanIdentifier.startsWith('+') ? cleanIdentifier : `+977${cleanIdentifier}`);
+
+            const result = await sendWhatsappOtpAction(formattedPhone);
+
+            if (!result.success) {
+                throw new Error(result.error || "Failed to send WhatsApp OTP");
+            }
+
+            showToast("OTP sent to your WhatsApp!", "success");
+        } catch (err: any) {
+            console.error("WhatsApp OTP Failed:", err);
+            setStep('login');
+            setError(err.message || "WhatsApp service unavailable. Try Email.");
+            showToast(err.message || "Failed to send WhatsApp OTP", "error");
+        } finally {
             setIsSending(false);
         }
     };
@@ -417,14 +523,25 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                     <button disabled={isSending} onClick={handleSendOtp} className="flex h-[48px] w-full items-center justify-center rounded-[12px] bg-[#ffe900] text-[16px] font-[600] text-[#242424] transition-all hover:bg-[#ebd700] active:scale-[0.98] disabled:opacity-70">
                                         {isSending ? "Processing..." : "Send OTP"}
                                     </button>
-                                    <p className="text-[14px] leading-[22px] text-[#68727d] text-left">Note : This email will be used to login to website</p>
+                                    <p className="text-[14px] leading-[22px] text-[#68727d] text-left italic">
+                                        Note: This {identifier.includes('@') ? 'email' : 'phone number'} will be used to login to website
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex flex-col gap-[16px] items-center">
                                 <span className="text-[12px] font-[600] text-[#7b838d] tracking-widest">OR LOGIN WITH</span>
                                 <div className="flex gap-[10px] w-full max-w-[250px]">
-                                    <button className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50"><WhatsappIcon className="w-[18px] h-[18px]" /><span className="text-[16px] font-[600] text-[#575757]">Whatsapp</span></button>
-                                    <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70"><GoogleIcon className="w-[18px] h-[18px]" /><span className="text-[16px] font-[600] text-[#575757]">Google</span></button>
+                                    <button
+                                        onClick={handleWhatsappLogin}
+                                        className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98]"
+                                    >
+                                        <WhatsappIcon className="w-[18px] h-[18px]" />
+                                        <span className="text-[16px] font-[600] text-[#575757]">Whatsapp</span>
+                                    </button>
+                                    <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70">
+                                        <GoogleIcon className="w-[18px] h-[18px]" />
+                                        <span className="text-[16px] font-[600] text-[#575757]">Google</span>
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>

@@ -21,10 +21,7 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
 
   return (
     <div className="space-y-6 font-rubik tracking-tight">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4 px-2">
-        <h2 className="text-[20px] font-semibold text-[#242424] font-rubik tracking-tight">Active Carts</h2>
-      </div>
+      {/* Header removed to avoid duplication in AbandonedCartClient */}
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">

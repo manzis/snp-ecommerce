@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import BrandFilters from '@/components/admin/brands/BrandFilters';
 import BrandGrid from '@/components/admin/brands/BrandCard';
@@ -11,6 +10,7 @@ import { fetchBrands, Brand } from '@/services/productService';
 import { deleteBrandAction, updateBrandAction, createBrandAction } from '@/app/actions/brandActions';
 import { TableSkeleton, CardGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 export default function BrandsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -30,7 +30,11 @@ export default function BrandsPage() {
     setIsLoading(false);
   };
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
+    setOverrideTitle(null);
+    setPrimaryAction(() => handleCreateBrand);
     loadBrands();
   }, []);
 
@@ -106,7 +110,7 @@ export default function BrandsPage() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav onPrimaryAction={handleCreateBrand} />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}

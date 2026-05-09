@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import LayoutSection from '@/components/admin/layouts/LayoutSection';
 import { Product } from '@/services/productService';
 import { fetchHomepageProductsAction, updateHomepageProductsAction } from '@/app/actions/layoutActions';
@@ -12,6 +11,7 @@ import { Banner } from '@/services/bannerService';
 import { fetchBannersAction, createBannerAction, updateBannerAction, deleteBannerAction } from '@/app/actions/bannerActions';
 import PlusIcon from '@/components/icons/PlusIcon';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 
 const SECTIONS = [
   { key: 'popular_products', title: 'Popular Products' },
@@ -62,7 +62,11 @@ export default function LayoutsPage() {
     setIsBannersLoading(false);
   };
 
+  const { setOverrideTitle, setPrimaryAction } = useAdminUI();
+
   useEffect(() => {
+    setOverrideTitle('Home Layouts');
+    setPrimaryAction(null);
     loadAllData();
   }, []);
 
@@ -123,7 +127,7 @@ export default function LayoutsPage() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav overrideTitle="Home Layouts" />
+      {/* DynamicAdminNav is now in Layout */}
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[100px]">
         <div className="w-full flex flex-col gap-[48px]">

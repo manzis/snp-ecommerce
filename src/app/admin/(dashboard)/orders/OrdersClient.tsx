@@ -7,7 +7,6 @@ import { useSearchParams } from 'next/navigation';
 import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction } from '@/app/actions/orderActions';
 import { OrderProps } from '@/components/orders/OrderCard';
 import { AdminOrderList } from '@/components/admin/AdminOrderList';
-import DynamicAdminNav from '@/components/layout/DynamicAdminNav';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import OrderFilters from '@/components/admin/orders/OrderFilters';
 import { OrderTableSkeleton, OrderGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
@@ -16,6 +15,7 @@ import OrderDetailsModal from '@/components/admin/orders/OrderDetailsModal';
 import StatusUpdateModal from '@/components/admin/orders/StatusUpdateModal';
 import UpdatePaymentStatusModal from '@/components/admin/orders/UpdatePaymentStatusModal';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { useAdminUI } from '@/context/AdminUIContext';
 import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaymentAdminAction } from '@/app/actions/orderActions';
 
 const PAGE_SIZE = 20;
@@ -61,8 +61,12 @@ export default function OrdersClient() {
   const hasEffectRun = useRef(false); // Guard for notification effect
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
+  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
   useEffect(() => {
     setIsMounted(true);
+    setOverrideTitle(null);
+    setPrimaryAction(null);
   }, []);
 
 
@@ -215,7 +219,7 @@ export default function OrdersClient() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
-      <DynamicAdminNav />
+      {/* DynamicAdminNav is now in Layout */}
       <AdminSubNav
         showViewMode
         viewMode={viewMode}
