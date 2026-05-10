@@ -3,7 +3,6 @@
  * Use this in Admin components to upload large files (videos) directly to Cloudinary,
  * bypassing Vercel's 4.5MB Server Action limit.
  */
-
 import imageCompression from 'browser-image-compression';
 
 export interface ClientUploadResult {
@@ -20,22 +19,22 @@ export async function uploadFileClientSide(
     try {
         const timestamp = Math.floor(Date.now() / 1000).toString();
 
-        // 0. Compress if it's an image
+        // 0. Convert to WebP without reducing quality/size
         let fileToUpload = file;
         const isImage = file.type.startsWith('image/');
         const isAnim = file.type.includes('gif') || file.type.includes('svg');
-        
+
         if (isImage && !isAnim) {
             try {
                 const options = {
-                    maxSizeMB: 0.3, // Compress to max 300KB
-                    maxWidthOrHeight: 1200, // Max 1200px width/height
                     useWebWorker: true,
                     fileType: 'image/webp' as string, // Convert to webp
+                    initialQuality: 1, // Max quality
+                    alwaysKeepResolution: true // Preserve original resolution
                 };
                 fileToUpload = await imageCompression(file, options);
             } catch (error) {
-                console.error("Image compression failed, falling back to original:", error);
+                console.error("Image conversion to WebP failed, falling back to original:", error);
             }
         }
 
