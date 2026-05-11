@@ -43,22 +43,22 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
     <div className="flex flex-col h-full bg-[#FAFAFA] font-rubik overflow-hidden">
       {/* DynamicAdminNav is now in Layout */}
 
-      <AdminSubNav 
-        onSearch={() => {}} 
+      <AdminSubNav
+        onSearch={() => { }}
         searchPlaceholder="Search abandoned carts..."
         searchOnLeft={true}
         onRefresh={refreshData}
         refreshLoading={loading}
         filterDropdown={
-          <AnalyticsFilters 
+          <AnalyticsFilters
             datePreset={datePreset}
             onDatePresetChange={setDatePreset}
             onReset={() => setDatePreset('30d')}
           />
         }
       />
-      
-      <main className="flex-1 overflow-y-auto overflow-x-hidden w-full mx-auto px-4 md:px-8 lg:px-10 pb-20 pt-8 no-scrollbar bg-[#FAFAFA]">
+
+      <main className="flex-1 overflow-y-auto overflow-x-hidden w-full mx-auto px-4 md:px-8 lg:px-10 pb-20 pt-8 no-scrollbar bg-white">
         {loading || !mounted ? (
           <div className="space-y-12 animate-pulse">
             {/* Active Carts Section Skeleton */}
@@ -106,7 +106,7 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
               <div className="relative z-10">
                 <h3 className="text-xl font-semibold font-rubik mb-2 tracking-tight">Recovery Tip</h3>
                 <p className="text-gray-400 text-sm max-w-2xl font-normal leading-relaxed font-rubik tracking-tight">
-                  Customers often abandon carts due to unexpected shipping costs or distraction. 
+                  Customers often abandon carts due to unexpected shipping costs or distraction.
                   Consider sending a gentle WhatsApp reminder or a small discount coupon to users listed above to boost your conversion rate.
                 </p>
               </div>
