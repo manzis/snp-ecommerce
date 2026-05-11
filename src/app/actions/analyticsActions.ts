@@ -73,9 +73,9 @@ export async function getAnalyticsDataAction() {
   try {
     const [stats, topViewed, trendingSearches, topSelling] = await Promise.all([
       analyticsService.getDashboardStats(),
-      analyticsService.getMostViewedProducts(10),
+      analyticsService.getMostViewedProducts(20),
       analyticsService.getTrendingSearches(50),
-      analyticsService.getTopSellingProducts(10)
+      analyticsService.getTopSellingProducts(100)
     ]);
 
     return {

@@ -236,16 +236,18 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                       isOpen={isViewedModalOpen}
                       onClose={() => setIsViewedModalOpen(false)}
                       title="All Trending Products"
+                      maxHeight="max-h-[85vh]"
+                      maxWidth="max-w-4xl"
                     >
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                      <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4 p-2">
                         {topViewed.map((item: any, i: number) => (
-                          <div key={i} className="flex flex-col gap-3 group">
-                            <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group-hover:border-[#bef264] transition-all">
+                          <div key={i} className="flex flex-col gap-2 group">
+                            <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-100 group-hover:border-[#bef264] transition-all">
                               <img src={item.thumbnail || '/images/protein.webp'} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
                             <div>
-                              <h4 className="text-sm font-semibold text-[#242424] truncate">{item.name}</h4>
-                              <p className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-1">{item.view_count} Total Views</p>
+                              <h4 className="text-[11px] font-semibold text-[#242424] truncate leading-tight">{item.name}</h4>
+                              <p className="text-[9px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-0.5">{item.view_count} Views</p>
                             </div>
                           </div>
                         ))}
@@ -257,16 +259,18 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                       isOpen={isSellingModalOpen}
                       onClose={() => setIsSellingModalOpen(false)}
                       title="Best Selling Products"
+                      maxHeight="max-h-[85vh]"
+                      maxWidth="max-w-4xl"
                     >
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+                      <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4 p-2">
                         {topSelling.map((item: any, i: number) => (
-                          <div key={i} className="flex flex-col gap-3 group">
-                            <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group-hover:border-green-600 transition-all">
+                          <div key={i} className="flex flex-col gap-2 group">
+                            <div className="aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-100 group-hover:border-green-600 transition-all">
                               <img src={item.thumbnail || '/images/protein.webp'} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             </div>
                             <div>
-                              <h4 className="text-sm font-semibold text-[#242424] truncate">{item.name}</h4>
-                              <p className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-1">{item.order_count} Orders Received</p>
+                              <h4 className="text-[11px] font-semibold text-[#242424] truncate leading-tight">{item.name}</h4>
+                              <p className="text-[9px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-0.5">{item.order_count} Sold</p>
                             </div>
                           </div>
                         ))}

@@ -31,10 +31,11 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
 
   return (
     <div className="space-y-6 font-rubik tracking-tight">
-      <div className="flex items-center justify-between px-2">
-        <h2 className="text-[20px] font-semibold text-[#242424] font-rubik tracking-tight">Abandoned Checkouts</h2>
+      <div className="px-2">
+        <div className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em]">
+          Showing {displayedItems.length} of {abandonedOrders.length} Potential Recoveries
+        </div>
       </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <AnimatePresence mode="popLayout">
           {displayedItems.length > 0 ? displayedItems.map((order, i) => (
@@ -45,7 +46,7 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ delay: i * 0.03 }}
-              className="flex w-full flex-col rounded-[12px] bg-white border border-gray-100 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden"
+              className="flex w-full flex-col rounded-[12px] bg-white border border-gray-100 shadow-none hover:shadow-[0_8px_20px_rgba(0,0,0,0.02)] hover:-translate-y-[2px] transition-all duration-300 overflow-hidden"
             >
               {/* Header - Matching OrderCard status bar */}
               <header className="flex px-[16px] py-[10px] justify-between items-center bg-zinc-50 border-b border-[#f3f4f6]">
@@ -134,12 +135,8 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
       </div>
 
       {/* View All Toggle & Status */}
-      <div className="flex flex-col items-center gap-4 pt-10 border-t border-gray-50/50">
-        <div className="text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em]">
-          Showing {displayedItems.length} of {abandonedOrders.length} Potential Recoveries
-        </div>
-        
-        {hasMore && (
+      {hasMore && (
+        <div className="flex flex-col items-center gap-4 pt-10 border-t border-gray-50/50">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="group flex items-center gap-3 px-10 py-3.5 bg-white hover:bg-[#242424] rounded-[14px] border border-gray-200 shadow-sm transition-all duration-300"
@@ -154,8 +151,8 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
               <CreditCard className={`w-4 h-4 ${isExpanded ? 'text-white' : 'text-[#242424]'} group-hover:text-white`} />
             </motion.div>
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

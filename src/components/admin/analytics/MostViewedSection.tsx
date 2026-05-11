@@ -29,7 +29,7 @@ export const MostViewedSection = ({ topViewed, totalViews, onViewAll }: MostView
 
     <div className="relative w-full">
       <div className="flex overflow-x-auto gap-6 pb-4 snap-x subtle-scrollbar">
-        {topViewed.map((item: any, i: number) => (
+        {topViewed.slice(0, 10).map((item: any, i: number) => (
           <motion.div 
             key={i}
             whileHover={{ y: -5 }}

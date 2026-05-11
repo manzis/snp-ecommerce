@@ -21,7 +21,11 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
 
   return (
     <div className="space-y-6 font-rubik tracking-tight">
-      {/* Header removed to avoid duplication in AbandonedCartClient */}
+      <div className="px-2">
+        <div className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em]">
+          Showing {displayedItems.length} of {productsInCarts.length} high-intent items
+        </div>
+      </div>
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
@@ -34,7 +38,7 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ delay: i * 0.03 }}
-              className="group flex w-full flex-col p-[14px] gap-[16px] items-start bg-white rounded-[12px] transition-all duration-300 border border-gray-100 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_40px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-[2px]"
+              className="group flex w-full flex-col p-[14px] gap-[16px] items-start bg-white rounded-[12px] transition-all duration-300 border border-gray-100 shadow-none hover:shadow-[0_8px_20px_rgba(0,0,0,0.02)] hover:-translate-y-[2px]"
             >
               {/* Product Info Block */}
               <div className="flex gap-[12px] items-start self-stretch min-h-[72px]">
@@ -131,12 +135,8 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
       </div>
 
       {/* View All Toggle & Status */}
-      <div className="flex flex-col items-center gap-4 pt-10 border-t border-gray-50/50">
-        <div className="text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em]">
-          Showing {displayedItems.length} of {productsInCarts.length} high-intent items
-        </div>
-
-        {hasMore && (
+      {hasMore && (
+        <div className="flex flex-col items-center gap-4 pt-10 border-t border-gray-50/50">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="group flex items-center gap-3 px-10 py-3.5 bg-white hover:bg-[#242424] rounded-[14px] border border-gray-200 shadow-sm transition-all duration-300"
@@ -151,8 +151,8 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
               <ShoppingCart className={`w-4 h-4 ${isExpanded ? 'text-white' : 'text-[#242424]'} group-hover:text-white`} />
             </motion.div>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Customer List Modal */}
       <AdminModal

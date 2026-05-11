@@ -64,11 +64,19 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
             {/* Active Carts Section Skeleton */}
             <div className="space-y-6">
               <div className="h-8 w-48 bg-gray-200 rounded-lg mx-2" />
-              <div className="bg-white h-[400px] rounded-[24px] border border-gray-100" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-5">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-[280px] bg-gray-200 rounded-[12px]" />
+                ))}
+              </div>
             </div>
 
             {/* Abandoned Checkouts Section Skeleton */}
-            <div className="bg-white h-[600px] rounded-[24px] border border-gray-100" />
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-[200px] bg-gray-200 rounded-[12px]" />
+              ))}
+            </div>
 
             {/* Marketing Tip Skeleton */}
             <div className="h-[180px] bg-gray-200 rounded-[24px]" />
@@ -82,13 +90,14 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
                 <span className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em]">Live Data</span>
               </div>
 
-              <div className="bg-white p-4 md:p-8 rounded-[24px] border border-gray-100">
-                <ActiveCartsSection data={data} />
-              </div>
+              <ActiveCartsSection data={data} />
             </div>
 
             {/* Abandoned Checkouts Section */}
-            <div className="bg-white p-4 md:p-8 rounded-[24px] border border-gray-100">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <h2 className="text-[20px] font-semibold text-[#242424] font-rubik tracking-tight">Abandoned Checkouts</h2>
+              </div>
               <AbandonedCheckoutsSection data={data} />
             </div>
 
