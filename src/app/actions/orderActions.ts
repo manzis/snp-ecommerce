@@ -404,9 +404,7 @@ export async function updateOrderStatusAdminAction(
     }
 
     revalidatePath('/admin/orders');
-    revalidatePath(`/admin/orders/${orderId}`);
     revalidatePath('/account/orders');
-    revalidatePath(`/account/orders/${orderId}`);
 
     // Await status-specific email (Production fix)
     const normalizedStatus = newStatus.toLowerCase();
@@ -518,8 +516,6 @@ export async function resetPaymentAdminAction(orderId: string) {
     if (updateError) throw updateError;
 
     revalidatePath('/admin/orders');
-    revalidatePath(`/admin/orders/${orderId}`);
-    revalidatePath(`/pay/${orderId}`);
     
     return { success: true };
   } catch (error: any) {

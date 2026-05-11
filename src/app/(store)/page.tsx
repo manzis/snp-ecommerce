@@ -73,7 +73,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // ISR: longer CDN cache for faster repeated visits
-export const revalidate = 300;
+export const revalidate = 900;
 
 export default async function HomePage() {
   // Keep above-the-fold work minimal for faster first paint.

@@ -3,8 +3,8 @@ import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 const BASE_URL = 'https://www.brightsupplements.store';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Regenerate every hour
+// Regenerate every 6 hours (saves ISR writes vs force-dynamic which regenerates every request)
+export const revalidate = 21600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = getSupabaseAdmin();

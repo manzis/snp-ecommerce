@@ -18,7 +18,7 @@ export async function updateSeoGlobalAction(payload: Partial<SeoGlobal>) {
 
     if (error) throw error;
 
-    revalidatePath('/', 'layout'); // clear everything since it's global
+    revalidatePath('/'); // clear everything since it's global
     return { success: true };
   } catch (err: any) {
     console.error('Failed to update Global SEO:', err);
@@ -39,7 +39,7 @@ export async function upsertSeoPageAction(payload: any) {
       .single();
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -92,7 +92,7 @@ export async function upsertSeoProductAction(payload: any) {
       .single();
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -123,7 +123,7 @@ export async function upsertSeoContentBlockAction(payload: any) {
       .single();
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -168,7 +168,7 @@ export async function deleteSeoContentBlockAction(id: string) {
       .eq('id', id);
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -199,7 +199,7 @@ export async function createSeoRedirectAction(payload: { from_url: string, to_ur
       .single();
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -217,7 +217,7 @@ export async function toggleSeoRedirectAction(id: string, isActive: boolean) {
       .eq('id', id);
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -235,7 +235,7 @@ export async function deleteSeoRedirectAction(id: string) {
       .eq('id', id);
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -266,7 +266,7 @@ export async function upsertSeoSitemapAction(payload: any) {
       .single();
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -284,7 +284,7 @@ export async function deleteSeoSitemapAction(id: string) {
       .eq('id', id);
 
     if (error) throw error;
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };

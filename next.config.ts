@@ -6,43 +6,12 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   compress: true, // Enable gzip/brotli compression for all responses
 
+  // All image optimization is handled by Cloudinary (see lib/optimizeImage.ts).
+  // unoptimized: true disables Vercel Image Optimization entirely,
+  // so formats, minimumCacheTTL, and remotePatterns are unnecessary.
   images: {
     unoptimized: true,
     dangerouslyAllowSVG: true,
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: '*.supabase.co',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.cloudinary.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        pathname: '/**',
-      },
-    ],
   },
 
   experimental: {
