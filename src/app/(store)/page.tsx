@@ -16,6 +16,7 @@ const SubscribeSection = dynamic(() => import('@/components/home/SubscribeSectio
 const HomeFaqSection = dynamic(() => import('@/components/home/HomeFaqSection'));
 const ProductBanners = dynamic(() => import('@/components/product/ProductBanners'));
 const LazySection = dynamic(() => import('@/components/optimization/LazySection'));
+import ProductGridSectionSkeleton from '@/components/home/ProductGridSectionSkeleton';
 import { 
   fetchHomepageFullData,
   fetchHomepageProducts,
@@ -249,8 +250,32 @@ async function HomeDeferredSections() {
 
 function HomeDeferredSectionsFallback() {
   return (
-    <section className="w-full px-[24px] py-[24px]">
-      <div className="h-[180px] w-full rounded-[20px] bg-[#f7f7f7] animate-pulse" />
-    </section>
+    <>
+      {/* Best Sellers skeleton */}
+      <ProductGridSectionSkeleton bgColor="bg-[#F2F9F1]" />
+
+      {/* Brands skeleton */}
+      <section className="mx-auto w-full max-w-[1440px] py-[32px] lg:px-[48px] lg:py-[48px] animate-pulse">
+        <div className="mb-[24px] px-[24px] md:px-0">
+          <div className="h-[28px] w-[120px] rounded-lg bg-gray-200 md:h-[36px]" />
+        </div>
+        <div className="flex gap-[16px] overflow-hidden px-[24px] md:px-0">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-[80px] w-[120px] flex-shrink-0 rounded-[12px] bg-gray-100" />
+          ))}
+        </div>
+      </section>
+
+      {/* Popular Products skeleton */}
+      <ProductGridSectionSkeleton bgColor="bg-[#F1F7F9]" />
+
+      {/* Feature Banners skeleton */}
+      <section className="mx-auto w-full max-w-[1440px] py-[32px] lg:px-[48px] animate-pulse">
+        <div className="h-[200px] w-full rounded-[20px] bg-gray-100 mx-[24px] md:mx-0" />
+      </section>
+
+      {/* New Arrivals skeleton */}
+      <ProductGridSectionSkeleton bgColor="bg-white" />
+    </>
   );
 }
