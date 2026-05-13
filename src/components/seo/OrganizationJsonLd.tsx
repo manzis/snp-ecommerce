@@ -5,7 +5,7 @@ export default function OrganizationJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Supplyment Nepal',
-    alternateName: 'Supplyment Nepal',
+    alternateName: ['Bright Supplements', 'Supplyment Nepal'],
     legalName: 'Supplyment Nepal',
     url: 'https://www.brightsupplements.store',
     logo: {
@@ -43,7 +43,7 @@ export default function OrganizationJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Supplyment Nepal',
-    alternateName: 'Supplyment Nepal',
+    alternateName: ['Bright Supplements', 'Supplyment Nepal'],
     url: 'https://www.brightsupplements.store',
     description: 'Buy authentic supplements in Nepal — best prices on protein, creatine & more at Supplyment Nepal.',
     potentialAction: {

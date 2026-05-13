@@ -7,7 +7,7 @@ import { Product, Category, Brand } from '@/services/productService';
  */
 
 const BRAND_NAME = 'Supplyment Nepal';
-const BRAND_ALIAS = 'Supplyment Nepal'; // Secondary known name — kept for dual-brand discoverability
+const BRAND_ALIAS = 'Bright Supplements'; // Secondary known name — kept for dual-brand discoverability
 const SITE_URL = 'https://www.brightsupplements.store';
 const DEFAULT_OG_IMAGE = '/icon.png';
 
@@ -53,6 +53,8 @@ export function generateProductFallbackSeo(
   const keywords = [
     `buy ${productTitle} in Nepal`,
     `${productTitle} price Nepal`,
+    `buy ${brandSub} ${productTitle} in nepal`,
+    `${brandSub} products in nepal`,
     `${productTitle} ${brandSub} Nepal`,
     `${brandSub} ${catSub} Nepal`,
     `authentic ${productTitle} Kathmandu`,
@@ -114,6 +116,8 @@ export function generateBrandFallbackSeo(brand: Brand) {
 
   const keywords = [
     `${brandName} Nepal`,
+    `buy ${brandName} products in nepal`,
+    `${brandName} products in nepal`,
     `buy ${brandName} online Nepal`,
     `${brandName} price in Nepal`,
     `${brandName} supplement Nepal`,

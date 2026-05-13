@@ -17,6 +17,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
   return {
     metadataBase: new URL('https://www.brightsupplements.store'),
+    applicationName: 'Supplyment Nepal',
+    appleWebApp: {
+      title: 'Supplyment Nepal',
+      statusBarStyle: 'default',
+    },
     title: {
       default: gSeo?.default_title || 'Supplyment Nepal | Buy Authentic Whey Protein, Creatine & MuscleBlaze in Nepal',
       template: gSeo?.title_template || '%s | Supplyment Nepal',
@@ -42,10 +47,6 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       site: '@supplymentnepal',
-    },
-    alternates: {
-      canonical: 'https://www.brightsupplements.store',
-      languages: { 'en-NP': 'https://www.brightsupplements.store' },
     },
     icons: {
       icon: [

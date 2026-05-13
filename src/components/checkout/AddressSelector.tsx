@@ -2,7 +2,7 @@
 
 import React from 'react';
 import EditIcon from '@/components/icons/EyeIcon';
-import PlusIcon from '@/components/icons/ArrowDown';
+import PlusIcon from '@/components/icons/PlusIcon';
 
 import { UserAddress } from '@/services/addressService';
 
@@ -94,16 +94,16 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
         /* Empty State with Add New */
         <div className="flex justify-between items-end w-full pt-[8px] gap-[24px]">
           <div className="flex flex-col gap-[16px] flex-grow">
-            <p className="font-titillium text-[16px] text-[#838383] leading-[22px]">
+            <p className="font-titillium text-[14px] text-[#838383] leading-[22px]">
               No Saved addresses Found, Try Adding a New address !
             </p>
           </div>
           <button
             onClick={onAddNew}
-            className="shrink-0 flex items-center gap-[6px] p-[8px_12px] border border-[#eaebf0] rounded-[6px] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-all"
+            className="shrink-0 flex items-center gap-[6px] p-[8px_12px] rounded-[8px] bg-[#242424] active:scale-95 transition-all"
           >
-            <span className="font-titillium text-[16px] font-semibold text-[#6a6c6e]">Add new</span>
-            <PlusIcon className="w-[16px] h-[16px] text-[#6a6c6e] rotate-180" />
+            <span className="font-titillium text-[14px] font-semibold text-white">Add new</span>
+            <PlusIcon className="w-[16px] h-[16px] text-white rotate-180" />
           </button>
         </div>
       )}
