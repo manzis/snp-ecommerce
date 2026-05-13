@@ -120,6 +120,16 @@ export default function MultiImageUpload({
 
     return (
         <div className="space-y-6 font-rubik">
+            {/* Hidden File Input (must always be mounted for ref to work) */}
+            <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                multiple
+                ref={fileInputRef}
+                onChange={handleFileChange}
+            />
+            
             {/* Preview Section */}
             {(images.length > 0 || uploadingIndices.length > 0) && (
                 <div className="space-y-4">
@@ -221,15 +231,6 @@ export default function MultiImageUpload({
                     onClick={() => fileInputRef.current?.click()}
                     className="relative group cursor-pointer border-2 border-dashed border-gray-200 hover:border-black rounded-2xl transition-all flex flex-col items-center justify-center p-8 bg-gray-50/50 hover:bg-white"
                 >
-                    <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        multiple
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                    />
-
                     <div className="flex flex-col items-center gap-3">
                         <CloudIcon className="w-8 h-8 text-[#a1a1aa] mb-1" />
                         <div className="text-center">
