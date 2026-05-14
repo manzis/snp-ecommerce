@@ -41,6 +41,13 @@ async function AnalyticsDataWrapper() {
   return <AnalyticsClient initialData={result.data} />;
 }
 
-export default function AnalyticsPage() {
-  return <AnalyticsClient />;
+export default async function AnalyticsPage() {
+  const result = await getAnalyticsDataAction();
+  const initialData = result.success ? result.data : undefined;
+
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <AnalyticsClient initialData={initialData} />
+    </Suspense>
+  );
 }

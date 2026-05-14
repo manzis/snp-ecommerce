@@ -16,13 +16,13 @@ import { useAdminUI } from '@/context/AdminUIContext';
 
 const PAGE_SIZE = 8;
 
-export default function ProductsClient() {
+export default function ProductsClient({ initialData }: { initialData?: any }) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
-  const [products, setProducts] = useState<Product[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [products, setProducts] = useState<Product[]>(initialData?.products || []);
+  const [totalCount, setTotalCount] = useState<number>(initialData?.totalCount || 0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialData?.success);
   const { showAdminToast } = useAdminToast();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -57,7 +57,17 @@ export default function ProductsClient() {
     }
   };
 
+  const isInitialMount = React.useRef(true);
+
   useEffect(() => {
+    if (isInitialMount.current) {
+        isInitialMount.current = false;
+        // If we have SSR data, and we are on page 1 with no search query, skip the initial fetch
+        if (initialData?.success && currentPage === 1 && searchQuery === '') {
+            setIsLoading(false);
+            return;
+        }
+    }
     loadProducts(currentPage, searchQuery);
   }, [currentPage, searchQuery]);
 

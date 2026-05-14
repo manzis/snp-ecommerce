@@ -112,10 +112,11 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
             if (!o.user_id || !customerMap[o.user_id]) return;
 
             const behavior = customerMap[o.user_id].behavior;
-            behavior.totalOrders++;
             
-            // Only count non-cancelled/failed orders towards total spent
-            if (o.status !== 'CANCELLED' && o.status !== 'FAILED') {
+            // Only count non-cancelled/failed orders towards metrics
+            const status = (o.status || '').toLowerCase();
+            if (status !== 'cancelled' && status !== 'failed') {
+                behavior.totalOrders++;
                 behavior.totalSpent += o.total_amount || 0;
             }
 
@@ -306,7 +307,11 @@ export async function fetchDetailedCustomerDataAction(customerId: string) {
         );
 
         // Revenue Metrics
-        const paidOrders = orders.filter(o => o.paymentStatus?.toLowerCase() === 'paid');
+        const paidOrders = orders.filter(o => 
+            o.paymentStatus?.toLowerCase() === 'paid' && 
+            o.status !== 'CANCELLED' && 
+            o.status !== 'FAILED'
+        );
         const ltv = paidOrders.reduce((acc, curr) => acc + (curr.totalAmount || 0), 0);
         const aov = paidOrders.length > 0 ? ltv / paidOrders.length : 0;
 

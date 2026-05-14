@@ -74,8 +74,6 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
         });
     }, [data, searchQuery]);
 
-    if (!isMounted) return null;
-
     const stats = data?.stats || { totalOrders: 0, grossRevenue: 0, totalCustomers: 0, avgOrderValue: 0 };
     const chartData = data?.revenueChart || [];
 

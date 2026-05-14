@@ -367,14 +367,14 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
     );
 };
 
-export default function FinanceClient() {
+export default function FinanceClient({ initialData, serverDateRange }: { initialData?: FinanceDashboardData, serverDateRange?: { start: string, end: string } }) {
     const [isMounted, setIsMounted] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState<FinanceDashboardData | null>(null);
+    const [isLoading, setIsLoading] = useState(!initialData);
+    const [data, setData] = useState<FinanceDashboardData | null>(initialData || null);
     const [searchQuery, setSearchQuery] = useState('');
     const [status, setStatus] = useState('all');
     const [datePreset, setDatePreset] = useState('30d');
-    const [dateRange, setDateRange] = useState({
+    const [dateRange, setDateRange] = useState(serverDateRange || {
         start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         end: new Date().toISOString().split('T')[0]
     });
@@ -442,10 +442,19 @@ export default function FinanceClient() {
 
     const { setPrimaryAction, setOverrideTitle } = useAdminUI();
 
+    const isInitialMount = React.useRef(true);
+
     useEffect(() => {
         setIsMounted(true);
         setOverrideTitle(null);
         setPrimaryAction(null);
+        
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            // If SSR data is present, skip the first fetch
+            if (initialData) return;
+        }
+        
         loadFinanceData();
     }, [dateRange]);
 
@@ -469,8 +478,6 @@ export default function FinanceClient() {
             return matchesSearch && matchesStatus;
         });
     }, [data, searchQuery, status]);
-
-    if (!isMounted) return null;
 
     return (
         <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik tracking-tight">
