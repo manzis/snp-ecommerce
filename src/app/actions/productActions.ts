@@ -939,3 +939,67 @@ export async function fetchProductsPaginatedAction(page: number, pageSize: numbe
     return { success: false, products: [], totalCount: 0, message: error.message || 'Failed to fetch products' };
   }
 }
+
+/**
+ * Server action to fetch product statistics for dashboard
+ */
+export async function getProductStatsAction() {
+  const supabase = await createClient();
+  
+  // 1. Verify Admin Role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') return { success: false, message: 'Forbidden.' };
+
+  try {
+    const adminClient = getSupabaseAdmin() || supabase;
+
+    // 1. Total Products
+    const { count: totalProducts } = await adminClient
+      .from('products')
+      .select('*', { count: 'exact', head: true });
+
+    // 2. Out of Stock (stock_count <= 0)
+    const { count: outOfStock } = await adminClient
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .lte('stock_count', 0);
+
+    // 3. In Stock (stock_count > 0)
+    const { count: inStock } = await adminClient
+      .from('products')
+      .select('*', { count: 'exact', head: true })
+      .gt('stock_count', 0);
+
+    // 4. Total Products Sold
+    // We join with orders to exclude cancelled ones
+    const { data: soldItems, error: soldError } = await adminClient
+      .from('order_items')
+      .select('quantity, orders!inner(status)')
+      .neq('orders.status', 'cancelled');
+
+    if (soldError) console.error('Error fetching sold items:', soldError);
+    
+    const totalSold = soldItems?.reduce((acc, curr) => acc + (curr.quantity || 0), 0) || 0;
+
+    return {
+      success: true,
+      data: {
+        totalProducts: totalProducts || 0,
+        outOfStock: outOfStock || 0,
+        inStock: inStock || 0,
+        totalSold: totalSold
+      }
+    };
+  } catch (error: any) {
+    console.error('Action Error: getProductStatsAction:', error);
+    return { success: false, message: error.message || 'Failed to fetch product stats' };
+  }
+}

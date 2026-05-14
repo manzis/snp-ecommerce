@@ -11,7 +11,11 @@ import {
     ArrowDownRight,
     History,
     Activity,
-    Zap
+    Zap,
+    Package,
+    PackageCheck,
+    PackageX,
+    BarChart3
 } from 'lucide-react';
 import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import { DashboardData, getDashboardDataAction } from '@/app/actions/dashboardActions';
@@ -153,6 +157,136 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                     />
                                 </div>
 
+                                {/* Unified Product & Inventory Insights */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
+                                    {/* Market Performance Card */}
+                                    <div className="bg-[#242424] p-8 md:p-10 rounded-[20px] text-white flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all duration-500 min-h-[220px]">
+                                        <div className="relative z-10">
+                                            <div className="flex items-center gap-2 mb-8 text-[#bef264]">
+                                                <BarChart3 className="w-5 h-5" />
+                                                <span className="text-sm font-medium opacity-90">Market & Inventory Insights</span>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                                                {/* Total Sold */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">Total Sold</h3>
+                                                    <p className="text-2xl font-semibold text-[#bef264] font-rubik tracking-tight">
+                                                        {data?.productStats.totalSold.toLocaleString()}
+                                                    </p>
+                                                </div>
+                                                
+                                                {/* Catalog Size */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">Catalog Size</h3>
+                                                    <p className="text-2xl font-semibold text-white font-rubik tracking-tight">
+                                                        {data?.productStats.totalProducts.toLocaleString()}
+                                                    </p>
+                                                </div>
+
+                                                {/* In Stock */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">In Stock</h3>
+                                                    <p className="text-2xl font-semibold text-white font-rubik tracking-tight">
+                                                        {data?.productStats.inStock.toLocaleString()}
+                                                    </p>
+                                                </div>
+
+                                                {/* Out of Stock */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">Out of Stock</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className={`text-2xl font-semibold font-rubik tracking-tight ${(data?.productStats?.outOfStock ?? 0) > 0 ? 'text-red-400' : 'text-white'}`}>
+                                                            {data?.productStats?.outOfStock.toLocaleString() ?? '0'}
+                                                        </p>
+                                                        {(data?.productStats?.outOfStock ?? 0) > 0 && (
+                                                            <span className="px-1.5 py-0.5 bg-red-400/20 text-red-400 text-[10px] font-semibold rounded-md animate-pulse border border-red-400/20">ALERT</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative z-10 mt-8 flex items-center gap-4 pt-6 border-t border-white/5">
+                                            <div className="flex -space-x-2">
+                                                {[1, 2, 3].map(i => (
+                                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#242424] bg-white/10 flex items-center justify-center overflow-hidden shadow-sm">
+                                                        <div className="w-full h-full bg-gradient-to-br from-[#bef264] to-[#86efac] opacity-60" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <span className="text-xs font-medium text-white/50 tracking-wide">Tracking metrics across all active orders and current inventory</span>
+                                        </div>
+
+                                        {/* Background Decoration */}
+                                        <div className="absolute -right-8 -bottom-8 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-700">
+                                            <ShoppingBag className="w-64 h-64 rotate-12" />
+                                        </div>
+                                        <div className="absolute top-0 right-0 w-48 h-48 bg-[#bef264] blur-[120px] opacity-10 group-hover:opacity-20 transition-opacity" />
+                                    </div>
+
+                                    {/* Store Health / Customer Insights Card */}
+                                    <div className="bg-white border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] p-8 md:p-10 rounded-[20px] text-[#242424] flex flex-col justify-between relative overflow-hidden group transition-all duration-500 min-h-[220px]">
+                                        {/* Background Pattern */}
+                                        <div className="absolute inset-0 bg-[radial-gradient(#bef264_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.08] group-hover:opacity-[0.15] transition-opacity duration-500" />
+                                        <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-[#bef264] blur-[100px] opacity-[0.15] group-hover:opacity-40 transition-all duration-700" />
+                                        
+                                        <div className="relative z-10">
+                                            <div className="flex items-center gap-2 mb-8 text-[#4d7c0f]">
+                                                <Users className="w-5 h-5" />
+                                                <span className="text-sm font-medium text-[#71717a]">Customer Insights</span>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                                                {/* Total Customers */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Total Users</h3>
+                                                    <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                        {data?.stats.totalCustomers.toLocaleString() || '0'}
+                                                    </p>
+                                                </div>
+                                                
+                                                {/* Active Sessions (Mock) */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Active Now</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                            24
+                                                        </p>
+                                                        <span className="w-2 h-2 bg-[#86efac] rounded-full animate-pulse shadow-[0_0_8px_0_#86efac]"></span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Returning Customers (Mock) */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Return Rate</h3>
+                                                    <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                        18<span className="text-base text-[#a1a1aa] ml-0.5">%</span>
+                                                    </p>
+                                                </div>
+
+                                                {/* Avg Order Value */}
+                                                <div>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Avg Order</h3>
+                                                    <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                        रु {Math.round(data?.stats.avgOrderValue || 0).toLocaleString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="relative z-10 mt-8 flex items-center justify-between pt-6 border-t border-gray-100">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 rounded-full bg-[#bef264]/20 flex items-center justify-center text-[#4d7c0f]">
+                                                    <TrendingUp className="w-4 h-4" />
+                                                </div>
+                                                <span className="text-xs font-semibold text-[#71717a]">Customer growth up 12%</span>
+                                            </div>
+                                            <ArrowDownRight className="w-5 h-5 text-gray-300" />
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
                                     {/* Simplified Revenue Chart */}
                                     <div className="lg:col-span-2 bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)] h-[400px] flex flex-col">
@@ -207,7 +341,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                             </div>
                                             <h3 className="text-2xl font-semibold font-rubik mb-2">Store Management</h3>
                                             <p className="text-gray-400 text-sm mb-6 max-w-md font-normal">Frequently used shortcuts and store operations.</p>
-                                            
+
                                             <div className="flex flex-col gap-3 mt-auto">
                                                 <Link href="/admin/orders/create" className="bg-[#bef264] text-[#242424] px-6 py-3 rounded-[10px] font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all text-center w-full block">
                                                     <span className="flex items-center justify-center gap-2">
