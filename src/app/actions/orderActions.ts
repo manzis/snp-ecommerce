@@ -111,6 +111,24 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
       });
     });
     
+    // Fire-and-forget initial status log for tracking
+    supabase.rpc('update_order_status_v2', {
+      p_order_id: result.id,
+      p_new_status: 'pending',
+      p_message: 'Order Recieved, We Have recieved your order.'
+    }).then(({ error }) => {
+      if (error) {
+        // Fallback to older RPC version if v2 is not available
+        supabase.rpc('update_order_status', {
+          p_order_id: result.id,
+          p_new_status: 'pending',
+          p_message: 'Order Recieved, We Have recieved your order.'
+        }).then((res) => {
+          if (res.error) console.error('[Async Log] Fallback log failed:', res.error);
+        });
+      }
+    });
+
     return { success: true, orderId: result.id };
   } catch (error: any) {
     console.error('Action Error: placeOrderAction:', error);

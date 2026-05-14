@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCartStore } from '@/store/cartStore';
 
 /**
  * ProductCTA - Final Stable Version
@@ -48,7 +49,11 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
     const handleBuyNowSuccess = async () => {
       // Allow Zustand persist middleware to flush to localStorage
       await new Promise(resolve => setTimeout(resolve, 100));
-      router.push('/cart');
+      if (window.innerWidth >= 1024) {
+        useCartStore.getState().setCartOpen(true);
+      } else {
+        router.push('/cart');
+      }
     };
     window.addEventListener('buyNowCartSuccess', handleBuyNowSuccess);
     return () => window.removeEventListener('buyNowCartSuccess', handleBuyNowSuccess);
@@ -58,7 +63,11 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
     if (!isInCart) {
       window.dispatchEvent(new CustomEvent('requestAddToCart'));
     } else {
-      router.push('/cart');
+      if (window.innerWidth >= 1024) {
+        useCartStore.getState().setCartOpen(true);
+      } else {
+        router.push('/cart');
+      }
     }
   };
 

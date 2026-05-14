@@ -21,6 +21,9 @@ interface CartState {
   applyCoupon: (coupon: Coupon) => void;
   removeCoupon: () => void;
   getCouponDiscount: () => number;
+
+  isCartOpen: boolean;
+  setCartOpen: (isOpen: boolean) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -30,12 +33,14 @@ export const useCartStore = create<CartState>()(
       isLoading: false,
       userId: null,
       coupon: null,
+      isCartOpen: false,
 
+      setCartOpen: (isOpen) => set({ isCartOpen: isOpen }),
       setUserId: (userId) => set({ userId }),
 
       loadCart: async () => {
         const { userId } = get();
-        if (!userId) return; 
+        if (!userId) return;
         set({ isLoading: true });
         const dbItems = await fetchCart(userId);
         set({ items: dbItems, isLoading: false });
@@ -57,7 +62,7 @@ export const useCartStore = create<CartState>()(
             newItems.push(item);
             if (state.userId) addToCart(item, state.userId);
           }
-          
+
           return { items: newItems };
         });
       },
@@ -92,7 +97,7 @@ export const useCartStore = create<CartState>()(
       removeItem: (item) => {
         const { items, userId } = get();
 
-        
+
         if (item.bundle_id) {
           // Atomic Bundle Removal: Remove ALL items associated with this bundle
           const newItems = items.filter(i => i.bundle_id !== item.bundle_id);
@@ -113,9 +118,9 @@ export const useCartStore = create<CartState>()(
           return;
         }
         const { items, userId } = get();
-        
+
         let newItems: CartItemType[];
-        
+
         if (item.bundle_id) {
           // Atomic Bundle Quantity Update: Update ALL items in the bundle
           newItems = items.map(i => {
@@ -123,7 +128,7 @@ export const useCartStore = create<CartState>()(
               // Scale the total line discount proportional to the quantity change
               const scaleFactor = quantity / i.quantity;
               const newBundleDiscount = (i.bundle_discount || 0) * scaleFactor;
-              
+
               const updatedItem = { ...i, quantity, bundle_discount: newBundleDiscount };
               if (userId) updateCartItem(userId, updatedItem, quantity);
               return updatedItem;
@@ -143,7 +148,7 @@ export const useCartStore = create<CartState>()(
       mergeCartOnLogin: async (newUserId) => {
         const { items, userId, isLoading } = get();
         if (isLoading) return;
-        
+
         // If the user hasn't changed, just refresh the cart from DB.
         // Don't merge, because 'items' in store are already a local copy of DB items.
         if (userId === newUserId) {
@@ -153,14 +158,14 @@ export const useCartStore = create<CartState>()(
         }
 
         set({ isLoading: true, userId: newUserId });
-        
+
         try {
           // If there are local items, push all of them to DB. 
           // mergeCart service automatically handles summing quantities for items that exist in both Local + DB
           if (items.length > 0) {
             await mergeCart(items, newUserId);
           }
-          
+
           // Always fetch final state from DB as the single source of truth
           const finalItems = await fetchCart(newUserId);
           set({ items: finalItems });
@@ -187,9 +192,9 @@ export const useCartStore = create<CartState>()(
       getCouponDiscount: () => {
         const { coupon, items } = get();
         if (!coupon) return 0;
-        
+
         const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        
+
         // 1. Min Cart Value check
         if (subtotal < coupon.min_cart_value) return 0;
 
@@ -207,7 +212,7 @@ export const useCartStore = create<CartState>()(
         } else {
           discount = coupon.value;
         }
-        
+
         // 3. Apply Max Discount Cap
         if (coupon.max_discount && discount > coupon.max_discount) {
           discount = coupon.max_discount;
@@ -219,8 +224,8 @@ export const useCartStore = create<CartState>()(
     {
       name: 'snp-cart-storage',
       // only persist items and userId. Hydration manages the rest.
-      partialize: (state) => ({ 
-        items: state.items, 
+      partialize: (state) => ({
+        items: state.items,
         userId: state.userId,
         coupon: state.coupon
       })

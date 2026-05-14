@@ -8,6 +8,8 @@ import HeartIcon from '@/components/icons/SearchIcon';
 import CartIcon from '@/components/icons/CartIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
 import { useCart } from '@/context/CartContext';
+import { useRouter } from 'next/navigation';
+import { useCartStore } from '@/store/cartStore';
 
 // Lazy-load Sidebar — it's hidden by default, only shown on menu click
 const Sidebar = dynamic(() => import('@/components/layout/Sidebar'), { ssr: false });
@@ -23,6 +25,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
 }) => {
     const { cartCount } = useCart();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const router = useRouter();
 
     return (
         <>
@@ -71,8 +74,16 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                             </Link>
 
                             {/* Cart Link */}
-                            <Link
+                            <a
                                 href="/cart"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (window.innerWidth >= 1024) {
+                                        useCartStore.getState().setCartOpen(true);
+                                    } else {
+                                        router.push('/cart');
+                                    }
+                                }}
                                 className="relative flex items-center justify-center transition-transform active:scale-90"
                                 aria-label="Cart"
                             >
@@ -86,7 +97,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                                         </div>
                                     )}
                                 </div>
-                            </Link>
+                            </a>
                         </div>
                     </div>
 

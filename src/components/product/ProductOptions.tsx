@@ -204,7 +204,11 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     if (!isInCart) {
       executeAddToCart();
     } else {
-      router.push('/cart');
+      if (window.innerWidth >= 1024) {
+        useCartStore.getState().setCartOpen(true);
+      } else {
+        router.push('/cart');
+      }
     }
   };
 
@@ -246,7 +250,11 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
 
     // Wait for Zustand persist middleware to flush to localStorage
     await new Promise(resolve => setTimeout(resolve, 100));
-    router.push('/cart');
+    if (window.innerWidth >= 1024) {
+      useCartStore.getState().setCartOpen(true);
+    } else {
+      router.push('/cart');
+    }
   };
 
   return (

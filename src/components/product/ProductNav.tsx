@@ -7,6 +7,7 @@ import SearchIcon from '@/components/icons/SearchIcon';
 import CartIcon from '@/components/icons/CartIcon';
 import PackageIcon2 from '@/components/icons/PackageIcon2';
 import { useCart } from '@/context/CartContext';
+import { useCartStore } from '@/store/cartStore';
 
 /**
  * ProductNav component for the top navigation bar.
@@ -33,7 +34,11 @@ export default function ProductNav() {
 
   const handleCart = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
-    router.push('/cart');
+    if (window.innerWidth >= 1024) {
+      useCartStore.getState().setCartOpen(true);
+    } else {
+      router.push('/cart');
+    }
   };
 
   return (
