@@ -96,7 +96,7 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
                 phone: p.phone || 'N/A',
                 avatar: p.avatar_url || authMeta?.avatar || '',
                 status: 'new',
-                createdAt: new Date(p.created_at).toLocaleDateString(),
+                createdAt: p.created_at, // Use raw ISO string for sorting
                 behavior: {
                     totalOrders: 0,
                     totalSpent: 0,
@@ -122,7 +122,7 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
 
             const orderDate = new Date(o.created_at);
             if (behavior.lastActive === 'Never' || orderDate > new Date(behavior.lastActive)) {
-                behavior.lastActive = orderDate.toLocaleDateString();
+                behavior.lastActive = o.created_at; // Use raw ISO string
             }
         });
 
@@ -168,7 +168,7 @@ export async function fetchCustomerManagementDataAction(): Promise<{ success: bo
         return {
             success: true,
             data: {
-                customers: customers.sort((a, b) => b.behavior.totalSpent - a.behavior.totalSpent),
+                customers, // We'll handle sorting on the client
                 stats: {
                     totalCustomers: customers.length,
                     activeCustomers,

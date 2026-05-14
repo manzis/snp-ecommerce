@@ -101,7 +101,7 @@ const DashboardCustomerCard = ({
                     <div className="flex items-center justify-between self-stretch shrink-0 relative z-[10]">
                         <div className="flex items-center gap-[6px]">
                             <h3 className="shrink-0 text-[12px] font-[400] leading-[14px] text-[#71717a] uppercase tracking-wider whitespace-nowrap">
-                                Joined On {customer.createdAt}
+                                Joined On {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </h3>
                             {isNew && (
                                 <span className="flex h-[18px] px-[6px] py-[2px] justify-center items-center shrink-0 bg-[#242424] text-white rounded-[4px] text-[9px] font-bold tracking-wider animate-pulse">
@@ -170,6 +170,7 @@ export default function CustomersClient() {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
+    const [sortBy, setSortBy] = useState('newest'); // default to newest first
     const [seenIds, setSeenIds] = useState<string[]>([]);
 
     // Pagination State
@@ -245,19 +246,28 @@ export default function CustomersClient() {
 
     const allFiltered = useMemo(() => {
         if (!data) return [];
-        return data.customers.filter(c => {
+        let filtered = data.customers.filter(c => {
             const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 c.phone.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
             return matchesSearch && matchesStatus;
         });
-    }, [data, searchQuery, statusFilter]);
 
-    // Grouping logic for "Recently" (Unseen) and "Others" (Seen)
+        // Apply Sorting
+        return [...filtered].sort((a, b) => {
+            if (sortBy === 'ltv') return b.behavior.totalSpent - a.behavior.totalSpent;
+            if (sortBy === 'frequent') return b.behavior.totalOrders - a.behavior.totalOrders;
+            if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            if (sortBy === 'alpha') return a.name.localeCompare(b.name);
+            return 0;
+        });
+    }, [data, searchQuery, statusFilter, sortBy]);
+
+    // Grouping logic for "Recently Joined" (within last 7 days AND not seen before)
     const { recently, others } = useMemo(() => {
-        // A customer is "Recently Joined" ONLY if they were created in the last 7 days AND have never been seen before
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
         const recently = allFiltered.filter(c => {
             const joinDate = new Date(c.createdAt);
@@ -439,6 +449,8 @@ export default function CustomersClient() {
                     <CustomerFilters
                         status={statusFilter}
                         onStatusChange={setStatusFilter}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}
                     />
                 }
             />

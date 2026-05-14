@@ -144,7 +144,7 @@ export default function CustomerDetailsModal({
                             </div>
                             <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
                                 <Calendar className="w-3.5 h-3.5" />
-                                <span>Joined {customer.createdAt}</span>
+                                <span>Joined {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             </div>
                         </div>
                     </div>

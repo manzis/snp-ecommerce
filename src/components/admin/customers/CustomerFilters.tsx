@@ -8,10 +8,11 @@ import ChevronDownIcon from '@/components/icons/ArrowDown';
 interface CustomerFiltersProps {
     status: string;
     onStatusChange: (status: any) => void;
-    onSortChange?: (sort: string) => void;
+    onSortChange: (sort: string) => void;
+    sortBy: string;
 }
 
-export default function CustomerFilters({ status, onStatusChange, onSortChange }: CustomerFiltersProps) {
+export default function CustomerFilters({ status, onStatusChange, onSortChange, sortBy }: CustomerFiltersProps) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const statuses = [
@@ -19,6 +20,13 @@ export default function CustomerFilters({ status, onStatusChange, onSortChange }
         { label: 'VIP Members', value: 'vip' },
         { label: 'Active Shoppers', value: 'active' },
         { label: 'Recently Joined', value: 'new' }
+    ];
+
+    const sortPatterns = [
+        { label: 'Highest LTV', value: 'ltv' },
+        { label: 'Most Frequent', value: 'frequent' },
+        { label: 'Newest First', value: 'newest' },
+        { label: 'Alphabetical', value: 'alpha' }
     ];
 
     return (
@@ -46,13 +54,21 @@ export default function CustomerFilters({ status, onStatusChange, onSortChange }
                             <div>
                                 <h3 className="text-[11px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em] mb-3 px-1">Sort Patterns</h3>
                                 <div className="flex flex-col gap-1">
-                                    {['Highest LTV', 'Most Frequent', 'Recently Active', 'Alphabetical'].map((s) => (
+                                    {sortPatterns.map((s) => (
                                         <button 
-                                            key={s} 
-                                            onClick={() => onSortChange?.(s)}
-                                            className="text-left text-[13px] py-2 px-3 rounded-lg hover:bg-zinc-50 transition-colors text-[#242424] font-medium"
+                                            key={s.value} 
+                                            onClick={() => {
+                                                onSortChange(s.value);
+                                                setIsFilterOpen(false);
+                                            }}
+                                            className={`text-left text-[13px] py-2 px-3 rounded-lg transition-all flex items-center justify-between ${
+                                                sortBy === s.value 
+                                                ? 'bg-[#242424] text-white' 
+                                                : 'hover:bg-zinc-50 text-[#71717a] hover:text-[#242424] font-medium'
+                                            }`}
                                         >
-                                            {s}
+                                            <span>{s.label}</span>
+                                            {sortBy === s.value && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />}
                                         </button>
                                     ))}
                                 </div>
