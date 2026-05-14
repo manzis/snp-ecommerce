@@ -51,13 +51,13 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
               onClick={() => {
                 setSelectedSize(sizeObj.size_label);
                 if (sizeObj.image_url) {
-                   setActiveVariantImage(sizeObj.image_url);
+                  setActiveVariantImage(sizeObj.image_url);
                 }
               }}
               /* 
               */
               className={`
-                group relative flex h-[45px] w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in
+                group relative flex h-[45px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in
                 outline-[1.5px] outline-offset-0 overflow-hidden
                 ${!sizeObj.is_available ? 'opacity-60 cursor-not-allowed bg-[#FAFAFA]' : 'cursor-pointer'}
                 ${isActive
@@ -77,7 +77,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
                   - padding: 10px
                   - height: 38px (internal)
               */}
-              <div className="flex h-[38px] w-[66px] flex-row items-center justify-center p-[10px] gap-[10px]">
+              <div className="flex h-[38px] min-w-[66px] flex-row items-center justify-center p-[10px] gap-[10px]">
                 <span
                   className={`
                     whitespace-nowrap text-center font-titillium text-[18px] font-semibold leading-[18px] tracking-[-0.02em] transition-colors duration-200

@@ -76,7 +76,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
               onClick={() => {
                 setSelectedId(item.id);
                 if (item.image_url) {
-                   setActiveVariantImage(item.image_url);
+                  setActiveVariantImage(item.image_url);
                 }
               }}
               /* 
@@ -126,7 +126,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
                 relative flex h-[26px] flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
                 ${isSelected
                   ? 'w-[81px] bg-[#3F9733] rounded-[5px]'
-                  : 'w-[77px] bg-[#EFEFEF] rounded-[3px]'}
+                  : 'w-[81px] bg-[#EFEFEF] rounded-[3px]'}
               `}>
                 <div className={`relative w-full overflow-hidden ${isLong ? 'marquee-mask' : ''}`}>
                   <div className={isLong ? 'animate-marquee-continuous' : 'w-full text-center'}>
