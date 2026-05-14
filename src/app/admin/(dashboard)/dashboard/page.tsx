@@ -4,9 +4,9 @@ import { getDashboardDataAction } from '@/app/actions/dashboardActions';
 
 // Loading Skeleton mirroring the Analytics Loading Skeleton
 const MetricSkeleton = () => (
-  <div className="bg-white p-6 rounded-[12px] border border-gray-100 shadow-sm animate-pulse">
+  <div className="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)] animate-pulse">
     <div className="flex items-center justify-between mb-4">
-      <div className="w-10 h-10 bg-gray-100 rounded-xl" />
+      <div className="w-10 h-10 bg-gray-100 rounded-lg" />
       <div className="w-16 h-4 bg-gray-100 rounded" />
     </div>
     <div className="w-24 h-8 bg-gray-200 rounded mb-2" />
@@ -24,8 +24,9 @@ const DashboardLoadingSkeleton = () => (
     </div>
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 w-full h-[400px] bg-white rounded-[12px] border border-gray-100 animate-pulse" />
-      <div className="w-full h-[400px] bg-gray-50 rounded-[12px] animate-pulse" />
+      <div className="w-full h-[400px] bg-gray-100 rounded-[12px] border border-gray-200 animate-pulse" />
     </div>
+    <div className="w-full h-[400px] bg-white rounded-[12px] border border-gray-100 animate-pulse" />
   </div>
 );
 

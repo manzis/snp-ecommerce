@@ -90,10 +90,22 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
             <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[200px] flex flex-col gap-8 md:gap-10">
                 {isLoading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
-                        {[1, 2, 3, 4].map(i => (
-                            <div key={i} className="h-32 bg-white rounded-[12px] border border-gray-100 shadow-sm" />
-                        ))}
+                    <div className="flex flex-col gap-8 md:gap-10 animate-pulse">
+                        {/* KPI Grid Skeleton */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="h-[140px] bg-white border border-gray-100 rounded-[12px]" />
+                            ))}
+                        </div>
+
+                        {/* Chart and Quick Actions Skeleton */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
+                            <div className="lg:col-span-2 h-[400px] bg-white border border-gray-100 rounded-[12px]" />
+                            <div className="h-[400px] bg-gray-100 border border-gray-200 rounded-[12px]" />
+                        </div>
+
+                        {/* Recent Orders Table Skeleton */}
+                        <div className="h-[400px] bg-white border border-gray-100 rounded-[12px]" />
                     </div>
                 ) : (
                     <>

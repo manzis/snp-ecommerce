@@ -132,6 +132,15 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
         setIsMenuOpen(false);
     }, [pathname]);
 
+    // Check if this is the global nav instance
+    const isGlobalNav = !children && propOverrideTitle === undefined;
+
+    // Hide global nav on pages that render their own custom DynamicAdminNav
+    const hideGlobalNavPaths = ['/products/add', '/products/edit', '/orders/create'];
+    if (isGlobalNav && hideGlobalNavPaths.some(p => pathname.includes(p))) {
+        return null;
+    }
+
     // Get actions for the current page
     const actions = MOBILE_ACTIONS[pathname] || MOBILE_ACTIONS['default'];
     const primaryAction = PRIMARY_ACTIONS[pathname];
