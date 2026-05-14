@@ -2,6 +2,8 @@ import React, { Suspense } from 'react';
 import DashboardClient from './DashboardClient';
 import { getDashboardDataAction } from '@/app/actions/dashboardActions';
 
+export const dynamic = 'force-dynamic';
+
 // Loading Skeleton mirroring the Analytics Loading Skeleton
 const MetricSkeleton = () => (
   <div className="bg-white p-6 rounded-[12px] border border-gray-100 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.03)] animate-pulse">
