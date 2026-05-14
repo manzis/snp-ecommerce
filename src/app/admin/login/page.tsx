@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { AuthService } from '@/services/auth.service';
-import { Eye, EyeOff, Check } from 'lucide-react';
+import { Eye, EyeOff, Check, Sun, Moon } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -11,6 +11,7 @@ export default function AdminLoginPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // Default to light mode
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,26 +33,44 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white p-6 font-mono">
-      <div className="w-full max-w-[440px] space-y-12">
+    <div className={`min-h-screen flex flex-col items-center justify-center p-6 font-mono transition-colors duration-300 relative overflow-hidden ${isDarkMode ? 'bg-[#0a0a0a] text-white' : 'bg-[#fafafa] text-[#242424]'}`}>
+      
+      {/* Background Glow Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full blur-[120px] transition-opacity duration-700 ${isDarkMode ? 'bg-[#bef264]/10' : 'bg-[#bef264]/20'}`} />
+        <div className={`absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] rounded-full blur-[100px] transition-opacity duration-700 ${isDarkMode ? 'bg-[#bef264]/10' : 'bg-[#bef264]/20'}`} />
+      </div>
+
+      {/* Theme Toggle */}
+      <div className="absolute top-6 right-6 z-10">
+        <button 
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className={`p-2 rounded-full border transition-colors ${isDarkMode ? 'border-white/10 hover:bg-white/5 text-white' : 'border-[#242424]/10 hover:bg-[#242424]/5 text-[#242424]'}`}
+          title="Toggle Theme"
+        >
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+      </div>
+
+      <div className="w-full max-w-[440px] space-y-12 relative z-10">
         {/* Header Section */}
         <div className="flex flex-col gap-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex flex-col gap-[2px]">
                 <div className="flex gap-[2px]">
-                  <div className="w-2 h-2 bg-white" />
-                  <div className="w-2 h-2 bg-white/20" />
+                  <div className={`w-2 h-2 ${isDarkMode ? 'bg-white' : 'bg-[#242424]'}`} />
+                  <div className={`w-2 h-2 ${isDarkMode ? 'bg-white/20' : 'bg-[#242424]/20'}`} />
                 </div>
                 <div className="flex gap-[2px]">
-                  <div className="w-2 h-2 bg-white/20" />
-                  <div className="w-2 h-2 bg-white" />
+                  <div className={`w-2 h-2 ${isDarkMode ? 'bg-white/20' : 'bg-[#242424]/20'}`} />
+                  <div className={`w-2 h-2 ${isDarkMode ? 'bg-white' : 'bg-[#242424]'}`} />
                 </div>
               </div>
               <span className="text-[18px] font-medium tracking-tight">BrightSNP</span>
             </div>
-            <div className="px-3 py-1 border border-white/10 rounded-sm">
-              <span className="text-[10px] font-bold text-white/40 tracking-[0.2em]">MEMBERS</span>
+            <div className={`px-3 py-1 border rounded-sm ${isDarkMode ? 'border-white/10' : 'border-[#242424]/10'}`}>
+              <span className={`text-[10px] font-bold tracking-[0.2em] ${isDarkMode ? 'text-white/40' : 'text-[#242424]/40'}`}>MEMBERS</span>
             </div>
           </div>
 
@@ -72,7 +91,7 @@ export default function AdminLoginPage() {
                 type="email"
                 required
                 placeholder="you@example.com"
-                className="w-full bg-transparent border border-white/10 px-4 py-3.5 text-[14px] focus:outline-none focus:border-white/40 transition-colors placeholder:text-white/10"
+                className={`w-full bg-transparent border px-4 py-3.5 text-[14px] focus:outline-none transition-colors ${isDarkMode ? 'border-white/10 focus:border-white/40 placeholder:text-white/20 text-white' : 'border-[#242424]/20 focus:border-[#242424]/60 placeholder:text-[#242424]/30 text-[#242424]'}`}
               />
             </div>
 
@@ -85,12 +104,12 @@ export default function AdminLoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Enter your password"
-                  className="w-full bg-transparent border border-white/10 px-4 py-3.5 text-[14px] focus:outline-none focus:border-white/40 transition-colors placeholder:text-white/10 pr-12"
+                  className={`w-full bg-transparent border px-4 py-3.5 text-[14px] focus:outline-none transition-colors pr-12 ${isDarkMode ? 'border-white/10 focus:border-white/40 placeholder:text-white/20 text-white' : 'border-[#242424]/20 focus:border-[#242424]/60 placeholder:text-[#242424]/30 text-[#242424]'}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40 transition-colors"
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-white/30 hover:text-white/60' : 'text-[#242424]/30 hover:text-[#242424]/60'}`}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -100,12 +119,12 @@ export default function AdminLoginPage() {
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
-                <div className={`w-5 h-5 border transition-all duration-200 flex items-center justify-center ${rememberMe ? 'bg-white border-white' : 'border-white/10 bg-transparent'}`}>
-                  {rememberMe && <Check size={14} className="text-black" />}
+                <div className={`w-5 h-5 border transition-all duration-200 flex items-center justify-center ${rememberMe ? (isDarkMode ? 'bg-white border-white' : 'bg-[#242424] border-[#242424]') : (isDarkMode ? 'border-white/10 bg-transparent' : 'border-[#242424]/20 bg-transparent')}`}>
+                  {rememberMe && <Check size={14} className={isDarkMode ? "text-black" : "text-white"} />}
                 </div>
-                <span className="text-[12px] text-[#71717a] group-hover:text-white/60 transition-colors">Remember me</span>
+                <span className={`text-[12px] transition-colors ${isDarkMode ? 'text-[#71717a] group-hover:text-white/60' : 'text-[#71717a] group-hover:text-[#242424]/60'}`}>Remember me</span>
               </div>
-              <button type="button" className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider hover:text-white transition-colors">
+              <button type="button" className={`text-[10px] font-bold text-[#71717a] uppercase tracking-wider transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-[#242424]'}`}>
                 Forgot Password?
               </button>
             </div>
@@ -121,13 +140,13 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#f4f4f5] text-[#0a0a0a] font-bold py-4 text-[12px] uppercase tracking-[0.2em] hover:bg-white transition-colors disabled:opacity-50"
+              className={`w-full font-bold py-4 text-[12px] uppercase tracking-[0.2em] transition-colors disabled:opacity-50 ${isDarkMode ? 'bg-[#f4f4f5] text-[#0a0a0a] hover:bg-white' : 'bg-[#242424] text-white hover:bg-black'}`}
             >
               {loading ? 'Processing...' : 'Sign In'}
             </button>
 
             <p className="text-center text-[10px] text-[#71717a]">
-              Don't have an account? <button type="button" className="text-white hover:underline uppercase font-bold tracking-wider ml-1">Sign Up</button>
+              Don't have an account? <button type="button" className={`hover:underline uppercase font-bold tracking-wider ml-1 ${isDarkMode ? 'text-white' : 'text-[#242424]'}`}>Sign Up</button>
             </p>
           </div>
         </form>
@@ -135,3 +154,4 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+
