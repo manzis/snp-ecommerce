@@ -166,7 +166,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <BarChart3 className="w-5 h-5" />
                                                 <span className="text-sm font-medium opacity-90">Market & Inventory Insights</span>
                                             </div>
-                                            
+
                                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                                 {/* Total Sold */}
                                                 <div>
@@ -175,7 +175,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                         {data?.productStats.totalSold.toLocaleString()}
                                                     </p>
                                                 </div>
-                                                
+
                                                 {/* Catalog Size */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-gray-400 mb-1">Catalog Size</h3>
@@ -230,13 +230,17 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                         {/* Background Pattern */}
                                         <div className="absolute inset-0 bg-[radial-gradient(#bef264_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.08] group-hover:opacity-[0.15] transition-opacity duration-500" />
                                         <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-[#bef264] blur-[100px] opacity-[0.15] group-hover:opacity-40 transition-all duration-700" />
-                                        
+
                                         <div className="relative z-10">
                                             <div className="flex items-center gap-2 mb-8 text-[#4d7c0f]">
                                                 <Users className="w-5 h-5" />
                                                 <span className="text-sm font-medium text-[#71717a]">Customer Insights</span>
+                                                <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-green-50 text-[9px] font-bold text-green-600 border border-green-100 ml-1">
+                                                    <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></span>
+                                                    LIVE
+                                                </span>
                                             </div>
-                                            
+
                                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                                 {/* Total Customers */}
                                                 <div>
@@ -245,7 +249,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                         {data?.stats.totalCustomers.toLocaleString() || '0'}
                                                     </p>
                                                 </div>
-                                                
+
                                                 {/* Active Sessions (Mock) */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Active Now</h3>
