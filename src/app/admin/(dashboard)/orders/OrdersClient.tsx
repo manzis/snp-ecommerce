@@ -29,6 +29,12 @@ export default function OrdersClient() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [hideCancelled, setHideCancelled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('admin_orders_hide_cancelled') === 'true';
+    }
+    return false;
+  });
   
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<any | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -77,10 +83,10 @@ export default function OrdersClient() {
       hasEffectRun.current = true;
   }, [isHydrated, lastSeenAt, markAsSeen]);
 
-  const loadOrders = async (page: number, search: string = searchQuery, status: string = statusFilter) => {
+  const loadOrders = async (page: number, search: string = searchQuery, status: string = statusFilter, hide: boolean = hideCancelled) => {
     setIsLoading(true);
     try {
-      const result = await fetchAllOrdersAdminAction(page, PAGE_SIZE, { search, status });
+      const result = await fetchAllOrdersAdminAction(page, PAGE_SIZE, { search, status, hideCancelled: hide });
       if (result && result.success) {
         setOrders(result.orders || []);
         setTotalCount(result.totalCount || 0);
@@ -95,8 +101,8 @@ export default function OrdersClient() {
   };
 
   useEffect(() => {
-    loadOrders(currentPage, searchQuery, statusFilter);
-  }, [currentPage, searchQuery, statusFilter]);
+    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled);
+  }, [currentPage, searchQuery, statusFilter, hideCancelled]);
 
   // Deep Link Logic
   useEffect(() => {
@@ -233,6 +239,10 @@ export default function OrdersClient() {
         refreshLoading={isLoading}
         filterDropdown={<OrderFilters status={statusFilter} setStatus={(s) => {
             setStatusFilter(s);
+            setCurrentPage(1);
+        }} hideCancelled={hideCancelled} setHideCancelled={(val) => {
+            setHideCancelled(val);
+            sessionStorage.setItem('admin_orders_hide_cancelled', String(val));
             setCurrentPage(1);
         }} />}
       />

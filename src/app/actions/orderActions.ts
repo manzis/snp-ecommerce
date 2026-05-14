@@ -238,7 +238,7 @@ export async function cancelOrderAction(orderId: string, reason: string) {
 /**
  * Server action to fetch all orders for admin dashboard
  */
-export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20, options?: { search?: string, status?: string }) {
+export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20, options?: { search?: string, status?: string, hideCancelled?: boolean }) {
   const supabase = await createClient();
   
   // 1. Verify Admin Role using the session client
@@ -280,6 +280,8 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
     // Apply Status Filter
     if (options?.status && options.status !== 'all') {
       query = query.eq('status', options.status.toLowerCase());
+    } else if (options?.hideCancelled) {
+      query = query.neq('status', 'cancelled');
     }
 
     // Apply Comprehensive Search Filter

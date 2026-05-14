@@ -127,7 +127,7 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
                 if (status === 'delivered') {
                     deliveredGrossRevenue += amount;
                     if (payStatus === 'paid') {
-                        deliveredNetRevenue += amount;
+                        deliveredNetRevenue += (amount - shipping - cod);
                     } else {
                         deliveredPendingRevenue += amount;
                     }

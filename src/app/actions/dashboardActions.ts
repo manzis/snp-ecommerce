@@ -4,6 +4,7 @@ import { fetchFinanceDashboardDataAction } from './financeActions';
 import { getAnalyticsDataAction } from './analyticsActions';
 import { fetchAllOrdersAdminAction } from './orderActions';
 import { getProductStatsAction } from './productActions';
+import { analyticsService } from '@/services/analyticsService';
 
 export interface RecentOrder {
     id: string;
@@ -32,6 +33,7 @@ export interface DashboardData {
     };
     recentOrders: RecentOrder[];
     revenueChart: { revenue?: number; date?: string; [key: string]: unknown }[];
+    recentlyViewed: any[];
 }
 
 export async function getDashboardDataAction(): Promise<{ success: boolean; data?: DashboardData; message?: string }> {
@@ -41,11 +43,12 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
             end: new Date().toISOString().split('T')[0]
         };
 
-        const [financeResult, analyticsResult, ordersResult, productStatsResult] = await Promise.all([
+        const [financeResult, analyticsResult, ordersResult, productStatsResult, recentlyViewed] = await Promise.all([
             fetchFinanceDashboardDataAction(dateRange.start, dateRange.end),
             getAnalyticsDataAction(),
             fetchAllOrdersAdminAction(1, 10),
-            getProductStatsAction()
+            getProductStatsAction(),
+            analyticsService.getRecentlyViewedProducts(10)
         ]);
 
         if (!financeResult.success || !financeResult.data) {
@@ -70,7 +73,8 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
                     totalSold: 0
                 },
                 recentOrders: ordersResult.success ? (ordersResult.orders || []) : [],
-                revenueChart: financeResult.data.timeSeries || []
+                revenueChart: financeResult.data.timeSeries || [],
+                recentlyViewed: recentlyViewed || []
             }
         };
     } catch (error: unknown) {

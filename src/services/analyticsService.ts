@@ -69,6 +69,50 @@ export const analyticsService = {
   }),
 
   /**
+   * Fetches recently viewed products
+   */
+  getRecentlyViewedProducts: cache(async (limit = 10) => {
+    const admin = getSupabaseAdmin();
+    const supabase = admin || await createClient();
+
+    const { data: rawData, error } = await supabase
+      .from('product_views')
+      .select('product_id, viewed_at, products(title, name, images)')
+      .order('viewed_at', { ascending: false })
+      .limit(500); // Fetch a good sample size
+
+    if (error || !rawData) {
+      console.error('Error fetching recently viewed:', error);
+      return [];
+    }
+
+    const aggregated = rawData.reduce((acc: any, curr: any) => {
+      const id = curr.product_id;
+      if (!acc[id]) {
+        const product = curr.products as any;
+        acc[id] = {
+          product_id: id,
+          name: product?.title || product?.name || 'Unknown Product',
+          thumbnail: product?.images?.[0] || '/images/protein.webp',
+          view_count: 0,
+          last_viewed: new Date(curr.viewed_at).getTime()
+        };
+      }
+      acc[id].view_count += 1;
+      
+      const currentViewed = new Date(curr.viewed_at).getTime();
+      if (currentViewed > acc[id].last_viewed) {
+        acc[id].last_viewed = currentViewed;
+      }
+      return acc;
+    }, {});
+
+    return Object.values(aggregated)
+      .sort((a: any, b: any) => b.last_viewed - a.last_viewed)
+      .slice(0, limit);
+  }),
+
+  /**
    * Fetches top selling products based on order items
    */
   getTopSellingProducts: cache(async (limit = 5) => {

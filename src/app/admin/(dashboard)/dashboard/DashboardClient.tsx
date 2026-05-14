@@ -23,6 +23,7 @@ import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import Link from 'next/link';
+import { RecentlyViewedSection } from '@/components/admin/analytics/RecentlyViewedSection';
 
 
 
@@ -381,6 +382,13 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                     </div>
                                 </div>
                             </>
+                        )}
+
+                        {/* Recently Viewed Products */}
+                        {data?.recentlyViewed && data.recentlyViewed.length > 0 && (
+                            <RecentlyViewedSection
+                                recentlyViewed={data.recentlyViewed}
+                            />
                         )}
 
                         {/* Recent Orders Table */}
