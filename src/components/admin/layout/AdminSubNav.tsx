@@ -64,7 +64,7 @@ export default function AdminSubNav({
     return (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 px-4 bg-white border-b border-gray-100 font-rubik tracking-tight sticky top-0 z-[100]">
             {/* Left Side: View Mode Toggles or Search Bar */}
-            <div className="flex items-center gap-4 flex-1">
+            <div className="flex items-center gap-4 flex-1 w-full">
                 {showViewMode && onViewModeChange && (
                     <div className="flex items-center justify-between w-full md:w-auto md:gap-4">
                         <div className="flex items-center gap-1 bg-gray-50 md:bg-gray-100 p-1 rounded-xl w-fit">
@@ -91,23 +91,31 @@ export default function AdminSubNav({
                 )}
 
                 {searchOnLeft && (
-                    <div className="relative flex-1 max-w-md group">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] group-focus-within:text-[#242424] transition-colors">
-                            <SearchIcon className="w-[16px] h-[16px]" />
+                    <>
+                        <div className="relative flex-1 max-w-md group">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] group-focus-within:text-[#242424] transition-colors">
+                                <SearchIcon className="w-[16px] h-[16px]" />
+                            </div>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={handleSearchChange}
+                                placeholder={searchPlaceholder}
+                                className="w-full bg-gray-50 md:bg-gray-100 border-transparent rounded-[10px] py-[8px] pl-10 pr-4 text-[14px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
+                            />
                         </div>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            placeholder={searchPlaceholder}
-                            className="w-full bg-gray-50 md:bg-gray-100 border-transparent rounded-[10px] py-[8px] pl-10 pr-4 text-[14px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
-                        />
-                    </div>
+                        {/* Mobile Refresh (inline with search when no filter dropdown exists) */}
+                        {!filterDropdown && onRefresh && (
+                            <div className="md:hidden shrink-0">
+                                {RefreshButton}
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
             {/* Right Side: Search (if not on left) & Filter */}
-            <div className={`flex items-center gap-3 w-full md:w-auto ${(!showViewMode && !searchOnLeft) ? 'justify-between' : 'justify-end'}`}>
+            <div className={`flex items-center gap-3 w-full md:w-auto ${(!showViewMode && !searchOnLeft) ? 'justify-between' : 'justify-end'} ${searchOnLeft && !filterDropdown ? 'hidden md:flex' : ''}`}>
                 {!searchOnLeft && (
                     <div className="relative flex-1 md:w-64 max-w-sm group">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] group-focus-within:text-[#242424] transition-colors">
