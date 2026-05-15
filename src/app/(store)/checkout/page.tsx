@@ -217,9 +217,9 @@ export default function CheckoutPage() {
         user_id: currentUserId,
         total_amount: finalTotal,
         mrp_amount: totalMRP,
-        discount_amount: totalMRP - subtotal + couponDiscountValue,
+        discount_amount: totalMRP - subtotal + bundleDiscount + couponDiscountValue,
         shipping_amount: shippingCharge,
-        discount_on_mrp: totalMRP - subtotal - bundleDiscount,
+        discount_on_mrp: totalMRP - subtotal,
         bundle_discount: bundleDiscount,
         coupon_discount: couponDiscountValue,
         coupon_code: couponCodeValue || null,
@@ -345,12 +345,12 @@ export default function CheckoutPage() {
   const couponCodeValue = coupon?.code || "";
 
   const bundleDiscount = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0);
+    return items.reduce((acc: number, item: any) => acc + (item.bundle_discount || 0), 0);
   }, [items]);
 
   const shippingCharge = deliveryData?.shippingPrice || 0;
   const codCharge = selectedPaymentId === 'cod' ? 13 : 0;
-  const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - couponDiscountValue, [subtotal, shippingCharge, codCharge, couponDiscountValue]);
+  const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - bundleDiscount - couponDiscountValue, [subtotal, shippingCharge, codCharge, bundleDiscount, couponDiscountValue]);
 
   const mainButtonText = useMemo(() => {
     if (isProcessing) return "Processing...";

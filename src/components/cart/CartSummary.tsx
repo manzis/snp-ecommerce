@@ -24,9 +24,9 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
     [items]);
 
 
-  const itemDiscount = totalMRP - subtotal - bundleDiscount;
+  const itemDiscount = totalMRP - subtotal;
   const couponDiscount = getCouponDiscount();
-  const totalDiscount = itemDiscount + couponDiscount + bundleDiscount;
+  const totalDiscount = itemDiscount + bundleDiscount + couponDiscount;
   const finalPrice = subtotal - bundleDiscount - couponDiscount;
 
 

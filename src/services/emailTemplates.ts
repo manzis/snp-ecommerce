@@ -19,9 +19,12 @@ interface OrderEmailData {
   totalAmount: number;
   mrpAmount?: number;
   discountAmount?: number;
+  discountOnMrp?: number;
   shippingAmount?: number;
   couponDiscount?: number;
   bundleDiscount?: number;
+  codFees?: number;
+  taxAmount?: number;
   paymentMethod: string;
   shippingAddress: {
     city?: string;
@@ -172,7 +175,10 @@ function pricingSummary(data: OrderEmailData): string {
   if (data.mrpAmount && data.mrpAmount > data.totalAmount) {
     rows.push(`<tr><td style="padding:4px 0;font-size:13px;color:#71717a;">MRP Total</td><td align="right" style="padding:4px 0;font-size:13px;color:#71717a;">NPR ${data.mrpAmount.toLocaleString()}</td></tr>`);
   }
-  if (data.discountAmount && data.discountAmount > 0) {
+  if (data.discountOnMrp && data.discountOnMrp > 0) {
+    rows.push(`<tr><td style="padding:4px 0;font-size:13px;color:#3f9733;">Regular Discount</td><td align="right" style="padding:4px 0;font-size:13px;color:#3f9733;">- NPR ${data.discountOnMrp.toLocaleString()}</td></tr>`);
+  } else if (data.discountAmount && data.discountAmount > 0) {
+    // Fallback for older orders where discountOnMrp might not be set
     rows.push(`<tr><td style="padding:4px 0;font-size:13px;color:#3f9733;">Discount</td><td align="right" style="padding:4px 0;font-size:13px;color:#3f9733;">- NPR ${data.discountAmount.toLocaleString()}</td></tr>`);
   }
   if (data.couponDiscount && data.couponDiscount > 0) {
@@ -183,6 +189,12 @@ function pricingSummary(data: OrderEmailData): string {
   }
   if (data.shippingAmount !== undefined) {
     rows.push(`<tr><td style="padding:4px 0;font-size:13px;color:#71717a;">Shipping</td><td align="right" style="padding:4px 0;font-size:13px;color:#71717a;">${data.shippingAmount > 0 ? `NPR ${data.shippingAmount.toLocaleString()}` : '<span style="color:#3f9733;">FREE</span>'}</td></tr>`);
+  }
+  if (data.codFees && data.codFees > 0) {
+    rows.push(`<tr><td style="padding:4px 0;font-size:13px;color:#71717a;">COD Fee</td><td align="right" style="padding:4px 0;font-size:13px;color:#71717a;">NPR ${data.codFees.toLocaleString()}</td></tr>`);
+  }
+  if (data.taxAmount && data.taxAmount > 0) {
+    rows.push(`<tr><td style="padding:4px 0;font-size:13px;color:#71717a;">Tax</td><td align="right" style="padding:4px 0;font-size:13px;color:#71717a;">NPR ${data.taxAmount.toLocaleString()}</td></tr>`);
   }
 
   return `<tr>
@@ -441,10 +453,13 @@ export function adminOrderReceivedTemplate(data: OrderEmailData): string {
       <td style="padding:20px 30px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;">
           ${data.mrpAmount ? `<tr><td style="padding:5px 0;font-size:13px;color:#9ca3af;">MRP Total</td><td align="right" style="padding:5px 0;font-size:13px;color:#9ca3af;">NPR ${data.mrpAmount.toLocaleString()}</td></tr>` : ''}
-          ${data.discountAmount ? `<tr><td style="padding:5px 0;font-size:13px;color:#ef4444;">Regular Discount</td><td align="right" style="padding:5px 0;font-size:13px;color:#ef4444;">- NPR ${data.discountAmount.toLocaleString()}</td></tr>` : ''}
+          ${data.discountOnMrp ? `<tr><td style="padding:5px 0;font-size:13px;color:#ef4444;">Regular Discount</td><td align="right" style="padding:5px 0;font-size:13px;color:#ef4444;">- NPR ${data.discountOnMrp.toLocaleString()}</td></tr>` : 
+            (data.discountAmount ? `<tr><td style="padding:5px 0;font-size:13px;color:#ef4444;">Regular Discount</td><td align="right" style="padding:5px 0;font-size:13px;color:#ef4444;">- NPR ${data.discountAmount.toLocaleString()}</td></tr>` : '')}
           ${data.bundleDiscount ? `<tr><td style="padding:5px 0;font-size:13px;color:#ef4444;">Bundle Savings</td><td align="right" style="padding:5px 0;font-size:13px;color:#ef4444;">- NPR ${data.bundleDiscount.toLocaleString()}</td></tr>` : ''}
           ${data.couponDiscount ? `<tr><td style="padding:5px 0;font-size:13px;color:#ef4444;">Coupon Savings</td><td align="right" style="padding:5px 0;font-size:13px;color:#ef4444;">- NPR ${data.couponDiscount.toLocaleString()}</td></tr>` : ''}
           ${data.shippingAmount !== undefined ? `<tr><td style="padding:5px 0;font-size:13px;color:#9ca3af;">Shipping</td><td align="right" style="padding:5px 0;font-size:13px;color:#9ca3af;">NPR ${data.shippingAmount.toLocaleString()}</td></tr>` : ''}
+          ${data.codFees ? `<tr><td style="padding:5px 0;font-size:13px;color:#9ca3af;">COD Fee</td><td align="right" style="padding:5px 0;font-size:13px;color:#9ca3af;">NPR ${data.codFees.toLocaleString()}</td></tr>` : ''}
+          ${data.taxAmount ? `<tr><td style="padding:5px 0;font-size:13px;color:#9ca3af;">Tax</td><td align="right" style="padding:5px 0;font-size:13px;color:#9ca3af;">NPR ${data.taxAmount.toLocaleString()}</td></tr>` : ''}
           <tr>
             <td style="padding:15px 0 0;font-size:16px;font-weight:700;color:#000000;border-top:1px solid #eeeeee;text-transform:uppercase;">Grand Total</td>
             <td align="right" style="padding:15px 0 0;font-size:20px;font-weight:900;color:#000000;border-top:1px solid #eeeeee;">NPR ${data.totalAmount.toLocaleString()}</td>

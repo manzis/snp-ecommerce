@@ -192,13 +192,16 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
       discount = interactiveDiscount;
       finalPrice = currentPriceRaw;
 
+      const totalInteractiveItems = selectedProducts.length + 1;
+      const perItemDiscount = discount / totalInteractiveItems;
+
       bundleItems.push({
         id: getCartItemId({ product_id: mainProduct.id, selected_size: selectedSize, selected_flavor: activeFlavor, bundle_id: bundleId }),
         product_id: mainProduct.id,
         selected_size: selectedSize,
         selected_flavor: activeFlavor,
         bundle_id: bundleId,
-        bundle_discount: discount,
+        bundle_discount: perItemDiscount,
         name: mainProduct.name,
         slug: mainProduct.slug,
         brand: mainProduct.brands?.name || 'Store Product',
@@ -222,7 +225,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
           image: p.image_url || p.product.images?.[0] || '',
           quantity: 1,
           stock_status: p.product.stock_status || 'in_stock',
-          bundle_discount: 0
+          bundle_discount: perItemDiscount
         });
       });
     } else {
@@ -235,7 +238,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
       selections.forEach((s, i) => {
         const itemData = { product_id: mainProduct.id, selected_size: s.size, selected_flavor: s.flavor || 'Regular', bundle_id: bundleId };
         bundleItems.push({
-          id: getCartItemId(itemData) + `_${i}`,
+          id: getCartItemId(itemData),
           ...itemData,
           name: mainProduct.name,
           slug: mainProduct.slug,
@@ -245,7 +248,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
           image: s.image_url || currentProductImage || mainProduct.images?.[0] || '',
           quantity: 1,
           stock_status: mainProduct.stock_status || 'in_stock',
-          bundle_discount: i === 0 ? discount : 0
+          bundle_discount: discount / selections.length
         });
       });
     }

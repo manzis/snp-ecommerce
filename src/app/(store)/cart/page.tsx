@@ -76,8 +76,12 @@ export default function CartPage() {
     return items.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
   }, [items]);
 
+  const bundleDiscount = useMemo(() => {
+    return items.reduce((acc: number, item: any) => acc + (item.bundle_discount || 0), 0);
+  }, [items]);
+
   const couponDiscount = getCouponDiscount();
-  const finalTotal = subtotal - couponDiscount;
+  const finalTotal = subtotal - bundleDiscount - couponDiscount;
 
   // 2. HANDLERS
   const handleCheckout = () => {

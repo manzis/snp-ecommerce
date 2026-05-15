@@ -76,8 +76,8 @@ async function fetchOrderEmailData(orderId: string): Promise<OrderEmailData | nu
     .select(`
       id, total_amount, mrp_amount, status, payment_method,
       shipping_address, contact_details,
-      discount_amount, shipping_amount, coupon_discount, bundle_discount,
-      carrier_name, tracking_number,
+      discount_amount, shipping_amount, discount_on_mrp, coupon_discount, bundle_discount,
+      cod_fees, tax_amount, carrier_name, tracking_number,
       order_items (
         quantity, price, mrp, selected_size, selected_flavor,
         products (name, images)
@@ -124,9 +124,12 @@ async function fetchOrderEmailData(orderId: string): Promise<OrderEmailData | nu
     totalAmount: order.total_amount,
     mrpAmount: order.mrp_amount || undefined,
     discountAmount: order.discount_amount || undefined,
+    discountOnMrp: order.discount_on_mrp || undefined,
     shippingAmount: order.shipping_amount || undefined,
     couponDiscount: order.coupon_discount || undefined,
     bundleDiscount: order.bundle_discount || undefined,
+    codFees: order.cod_fees || undefined,
+    taxAmount: order.tax_amount || undefined,
     paymentMethod: order.payment_method,
     shippingAddress: {
       city: details.city || '',

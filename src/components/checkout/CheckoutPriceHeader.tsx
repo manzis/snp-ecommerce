@@ -50,7 +50,7 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
   };
 
   const bundleDiscountValue = bundleDiscount || 0;
-  const itemDiscountValue = mrp - subtotal - bundleDiscountValue;
+  const itemDiscountValue = mrp - subtotal;
 
   return (
     <div className="flex flex-col bg-white border-t border-[#f1f5f9] z-[1]">
