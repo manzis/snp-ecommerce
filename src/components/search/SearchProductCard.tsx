@@ -17,7 +17,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <Link
       href={`/product/${product.slug}`}
-      prefetch={false}
+
       className={`group relative flex w-full flex-col gap-[4px] border-r border-b border-[#e8e8e8] bg-white transition-all active:scale-[0.98] lg:gap-0 ${product.stock_status === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
     >
       {/* IMAGE & BADGES CONTAINER */}

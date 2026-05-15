@@ -20,7 +20,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, count, image, slug, 
   return (
     <Link 
       href={`/category/${slug}`}
-      prefetch={false}
+
       className="group relative flex h-[217px] w-full flex-col items-center overflow-hidden rounded-[12px] border border-[#f1f5f9] bg-white transition-all duration-300 hover:-translate-y-1 active:scale-95"
     >
       {/* Background Image */}

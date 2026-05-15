@@ -106,7 +106,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
     return (
         <Link
             href={`/product/${deal.id}`}
-            prefetch={false}
+
             className={`relative flex bg-white border border-[#f2f9f1] rounded-[20px] p-[8px] transition-transform active:scale-[0.98] ${isWide ? 'flex-row items-center gap-[12px]' : 'flex-col justify-between gap-[8px]'} ${className}`}
         >
             {/* DISCOUNT BADGE */}
