@@ -10,6 +10,7 @@ import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElem
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
+import Script from 'next/script';
 import LazyLoginModal from '@/components/auth/LazyLoginModal';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -86,7 +87,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect Supabase — critical for image loading and auth */}
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL!} crossOrigin="anonymous" />
-        {/* Viewport is managed by Next.js automatically — no override needed */}
+        <Script
+          id="viewport-scaler-script"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var designWidth = 410;
+                  function setViewport() {
+                    var w = window.screen.width;
+                    var content = w < designWidth 
+                      ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no'
+                      : 'width=device-width, initial-scale=1';
+                    
+                    var meta = document.querySelector('meta[name="viewport"]');
+                    if (!meta) {
+                      meta = document.createElement('meta');
+                      meta.name = 'viewport';
+                      meta.id = 'manual-viewport';
+                      document.head.appendChild(meta);
+                    }
+                    meta.content = content;
+                  }
+                  setViewport();
+                  
+                  var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                      mutation.addedNodes.forEach(function(node) {
+                        if (node.name === 'viewport') { 
+                          setViewport();
+                        }
+                      });
+                    });
+                  });
+                  observer.observe(document.head, { childList: true });
+                } catch (e) {
+                  console.error('Viewport script error:', e);
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
         {/* Organization + WebSite JSON-LD — global structured data for Google */}
