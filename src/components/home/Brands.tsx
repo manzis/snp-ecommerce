@@ -63,6 +63,7 @@ const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
                         >
                             <Link
                                 href={`/brand/${brand.slug}`}
+                                prefetch={false}
                                 className="group flex flex-col items-center gap-[12px] md:gap-[16px]"
                             >
                                 <div className="relative flex h-[105px] w-[100px] items-center justify-center overflow-hidden rounded-[16px] border-[1.5px] border-[#f1f5f9] bg-[#fafafa] transition-all duration-300 group-hover:border-[#308026] group-hover:bg-white group-hover:shadow-lg md:h-[130px] md:w-[130px] lg:h-[180px] lg:w-[180px]">

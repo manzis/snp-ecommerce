@@ -27,6 +27,7 @@ const PopularProducts: React.FC<PopularProductsProps> = ({ products = [] }) => {
           <Link
             key={product.id}
             href={`/product/${product.slug}`}
+            prefetch={false}
             className="flex w-[141px] shrink-0 flex-col overflow-hidden rounded-[12px] border border-[#f1f5f9] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] transition-all"
           >
             {/* Image Container */}

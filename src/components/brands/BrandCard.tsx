@@ -32,6 +32,7 @@ const BrandCard: React.FC<BrandCardProps> = ({ brand, layout, colors }) => {
   return (
     <Link
       href={`/brand/${brand.slug}`}
+      prefetch={false}
       className={`group flex flex-col gap-[11px] shrink-0 transition-all active:scale-[0.98] cursor-pointer ${isPopular ? 'w-[147px]' : 'w-full'
         }`}
     >

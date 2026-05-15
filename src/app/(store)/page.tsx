@@ -73,8 +73,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// ISR: longer CDN cache for faster repeated visits
-export const revalidate = 900;
+// ISR: Cache handled by unstable_cache in services (604800s TTL + on-demand revalidateTag).
+// No route-level revalidate timer needed — eliminates unnecessary periodic ISR writes.
 
 export default async function HomePage() {
   // Keep above-the-fold work minimal for faster first paint.

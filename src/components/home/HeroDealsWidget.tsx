@@ -46,7 +46,7 @@ const HeroDealsWidget: React.FC<HeroDealsWidgetProps> = ({ deals = [] }) => {
 };
 
 const WidgetCard = ({ deal, className, isWide }: { deal: Deal; className: string; isWide?: boolean }) => (
-    <Link href={`/product/${deal.id}`} className={`relative flex bg-white/90 rounded-[16px] p-[6px] border border-white/20 transition-transform active:scale-95 ${isWide ? 'flex-row items-center gap-[10px] h-full' : 'flex-col justify-between h-full'} ${className}`}>
+    <Link href={`/product/${deal.id}`} prefetch={false} className={`relative flex bg-white/90 rounded-[16px] p-[6px] border border-white/20 transition-transform active:scale-95 ${isWide ? 'flex-row items-center gap-[10px] h-full' : 'flex-col justify-between h-full'} ${className}`}>
         <div className="absolute top-[6px] right-[6px] z-10 rounded-[4px] bg-[#94ff00] px-[4px] py-[1px]">
             <span className="font-custom text-[8px] text-[#242424]">save {deal.discount}%</span>
         </div>

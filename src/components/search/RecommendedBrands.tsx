@@ -26,6 +26,7 @@ const RecommendedBrands: React.FC<RecommendedBrandsProps> = ({ brands = [] }) =>
           <Link 
             key={brand.id} 
             href={`/brand/${brand.slug}`}
+            prefetch={false}
             className="flex h-[100px] w-[86px] shrink-0 flex-col gap-[5px] active:scale-95 transition-all"
           >
             <div className="relative flex flex-1 overflow-hidden rounded-[12px] border border-[#f1f5f9]">

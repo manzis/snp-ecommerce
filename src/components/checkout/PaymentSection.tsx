@@ -162,7 +162,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       icon={
                         <div className="relative w-[18px] h-[18px]">
                           <Image
-                            src="/images/cod-icon.png"
+                            src="/images/cod.png
+                            "
                             alt="Cash on Delivery"
                             fill
                             className="object-contain"

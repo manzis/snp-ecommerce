@@ -36,6 +36,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return (
         <Link
             href={`/product/${slug}`}
+            prefetch={false}
             className={`group relative flex h-[261px] w-full max-w-[199px] flex-shrink-0 flex-col items-center gap-[10px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[8px] transition-all active:scale-[0.98] md:max-w-full lg:h-[320px] lg:max-w-[250px] ${finalStockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
         >
             {/* RATING BADGE (TOP LEFT) */}

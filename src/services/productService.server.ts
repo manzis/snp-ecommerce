@@ -16,45 +16,45 @@ export const fetchProducts = cache(unstable_cache(
   async (options?: { brandSlug?: string; categorySlug?: string; search?: string }) => 
     baseService.fetchProducts(options),
   ['products-list'],
-  { revalidate: 900, tags: ['products'] }
+  { revalidate: 604800, tags: ['products'] }
 ));
 
 export const fetchProductBySlug = cache(unstable_cache(
   async (slug: string, options?: { requirePublished?: boolean }) => 
     baseService.fetchProductBySlug(slug, options),
   ['product-by-slug'],
-  { revalidate: 300, tags: ['products'] }
+  { revalidate: 604800, tags: ['products'] }
 ));
 
 export const fetchCategoryBySlug = cache(unstable_cache(
   async (slug: string) => baseService.fetchCategoryBySlug(slug),
   ['category-by-slug'],
-  { revalidate: 900, tags: ['categories'] }
+  { revalidate: 604800, tags: ['categories'] }
 ));
 
 export const fetchBrandBySlug = cache(unstable_cache(
   async (slug: string) => baseService.fetchBrandBySlug(slug),
   ['brand-by-slug'],
-  { revalidate: 900, tags: ['brands'] }
+  { revalidate: 604800, tags: ['brands'] }
 ));
 
 export const fetchRelatedProducts = cache(unstable_cache(
   async (baseProductId: string, categoryId: string | null | undefined, limit: number = 10) => 
     baseService.fetchRelatedProducts(baseProductId, categoryId, limit),
   ['related-products'],
-  { revalidate: 300, tags: ['products'] }
+  { revalidate: 604800, tags: ['products'] }
 ));
 
 export const fetchProductReviews = cache(unstable_cache(
   async (productId: string) => baseService.fetchProductReviews(productId),
   ['product-reviews'],
-  { revalidate: 300, tags: ['products'] }
+  { revalidate: 604800, tags: ['products'] }
 ));
 
 export const fetchProductQA = cache(unstable_cache(
   async (productId: string) => baseService.fetchProductQA(productId),
   ['product-qa'],
-  { revalidate: 300, tags: ['products'] }
+  { revalidate: 604800, tags: ['products'] }
 ));
 
 /**
@@ -66,20 +66,20 @@ export const fetchHomepageProducts = cache(async (sectionKey?: string) => {
   return unstable_cache(
     async (key?: string) => baseService.fetchHomepageProducts(key),
     ['homepage-products', sectionKey || 'default'],
-    { revalidate: 900, tags: ['products', 'homepage'] }
+    { revalidate: 604800, tags: ['products', 'homepage'] }
   )(sectionKey);
 });
 
 export const fetchBrands = cache(unstable_cache(
   async (includeCounts: boolean = true) => baseService.fetchBrands(includeCounts),
   ['brands-list'],
-  { revalidate: 900, tags: ['brands'] }
+  { revalidate: 604800, tags: ['brands'] }
 ));
 
 export const fetchHomeTestimonials = cache(unstable_cache(
   async () => baseService.fetchHomeTestimonials(),
   ['home-testimonials'],
-  { revalidate: 900, tags: ['reviews'] }
+  { revalidate: 604800, tags: ['reviews'] }
 ));
 
 /**
@@ -119,5 +119,5 @@ export const fetchHomepageFullData = cache(unstable_cache(
     };
   },
   ['homepage-full-data-v1'],
-  { revalidate: 900, tags: ['products', 'brands', 'banners', 'reviews', 'homepage'] }
+  { revalidate: 604800, tags: ['products', 'brands', 'banners', 'reviews', 'homepage'] }
 ));

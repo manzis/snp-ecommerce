@@ -3,65 +3,69 @@ import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 const BASE_URL = 'https://www.brightsupplements.store';
 
-// Regenerate every 6 hours (saves ISR writes vs force-dynamic which regenerates every request)
-export const revalidate = 21600;
+// Regenerate once a week (safety net; primarily refreshed via on-demand revalidation)
+export const revalidate = 604800;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = getSupabaseAdmin();
+
+  // Use a fixed date for static pages to prevent non-deterministic output.
+  // Dynamic entries (products, brands, categories) use their actual updated_at from the DB.
+  const staticLastModified = new Date('2026-01-01');
 
   // ── Static core pages ────────────────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
       url: `${BASE_URL}/products`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'daily',
       priority: 0.95,
     },
     {
       url: `${BASE_URL}/brands`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'weekly',
       priority: 0.85,
     },
     {
       url: `${BASE_URL}/essentials`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'weekly',
       priority: 0.75,
     },
     {
       url: `${BASE_URL}/contact`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/shipping`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/distributor`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/refund`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'monthly',
       priority: 0.4,
     },
     {
       url: `${BASE_URL}/terms`,
-      lastModified: new Date(),
+      lastModified: staticLastModified,
       changeFrequency: 'monthly',
       priority: 0.3,
     },

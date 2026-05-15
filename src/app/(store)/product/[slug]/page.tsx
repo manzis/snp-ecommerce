@@ -29,14 +29,15 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Add generateStaticParams for ISR (Incremental Static Regeneration)
-// This pre-renders all published products at build time for instant loading.
+// Return empty paths — products are generated on first request and cached indefinitely.
+// This eliminates the massive ISR write spike from pre-rendering all products at build time.
+// Cache is busted on-demand via revalidateTag('products') when admin edits a product.
 export async function generateStaticParams() {
-  const products = await fetchProducts();
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
+  return [];
 }
+
+// Allow dynamic params not in generateStaticParams to be rendered on-demand
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;

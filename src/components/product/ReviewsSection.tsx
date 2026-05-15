@@ -9,7 +9,7 @@ import MediaLightbox, { LightboxMedia } from '@/components/ui/MediaLightBox'; //
 import StarIcon from '@/components/icons/GreenStar';
 import VerifiedIcon from '@/components/icons/VerifiedIcon';
 import DropDownIcon from '@/components/icons/DropDownIcon';
-import PostIcon from '@/components/icons/GreenStar';
+import PostIcon from '@/components/icons/EditIcon';
 
 import type { Review } from '@/services/productService';
 

@@ -19,6 +19,7 @@ const HomeCategories: React.FC = () => {
                         // UNIQUE PREFIX: Prevents collision with categories on other pages
                         key={`home-section-cat-${cat.slug}`}
                         href={`/category/${cat.slug}`}
+                        prefetch={false}
                         className="group flex flex-col items-center gap-[8px] shrink-0"
                     >
                         <div className="relative h-[75px] w-[75px] rounded-[12px] border-[1.5px] border-[#f1f5f9] bg-[#fafafa] transition-all group-hover:border-[#308026] md:h-[100px] md:w-[100px] lg:w-[120px] lg:h-[120px]">

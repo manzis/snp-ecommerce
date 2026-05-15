@@ -48,6 +48,7 @@ const ProductHeader = ({
         {/* Brand Row: Logo + Name + Redirect */}
         <Link
           href={`/brand/${brand.slug}`}
+          prefetch={false}
           className="group flex items-center gap-[4px] hover:opacity-80 transition-opacity duration-150"
         >
           {/* Brand Logo */}

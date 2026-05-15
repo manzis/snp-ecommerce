@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 /**
  * Server action to delete a brand securely
@@ -36,6 +36,9 @@ export async function deleteBrandAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/brands');
+    revalidatePath('/brand/[slug]', 'page');
+    revalidatePath('/', 'layout');
+    revalidateTag('brands', 'max');
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: deleteBrandAction:', error);
@@ -76,6 +79,9 @@ export async function updateBrandAction(id: string, updates: any) {
     if (error) throw error;
 
     revalidatePath('/admin/brands');
+    revalidatePath('/brand/[slug]', 'page');
+    revalidatePath('/', 'layout');
+    revalidateTag('brands', 'max');
     return { success: true, data: data[0] };
   } catch (error: any) {
     console.error('Action Error: updateBrandAction:', error);
@@ -115,6 +121,9 @@ export async function createBrandAction(brandData: any) {
     if (error) throw error;
 
     revalidatePath('/admin/brands');
+    revalidatePath('/brand/[slug]', 'page');
+    revalidatePath('/', 'layout');
+    revalidateTag('brands', 'max');
     return { success: true, data: data[0] };
   } catch (error: any) {
     console.error('Action Error: createBrandAction:', error);
