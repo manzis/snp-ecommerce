@@ -15,7 +15,7 @@ const ServicesMarquee = dynamic(() => import('@/components/home/ServicesMarquee'
 const SubscribeSection = dynamic(() => import('@/components/home/SubscribeSection'));
 const HomeFaqSection = dynamic(() => import('@/components/home/HomeFaqSection'));
 const ProductBanners = dynamic(() => import('@/components/product/ProductBanners'));
-const LazySection = dynamic(() => import('@/components/optimization/LazySection'));
+
 import ProductGridSectionSkeleton from '@/components/home/ProductGridSectionSkeleton';
 import { 
   fetchHomepageFullData,
@@ -154,40 +154,38 @@ async function HomeDeferredSections() {
   return (
     <>
       {bestSellingProducts.length > 0 && (
-        <LazySection minHeight="350px" rootMargin="1000px" className="w-full">
+        <div className="w-full">
           <ProductGridSection
             title="Best Sellers"
             products={mapToGrid(bestSellingProducts)}
           />
-        </LazySection>
+        </div>
       )}
 
-      <LazySection minHeight="200px" rootMargin="1000px" className="w-full">
+      <div className="w-full">
         <Brands brands={mappedBrands} />
-      </LazySection>
+      </div>
 
       {popularProducts.length > 0 && (
-        <LazySection minHeight="350px" rootMargin="1000px" className="w-full">
+        <div className="w-full">
           <ProductGridSection
             title="Popular Products"
             products={mapToGrid(popularProducts)}
           />
-        </LazySection>
+        </div>
       )}
 
-      <LazySection minHeight="300px" rootMargin="1000px" className="w-full">
+      <div className="w-full">
         <FeatureBanners />
-      </LazySection>
+      </div>
 
       {activeBanners.length > 0 && (
-        <LazySection minHeight="500px" rootMargin="1000px" className="w-full">
-          <div className="w-full">
-            <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
-          </div>
-        </LazySection>
+        <div className="w-full">
+          <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
+        </div>
       )}
 
-      <LazySection minHeight="400px" rootMargin="1000px" className="w-full">
+      <div className="w-full">
         <TestimonialSection testimonials={
           homeTestimonials.map((t, idx) => {
             const isAnonymous = !t.author || t.author.toLowerCase().includes('user') || t.author.toLowerCase().includes('anonymous');
@@ -208,36 +206,34 @@ async function HomeDeferredSections() {
             };
           })
         } />
-      </LazySection>
+      </div>
 
       {newArrivalsProducts.length > 0 && (
-        <LazySection minHeight="350px" rootMargin="1000px" className="w-full">
+        <div className="w-full">
           <ProductGridSection
             title="New Arrivals"
             products={mapToGrid(newArrivalsProducts)}
           />
-        </LazySection>
+        </div>
       )}
 
-      <LazySection minHeight="200px" rootMargin="1000px" className="w-full">
+      <div className="w-full">
         <ServicesMarquee />
-      </LazySection>
+      </div>
 
-      <LazySection minHeight="200px" rootMargin="1000px" className="w-full">
+      <div className="w-full">
         <SubscribeSection />
-      </LazySection>
+      </div>
 
       {activeBanners.length > 1 && (
-        <LazySection minHeight="500px" rootMargin="1000px" className="w-full">
-          <div className="w-full">
-            <ProductBanners linkedBanners={activeBanners.slice(1).map(b => ({ banner: b }))} />
-          </div>
-        </LazySection>
+        <div className="w-full">
+          <ProductBanners linkedBanners={activeBanners.slice(1).map(b => ({ banner: b }))} />
+        </div>
       )}
 
-      <LazySection minHeight="300px" rootMargin="1000px" className="w-full">
+      <div className="w-full">
         <HomeFaqSection />
-      </LazySection>
+      </div>
 
       <section className="w-full px-[24px] py-[40px] text-center max-w-[800px] mx-auto opacity-70">
         <p className="font-titillium text-[14px] leading-[22px] text-[#535353]">

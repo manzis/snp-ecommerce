@@ -113,7 +113,7 @@ export default function ProductJsonLd({
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://brightsupplements.store',
+            item: 'https://www.brightsupplements.store',
           },
           ...breadcrumbs.map((bc, idx) => ({
             '@type': 'ListItem',

@@ -17,8 +17,8 @@ export default function QuickLinksNav() {
       label: 'Quick Links',
       items: [
         { text: 'Products', href: '/products', type: 'link' },
-        { text: 'Brands', href: '/brand', type: 'link' },
-        { text: 'Categories', href: '/category', type: 'link' },
+        { text: 'Brands', href: '/brands', type: 'link' },
+        { text: 'Categories', href: '/products', type: 'link' },
         { text: 'Essentials', href: '/essentials', type: 'link' },
       ]
     },

@@ -20,7 +20,7 @@ interface BrandJsonLdProps {
   products?: BrandProduct[];
 }
 
-const SITE_URL = 'https://brightsupplements.store';
+const SITE_URL = 'https://www.brightsupplements.store';
 const STORE_NAME = 'Supplyment Nepal';
 
 const STOCK_STATUS_MAP: Record<string, string> = {

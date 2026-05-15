@@ -173,9 +173,9 @@ async function ProductContent({ slug }: { slug: string }) {
         reviewCount={product.reviews_count}
         category={product.categories?.name}
         breadcrumbs={[
-          { name: product.categories?.name || 'Category', url: `https://brightsupplements.store/category/${product.categories?.slug || ''}` },
-          { name: product.brands?.name || 'Brand', url: `https://brightsupplements.store/brand/${product.brands?.slug || ''}` },
-          { name: product.name, url: `https://brightsupplements.store/product/${product.slug}` },
+          { name: product.categories?.name || 'Category', url: `https://www.brightsupplements.store/category/${product.categories?.slug || ''}` },
+          { name: product.brands?.name || 'Brand', url: `https://www.brightsupplements.store/brand/${product.brands?.slug || ''}` },
+          { name: product.name, url: `https://www.brightsupplements.store/product/${product.slug}` },
         ]}
         faqs={faqData}
         priceOverride={(dbOverride as any)?.rich_snippet_data?.price ? Number((dbOverride as any).rich_snippet_data.price) : undefined}
