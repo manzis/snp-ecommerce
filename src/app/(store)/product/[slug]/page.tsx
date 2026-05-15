@@ -32,12 +32,12 @@ interface ProductPageProps {
 // Return empty paths — products are generated on first request and cached indefinitely.
 // This eliminates the massive ISR write spike from pre-rendering all products at build time.
 // Cache is busted on-demand via revalidateTag('products') when admin edits a product.
-// Pre-render top 24 products to ensure instant loading for best-sellers.
+// Pre-render top 50 products to ensure instant loading for best-sellers.
 // Other products are generated on first request and cached indefinitely.
 export async function generateStaticParams() {
   try {
     const products = await fetchProducts();
-    return products.slice(0, 24).map((product) => ({
+    return products.slice(0, 50).map((product) => ({
       slug: product.slug,
     }));
   } catch (error) {
