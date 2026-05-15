@@ -26,6 +26,32 @@ export const fetchProductBySlug = cache(unstable_cache(
   { revalidate: 604800, tags: ['products'] }
 ));
 
+/**
+ * LIGHTWEIGHT SEO FETCHER
+ * Fetches only what is needed for generateMetadata to resolve faster.
+ */
+export const fetchProductSEO = cache(unstable_cache(
+  async (slug: string) => {
+    const admin = getSupabaseAdmin();
+    if (!admin) return null;
+    const { data } = await admin
+      .from('products')
+      .select('id, name, title, slug, images, brands(name), categories(name)')
+      .eq('slug', slug)
+      .single();
+    
+    if (!data) return null;
+
+    return {
+      ...data,
+      brands: Array.isArray(data.brands) ? data.brands[0] : data.brands,
+      categories: Array.isArray(data.categories) ? data.categories[0] : data.categories
+    } as any;
+  },
+  ['product-seo-only'],
+  { revalidate: 604800, tags: ['products'] }
+));
+
 export const fetchCategoryBySlug = cache(unstable_cache(
   async (slug: string) => baseService.fetchCategoryBySlug(slug),
   ['category-by-slug'],

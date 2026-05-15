@@ -16,7 +16,7 @@ import WhyChooseUs from '@/components/product/WhyChooseUs';
 import FeaturedProductsSection from '@/components/product/FeaturedProductsSection';
 import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
-import { fetchProducts, fetchProductBySlug, fetchRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
+import { fetchProducts, fetchProductBySlug, fetchProductSEO, fetchRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { preload } from 'react-dom';
@@ -32,8 +32,18 @@ interface ProductPageProps {
 // Return empty paths — products are generated on first request and cached indefinitely.
 // This eliminates the massive ISR write spike from pre-rendering all products at build time.
 // Cache is busted on-demand via revalidateTag('products') when admin edits a product.
+// Pre-render top 24 products to ensure instant loading for best-sellers.
+// Other products are generated on first request and cached indefinitely.
 export async function generateStaticParams() {
-  return [];
+  try {
+    const products = await fetchProducts();
+    return products.slice(0, 24).map((product) => ({
+      slug: product.slug,
+    }));
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error);
+    return [];
+  }
 }
 
 // Allow dynamic params not in generateStaticParams to be rendered on-demand
@@ -42,9 +52,9 @@ export const dynamicParams = true;
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   
-  // Parallelize ALL data fetching for the head
+  // Parallelize ONLY the essential SEO data to unblock the page shell
   const [product, gSeo, dbOverride] = await Promise.all([
-    fetchProductBySlug(slug),
+    fetchProductSEO(slug),
     getSeoGlobal(),
     getSeoProductBySlug(slug), 
   ]);
@@ -297,11 +307,14 @@ async function ProductContent({ slug }: { slug: string }) {
   );
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params;
-
+/**
+ * PRODUCT PAGE ENTRY POINT
+ * This component is intentionally NOT async to allow the Suspense 
+ * shell (skeleton) to be sent to the browser immediately.
+ */
+export default function ProductPage({ params }: ProductPageProps) {
   return (
-    <article className="relative min-h-screen ">
+    <article className="relative min-h-screen">
       <Suspense fallback={
         <>
           <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5]">
@@ -310,10 +323,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductPageSkeleton />
         </>
       }>
-        <ProductContent slug={slug} />
+        <ProductContentWrapper params={params} />
       </Suspense>
     </article>
   );
+}
+
+async function ProductContentWrapper({ params }: ProductPageProps) {
+    const { slug } = await params;
+    return <ProductContent slug={slug} />;
 }
 
 
