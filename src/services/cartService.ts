@@ -146,8 +146,7 @@ export const removeCartItem = async (userId: string, item: CartItemType) => {
   else query = query.is('selected_flavor', null);
 
   const bundleId = item.bundle_id || 'standard';
-  const bundleDiscount = item.bundle_discount || 0;
-  query = query.eq('bundle_id', bundleId).eq('bundle_discount', bundleDiscount);
+  query = query.eq('bundle_id', bundleId);
 
   const { error } = await query;
   if (error) console.error('Error removing cart item:', error);

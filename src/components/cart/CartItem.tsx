@@ -52,9 +52,9 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
   const bundleTotalDiscount = React.useMemo(() => {
     if (!item.bundle_id) return 0;
-    return items
+    return Math.round(items
       .filter(i => i.bundle_id === item.bundle_id)
-      .reduce((acc, i) => acc + (i.bundle_discount || 0), 0);
+      .reduce((acc, i) => acc + ((i.bundle_discount || 0) * i.quantity), 0));
   }, [items, item.bundle_id]);
 
   return (
@@ -104,23 +104,22 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
 
           <div className="flex items-center gap-[6px]">
-            {item.mrp > (item.price - (item.bundle_discount || 0) / item.quantity) && (
+            {item.mrp > (item.price - (item.bundle_discount || 0)) && (
               <div className="flex items-center text-[#308026] mr-[4px]">
                 <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
                 <span className="font-titillium text-[18px] font-semibold tracking-[-1.26px]">
-                  {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0) / item.quantity)) / item.mrp) * 100)}%
+                  {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0))) / item.mrp) * 100)}%
                 </span>
               </div>
             )}
-            {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0) / item.quantity) && (
+            {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0)) && (
               <span className="font-titillium text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
                 Rs. {item.mrp.toLocaleString()}
               </span>
             )}
             <span className="font-custom text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
-              Rs. {(item.price - (item.bundle_discount || 0) / item.quantity).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+              Rs. {Math.round(item.price - (item.bundle_discount || 0)).toLocaleString()}
             </span>
-
           </div>
 
 

@@ -345,7 +345,7 @@ export default function CheckoutPage() {
   const couponCodeValue = coupon?.code || "";
 
   const bundleDiscount = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + (item.bundle_discount || 0), 0);
+    return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
   }, [items]);
 
   const shippingCharge = deliveryData?.shippingPrice || 0;

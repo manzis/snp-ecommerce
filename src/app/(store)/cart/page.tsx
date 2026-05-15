@@ -77,11 +77,15 @@ export default function CartPage() {
   }, [items]);
 
   const bundleDiscount = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + (item.bundle_discount || 0), 0);
+    return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
   }, [items]);
 
   const couponDiscount = getCouponDiscount();
-  const finalTotal = subtotal - bundleDiscount - couponDiscount;
+  
+  // Final total should be exactly what's shown in CartSummary
+  const finalTotal = useMemo(() => {
+    return Math.round(subtotal - bundleDiscount - couponDiscount);
+  }, [subtotal, bundleDiscount, couponDiscount]);
 
   // 2. HANDLERS
   const handleCheckout = () => {
@@ -209,8 +213,8 @@ export default function CartPage() {
               <div className="hidden lg:block">
                 <CartCheckoutBar
                   isStatic={true}
-                  totalAmount={`NPR ${finalTotal}`}
-                  mrpAmount={`NPR ${totalMRP}`}
+                  totalAmount={`NPR ${finalTotal.toLocaleString()}`}
+                  mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
                   onCheckout={handleCheckout}
                 />
               </div>

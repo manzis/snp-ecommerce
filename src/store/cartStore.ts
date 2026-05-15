@@ -55,7 +55,7 @@ export const useCartStore = create<CartState>()(
             const existing = { ...newItems[existingIndex] };
             existing.quantity += item.quantity;
             // Sum bundle discounts when merging identical units in same bundle
-            existing.bundle_discount = (existing.bundle_discount || 0) + (item.bundle_discount || 0);
+            existing.bundle_discount = item.bundle_discount || 0;
             newItems[existingIndex] = existing;
             if (state.userId) updateCartItem(state.userId, existing, existing.quantity);
           } else {
@@ -79,7 +79,7 @@ export const useCartStore = create<CartState>()(
               ...updatedItems[existingIndex],
               quantity: updatedItems[existingIndex].quantity + item.quantity,
               // Sum bundle discounts during batch merging
-              bundle_discount: (updatedItems[existingIndex].bundle_discount || 0) + (item.bundle_discount || 0)
+              bundle_discount: item.bundle_discount || 0
             };
           } else {
             updatedItems.push(item);
@@ -125,9 +125,7 @@ export const useCartStore = create<CartState>()(
           // Atomic Bundle Quantity Update: Update ALL items in the bundle
           newItems = items.map(i => {
             if (i.bundle_id === item.bundle_id) {
-              // Scale the total line discount proportional to the quantity change
-              const scaleFactor = quantity / i.quantity;
-              const newBundleDiscount = (i.bundle_discount || 0) * scaleFactor;
+              const newBundleDiscount = i.bundle_discount || 0;
 
               const updatedItem = { ...i, quantity, bundle_discount: newBundleDiscount };
               if (userId) updateCartItem(userId, updatedItem, quantity);

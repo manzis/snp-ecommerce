@@ -20,7 +20,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
     [items]);
 
   const bundleDiscount = useMemo(() =>
-    items.reduce((acc, item) => acc + (item.bundle_discount || 0), 0),
+    Math.round(items.reduce((acc, item) => acc + ((item.bundle_discount || 0) * item.quantity), 0)),
     [items]);
 
 

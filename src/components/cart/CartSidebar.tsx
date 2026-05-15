@@ -83,8 +83,14 @@ export default function CartSidebar() {
     return items.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
   }, [items]);
 
+  const bundleDiscount = useMemo(() => {
+    return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
+  }, [items]);
+
   const couponDiscount = getCouponDiscount();
-  const finalTotal = subtotal - couponDiscount;
+  const finalTotal = useMemo(() => {
+    return Math.round(subtotal - bundleDiscount - couponDiscount);
+  }, [subtotal, bundleDiscount, couponDiscount]);
 
   // 2. HANDLERS
   const handleCheckout = () => {
@@ -234,8 +240,8 @@ export default function CartSidebar() {
               <div className="bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
                 <CartCheckoutBar
                   isStatic={true}
-                  totalAmount={`NPR ${finalTotal}`}
-                  mrpAmount={`NPR ${totalMRP}`}
+                  totalAmount={`NPR ${finalTotal.toLocaleString()}`}
+                  mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
                   onCheckout={handleCheckout}
                 />
               </div>

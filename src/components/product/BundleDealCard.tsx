@@ -127,7 +127,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
     setSelectedProducts(selectedProducts.filter((_, i) => i !== index));
   };
 
-  const interactiveDiscount = selectedProducts.length === 1 ? 20 : selectedProducts.length === 2 ? 50 : 0;
+  const interactiveDiscount = selectedProducts.length === 1 ? 20 : selectedProducts.length === 2 ? 60 : 0;
   const itemsPrice = selectedProducts.reduce((sum, p) => sum + p.price, 0);
   const itemsMRP = selectedProducts.reduce((sum, p) => sum + p.mrp, 0);
 
@@ -318,12 +318,12 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[16px] font-bold text-[#242424]">
-                      {selectedProducts.length === 0 ? 'Rs. 20 off' : selectedProducts.length === 1 ? 'Rs. 50 off' : 'Rs. 50 Saved!'}
+                      {selectedProducts.length === 0 ? 'Rs. 20 off' : selectedProducts.length === 1 ? 'Rs. 40 off' : 'Rs. 60 Saved!'}
                     </span>
                     <div className="flex items-center gap-1">
                       <span className="text-[13px] text-[#71717a]">
                         {selectedProducts.length === 0 ? 'Add 1 more item to unlock Rs. 20 off' :
-                          selectedProducts.length === 1 ? 'Add 1 more to unlock total Rs. 50 off' :
+                          selectedProducts.length === 1 ? 'Add 1 more to get Rs. 40 more off' :
                             'Maximum bundle discount applied!'}
                       </span>
                       {selectedProducts.length < 2 && <ChevronLeftIcon className="w-3 h-3 text-[#71717a] rotate-180" />}
@@ -384,7 +384,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                     <div className="w-full h-full p-1 flex items-center justify-center">
                       {selectedProducts[1] ? (
                         <>
-                          <SavingsBadge text="Rs. 50 Saved" type="saved" />
+                          <SavingsBadge text="Rs. 60 Saved" type="saved" />
                           <Image src={selectedProducts[1].image_url || selectedProducts[1].product.images[0]} alt="p2" width={48} height={48} className="object-contain" />
                           <button onClick={(e) => { e.stopPropagation(); removeProduct(1); }} className="absolute -top-1 -right-1 bg-white rounded-full p-0.5 border border-zinc-200 shadow-sm text-red-500 hover:bg-red-50 transition-transform hover:scale-110">
                             <CloseIcon className="w-2.5 h-2.5" />
@@ -393,7 +393,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       ) : (
                         <>
                           <PlusIcon className="w-5 h-5 text-[#d1d1d6]" />
-                          <SavingsBadge text="Save Rs. 50" type="available" />
+                          <SavingsBadge text="Save Rs. 40" type="available" />
                         </>
                       )}
                     </div>
