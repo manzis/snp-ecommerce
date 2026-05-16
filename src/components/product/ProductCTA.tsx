@@ -88,7 +88,7 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 400, damping: 30, mass: 0.8 }}
+          transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
           className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden"
           style={{
             paddingBottom: 'env(safe-area-inset-bottom)',

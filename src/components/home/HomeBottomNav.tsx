@@ -91,7 +91,7 @@ const HomeBottomNav: React.FC = () => {
                             opacity: isScrollVisible ? 1 : 0
                         }}
                         exit={{ y: 20, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+                        transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
                         className="pointer-events-auto mb-[12px]"
                     >
                         <div
@@ -137,7 +137,7 @@ const HomeBottomNav: React.FC = () => {
                     y: isScrollVisible ? 0 : 100,
                     opacity: isScrollVisible ? 1 : 0
                 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+                transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
                 className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white  px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] will-change-transform"
                 style={{
                     paddingBottom: 'env(safe-area-inset-bottom)',
@@ -154,7 +154,7 @@ const HomeBottomNav: React.FC = () => {
                                 className="absolute top-0 h-full w-[20%]"
                                 initial={false}
                                 animate={{ x: `${activeIndex * 100}%` }}
-                                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                                transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
                             >
                                 <div className="absolute top-0 left-1/2 h-[4px] w-[32px] -translate-x-1/2 rounded-b-[12px] bg-[#3f9633] z-[3]" />
                                 <div
