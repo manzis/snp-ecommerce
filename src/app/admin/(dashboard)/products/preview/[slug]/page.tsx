@@ -7,6 +7,7 @@ import ServiceHighlights from '@/components/product/ServiceHighlight';
 import ProductHighlights from '@/components/product/ProductHighlight';
 import ProductDetails from '@/components/product/ProductDetails';
 import ProductBanners from '@/components/product/ProductBanners';
+import LegacyProductBanners from '@/components/product/LegacyProductBanners';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
@@ -74,8 +75,20 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                       flavours={product.product_flavours || []}
                     />
 
+                    {product.highlights && product.highlights.length > 0 && (
+                      <div className="hidden lg:block">
+                        <ProductHighlights highlights={product.highlights} />
+                      </div>
+                    )}
+
                     <div className="hidden lg:block">
-                      <ProductHighlights highlights={product.highlights || []} />
+                      <ProductDetails product={product} />
+                    </div>
+
+                    <div className="hidden lg:block">
+                      <div className="mt-8">
+                        <ReviewsSection reviews={reviews} />
+                      </div>
                     </div>
                   </div>
 
@@ -99,14 +112,16 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                       <Availability stockStatus={product.stock_status || 'in_stock'} />
                       <ServiceHighlights />
 
-                      <div className="lg:hidden">
-                        <ProductHighlights highlights={product.highlights || []} />
-                      </div>
-                      <div className="lg:hidden">
+                      {product.highlights && product.highlights.length > 0 && (
+                        <div className="lg:hidden">
+                          <ProductHighlights highlights={product.highlights} />
+                        </div>
+                      )}
+                      <div className="w-full lg:hidden">
                         <ProductDetails product={product} />
                       </div>
-                      <div className="lg:hidden">
-                        <ProductBanners 
+                      <div className="w-full lg:hidden">
+                        <LegacyProductBanners 
                           banners={[
                             product.banner_image1, 
                             product.banner_image2,
@@ -114,25 +129,19 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                             product.banner_image4
                           ]} 
                         />
+                        <div className="mt-6">
+                          <ReviewsSection reviews={reviews} />
+                        </div>
                       </div>
-                      <div className="lg:hidden">
-                        <ReviewsSection reviews={reviews} />
-                      </div>
-                      <div className="lg:hidden">
+                      <div className="w-full">
                         <QuestionsAndAnswers qaPairs={qaPairs} />
-                      </div>
-                      <div className="lg:hidden">
-                        <WhyChooseUs />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-                  <ProductDetails product={product} />
-                </div>
-                <div className="hidden lg:block">
-                  <ProductBanners 
+                <div className="hidden lg:block w-full mt-[32px] lg:mt-[48px] px-[24px] lg:px-[0]">
+                  <LegacyProductBanners 
                     banners={[
                       product.banner_image1, 
                       product.banner_image2,
@@ -141,13 +150,12 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                     ]} 
                   />
                 </div>
-                <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-                  <ReviewsSection reviews={reviews} />
+
+                <div className="w-full mt-[32px] lg:mt-[48px]">
+                  <ProductBanners linkedBanners={product.product_banners} />
                 </div>
-                <div className="hidden lg:block lg:mt-[28px] lg:px-[24px]">
-                  <QuestionsAndAnswers qaPairs={qaPairs} />
-                </div>
-                <div className="hidden lg:block lg:mt-[28px] ">
+                
+                <div className="w-full mt-[32px] lg:mt-[48px]">
                   <WhyChooseUs />
                 </div>
               </main>

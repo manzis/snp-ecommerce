@@ -16,7 +16,7 @@ const ServiceHighlights: React.FC = () => {
     {
       id: 2,
       title: 'Cash on\nDelivery',
-      icon: '/images/cod.svg',
+      icon: '/images/cod.png',
       bgColor: 'rgba(237, 245, 255, 0.8)',
       radius: 'rounded-none',
     },

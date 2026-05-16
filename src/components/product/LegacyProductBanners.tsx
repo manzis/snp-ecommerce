@@ -18,7 +18,7 @@ export default function LegacyProductBanners({ banners }: LegacyProductBannersPr
         <div className="w-full flex flex-col gap-4 lg:gap-8 px-6 lg:px-0">
             {/* Horizontal Banners Section */}
             {(banners[0] || banners[1]) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6">
                     {banners[0] && (
                         <div className="relative aspect-[21/9] md:aspect-[16/7] w-full rounded-2xl overflow-hidden bg-gray-100">
                             <Image

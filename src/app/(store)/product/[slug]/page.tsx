@@ -225,14 +225,6 @@ async function ProductContent({ slug }: { slug: string }) {
             </div>
             {/* Reviews: Desktop only in left column */}
             <div className="hidden lg:block">
-              <LegacyProductBanners
-                banners={[
-                  product.banner_image1,
-                  product.banner_image2,
-                  product.banner_image3,
-                  product.banner_image4
-                ]}
-              />
               <div className="mt-8">
                 <Suspense fallback={<SectionSkeleton height="200px" />}>
                   <ReviewsWrapper productId={product.id} />
@@ -288,6 +280,17 @@ async function ProductContent({ slug }: { slug: string }) {
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="hidden lg:block w-full mt-[32px] lg:mt-[48px] px-[24px] lg:px-[0]">
+          <LegacyProductBanners
+            banners={[
+              product.banner_image1,
+              product.banner_image2,
+              product.banner_image3,
+              product.banner_image4
+            ]}
+          />
         </div>
 
         <div className="w-full mt-[32px] lg:mt-[48px]">
