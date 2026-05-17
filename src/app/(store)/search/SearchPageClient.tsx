@@ -6,22 +6,24 @@ import SearchNavbar from '@/components/search/SearchNavbar';
 import FilterBar, { SelectedFilters } from '@/components/search/FilterBar';
 import RecommendedBrands from '@/components/search/RecommendedBrands';
 import PopularProducts from '@/components/search/PopularProducts';
+import ExploreCategories from '@/components/search/ExploreCategories';
 import SearchResults from '@/components/search/SearchResults';
 import RecentSearches from '@/components/search/RecentSearches';
 import { performSearch } from '@/lib/searchLogic';
-import { Product, Brand } from '@/services/productService';
+import { Product, Brand, Category } from '@/services/productService';
 import { recordSearchAction } from '@/app/actions/analyticsActions';
 import { useSessionId } from '@/hooks/useSessionId';
 
 interface SearchPageClientProps {
   initialProducts: Product[];
   initialBrands: Brand[];
+  initialCategories: Category[];
 }
 
 const STORAGE_KEY = 'snp_recent_searches';
 const MAX_RECENT_ITEMS = 6;
 
-export default function SearchPageClient({ initialProducts, initialBrands }: SearchPageClientProps) {
+export default function SearchPageClient({ initialProducts, initialBrands, initialCategories }: SearchPageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -137,6 +139,10 @@ export default function SearchPageClient({ initialProducts, initialBrands }: Sea
 
   const popularProducts = useMemo(() => initialProducts.slice(0, 5), [initialProducts]);
 
+  const sortedCategories = useMemo(() => {
+    return [...initialCategories].sort((a, b) => b.name.localeCompare(a.name));
+  }, [initialCategories]);
+
   return (
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-50 w-full bg-white border-b border-[#F5F5F5]">
@@ -161,6 +167,15 @@ export default function SearchPageClient({ initialProducts, initialBrands }: Sea
                 image: b.image_url || '/images/brands/muscleblaze.png',
                 slug: b.slug
               }))} 
+            />
+            <ExploreCategories 
+              categories={sortedCategories.map(c => ({
+                id: c.id,
+                name: c.name,
+                slug: c.slug,
+                image_url: c.image_url || undefined,
+                product_count: c.product_count
+              }))}
             />
             <PopularProducts 
               products={popularProducts.map(p => ({

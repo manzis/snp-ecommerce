@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Metadata } from 'next';
-import { fetchProducts, fetchBrands } from '@/services/productService.server';
+import { fetchProducts, fetchBrands, fetchCategories } from '@/services/productService.server';
 import SearchPageClient from './SearchPageClient';
 
 export const metadata: Metadata = {
@@ -25,9 +25,10 @@ export const metadata: Metadata = {
 export default async function SearchPage() {
   // Pre-fetch data on the server for instant hydration
   // These use our optimized unstable_cache + React.cache service
-  const [initialProducts, initialBrands] = await Promise.all([
+  const [initialProducts, initialBrands, initialCategories] = await Promise.all([
     fetchProducts(),
     fetchBrands(),
+    fetchCategories(),
   ]);
 
   return (
@@ -41,6 +42,7 @@ export default async function SearchPage() {
       <SearchPageClient 
         initialProducts={initialProducts} 
         initialBrands={initialBrands} 
+        initialCategories={initialCategories}
       />
     </Suspense>
   );

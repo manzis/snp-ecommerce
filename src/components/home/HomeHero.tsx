@@ -521,15 +521,15 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             </div>
 
             {/* DESKTOP LAYOUT: Beautifully scaled full-viewport height and width flex layout */}
-            <div className="hidden lg:flex w-full max-w-[1440px] h-full items-center justify-between px-[100px] gap-[80px]">
+            <div className="hidden lg:flex flex-col w-full max-w-[1440px] h-full items-center justify-center px-[100px] relative">
                 {/* Left Column: Heading and SHOP NOW button with local soft oval dark gradient */}
-                <div className="relative flex flex-col gap-[28px] items-start max-w-[650px] shrink-0 lg:-mt-[40px] px-[40px] py-[30px] rounded-full">
+                <div className="relative flex flex-col gap-[28px] items-center max-w-[850px] shrink-0 lg:-mt-[40px] px-[40px] py-[30px] rounded-full text-center">
                     {/* Soft Dark Oval Gradient Background */}
                     <div 
                         style={{
                             position: 'absolute',
                             inset: '-20px -30px',
-                            background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)',
+                            background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)',
                             borderRadius: '100%',
                             filter: 'blur(20px)',
                             pointerEvents: 'none',
@@ -539,12 +539,12 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     <h1
                         style={{
                             fontFamily: "var(--font-titillium), sans-serif",
-                            fontSize: '56px',
+                            fontSize: '42px',
                             fontWeight: 900,
-                            lineHeight: '76px',
+                            lineHeight: '58px',
                             letterSpacing: '1.5px',
                             textTransform: 'uppercase',
-                            textAlign: 'left',
+                            textAlign: 'center',
                             position: 'relative',
                             zIndex: 1
                         }}
@@ -557,19 +557,19 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 backgroundColor: '#ffffff',
-                                borderRadius: '16px',
-                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12), 0 3px 10px rgba(0, 0, 0, 0.06)',
-                                padding: '10px',
-                                transform: 'rotate(-15deg) translateY(-5px)',
+                                borderRadius: '12px',
+                                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)',
+                                padding: '8px',
+                                transform: 'rotate(-15deg) translateY(-4px)',
                                 transformOrigin: 'center',
                                 verticalAlign: 'middle',
-                                marginLeft: '16px',
-                                marginRight: '8px'
+                                marginLeft: '10px',
+                                marginRight: '6px'
                             }}
                         >
                             <svg 
-                                width="34" 
-                                height="34" 
+                                width="24" 
+                                height="24" 
                                 viewBox="0 0 24 24" 
                                 fill="none" 
                                 stroke="currentColor" 
@@ -600,19 +600,19 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     backgroundColor: '#ffffff',
-                                    borderRadius: '16px',
-                                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.12), 0 3px 10px rgba(0, 0, 0, 0.06)',
-                                    padding: '10px',
-                                    transform: 'rotate(15deg) translateY(-5px)',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)',
+                                    padding: '8px',
+                                    transform: 'rotate(15deg) translateY(-4px)',
                                     transformOrigin: 'center',
                                     verticalAlign: 'middle',
-                                    marginLeft: '16px',
-                                    marginRight: '8px'
+                                    marginLeft: '10px',
+                                    marginRight: '6px'
                                 }}
                             >
                                 <svg 
-                                    width="34" 
-                                    height="34" 
+                                    width="24" 
+                                    height="24" 
                                     viewBox="0 0 24 24" 
                                     fill="none" 
                                     stroke="currentColor" 
@@ -640,8 +640,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     </Link>
                 </div>
 
-                {/* Right Column: Premium grid showing Today's Deals dynamically */}
-                <div className="flex flex-col items-end shrink-0">
+                {/* Bottom Row: Premium carousel showing Today's Deals dynamically */}
+                <div className="absolute bottom-[50px] left-1/2 -translate-x-1/2 flex flex-col items-center shrink-0 z-10">
                     <div
                         style={{
                             display: 'flex',
