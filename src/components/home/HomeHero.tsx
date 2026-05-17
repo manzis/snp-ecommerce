@@ -105,7 +105,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
             <div className="hero-bg-layer">
                 <Image
-                    src="/images/heroimage.png"
+                    src="/images/heroimage.webp"
                     alt="Hero Background Image"
                     fill
                     priority
