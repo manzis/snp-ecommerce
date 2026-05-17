@@ -5,26 +5,16 @@ import { useEffect, useCallback } from 'react';
 export default function ViewportManager() {
   const applyScaling = useCallback(() => {
     const targetWidth = 410;
-    // Use window.screen.width for a stable calculation that doesn't change when scrolling in Instagram browser
-    const deviceWidth = window.screen.width || targetWidth;
+    const deviceWidth = window.screen.width;
 
-    if (deviceWidth >= targetWidth) {
-      const viewportMeta = document.querySelector('meta[name="viewport"]');
-      if (viewportMeta) {
-        const content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-        if (viewportMeta.getAttribute('content') !== content) {
-          viewportMeta.setAttribute('content', content);
-        }
-      }
-      return;
-    }
+    if (deviceWidth >= targetWidth) return;
 
     const scale = deviceWidth / targetWidth;
     const viewportMeta = document.querySelector('meta[name="viewport"]');
 
     if (viewportMeta) {
-      const content = `width=${targetWidth}, initial-scale=${scale}, minimum-scale=${scale}, maximum-scale=${scale}, user-scalable=no, viewport-fit=cover`;
-      // Only update if content actually changed
+      const content = `width=${targetWidth}, initial-scale=${scale}, minimum-scale=${scale}, max-scale=${scale}, user-scalable=no`;
+      // Only update if orientation actually changed
       if (viewportMeta.getAttribute('content') !== content) {
         viewportMeta.setAttribute('content', content);
       }
@@ -32,9 +22,7 @@ export default function ViewportManager() {
   }, []);
 
   useEffect(() => {
-    // ONLY handle orientation changes.
-    // REMOVED 'resize' listener because scrolling in Instagram/mobile browsers hides the URL bar, 
-    // repeatedly triggering resize events, recalculating layout, and causing extreme CPU lag!
+    // Only handle physical device changes, NOT scrolling
     window.addEventListener('orientationchange', applyScaling);
 
     return () => {

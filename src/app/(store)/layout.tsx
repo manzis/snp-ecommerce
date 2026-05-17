@@ -95,27 +95,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function() {
                 try {
                   var designWidth = 410;
-                  // Use window.screen.width for a stable measurement that does not trigger layout reflows or jump on load
-                  var w = window.screen.width || designWidth;
-                  
-                  var content = w < designWidth 
-                    ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no, viewport-fit=cover'
-                    : 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-                  
-                  var meta = document.querySelector('meta[name="viewport"]');
-                  if (!meta) {
-                    meta = document.createElement('meta');
-                    meta.name = 'viewport';
-                    meta.id = 'manual-viewport';
-                    document.head.appendChild(meta);
+                  function setViewport() {
+                    var w = window.screen.width;
+                    var content = w < designWidth 
+                      ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no'
+                      : 'width=device-width, initial-scale=1';
+                    
+                    var meta = document.querySelector('meta[name="viewport"]');
+                    if (!meta) {
+                      meta = document.createElement('meta');
+                      meta.name = 'viewport';
+                      meta.id = 'manual-viewport';
+                      document.head.appendChild(meta);
+                    }
+                    meta.content = content;
                   }
+                  setViewport();
                   
-                  if (meta.content !== content) {
-                     meta.content = content;
-                  }
-                  
-                  // REMOVED: MutationObserver on document.head.
-                  // It was causing massive CPU spikes and lag during Next.js page transitions by recalculating layout on every head change.
+                  var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                      mutation.addedNodes.forEach(function(node) {
+                        // Check if the added node is a meta viewport tag
+                        if (node.nodeName && node.nodeName.toLowerCase() === 'meta' && node.name === 'viewport') { 
+                          setViewport();
+                        }
+                      });
+                    });
+                  });
+                  observer.observe(document.head, { childList: true });
                 } catch (e) {
                   console.error('Viewport script error:', e);
                 }
