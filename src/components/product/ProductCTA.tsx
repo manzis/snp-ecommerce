@@ -22,6 +22,14 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
+      
+      // Zero-reflow safety guard: if user is at the top of the page,
+      // they are absolutely not at the bottom, bypassing hydration height race conditions.
+      if (scrollY < 50) {
+        setIsVisible(true);
+        return;
+      }
+
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
