@@ -89,6 +89,23 @@ export default function OrderDetailsModal({
         return `${month} ${day} ${weekday}`;
     };
 
+    const formatLogDateTime = (dateStr: string): string => {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return '';
+        
+        const month = date.toLocaleDateString('en-US', { month: 'short' });
+        const day = date.getDate();
+        const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+        
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        
+        return `${month} ${day}, ${weekday} ${hours}:${minutes} ${ampm}`;
+    };
+
     if (!order) return null;
 
     const normalizedStatus = order.status.toUpperCase() as OrderStatus;
@@ -375,7 +392,8 @@ export default function OrderDetailsModal({
                                     if (u.status.toUpperCase() === 'DELAYED' && m.id === 'ORDERED') return true;
                                     if (u.status.toUpperCase() === 'SHIPMENT_DELAYED' && m.id === 'SHIPPED') return true;
                                     return rank >= m.rankRange[0] && rank <= m.rankRange[1];
-                                }) || [];
+                                })
+                                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
                             const isFinalMilestone = m.id === 'DELIVERY';
                             const isTerminal = ['DELIVERED', 'CANCELLED', 'FAILED', 'RETURNED'].includes(normalizedStatus);
@@ -468,7 +486,7 @@ export default function OrderDetailsModal({
                                                                 <div className="space-y-1">
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="text-[11px] font-medium text-black uppercase">{log.status}</span>
-                                                                        <span className="text-[10px] text-[#a1a1aa] font-mono">{new Date(log.date).toLocaleDateString()}</span>
+                                                                        <span className="text-[10px] text-[#a1a1aa] font-mono">{formatLogDateTime(log.date)}</span>
                                                                     </div>
                                                                     <p className="text-[12px] text-[#71717a] leading-relaxed">{log.message}</p>
                                                                 </div>
