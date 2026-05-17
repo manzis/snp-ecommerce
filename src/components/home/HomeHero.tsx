@@ -54,18 +54,19 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 .hero-bg-layer {
                     position: absolute;
                     inset: 0;
-                    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%), url('/images/heroimage.png');
-                    background-size: cover;
-                    background-repeat: no-repeat;
-                    background-position: left center;
-                    filter: blur(2px);
-                    transform: scale(1.03);
                     pointer-events: none;
                     z-index: 0;
+                    overflow: hidden;
+                }
+                .hero-bg-image-filter {
+                    filter: blur(2px);
+                    transform: scale(1.03);
+                    object-fit: cover;
+                    object-position: left center;
                 }
                 @media (min-width: 1024px) {
-                    .hero-bg-layer {
-                        background-position: center;
+                    .hero-bg-image-filter {
+                        object-position: center;
                     }
                 }
                 .hero-pattern-layer {
@@ -101,8 +102,26 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 }
             `}} />
 
-            {/* Absolute Background Image & Gradient Blur Layer */}
-            <div className="hero-bg-layer" />
+            {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
+            <div className="hero-bg-layer">
+                <Image
+                    src="/images/heroimage.png"
+                    alt="Hero Background Image"
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="hero-bg-image-filter"
+                />
+                {/* Radial Gradient Overlay Mask */}
+                <div 
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%)',
+                        zIndex: 1
+                    }}
+                />
+            </div>
 
             {/* Repeating background pattern layer with responsive opacity */}
             <div className="hero-pattern-layer" />
