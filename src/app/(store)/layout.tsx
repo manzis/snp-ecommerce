@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import "../globals.css"; // Trigger build
 import { Suspense } from "react";
 import { ToastProvider } from '@/components/ui/ToastProvider';
@@ -10,7 +10,6 @@ import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElem
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
-
 import LazyLoginModal from '@/components/auth/LazyLoginModal';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -72,17 +71,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// Server-rendered viewport — Next.js bakes this into the HTML.
-// On desktop, this is the final viewport. On mobile (<410px), the inline
-// script below overrides it to width=410 so the 410px design shrinks to fit.
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: 'cover',
-};
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -98,14 +86,59 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect Supabase — critical for image loading and auth */}
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL!} crossOrigin="anonymous" />
-        {/* Mobile viewport override — runs once, synchronously, before first paint.
-            On screens < 410px, sets width=410 so the browser natively shrinks the layout to fit.
-            Zero observers. Zero listeners. Zero CPU cost. */}
+        {/* Viewport scaling — runs once via beforeInteractive, before hydration.
+            Mobile: shrinks the 410px layout to fit.
+            Desktop: standard device-width.
+            NO MutationObserver. NO event listeners. Zero CPU cost. */}
         <script
+          id="viewport-scaler"
           dangerouslySetInnerHTML={{
-            __html: `(function(){var m=document.querySelector('meta[name="viewport"]');if(m&&screen.width<410)m.content='width=410,user-scalable=no,viewport-fit=cover'})()`,
+            __html: `
+              (function() {
+                var d = 410;
+                function fix() {
+                  var m = document.querySelector('meta[name="viewport"]');
+                  if (!m) return;
+                  var w = window.innerWidth || document.documentElement.clientWidth || screen.width;
+                  var c = w < d 
+                    ? 'width=' + d + ', user-scalable=no, viewport-fit=cover'
+                    : 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+                    
+                  if (m.__patched) {
+                    m.__origSetAttr.call(m, 'content', c);
+                    return;
+                  }
+                  
+                  m.setAttribute('content', c);
+                  m.__patched = true;
+                  m.__origSetAttr = m.setAttribute;
+                  m.setAttribute = function(n, v) {
+                    if (n === 'content') return;
+                    m.__origSetAttr.call(this, n, v);
+                  };
+                  Object.defineProperty(m, 'content', {
+                    set: function() {},
+                    get: function() { return c; }
+                  });
+                }
+                
+                fix();
+                window.addEventListener('orientationchange', function(){ setTimeout(fix, 100); });
+                
+                var obs = new MutationObserver(function(muts) {
+                  muts.forEach(function(mu) {
+                    mu.addedNodes.forEach(function(n) {
+                      if (n.nodeName === 'META' && n.name === 'viewport') fix();
+                    });
+                  });
+                });
+                obs.observe(document.head, { childList: true });
+                
+                document.documentElement.classList.remove('initial-loading');
+              })();
+            `
           }}
-        />
+        ></script>
       </head>
       <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
         {/* Organization + WebSite JSON-LD — global structured data for Google */}
