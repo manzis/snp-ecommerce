@@ -99,10 +99,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 function fix() {
                   var m = document.querySelector('meta[name="viewport"]');
                   if (!m) return;
-                  var w = window.innerWidth || document.documentElement.clientWidth || screen.width;
+                  var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+                  var w = isMobile ? (screen.width || window.innerWidth) : window.innerWidth;
                   
                   // Normalize high physical resolutions reported by some mobile WebViews (e.g. screen.width = 1080 on mobile)
-                  if (w > 600 && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && window.devicePixelRatio > 1) {
+                  if (w > 600 && isMobile && window.devicePixelRatio > 1) {
                     w = w / window.devicePixelRatio;
                   }
                   
