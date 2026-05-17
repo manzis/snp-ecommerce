@@ -171,7 +171,7 @@ const HomeBottomNav: React.FC = () => {
                             >
                                 <div className="absolute top-0 left-1/2 h-[4px] w-[32px] -translate-x-1/2 rounded-b-[12px] bg-[#3f9633] z-[3]" />
                                 <div
-                                    className="absolute top-[4px] left-1/2 h-[38px] w-[60px] -translate-x-1/2 rounded-[12px]"
+                                    className="absolute top-[8px] left-1/2 h-[38px] w-[60px] -translate-x-1/2 rounded-[12px]"
                                     style={{ background: 'linear-gradient(180deg, #EAFFCD 0%, rgba(255,255,255,0) 100%)' }}
                                 />
                             </motion.div>
