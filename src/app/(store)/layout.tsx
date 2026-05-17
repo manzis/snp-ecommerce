@@ -136,19 +136,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 fix();
                 window.addEventListener('orientationchange', function(){ setTimeout(fix, 100); });
                 
-                var obs = new MutationObserver(function(muts) {
-                  muts.forEach(function(mu) {
-                    mu.addedNodes.forEach(function(n) {
-                      if (n.nodeName === 'META' && n.name === 'viewport') {
-                        var existing = document.querySelectorAll('meta[name="viewport"]');
-                        if (existing.length > 1) {
-                          n.parentNode.removeChild(n);
-                        } else {
-                          fix();
-                        }
+                var obs = new MutationObserver(function() {
+                  var existing = document.querySelectorAll('meta[name="viewport"]');
+                  if (existing.length > 1) {
+                    for (var i = 1; i < existing.length; i++) {
+                      var dup = existing[i];
+                      if (dup.parentNode) {
+                        dup.parentNode.removeChild(dup);
+                      } else {
+                        dup.remove();
                       }
-                    });
-                  });
+                    }
+                  } else {
+                    fix();
+                  }
                 });
                 obs.observe(document.head, { childList: true });
                 
