@@ -139,7 +139,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 var obs = new MutationObserver(function(muts) {
                   muts.forEach(function(mu) {
                     mu.addedNodes.forEach(function(n) {
-                      if (n.nodeName === 'META' && n.name === 'viewport') fix();
+                      if (n.nodeName === 'META' && n.name === 'viewport') {
+                        var existing = document.querySelectorAll('meta[name="viewport"]');
+                        if (existing.length > 1) {
+                          n.parentNode.removeChild(n);
+                        } else {
+                          fix();
+                        }
+                      }
                     });
                   });
                 });
