@@ -96,13 +96,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               (function() {
                 var d = 410;
-                function fix() {
-                  var m = document.querySelector('meta[name="viewport"]');
+                
+                function patchTag(m) {
                   if (!m) return;
                   var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
                   var w = isMobile ? (screen.width || window.innerWidth) : window.innerWidth;
                   
-                  // Normalize high physical resolutions reported by some mobile WebViews (e.g. screen.width = 1080 on mobile)
                   if (w > 600 && isMobile && window.devicePixelRatio > 1) {
                     w = w / window.devicePixelRatio;
                   }
@@ -114,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   } else {
                     c = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
                   }
-                    
+                  
                   if (m.__patched) {
                     m.__origSetAttr.call(m, 'content', c);
                     return;
@@ -133,23 +132,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   });
                 }
                 
-                fix();
-                window.addEventListener('orientationchange', function(){ setTimeout(fix, 100); });
+                function fixAll() {
+                  var metas = document.querySelectorAll('meta[name="viewport"]');
+                  for (var i = 0; i < metas.length; i++) {
+                    patchTag(metas[i]);
+                  }
+                }
+                
+                fixAll();
+                window.addEventListener('orientationchange', function(){ setTimeout(fixAll, 100); });
                 
                 var obs = new MutationObserver(function() {
-                  var existing = document.querySelectorAll('meta[name="viewport"]');
-                  if (existing.length > 1) {
-                    for (var i = 1; i < existing.length; i++) {
-                      var dup = existing[i];
-                      if (dup.parentNode) {
-                        dup.parentNode.removeChild(dup);
-                      } else {
-                        dup.remove();
-                      }
-                    }
-                  } else {
-                    fix();
-                  }
+                  fixAll();
                 });
                 obs.observe(document.head, { childList: true });
                 
