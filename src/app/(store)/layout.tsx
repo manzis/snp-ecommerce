@@ -100,9 +100,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   var m = document.querySelector('meta[name="viewport"]');
                   if (!m) return;
                   var w = window.innerWidth || document.documentElement.clientWidth || screen.width;
-                  var c = w < d 
-                    ? 'width=' + d + ', user-scalable=no, viewport-fit=cover'
-                    : 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+                  
+                  // Normalize high physical resolutions reported by some mobile WebViews (e.g. screen.width = 1080 on mobile)
+                  if (w > 600 && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && window.devicePixelRatio > 1) {
+                    w = w / window.devicePixelRatio;
+                  }
+                  
+                  var c;
+                  if (w < d) {
+                    var s = (w / d).toFixed(2);
+                    c = 'width=' + d + ', initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s + ', user-scalable=no, viewport-fit=cover';
+                  } else {
+                    c = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+                  }
                     
                   if (m.__patched) {
                     m.__origSetAttr.call(m, 'content', c);
