@@ -93,7 +93,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     backgroundRepeat: 'repeat',
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
-                    opacity: 0.04,
+                    opacity: 0.09,
                     maskImage: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%)',
                     WebkitMaskImage: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%)',
                     zIndex: 0
