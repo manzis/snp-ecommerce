@@ -109,7 +109,12 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
       const deliveryDetails = getExpectedDeliveryDetails(createdAt, orderItems);
       if (deliveryDetails.isDelayed && !statusUpdates.some(up => up.status.toUpperCase() === 'RESCHEDULED' || up.status.toUpperCase() === 'DELAYED')) {
         const lastRealLog = [...allLogs].filter(l => !l.isVirtual).sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime()).pop();
-        const delayDate = lastRealLog ? lastRealLog.data.date : deliveryDetails.maxExpectedDate.toISOString();
+        let delayDate = deliveryDetails.maxExpectedDate.toISOString();
+        if (lastRealLog) {
+          const dateObj = new Date(lastRealLog.data.date);
+          dateObj.setMinutes(dateObj.getMinutes() + 1);
+          delayDate = dateObj.toISOString();
+        }
         allLogs.push({
           id: `virtual-DELAYED`,
           status: 'RESCHEDULED',
