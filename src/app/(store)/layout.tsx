@@ -96,10 +96,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 try {
                   var designWidth = 410;
                   function setViewport() {
-                    var w = window.screen.width;
+                    var w = window.innerWidth || document.documentElement.clientWidth || window.screen.width || designWidth;
+                    if (w <= 0) w = designWidth;
                     var content = w < designWidth 
-                      ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no'
-                      : 'width=device-width, initial-scale=1';
+                      ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no, viewport-fit=cover'
+                      : 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
                     
                     var meta = document.querySelector('meta[name="viewport"]');
                     if (!meta) {
