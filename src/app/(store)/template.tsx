@@ -15,28 +15,8 @@ let isFirstLoad = true;
  * while animating beautifully on client-side route navigations.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const [animClass, setAnimClass] = useState('');
-
-  useEffect(() => {
-    if (isFirstLoad) {
-      isFirstLoad = false;
-      return;
-    }
-
-    // Reset transition class to trigger keyframe animation fresh
-    setAnimClass('');
-    
-    // Toggle on next render frame to trigger CSS keyframes smoothly
-    const handle = requestAnimationFrame(() => {
-      setAnimClass('animate-page-enter');
-    });
-
-    return () => cancelAnimationFrame(handle);
-  }, [pathname]);
-
   return (
-    <main className={`flex-grow flex flex-col w-full relative flex-1 ${animClass}`}>
+    <main className="flex-grow flex flex-col w-full relative flex-1">
       {children}
     </main>
   );

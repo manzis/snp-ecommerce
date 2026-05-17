@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useCartStore } from '@/store/cartStore';
 
 /**
@@ -107,50 +106,44 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
   };
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.footer
-          key="product-cta-bar"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
-          className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden"
-          style={{
-            paddingBottom: 'env(safe-area-inset-bottom)',
-            WebkitTransform: 'translateZ(0)',
-          }}
+    <footer
+      className="fixed bottom-0 left-0 right-0 w-full z-[100] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] lg:hidden transition-all duration-300 ease-out"
+      style={{
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        transform: isVisible ? 'translateY(0) translateZ(0)' : 'translateY(100%) translateZ(0)',
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? 'auto' : 'none',
+        willChange: 'transform, opacity',
+      }}
+    >
+      <div className="relative mx-auto flex h-[72px] w-full max-w-[410px] items-center justify-between overflow-hidden flex-nowrap md:max-w-7xl">
+        {/* Add to Cart / Go to Cart */}
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          onPointerUp={blurButton}
+          disabled={isOutOfStock}
+          className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
         >
-          <div className="relative mx-auto flex h-[72px] w-full max-w-[410px] items-center justify-between overflow-hidden flex-nowrap md:max-w-7xl">
-            {/* Add to Cart / Go to Cart */}
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              onPointerUp={blurButton}
-              disabled={isOutOfStock}
-              className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
-            >
-              <span className="relative z-[1] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#4d4d4d] whitespace-nowrap">
-                {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
-              </span>
-            </button>
+          <span className="relative z-[1] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#4d4d4d] whitespace-nowrap">
+            {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
+          </span>
+        </button>
 
-            {/* Buy Now */}
-            <button
-              type="button"
-              onClick={handleBuyNow}
-              onPointerUp={blurButton}
-              disabled={isOutOfStock}
-              className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
-            >
-              <span className="relative z-[3] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#1e1e1e] whitespace-nowrap">
-                {isOutOfStock ? "Unavailable" : "Buy Now"}
-              </span>
-            </button>
-          </div>
-        </motion.footer>
-      )}
-    </AnimatePresence>
+        {/* Buy Now */}
+        <button
+          type="button"
+          onClick={handleBuyNow}
+          onPointerUp={blurButton}
+          disabled={isOutOfStock}
+          className={`relative flex h-full basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] px-[10px] py-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
+        >
+          <span className="relative z-[3] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#1e1e1e] whitespace-nowrap">
+            {isOutOfStock ? "Unavailable" : "Buy Now"}
+          </span>
+        </button>
+      </div>
+    </footer>
   );
 };
 
