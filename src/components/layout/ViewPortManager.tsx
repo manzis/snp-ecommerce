@@ -1,32 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+// Viewport scaling is now handled entirely by:
+// 1. `export const viewport` in layout.tsx (server-rendered, zero JS)
+// 2. A single inline <script> in layout.tsx (runs once before first paint)
+// No observers. No listeners. No client components needed.
 
 export default function ViewportManager() {
-  const pathname = usePathname();
-
-  useEffect(() => {
-    // Whenever the route changes (or on mount), Next.js might reset the viewport.
-    // Call the global function defined in our layout.tsx <Script> to re-apply our custom scaling.
-    if (typeof window !== 'undefined' && (window as any).__setResponsiveViewport) {
-      (window as any).__setResponsiveViewport();
-    }
-  }, [pathname]);
-
-  useEffect(() => {
-    // Only handle physical device orientation changes, NOT scrolling
-    const handleOrientation = () => {
-      if (typeof window !== 'undefined' && (window as any).__setResponsiveViewport) {
-        (window as any).__setResponsiveViewport();
-      }
-    };
-    window.addEventListener('orientationchange', handleOrientation);
-
-    return () => {
-      window.removeEventListener('orientationchange', handleOrientation);
-    };
-  }, []);
-
   return null;
 }

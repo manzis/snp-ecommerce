@@ -14,7 +14,7 @@ const DynamicPageNav = dynamic(() => import('@/components/layout/DynamicPageNav'
 // These are interactive-only — safe to skip SSR
 const HomeBottomNav = dynamic(() => import('@/components/home/HomeBottomNav'), { ssr: false });
 const CartSidebar = dynamic(() => import('@/components/cart/CartSidebar'), { ssr: false });
-const ViewportManager = dynamic(() => import('@/components/layout/ViewPortManager'), { ssr: false });
+
 
 const HIDDEN_ROUTES = ['/login', '/signup', '/forgot-password', '/checkout/success', '/pay'];
 
@@ -64,7 +64,6 @@ export default function ConditionalLayoutElements() {
             <HomeBottomNav key="global-bottom-nav" />
             <Footer key="global-footer" />
             <CartSidebar key="global-cart-sidebar" />
-            <ViewportManager key="global-viewport-manager" />
         </>
     );
 }

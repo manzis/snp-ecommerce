@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../globals.css"; // Trigger build
 import { Suspense } from "react";
 import { ToastProvider } from '@/components/ui/ToastProvider';
@@ -10,7 +10,7 @@ import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElem
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
-import Script from 'next/script';
+
 import LazyLoginModal from '@/components/auth/LazyLoginModal';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -72,6 +72,17 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Server-rendered viewport — Next.js bakes this into the HTML.
+// On desktop, this is the final viewport. On mobile (<410px), the inline
+// script below overrides it to width=410 so the 410px design shrinks to fit.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -87,47 +98,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect Supabase — critical for image loading and auth */}
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL!} crossOrigin="anonymous" />
-        <Script
-          id="viewport-scaler-script"
-          strategy="beforeInteractive"
+        {/* Mobile viewport override — runs once, synchronously, before first paint.
+            On screens < 410px, sets width=410 so the browser natively shrinks the layout to fit.
+            Zero observers. Zero listeners. Zero CPU cost. */}
+        <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var designWidth = 410;
-                  function setViewport() {
-                    // Try innerWidth first (logical pixels), fallback to screen.width
-                    var w = window.innerWidth || document.documentElement.clientWidth || window.screen.width;
-                    if (w <= 0) w = designWidth;
-                    
-                    // For mobile, simply provide width=410 and let the browser's native engine shrink it to fit.
-                    // DO NOT provide initial-scale, as WKWebView (Instagram) calculates it incorrectly if screen.width returns physical pixels.
-                    var content = w < designWidth 
-                      ? 'width=' + designWidth + ', user-scalable=no, viewport-fit=cover'
-                      : 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
-                    
-                    var meta = document.querySelector('meta[name="viewport"]');
-                    if (!meta) {
-                      meta = document.createElement('meta');
-                      meta.name = 'viewport';
-                      meta.id = 'manual-viewport';
-                      document.head.appendChild(meta);
-                    }
-                    if (meta.content !== content) {
-                      meta.content = content;
-                    }
-                  }
-                  
-                  // Run immediately
-                  setViewport();
-                  
-                  // Expose globally for ViewPortManager to use on route change, NO MutationObserver to prevent CPU jams
-                  window.__setResponsiveViewport = setViewport;
-                } catch (e) {
-                  console.error('Viewport script error:', e);
-                }
-              })();
-            `,
+            __html: `(function(){var m=document.querySelector('meta[name="viewport"]');if(m&&screen.width<410)m.content='width=410,user-scalable=no,viewport-fit=cover'})()`,
           }}
         />
       </head>
