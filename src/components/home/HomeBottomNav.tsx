@@ -65,7 +65,7 @@ const HomeBottomNav: React.FC = () => {
     useEffect(() => {
         if (isExcludedPage) return;
         let ticking = false;
-        const handleScroll = () => {
+        const onScroll = () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
                     const currentScrollY = window.scrollY;
@@ -74,10 +74,8 @@ const HomeBottomNav: React.FC = () => {
                     if (isAtBottom) {
                         setIsScrollVisible(false);
                     } else if (pathname === '/' && currentScrollY < 20) {
-                        // Hide bottom nav ONLY when at the very top of the Hero section of the Home page
                         setIsScrollVisible(false);
                     } else {
-                        // Show bottom nav everywhere else (always visible on other pages)
                         setIsScrollVisible(true);
                     }
                     ticking = false;
@@ -85,9 +83,17 @@ const HomeBottomNav: React.FC = () => {
                 ticking = true;
             }
         };
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll(); // Check initially on mount
-        return () => window.removeEventListener("scroll", handleScroll);
+        
+        // Zero-reflow initial state check on page transition/mount
+        const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+        if (pathname === '/' && currentScrollY < 20) {
+            setIsScrollVisible(false);
+        } else {
+            setIsScrollVisible(true);
+        }
+        
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
     }, [isExcludedPage, pathname]);
 
     if (isExcludedPage || hideBottomNav) return null;
