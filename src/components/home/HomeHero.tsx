@@ -57,12 +57,15 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     pointer-events: none;
                     z-index: 0;
                     overflow: hidden;
+                    transform: translate3d(0, 0, 0);
+                    will-change: transform;
                 }
                 .hero-bg-image-filter {
                     filter: blur(2px);
-                    transform: scale(1.03);
+                    transform: scale(1.03) translate3d(0, 0, 0);
                     object-fit: cover;
                     object-position: left center;
+                    will-change: transform, filter;
                 }
                 @media (min-width: 1024px) {
                     .hero-bg-image-filter {
@@ -81,6 +84,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%);
                     pointer-events: none;
                     z-index: 0;
+                    transform: translate3d(0, 0, 0);
+                    will-change: transform;
                 }
                 @media (min-width: 1024px) {
                     .hero-pattern-layer {
@@ -88,14 +93,16 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     }
                 }
                 @keyframes marquee-ltr {
-                    0% { transform: translateX(-50%); }
-                    100% { transform: translateX(0%); }
+                    0% { transform: translate3d(-50%, 0, 0); }
+                    100% { transform: translate3d(0%, 0, 0); }
                 }
                 .animate-marquee-ltr {
                     display: flex;
                     gap: 12px;
                     animation: marquee-ltr 20s linear infinite;
                     width: max-content;
+                    transform: translate3d(0, 0, 0);
+                    will-change: transform;
                 }
                 .animate-marquee-ltr:hover {
                     animation-play-state: paused;
@@ -103,7 +110,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             `}} />
 
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
-            <div className="hero-bg-layer">
+            <div className="hero-bg-layer" style={{ transform: 'translate3d(0, 0, 0)', willChange: 'transform' }}>
                 <Image
                     src="/images/heroimage.webp"
                     alt="Hero Background Image"
@@ -111,6 +118,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     priority
                     sizes="100vw"
                     className="hero-bg-image-filter"
+                    {...({ fetchPriority: 'high' } as any)}
+                    decoding="sync"
                 />
                 {/* Radial Gradient Overlay Mask */}
                 <div 
@@ -118,13 +127,15 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         position: 'absolute',
                         inset: 0,
                         background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%)',
-                        zIndex: 1
+                        zIndex: 1,
+                        transform: 'translate3d(0, 0, 0)',
+                        willChange: 'transform'
                     }}
                 />
             </div>
 
             {/* Repeating background pattern layer with responsive opacity */}
-            <div className="hero-pattern-layer" />
+            <div className="hero-pattern-layer" style={{ transform: 'translate3d(0, 0, 0)', willChange: 'transform' }} />
 
             {/* Corner Radial Gradient Glows (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
             <div
