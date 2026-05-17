@@ -150,37 +150,33 @@ const HomeBottomNav: React.FC = () => {
                 )}
             </AnimatePresence>
 
-            <motion.nav
-                initial={false}
-                animate={{
-                    y: isScrollVisible ? 0 : 100,
-                    opacity: isScrollVisible ? 1 : 0
-                }}
-                transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
-                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white  px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] will-change-transform"
+            <nav
+                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
                 style={{
                     paddingBottom: 'env(safe-area-inset-bottom)',
-                    WebkitTransform: 'translateZ(0)'
+                    transform: `translateY(${isScrollVisible ? 0 : 100}px) translateZ(0)`,
+                    WebkitTransform: `translateY(${isScrollVisible ? 0 : 100}px) translateZ(0)`,
+                    opacity: isScrollVisible ? 1 : 0
                 }}
             >
                 {/* INDICATOR LAYER */}
                 <div className="absolute inset-x-0 top-0 bottom-0 px-[12px] pointer-events-none z-[1]">
                     <div className="relative w-full h-full">
                         {activeIndex !== -1 && (
-                            <motion.div
-                                // FIXED: Added unique key for the conditional block
+                            <div
                                 key="nav-sliding-indicator"
-                                className="absolute top-0 h-full w-[20%]"
-                                initial={false}
-                                animate={{ x: `${activeIndex * 100}%` }}
-                                transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
+                                className="absolute top-0 h-full w-[20%] transition-transform duration-300 ease-out will-change-transform"
+                                style={{
+                                    transform: `translateX(${activeIndex * 100}%) translateZ(0)`,
+                                    WebkitTransform: `translateX(${activeIndex * 100}%) translateZ(0)`
+                                }}
                             >
                                 <div className="absolute top-0 left-1/2 h-[4px] w-[32px] -translate-x-1/2 rounded-b-[12px] bg-[#3f9633] z-[3]" />
                                 <div
                                     className="absolute top-[8px] left-1/2 h-[38px] w-[60px] -translate-x-1/2 rounded-[12px]"
                                     style={{ background: 'linear-gradient(180deg, #EAFFCD 0%, rgba(255,255,255,0) 100%)' }}
                                 />
-                            </motion.div>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -214,7 +210,7 @@ const HomeBottomNav: React.FC = () => {
                         </Link>
                     );
                 })}
-            </motion.nav>
+            </nav>
         </div>
     );
 };

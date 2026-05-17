@@ -193,8 +193,8 @@ async function ProductContent({ slug }: { slug: string }) {
         stockStatusOverride={(dbOverride as any)?.rich_snippet_data?.stock_status}
         ratingOverride={(dbOverride as any)?.rich_snippet_data?.rating_value ? Number((dbOverride as any).rich_snippet_data.rating_value) : undefined}
       />
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04) ">
-        <div className="mx-auto w-full">
+      <header className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none w-full bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
+        <div className="pointer-events-auto relative w-full max-w-[410px] md:max-w-7xl mx-auto">
           <ProductNav />
           <div className="px-0">
             <Breadcrumbs path={breadcrumbPath} />
@@ -202,7 +202,7 @@ async function ProductContent({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 ">
+      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 animate-page-enter">
         <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
           {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS */}
           <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">

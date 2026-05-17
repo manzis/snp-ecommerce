@@ -57,9 +57,9 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   };
 
   const Content = (
-    <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row pt-[10px] lg:pt-0 lg:items-center">
+    <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row lg:items-center">
       {/* LEFT SECTION: Price Info */}
-      <div className="flex flex-1 basis-0 h-full items-center bg-white px-[24px]">
+      <div className="flex flex-1 basis-0 h-full items-center bg-transparent px-[24px]">
         <div className="flex items-start gap-[10px]">
           <div className="flex flex-col">
             <span className="font-titillium text-[13px] text-[#4d4d4d] leading-[19px] line-through">
@@ -91,11 +91,11 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       </div>
 
       {/* RIGHT SECTION: Action Button */}
-      <div className="flex flex-1 basis-0 h-full items-start lg:items-center justify-center bg-white px-[16px] lg:bg-transparent lg:pr-0">
+      <div className="flex flex-1 basis-0 h-full items-center justify-center bg-transparent px-[16px] lg:pr-0">
         <button
           onClick={handleAction}
           disabled={isNavigating || buttonText === 'Processing...'}
-          className={`w-full h-[60px] lg:h-[52px] flex items-center justify-center rounded-[12px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' || isNavigating
+          className={`w-full h-[56px] lg:h-[52px] flex items-center justify-center rounded-[10px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' || isNavigating
             ? 'bg-[#3f9633] text-white' 
             : 'bg-[#ffe900] active:bg-[#f5e000] text-[#1e1e1e]'
           }`}
@@ -119,7 +119,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
 
   if (isStatic) {
     return (
-      <div className="relative w-full h-[72px] bg-[#fcfff8] border border-[#f1f5f9] rounded-[12px] overflow-hidden">
+      <div className="relative w-full h-[88px] bg-[#fcfff8] border border-[#f1f5f9] rounded-[10px] overflow-hidden">
         {Content}
       </div>
     );
@@ -128,20 +128,22 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          key="cart-checkout-bar"
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
-          className="fixed bottom-0 left-0 right-0 z-50 h-[80px] bg-[#fcfff8] border-t border-[#f1f5f9] lg:hidden shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)]"
-          style={{
-            paddingBottom: 'env(safe-area-inset-bottom)',
-            WebkitTransform: 'translateZ(0)',
-          }}
-        >
-          {Content}
-        </motion.div>
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none lg:hidden">
+          <motion.div
+            key="cart-checkout-bar"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
+            className="pointer-events-auto relative h-[88px] w-full max-w-[410px] md:max-w-7xl bg-[#fcfff8] border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)]"
+            style={{
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+              paddingTop: '8px',
+            }}
+          >
+            {Content}
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

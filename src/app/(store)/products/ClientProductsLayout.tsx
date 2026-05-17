@@ -61,7 +61,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                 subtitle={`${filteredProducts.length} items`}
             />
 
-            <div className="pt-[80px]">
+            <div className="pt-[80px] animate-page-enter">
                 {/* Search Header */}
                 <div className="mx-auto max-w-[1440px] px-[24px] lg:px-[60px] pt-[24px]">
                     <div
