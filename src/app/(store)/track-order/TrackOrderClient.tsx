@@ -12,7 +12,7 @@ import CopyIcon from '@/components/icons/CopyIcon';
 import InfoIcon from '@/components/icons/InfoIcon';
 import TickIcon from '@/components/icons/TickIcon';
 import PackageIcon from '@/components/icons/PackageIcon';
-import { getExpectedDeliveryRange, formatSingleDate } from '@/lib/deliveryHelper';
+import { getExpectedDeliveryRange, formatSingleDate, getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
 
 // ─── Tracking Details Inline Panel (from TrackingModal) ─────────────────
 
@@ -77,7 +77,7 @@ const TimelineSegment = ({ isIncomingActive, isOutgoingActive, isFirst, isLast, 
   </div>
 );
 
-function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStatus: OrderStatus) {
+function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStatus: OrderStatus, createdAt?: string, orderItems?: any[]) {
   return React.useMemo(() => {
     const normalizedCurrentStatus = currentStatus.toUpperCase() as OrderStatus;
     const currentRank = STATUS_RANK[normalizedCurrentStatus] || 0;
@@ -104,6 +104,24 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
           });
         }
       });
+
+      // Automatic DELAYED status trigger algorithm
+      const deliveryDetails = getExpectedDeliveryDetails(createdAt, orderItems);
+      if (deliveryDetails.isDelayed && !statusUpdates.some(up => up.status.toUpperCase() === 'RESCHEDULED' || up.status.toUpperCase() === 'DELAYED')) {
+        const lastRealLog = [...allLogs].filter(l => !l.isVirtual).sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime()).pop();
+        const delayDate = lastRealLog ? lastRealLog.data.date : deliveryDetails.maxExpectedDate.toISOString();
+        allLogs.push({
+          id: `virtual-DELAYED`,
+          status: 'RESCHEDULED',
+          data: {
+            status: 'DELAYED',
+            message: 'Your order has been slightly delayed due to logistics/warehouse processing constraints. We are actively priority-dispatching it.',
+            date: delayDate
+          },
+          isActive: true,
+          isVirtual: true
+        });
+      }
     }
 
     const sortedLogs = allLogs.sort((a, b) => {
@@ -153,14 +171,14 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
     ]);
     const latestActiveIndex = flatElements.reduce((acc, el, idx) => el.isActive ? idx : acc, -1);
     return { groups, flatElements, latestActiveIndex };
-  }, [statusUpdates, currentStatus]);
+  }, [statusUpdates, currentStatus, createdAt, orderItems]);
 }
 
 // ─── Tracking Details Tab ───────────────────────────────────────────────
 
 function TrackingDetailsPanel({ order }: { order: OrderProps }) {
   const normalizedCurrentStatus = order.status.toUpperCase() as OrderStatus;
-  const reconciliation = useTrackingReconciliation(order.statusUpdates || [], normalizedCurrentStatus);
+  const reconciliation = useTrackingReconciliation(order.statusUpdates || [], normalizedCurrentStatus, order.createdAt, order.order_items);
   const progress = GET_PROGRESS_CONFIG(normalizedCurrentStatus);
 
   const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(() => {
@@ -169,10 +187,11 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
   });
   const toggleMilestone = (id: string) => setExpandedMilestones(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
 
-  const expectedDelivery = getExpectedDeliveryRange(order.createdAt, order.order_items);
+  const deliveryDetails = getExpectedDeliveryDetails(order.createdAt, order.order_items);
+  const expectedDelivery = deliveryDetails.originalRange;
 
-  let deliveryTitle = "Expected Delivery by";
-  let deliveryValue = expectedDelivery;
+  let deliveryTitle = deliveryDetails.isDelayed ? "Now expected by" : "Expected Delivery by";
+  let deliveryValue = deliveryDetails.isDelayed ? deliveryDetails.revisedRange : expectedDelivery;
 
   if (normalizedCurrentStatus === 'DELIVERED') {
     deliveryTitle = "Order Delivered";
@@ -294,7 +313,9 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
                                 <TimelineSegment isIncomingActive={isLogIncomingActive} isOutgoingActive={isLogOutgoingActive} isFirst={false} isLast={isLastRenderedLog} progressColor={progress.color} />
                                 <TimelineDot isActive={log.isActive} isLatest={isLatest} glowColor={progress.hex} progressColor={progress.color} />
                                 <div className="flex flex-col items-start gap-[2px]">
-                                  <span className={`font-titillium text-[12px] font-[700] tracking-[0.2px] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>{log.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</span>
+                                  <span className={`font-titillium text-[12px] font-[700] tracking-[0.2px] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>
+                                    {log.id === 'virtual-DELAYED' || log.data.status === 'DELAYED' ? 'Order Delayed' : log.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                                  </span>
                                   <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#575757]">{log.data.message}</p>
                                   <span className="font-titillium text-[10px] font-[400] text-[#8a8e91] opacity-70">
                                     {new Date(log.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {new Date(log.data.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
