@@ -363,7 +363,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     </h1>
 
                     <Link
-                        href="/search"
+                        href="/products"
                         style={{
                             display: 'flex',
                             width: '102px',
@@ -630,7 +630,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         </span>
                     </h1>
                     <Link
-                        href="/search"
+                        href="/products"
                         className="relative flex h-[56px] w-[150px] shrink-0 items-center justify-center gap-[10px] bg-[#ffffff] rounded-none transition-all hover:bg-[#f8fafc] hover:scale-[1.03] active:scale-95"
                         style={{ zIndex: 2 }}
                     >
