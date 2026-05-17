@@ -144,6 +144,7 @@ export interface Product {
     banner_image2?: string;
     banner_image3?: string;
     banner_image4?: string;
+    created_at?: string;
 }
 
 export interface Coupon {
@@ -320,7 +321,7 @@ export async function fetchProducts(options?: { brandSlug?: string; categorySlug
     query = query.or(`name.ilike.%${options.search}%,title.ilike.%${options.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query.order('created_at', { ascending: false });
   
   if (error) {
     console.error('Error fetching products:', error);

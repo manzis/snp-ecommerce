@@ -92,13 +92,11 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white w-full">
+      {/* === ABOVE THE FOLD — Render eagerly (covers full width & height) === */}
+      <HomeHero deals={deals.length > 0 ? deals : []} />
+
       <main className="flex flex-col items-center max-w-[1200px] lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
-        {/* === ABOVE THE FOLD — Render eagerly === */}
-        <HomeHero deals={deals.length > 0 ? deals : []} />
-
-        {deals.length > 0 && <TodaysDeals deals={deals} />}
-
         <HomeCategories />
 
         {/* Stream heavy sections after critical content is visible. */}
@@ -120,7 +118,11 @@ async function HomeDeferredSections() {
 
   const bestSellingProducts = productsGrouped['best_selling'] || [];
   const popularProducts = productsGrouped['popular_products'] || [];
-  const newArrivalsProducts = productsGrouped['new_arrivals'] || [];
+  const newArrivalsProducts = (productsGrouped['new_arrivals'] || []).sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA;
+  });
 
   const mapToGrid = (products: Product[]) => products.map(p => {
     let benefit = '';
@@ -153,11 +155,11 @@ async function HomeDeferredSections() {
 
   return (
     <>
-      {bestSellingProducts.length > 0 && (
+      {newArrivalsProducts.length > 0 && (
         <div className="w-full">
           <ProductGridSection
-            title="Best Sellers"
-            products={mapToGrid(bestSellingProducts)}
+            title="New Arrivals"
+            products={mapToGrid(newArrivalsProducts)}
           />
         </div>
       )}
@@ -208,11 +210,11 @@ async function HomeDeferredSections() {
         } />
       </div>
 
-      {newArrivalsProducts.length > 0 && (
+      {bestSellingProducts.length > 0 && (
         <div className="w-full">
           <ProductGridSection
-            title="New Arrivals"
-            products={mapToGrid(newArrivalsProducts)}
+            title="Best Sellers"
+            products={mapToGrid(bestSellingProducts)}
           />
         </div>
       )}
@@ -247,7 +249,7 @@ async function HomeDeferredSections() {
 function HomeDeferredSectionsFallback() {
   return (
     <>
-      {/* Best Sellers skeleton */}
+      {/* New Arrivals skeleton */}
       <ProductGridSectionSkeleton bgColor="bg-[#F2F9F1]" />
 
       {/* Brands skeleton */}
@@ -270,7 +272,7 @@ function HomeDeferredSectionsFallback() {
         <div className="h-[200px] w-full rounded-[20px] bg-gray-100 mx-[24px] md:mx-0" />
       </section>
 
-      {/* New Arrivals skeleton */}
+      {/* Best Sellers skeleton */}
       <ProductGridSectionSkeleton bgColor="bg-white" />
     </>
   );

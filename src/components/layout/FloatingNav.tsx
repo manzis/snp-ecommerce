@@ -34,11 +34,11 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                 onClose={() => setIsSidebarOpen(false)} 
             />
             
-            <nav className="fixed top-[12px] left-1/2 z-[100] w-full -translate-x-1/2 px-[13px] md:top-[24px] lg:top-0 lg:max-w-[1200px] lg:px-0">
-                <div className="mx-auto flex w-full max-w-[384px] flex-col items-start overflow-hidden rounded-[16px] border border-[#f1f5f9] bg-white p-[6px] md:max-w-[1100px] md:p-[10px] lg:max-w-[1200px] lg:rounded-none lg:border-none lg:border-b lg:p-0">
+            <nav className="fixed top-[12px] left-1/2 z-[100] w-full -translate-x-1/2 px-[13px] md:top-[24px] lg:top-0 lg:left-0 lg:translate-x-0 lg:w-full lg:max-w-none lg:px-0">
+                <div className="mx-auto flex w-full max-w-[384px] flex-col items-center overflow-hidden rounded-[16px] border border-[#f1f5f9] bg-white p-[6px] md:max-w-[1100px] md:p-[10px] lg:max-w-none lg:w-full lg:rounded-none lg:border-none lg:border-b lg:p-0">
 
                     {/* TOP INTERACTIVE ROW */}
-                    <div className="flex h-[60px] w-full items-center justify-between px-[14px] md:h-[72px] md:px-[24px] lg:h-[76px] lg:px-[24px]">
+                    <div className="flex h-[60px] w-full items-center justify-between px-[14px] md:h-[72px] md:px-[24px] lg:h-[76px] lg:max-w-[1200px] lg:mx-auto lg:px-[24px]">
                         {/* Menu */}
                         <button
                             onClick={() => setIsSidebarOpen(true)}
@@ -103,7 +103,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
 
                     {/* CONDITIONALLY RENDERED PROMO BANNER */}
                     {showBanner && (
-                        <div className="flex w-full items-center justify-center rounded-[10px] bg-[#d6ff9c] py-[8px] md:py-[10px] lg:rounded-none">
+                        <div className="flex w-full items-center justify-center rounded-[10px] bg-[#d6ff9c] py-[8px] md:py-[10px] lg:rounded-none lg:w-full lg:max-w-none">
                             <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#252525] md:text-[15px] md:font-medium">
                                 {bannerText}
                             </span>

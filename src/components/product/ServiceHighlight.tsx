@@ -75,7 +75,7 @@ const ServiceHighlights: React.FC = () => {
         <div className="flex items-center justify-center w-full h-[30px] bg-[#3F9733] rounded-[2px] self-stretch">
           <p className="font-titillium text-[12px] font-normal leading-[14px] text-white text-center">
             Easy Returns , Check Our{' '}
-            <Link href="/return-policy" className="underline hover:opacity-80 transition-opacity">
+            <Link href="/info#return-policy" className="underline hover:opacity-80 transition-opacity">
               Return Policy
             </Link>
           </p>

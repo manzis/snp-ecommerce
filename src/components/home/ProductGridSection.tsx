@@ -20,13 +20,13 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
         const titleLower = sectionTitle.toLowerCase();
 
         if (titleLower.includes('best seller')) {
-            return 'bg-[#F2F9F1]';
+            return 'bg-white';
         }
         if (titleLower.includes('popular')) {
             return 'bg-[#F1F7F9]';
         }
         if (titleLower.includes('new arrival')) {
-            return 'bg-white';
+            return 'bg-[#F2F9F1]';
         }
 
         return 'bg-white';

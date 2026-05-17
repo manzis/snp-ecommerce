@@ -262,8 +262,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             <div className="mt-4 flex flex-col gap-1">
                                 <p className="text-[12px] text-gray-400 font-medium">© 2024 SNP STORE. All rights reserved.</p>
                                 <div className="flex gap-4">
-                                    <Link href="/privacy" className="text-[11px] text-gray-500 hover:underline">Privacy Policy</Link>
-                                    <Link href="/terms" className="text-[11px] text-gray-500 hover:underline">Terms of Service</Link>
+                                    <Link href="/info#privacy-policy" className="text-[11px] text-gray-500 hover:underline">Privacy Policy</Link>
+                                    <Link href="/info#terms-and-conditions" className="text-[11px] text-gray-500 hover:underline">Terms of Service</Link>
                                 </div>
                             </div>
                         </div>

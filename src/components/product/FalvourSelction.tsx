@@ -11,8 +11,20 @@ interface FlavourSelectionProps {
 
 const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
   const { selectedFlavorId: selectedId, setFlavorId: setSelectedId, setActiveVariantImage, flavorError } = useProductSelectionStore();
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   // Auto-selection of default flavour intentionally removed to enforce explicit user selection
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
 
   return (
     <div id="flavour-section" className="relative flex flex-col items-start gap-[15px] w-full ">
@@ -40,6 +52,19 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
         .selected-gradient {
           background: linear-gradient(0.28deg, #FFFEF4 0.22%, #EDFFE8 99.74%);
         }
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e4e4e7;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #a1a1aa;
+        }
       `}} />
 
       {/* Header: Dynamic text based on selection */}
@@ -50,9 +75,12 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
       {/* 
           SCROLL CONTAINER 
           - pt-[2px] buffer to prevent 'Outside Border' clipping
-          - no-scrollbar for clean prototype feel
+          - custom-scrollbar for desktop scrolling support
       */}
-      <div className="flex w-full flex-nowrap gap-[14px] overflow-x-auto pt-[2px] pb-[6px] px-[2px] no-scrollbar">
+      <div 
+        ref={scrollRef}
+        className="flex w-full flex-nowrap gap-[14px] overflow-x-auto pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
+      >
         {flavours.length === 0 ? (
           <button
             type="button"

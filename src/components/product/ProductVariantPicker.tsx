@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { ProductSize, ProductFlavour } from '@/services/productService';
 
 interface ProductVariantPickerProps {
@@ -24,14 +24,61 @@ export default function ProductVariantPicker({
   sizeError,
   flavorError
 }: ProductVariantPickerProps) {
+  const flavorScrollRef = useRef<HTMLDivElement>(null);
+  const sizeScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = flavorScrollRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  useEffect(() => {
+    const el = sizeScrollRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
   return (
     <div className="flex flex-col gap-6 w-full">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e4e4e7;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #a1a1aa;
+        }
+      `}} />
+
       {/* Flavour Selection */}
       <div className="flex flex-col gap-3">
         <h4 className="text-[14px] font-bold text-[#242424] flex items-center justify-between">
             <span>Flavour: <span className="font-normal text-[#71717a]">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Select')}</span></span>
         </h4>
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+        <div 
+          ref={flavorScrollRef}
+          className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 w-full flex-nowrap"
+        >
             {flavours.length === 0 ? (
                 <button
                     disabled
@@ -66,11 +113,14 @@ export default function ProductVariantPicker({
         <h4 className="text-[14px] font-bold text-[#242424]">
             Size: <span className="font-normal text-[#71717a]">{sizes.length === 0 ? 'One Size' : (selectedSize || 'Select')}</span>
         </h4>
-        <div className="flex gap-2 flex-wrap">
+        <div 
+          ref={sizeScrollRef}
+          className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 w-full flex-nowrap"
+        >
             {sizes.length === 0 ? (
                 <button
                     disabled
-                    className="h-[40px] px-4 rounded-[8px] border-[1.5px] border-[#E8E8E8] bg-[#F4F4F5] text-[#242424] font-bold text-[14px] opacity-70 cursor-not-allowed"
+                    className="h-[40px] px-4 rounded-[8px] border-[1.5px] border-[#E8E8E8] bg-[#F4F4F5] text-[#242424] font-bold text-[14px] opacity-70 cursor-not-allowed shrink-0"
                 >
                     One Size
                 </button>
@@ -82,7 +132,7 @@ export default function ProductVariantPicker({
                         onClick={() => onSizeSelect(sizeObj.size_label)}
                         disabled={!sizeObj.is_available}
                         className={`
-                            h-[40px] px-4 rounded-[8px] border-[1.5px] font-bold text-[14px] transition-all
+                            h-[40px] px-4 rounded-[8px] border-[1.5px] font-bold text-[14px] transition-all shrink-0
                             ${!sizeObj.is_available ? 'opacity-40 cursor-not-allowed bg-gray-50' : 'cursor-pointer'}
                             ${isSelected ? 'bg-[#1D1D1D] text-white border-[#1D1D1D]' : 'bg-white text-[#242424] border-[#E8E8E8] hover:border-[#242424]'}
                         `}

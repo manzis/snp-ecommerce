@@ -10,11 +10,40 @@ interface SizeSelectionProps {
 
 const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
   const { selectedSize, setSize: setSelectedSize, setActiveVariantImage, sizeError } = useProductSelectionStore();
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   // Auto-selection of default size intentionally removed to enforce explicit user selection
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
 
   return (
     <section id="size-section" className="relative flex flex-col items-start gap-[16px] w-full h-auto min-h-[79px] ">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e4e4e7;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #a1a1aa;
+        }
+      `}} />
+
       {/* 
           HEADER: Selected Size
           - tracking-[-0.02em]: Exact Figma Token
@@ -28,7 +57,10 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
           FRAME 12: Buttons Row
           - pt-[2px] buffer to prevent 'Outside Border' clipping
       */}
-      <div className="flex h-[45px] flex-row items-start gap-[12px] pt-[2px] px-[2px]">
+      <div 
+        ref={scrollRef}
+        className="flex w-full h-[52px] flex-nowrap gap-[12px] overflow-x-auto pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
+      >
         {sizes.length === 0 ? (
           <button
             type="button"

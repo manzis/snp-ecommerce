@@ -18,7 +18,7 @@ export default function QuickLinksNav() {
       items: [
         { text: 'Products', href: '/products', type: 'link' },
         { text: 'Brands', href: '/brands', type: 'link' },
-        { text: 'Categories', href: '/products', type: 'link' },
+        { text: 'About Us', href: '/info#about-us', type: 'link' },
         { text: 'Essentials', href: '/essentials', type: 'link' },
       ]
     },
@@ -33,10 +33,10 @@ export default function QuickLinksNav() {
     {
       label: 'Policies',
       items: [
-        { text: 'Terms and condition', href: '/terms', type: 'link' },
-        { text: 'Shipping policy', href: '/shipping', type: 'link' },
-        { text: 'Return policy', href: '/return', type: 'link' },
-        { text: 'Refund policy', href: '/refund', type: 'link' },
+        { text: 'Terms and condition', href: '/info#terms-and-conditions', type: 'link' },
+        { text: 'Shipping policy', href: '/info#shipping-policy', type: 'link' },
+        { text: 'Return policy', href: '/info#return-policy', type: 'link' },
+        { text: 'Refund policy', href: '/info#refund-policy', type: 'link' },
       ]
     },
     {
