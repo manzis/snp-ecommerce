@@ -68,6 +68,24 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         background-position: center;
                     }
                 }
+                .hero-pattern-layer {
+                    position: absolute;
+                    inset: 0;
+                    background-image: url('/images/herobgpattern.webp');
+                    background-repeat: repeat;
+                    background-position: center;
+                    background-size: cover;
+                    opacity: 0.09;
+                    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%);
+                    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%);
+                    pointer-events: none;
+                    z-index: 0;
+                }
+                @media (min-width: 1024px) {
+                    .hero-pattern-layer {
+                        opacity: 0.04;
+                    }
+                }
                 @keyframes marquee-ltr {
                     0% { transform: translateX(-50%); }
                     100% { transform: translateX(0%); }
@@ -86,19 +104,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             {/* Absolute Background Image & Gradient Blur Layer */}
             <div className="hero-bg-layer" />
 
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage: "url('/images/herobgpattern.webp')",
-                    backgroundRepeat: 'repeat',
-                    backgroundPosition: 'center',
-                    backgroundSize: 'cover',
-                    opacity: 0.09,
-                    maskImage: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%)',
-                    WebkitMaskImage: 'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%)',
-                    zIndex: 0
-                }}
-            />
+            {/* Repeating background pattern layer with responsive opacity */}
+            <div className="hero-pattern-layer" />
 
             {/* Corner Radial Gradient Glows (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
             <div
