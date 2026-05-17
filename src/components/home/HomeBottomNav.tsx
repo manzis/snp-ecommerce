@@ -27,7 +27,7 @@ const HomeBottomNav: React.FC = () => {
     const pathname = usePathname();
     const { cartCount } = useCart();
     const hideBottomNav = useUIStore(state => state.hideBottomNav);
-    const [isScrollVisible, setIsScrollVisible] = useState(false);
+    const [isScrollVisible, setIsScrollVisible] = useState(true);
     const [showIndicator, setShowIndicator] = useState(true);
 
     useEffect(() => {
