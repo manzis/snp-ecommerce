@@ -16,19 +16,27 @@ let isFirstLoad = true;
  */
 export default function Template({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [shouldAnimate] = useState(() => !isFirstLoad);
+  const [animClass, setAnimClass] = useState('');
 
   useEffect(() => {
-    isFirstLoad = false;
-  }, []);
+    if (isFirstLoad) {
+      isFirstLoad = false;
+      return;
+    }
+
+    // Reset transition class to trigger keyframe animation fresh
+    setAnimClass('');
+    
+    // Toggle on next render frame to trigger CSS keyframes smoothly
+    const handle = requestAnimationFrame(() => {
+      setAnimClass('animate-page-enter');
+    });
+
+    return () => cancelAnimationFrame(handle);
+  }, [pathname]);
 
   return (
-    <main
-      key={pathname}
-      className={`flex-grow flex flex-col w-full relative flex-1 ${
-        shouldAnimate ? 'animate-page-enter' : ''
-      }`}
-    >
+    <main className={`flex-grow flex flex-col w-full relative flex-1 ${animClass}`}>
       {children}
     </main>
   );
