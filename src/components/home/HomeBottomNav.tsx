@@ -57,7 +57,9 @@ const HomeBottomNav: React.FC = () => {
         pathname === '/cart' ||
         pathname === '/checkout' ||
         pathname === '/product' ||
-        pathname.startsWith('/product/'),
+        pathname.startsWith('/product/') ||
+        pathname === '/track-order' ||
+        pathname.startsWith('/track-order/'),
         [pathname]);
 
     useEffect(() => {

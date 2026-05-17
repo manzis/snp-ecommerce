@@ -275,6 +275,8 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                 carrierName={order.carrierName}
                 trackingNumber={order.trackingNumber}
                 currentStatus={order.status}
+                createdAt={order.createdAt}
+                orderItems={order.order_items}
             />
         </div>
     );

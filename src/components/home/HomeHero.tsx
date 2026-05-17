@@ -466,6 +466,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                             src={item.image}
                                             alt={item.title}
                                             fill
+                                            priority
                                             sizes="99px"
                                             className="object-contain"
                                         />
@@ -693,6 +694,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                                 src={item.image}
                                                 alt={item.title}
                                                 fill
+                                                priority
                                                 sizes="99px"
                                                 className="object-contain"
                                             />

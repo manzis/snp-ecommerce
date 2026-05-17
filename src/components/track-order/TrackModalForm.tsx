@@ -48,7 +48,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                 // A short pop sound in base64
                 const audio = new Audio("data:audio/wav;base64,UklGRjgAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YRAAAABAgL+A/4D/gP+A/4B/AAAAAAA=");
                 audio.volume = 0.5;
-                audio.play().catch(() => {});
+                audio.play().catch(() => { });
             } catch (e) {
                 // Ignore audio errors if browser blocks autoplay
             }
@@ -112,7 +112,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="flex w-full py-[12px] gap-[10px] justify-center items-center bg-[#ffe900] hover:bg-[#ebd700] rounded-[12px] transition-colors duration-[200ms] ease-in-out relative z-[11] shadow-sm disabled:opacity-60"
+                            className="flex w-full py-[12px] gap-[10px] justify-center items-center bg-[#ffe900] hover:bg-[#ebd700] rounded-[12px] transition-colors duration-[200ms] ease-in-out relative z-[11] disabled:opacity-60"
                         >
                             <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
                                 {isPending ? 'Searching...' : 'Track Order'}
@@ -140,7 +140,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                             className={`group flex w-full px-[16px] py-[14px] justify-between items-center ${isLiked ? 'bg-[#308026] shadow-md border-transparent' : 'bg-[#eaffcc] hover:bg-[#d8f7a1] border border-transparent'} rounded-[12px] transition-all duration-[300ms] ease-in-out relative z-[18]`}
                         >
                             <div className="flex gap-[12px] items-center shrink-0 relative z-[19]">
-                                <motion.div 
+                                <motion.div
                                     className={`flex items-center justify-center w-[24px] h-[24px] shrink-0 relative z-[20] ${isLiked ? 'text-[#ffe900]' : 'text-[#308026]'}`}
                                     animate={isLiked ? { scale: [1, 1.4, 0.9, 1.1, 1], rotate: [0, -15, 15, -10, 0] } : { scale: 1 }}
                                     transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -152,7 +152,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                                 </span>
                             </div>
 
-                            <motion.div 
+                            <motion.div
                                 className={`flex items-center justify-center w-[16px] h-[16px] shrink-0 relative z-[22] transition-colors duration-[300ms] group-hover:translate-x-1 ${isLiked ? 'text-white' : 'text-[#308026]'}`}
                                 animate={isLiked ? { x: 5, opacity: 0 } : { x: 0, opacity: 1 }}
                             >

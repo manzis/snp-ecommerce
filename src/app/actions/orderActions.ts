@@ -48,7 +48,7 @@ export async function trackOrderByIdAction(shortId: string) {
         payment_screenshot_url, payment_remarks, payment_attempted_at,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
-          products (name, images, brands (name))
+          products (name, images, stock_status, brands (name))
         )
       `)
       .gte('id', lowerBound)
@@ -157,7 +157,7 @@ export async function fetchUserOrdersAction(page: number = 1, limit: number = 10
         *,
         order_items (
           *,
-          products (name, images, brands (name))
+          products (name, images, stock_status, brands (name))
         )
       `, { count: 'estimated' })
       .eq('user_id', user.id)
@@ -273,7 +273,7 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
         payment_screenshot_url, payment_remarks, payment_attempted_at, updated_at,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
-          products (name, images, brands (name))
+          products (name, images, stock_status, brands (name))
         )
       `, { count: 'estimated' });
 

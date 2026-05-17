@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import CopyIcon from '@/components/icons/CopyIcon';
 import InfoIcon from '@/components/icons/InfoIcon';
 import TickIcon from '@/components/icons/TickIcon';
 import CloseIcon from '@/components/icons/CloseIcon2';
 import { StatusUpdateLog, OrderStatus, STATUS_CONFIG } from '@/components/orders/OrderCard';
+import { getExpectedDeliveryRange, formatSingleDate } from '@/lib/deliveryHelper';
 
 interface TrackingModalProps {
     isOpen: boolean;
@@ -16,6 +18,8 @@ interface TrackingModalProps {
     carrierName?: string;
     trackingNumber?: string;
     currentStatus: OrderStatus;
+    createdAt?: string;
+    orderItems?: any[];
 }
 
 const ChevronIcon = ({ className, rotated }: { className?: string; rotated?: boolean }) => (
@@ -297,12 +301,33 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
     }, [statusUpdates, currentStatus]);
 }
 
-export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierName, trackingNumber, currentStatus }: TrackingModalProps) {
+export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierName, trackingNumber, currentStatus, createdAt, orderItems }: TrackingModalProps) {
     const [mounted, setMounted] = useState(false);
 
     const normalizedCurrentStatus = currentStatus.toUpperCase() as OrderStatus;
     const reconciliation = useTrackingReconciliation(statusUpdates, normalizedCurrentStatus);
     const progress = GET_PROGRESS_CONFIG(normalizedCurrentStatus);
+
+    const expectedDelivery = getExpectedDeliveryRange(createdAt, orderItems);
+    
+    let deliveryTitle = "Expected Delivery by";
+    let deliveryValue = expectedDelivery;
+
+    if (normalizedCurrentStatus === 'DELIVERED') {
+        deliveryTitle = "Order Delivered";
+        const deliveredUpdate = statusUpdates?.find(up => up.status.toUpperCase() === 'DELIVERED');
+        const deliveredDate = deliveredUpdate ? new Date(deliveredUpdate.date) : (createdAt ? new Date(createdAt) : new Date());
+        deliveryValue = `Delivered on ${formatSingleDate(deliveredDate)}`;
+    } else if (normalizedCurrentStatus === 'CANCELLED') {
+        deliveryTitle = "Order Cancelled";
+        const cancelledUpdate = statusUpdates?.find(up => up.status.toUpperCase() === 'CANCELLED');
+        const cancelledDate = cancelledUpdate ? new Date(cancelledUpdate.date) : (createdAt ? new Date(createdAt) : new Date());
+        deliveryValue = `Cancelled on ${formatSingleDate(cancelledDate)}`;
+    }
+
+    const showExpectedDelivery = expectedDelivery && 
+        normalizedCurrentStatus !== 'FAILED' && 
+        normalizedCurrentStatus !== 'RETURNED';
 
     const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(() => {
         // Default to opening the LATEST active milestone
@@ -409,15 +434,27 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                         </div>
                     </div>
 
-                    {/* Information Banner */}
-                    <div className="flex w-full items-start gap-[6px] rounded-[12px] bg-[#3f9633] p-[8px_16px] md:items-center">
-                        <div className="mt-[2px] shrink-0 md:mt-0">
-                            <InfoIcon className="h-[16px] w-[16px] text-white" />
+                    {/* Expected Delivery Section */}
+                    {showExpectedDelivery && (
+                        <div className="flex w-full flex-col rounded-[12px] bg-[#F2F9F1] p-[16px] gap-[4px] relative overflow-hidden">
+                            <span className="font-titillium text-[11px] font-[600] text-[#308026] uppercase tracking-[0.5px] leading-none">
+                                {deliveryTitle}
+                            </span>
+                            <div className="flex items-center justify-between mt-[2px]">
+                                <span className="font-titillium text-[16px] font-[700] text-[#242424] leading-none">
+                                    {deliveryValue}
+                                </span>
+                                {normalizedCurrentStatus !== 'DELIVERED' && normalizedCurrentStatus !== 'CANCELLED' && (
+                                    <Link 
+                                        href="/info#shipping-policy" 
+                                        className="font-titillium text-[12px] font-[600] text-[#308026] underline hover:text-[#242424] transition-colors"
+                                    >
+                                        Know why?
+                                    </Link>
+                                )}
+                            </div>
                         </div>
-                        <span className="flex-1 font-titillium text-[13px] font-[400] leading-[18px] text-[#ffffff]">
-                            This is the same tracking information our customer support can access
-                        </span>
-                    </div>
+                    )}
 
                     {/* Detailed Timeline Area */}
                     <div className="flex w-full flex-col flex-1 p-[24px_24px_20px] overflow-y-auto scrollbar-hide">
@@ -563,6 +600,16 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                 })}
                             </div>
                         )}
+                    </div>
+
+                    {/* Information Banner */}
+                    <div className="flex w-full items-start gap-[6px] rounded-[12px] bg-[#3f9633] p-[8px_16px] md:items-center mt-[3px]">
+                        <div className="mt-[2px] shrink-0 md:mt-0">
+                            <InfoIcon className="h-[16px] w-[16px] text-white" />
+                        </div>
+                        <span className="flex-1 font-titillium text-[13px] font-[400] leading-[18px] text-[#ffffff]">
+                            This is the same tracking information our customer support can access
+                        </span>
                     </div>
                 </div>
             </div>
