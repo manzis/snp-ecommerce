@@ -431,7 +431,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         position: 'absolute',
                         top: '570px',
                         left: '50%',
-                        transform: 'translate(-46.86%, 0)',
+                        transform: 'translate3d(-46.86%, 0, 0)',
+                        willChange: 'transform',
                         zIndex: 5,
                         overflow: 'hidden'
                     }}
@@ -457,7 +458,9 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                         backgroundColor: '#ffffff',
                                         borderRadius: '5px',
                                         position: 'relative',
-                                        zIndex: zIndexes[index % 3]
+                                        zIndex: zIndexes[index % 3],
+                                        transform: 'translate3d(0, 0, 0)',
+                                        willChange: 'transform'
                                     }}
                                     className="active:scale-95 transition-transform"
                                 >
