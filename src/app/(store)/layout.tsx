@@ -96,10 +96,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 try {
                   var designWidth = 410;
                   function setViewport() {
-                    var w = window.screen.width;
+                    // Try innerWidth first (logical pixels), fallback to screen.width
+                    var w = window.innerWidth || document.documentElement.clientWidth || window.screen.width;
+                    if (w <= 0) w = designWidth;
+                    
+                    // For mobile, simply provide width=410 and let the browser's native engine shrink it to fit.
+                    // DO NOT provide initial-scale, as WKWebView (Instagram) calculates it incorrectly if screen.width returns physical pixels.
                     var content = w < designWidth 
-                      ? 'width=' + designWidth + ', initial-scale=' + (w/designWidth) + ', maximum-scale=' + (w/designWidth) + ', user-scalable=no'
-                      : 'width=device-width, initial-scale=1';
+                      ? 'width=' + designWidth + ', user-scalable=no, viewport-fit=cover'
+                      : 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
                     
                     var meta = document.querySelector('meta[name="viewport"]');
                     if (!meta) {
@@ -108,21 +113,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       meta.id = 'manual-viewport';
                       document.head.appendChild(meta);
                     }
-                    meta.content = content;
+                    if (meta.content !== content) {
+                      meta.content = content;
+                    }
                   }
+                  
+                  // Run immediately
                   setViewport();
                   
-                  var observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                      mutation.addedNodes.forEach(function(node) {
-                        // Check if the added node is a meta viewport tag
-                        if (node.nodeName && node.nodeName.toLowerCase() === 'meta' && node.name === 'viewport') { 
-                          setViewport();
-                        }
-                      });
-                    });
-                  });
-                  observer.observe(document.head, { childList: true });
+                  // Expose globally for ViewPortManager to use on route change, NO MutationObserver to prevent CPU jams
+                  window.__setResponsiveViewport = setViewport;
                 } catch (e) {
                   console.error('Viewport script error:', e);
                 }

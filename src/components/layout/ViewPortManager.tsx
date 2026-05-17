@@ -1,34 +1,32 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function ViewportManager() {
-  const applyScaling = useCallback(() => {
-    const targetWidth = 410;
-    const deviceWidth = window.screen.width;
-
-    if (deviceWidth >= targetWidth) return;
-
-    const scale = deviceWidth / targetWidth;
-    const viewportMeta = document.querySelector('meta[name="viewport"]');
-
-    if (viewportMeta) {
-      const content = `width=${targetWidth}, initial-scale=${scale}, minimum-scale=${scale}, max-scale=${scale}, user-scalable=no`;
-      // Only update if orientation actually changed
-      if (viewportMeta.getAttribute('content') !== content) {
-        viewportMeta.setAttribute('content', content);
-      }
-    }
-  }, []);
+  const pathname = usePathname();
 
   useEffect(() => {
-    // Only handle physical device changes, NOT scrolling
-    window.addEventListener('orientationchange', applyScaling);
+    // Whenever the route changes (or on mount), Next.js might reset the viewport.
+    // Call the global function defined in our layout.tsx <Script> to re-apply our custom scaling.
+    if (typeof window !== 'undefined' && (window as any).__setResponsiveViewport) {
+      (window as any).__setResponsiveViewport();
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    // Only handle physical device orientation changes, NOT scrolling
+    const handleOrientation = () => {
+      if (typeof window !== 'undefined' && (window as any).__setResponsiveViewport) {
+        (window as any).__setResponsiveViewport();
+      }
+    };
+    window.addEventListener('orientationchange', handleOrientation);
 
     return () => {
-      window.removeEventListener('orientationchange', applyScaling);
+      window.removeEventListener('orientationchange', handleOrientation);
     };
-  }, [applyScaling]);
+  }, []);
 
   return null;
 }
