@@ -151,7 +151,7 @@ const HomeBottomNav: React.FC = () => {
             </AnimatePresence>
 
             <nav
-                className="pointer-events-auto relative flex h-[92px] w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
+                className="pointer-events-auto relative flex w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
                 style={{
                     paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
                     paddingTop: '4px',
@@ -199,7 +199,7 @@ const HomeBottomNav: React.FC = () => {
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }
                             }}
-                            className="relative flex h-full flex-1 basis-0 flex-col items-center justify-center gap-[8px] py-[12px] outline-none z-10 group"
+                            className="relative flex h-full flex-1 basis-0 flex-col items-center justify-center gap-[8px] py-[15px] outline-none z-10 group"
                         >
                             <div className={`relative h-[24px] w-[24px] flex items-center justify-center transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100 group-active:scale-95'}`}>
                                 <Icon className={`h-full w-full ${isActive ? 'text-[#242424]' : 'text-[#626262]'}`} />

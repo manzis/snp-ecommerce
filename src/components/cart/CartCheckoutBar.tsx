@@ -135,10 +135,10 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
-            className="pointer-events-auto relative h-[88px] w-full max-w-[410px] md:max-w-7xl bg-[#fcfff8] border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)]"
+            className="pointer-events-auto relative w-full max-w-[410px] md:max-w-7xl bg-[#fcfff8] border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)]"
             style={{
-              paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
-              paddingTop: '8px',
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)',
+              paddingTop: '12px',
             }}
           >
             {Content}
