@@ -20,7 +20,10 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
       return;
     }
 
+    let active = true;
+
     const handleScroll = () => {
+      if (!active) return;
       const scrollY = window.scrollY;
       
       // Zero-reflow safety guard: if user is at the top of the page,
@@ -36,9 +39,24 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
       setIsVisible(!isAtBottom);
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Delay attaching the scroll listener by 150ms.
+    // This allows Next.js in production to complete the scroll-to-top transition
+    // and let the product page layout height hydrate.
+    const timer = setTimeout(() => {
+      if (active) {
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+      }
+    }, 150);
+
+    // Guarantee the bottom CTA is visible immediately when entering the page
+    setIsVisible(true);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, [isPreview]);
 
   useEffect(() => {
