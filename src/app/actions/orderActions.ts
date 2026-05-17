@@ -13,6 +13,101 @@ import {
   sendAdminOrderReceivedEmail,
   sendCustomerPaymentConfirmedEmail,
 } from '@/services/emailService';
+import { getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
+
+async function checkAndPersistDelayedStatus(order: any, supabase: any) {
+  if (!order || !order.id) return;
+
+  const dbStatus = (order.status || '').toLowerCase();
+  const TERMINAL_STATUSES = ['delivered', 'cancelled', 'failed', 'returned'];
+  if (TERMINAL_STATUSES.includes(dbStatus)) {
+    return;
+  }
+
+  // Calculate delivery details using our helper
+  const deliveryDetails = getExpectedDeliveryDetails(order.created_at, order.order_items);
+  console.log('[DELAY LOG] Starting check for Order ID:', order.id);
+  console.log('[DELAY LOG] dbStatus:', dbStatus);
+  console.log('[DELAY LOG] isDelayed:', deliveryDetails.isDelayed);
+  console.log('[DELAY LOG] maxExpectedDate:', deliveryDetails.maxExpectedDate.toISOString());
+
+  if (!deliveryDetails.isDelayed) {
+    console.log('[DELAY LOG] Order is not considered delayed by helper. Exiting.');
+    return;
+  }
+
+  const now = new Date();
+  const delayDate = new Date(deliveryDetails.maxExpectedDate);
+  delayDate.setDate(delayDate.getDate() + 1);
+  delayDate.setHours(0, 0, 0, 0);
+
+  console.log('[DELAY LOG] delayDate (Trigger Time):', delayDate.toISOString());
+  console.log('[DELAY LOG] current time now:', now.toISOString());
+  console.log('[DELAY LOG] is now < delayDate?:', now < delayDate);
+
+  if (now < delayDate) {
+    console.log('[DELAY LOG] Trigger time has not arrived yet. Exiting.');
+    return;
+  }
+
+  // Check if delay log already exists in database status_updates
+  const statusUpdates = order.status_updates || [];
+  const hasDelayLog = statusUpdates.some((up: any) => {
+    const s = (up.status || '').toUpperCase();
+    return s === 'DELAYED' || s === 'SHIPMENT_DELAYED' || s === 'RESCHEDULED';
+  });
+
+  console.log('[DELAY LOG] hasDelayLog in DB?:', hasDelayLog);
+
+  if (hasDelayLog) {
+    console.log('[DELAY LOG] Delay log already exists in database. Exiting.');
+    return;
+  }
+
+  // Determine status and message based on the current active section
+  const STATUS_RANK: Record<string, number> = {
+    'pending': 1,
+    'confirmed': 2,
+    'processing': 3,
+    'shipped': 4,
+    'in_transit': 5,
+    'shipment_arrived': 6,
+    'out_for_delivery': 7,
+    'delivered': 8,
+    'cancelled': 9,
+    'failed': 10,
+    'returned': 11,
+    'rescheduled': 12
+  };
+  const currentRank = STATUS_RANK[dbStatus] || 0;
+  const isShippedSection = currentRank >= 4;
+
+  const delayStatus = isShippedSection ? 'shipment_delayed' : 'delayed';
+  const delayMessage = isShippedSection
+    ? "Your order has been slightly delayed due to unforeseen courier logistics/transit constraints. We are actively coordinating to speed it up."
+    : "Your order has been slightly delayed due to logistics/warehouse processing constraints. We are actively priority-dispatching it.";
+
+  const newLog = {
+    status: delayStatus,
+    message: delayMessage,
+    date: delayDate.toISOString()
+  };
+
+  const updatedLogs = [...statusUpdates, newLog];
+
+  // Perform database write
+  const { error } = await supabase
+    .from('orders')
+    .update({ status_updates: updatedLogs })
+    .eq('id', order.id);
+
+  if (!error) {
+    // Mutate the local order object in memory so the returned response reflects it immediately!
+    order.status_updates = updatedLogs;
+  } else {
+    console.error('Failed to persist delayed status update:', error);
+  }
+}
 
 /**
  * PUBLIC server action to track an order by short ID (no auth required)
@@ -68,6 +163,9 @@ export async function trackOrderByIdAction(shortId: string) {
         .single();
       if (addressData) data.shipping_address.addressDetails = addressData;
     }
+
+    // Check and persist delay update to Postgres if necessary
+    await checkAndPersistDelayedStatus(data, supabase);
 
     return { success: true, order: mapToOrderProps(data as any) };
   } catch (error: any) {
@@ -165,6 +263,13 @@ export async function fetchUserOrdersAction(page: number = 1, limit: number = 10
       .range(from, to);
 
     if (error) throw error;
+
+    if (data && data.length > 0) {
+      // Run checks in parallel to minimize latency
+      await Promise.allSettled(
+        data.map(order => checkAndPersistDelayedStatus(order, supabase))
+      );
+    }
 
     return { 
       success: true, 

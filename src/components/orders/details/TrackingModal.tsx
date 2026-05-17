@@ -40,7 +40,9 @@ const ChevronIcon = ({ className, rotated }: { className?: string; rotated?: boo
 
 const STATUS_RANK: Record<string, number> = {
     'PENDING': 1, 'CONFIRMED': 2, 'PROCESSING': 3,
+    'DELAYED': 3.5,
     'SHIPPED': 4, 'IN_TRANSIT': 5, 'SHIPMENT_ARRIVED': 6,
+    'SHIPMENT_DELAYED': 6.5,
     'OUT_FOR_DELIVERY': 7, 'DELIVERED': 8,
     'RETURNED': 8, 'FAILED': 8, 'CANCELLED': 8,
     'RESCHEDULED': 8
@@ -177,17 +179,20 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
             'IN_TRANSIT', 'SHIPMENT_ARRIVED', 'OUT_FOR_DELIVERY', 'DELIVERED'
         ];
 
-        // 1. Map all actual logs (Convert status to uppercase for consistent lookup)
+        // 1. Map all actual logs (Convert status to uppercase, filtering out future dates)
+        const now = new Date();
         const allLogs: { id: string; status: OrderStatus; data: StatusUpdateLog; isActive: boolean; isVirtual?: boolean }[] =
-            statusUpdates.map((u, idx) => {
-                const statusUpper = u.status.toUpperCase() as OrderStatus;
-                return {
-                    id: `real-${statusUpper}-${idx}-${u.date}`,
-                    status: statusUpper,
-                    data: u,
-                    isActive: true
-                };
-            });
+            statusUpdates
+                .filter(u => new Date(u.date).getTime() <= now.getTime())
+                .map((u, idx) => {
+                    const statusUpper = u.status.toUpperCase() as OrderStatus;
+                    return {
+                        id: `real-${statusUpper}-${idx}-${u.date}`,
+                        status: statusUpper,
+                        data: u,
+                        isActive: true
+                    };
+                });
 
         // 2. Add missing intermediate logs (only for non-terminal workflows)
         if (!isTerminal) {
@@ -221,7 +226,10 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
 
             // Automatic DELAYED status trigger algorithm
             const deliveryDetails = getExpectedDeliveryDetails(createdAt, orderItems);
-            if (deliveryDetails.isDelayed && !statusUpdates.some(up => up.status.toUpperCase() === 'RESCHEDULED' || up.status.toUpperCase() === 'DELAYED')) {
+            if (deliveryDetails.isDelayed && currentRank <= 7 && !statusUpdates.some(up => {
+                const s = up.status.toUpperCase();
+                return s === 'RESCHEDULED' || s === 'DELAYED' || s === 'SHIPMENT_DELAYED';
+            })) {
                 const lastRealLog = [...allLogs].filter(l => !l.isVirtual).sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime()).pop();
                 let delayDate = deliveryDetails.maxExpectedDate.toISOString();
                 if (lastRealLog) {
@@ -229,12 +237,17 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
                     dateObj.setMinutes(dateObj.getMinutes() + 1);
                     delayDate = dateObj.toISOString();
                 }
+                const isShippedSection = currentRank >= 4;
+                const delayMessage = isShippedSection
+                    ? "Your order has been slightly delayed due to unforeseen courier logistics/transit constraints. We are actively coordinating to speed it up."
+                    : "Your order has been slightly delayed due to logistics/warehouse processing constraints. We are actively priority-dispatching it.";
+
                 allLogs.push({
                     id: `virtual-DELAYED`,
                     status: 'RESCHEDULED',
                     data: {
                         status: 'DELAYED',
-                        message: 'Your order has been slightly delayed due to logistics/warehouse processing constraints. We are actively priority-dispatching it.',
+                        message: delayMessage,
                         date: delayDate
                     },
                     isActive: true,
@@ -280,7 +293,19 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
 
         const groups = phases.map(phase => {
             const logs = sortedLogs.filter((l, idx) => {
+                // Special case: virtual delayed log grouping based on latest active status section
+                if (l.id === 'virtual-DELAYED') {
+                    const isShippedSection = currentRank >= 4;
+                    if (phase.id === 'ORDERED' && !isShippedSection) return true;
+                    if (phase.id === 'SHIPPED' && isShippedSection) return true;
+                    return false;
+                }
+
                 const rank = STATUS_RANK[l.status] || 0;
+
+                // Map real DB delayed logs to their correct milestone sections
+                if ((l.status as string) === 'DELAYED' && phase.id === 'ORDERED') return true;
+                if ((l.status as string) === 'SHIPMENT_DELAYED' && phase.id === 'SHIPPED') return true;
 
                 // Normal rank-based grouping
                 if (rank >= phase.rankRange[0] && rank <= phase.rankRange[1]) return true;
@@ -333,9 +358,16 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
 
     const deliveryDetails = getExpectedDeliveryDetails(createdAt, orderItems);
     const expectedDelivery = deliveryDetails.originalRange;
-    
-    let deliveryTitle = deliveryDetails.isDelayed ? "Now expected by" : "Expected Delivery by";
-    let deliveryValue = deliveryDetails.isDelayed ? deliveryDetails.revisedRange : expectedDelivery;
+
+    const hasDbDelayLog = statusUpdates?.some(up => {
+        const s = up.status.toUpperCase();
+        const isPastOrPresent = new Date(up.date).getTime() <= new Date().getTime();
+        return isPastOrPresent && (s === 'RESCHEDULED' || s === 'DELAYED' || s === 'SHIPMENT_DELAYED');
+    });
+    const isDelayed = deliveryDetails.isDelayed || hasDbDelayLog;
+
+    let deliveryTitle = isDelayed ? "Now expected by" : "Expected Delivery by";
+    let deliveryValue = isDelayed ? deliveryDetails.revisedRange : expectedDelivery;
 
     if (normalizedCurrentStatus === 'DELIVERED') {
         deliveryTitle = "Order Delivered";
@@ -349,8 +381,8 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
         deliveryValue = `Cancelled on ${formatSingleDate(cancelledDate)}`;
     }
 
-    const showExpectedDelivery = expectedDelivery && 
-        normalizedCurrentStatus !== 'FAILED' && 
+    const showExpectedDelivery = expectedDelivery &&
+        normalizedCurrentStatus !== 'FAILED' &&
         normalizedCurrentStatus !== 'RETURNED';
 
     const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(() => {
@@ -469,8 +501,8 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                     {deliveryValue}
                                 </span>
                                 {normalizedCurrentStatus !== 'DELIVERED' && normalizedCurrentStatus !== 'CANCELLED' && (
-                                    <Link 
-                                        href="/info#shipping-policy" 
+                                    <Link
+                                        href="/info#shipping-policy"
                                         className="font-titillium text-[12px] font-[600] text-[#308026] underline hover:text-[#242424] transition-colors"
                                     >
                                         Know why?
@@ -603,7 +635,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
 
                                                                         <div className="flex flex-col items-start gap-[2px]">
                                                                             <span className={`font-titillium text-[12px] font-[700] tracking-[0.2px] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>
-                                                                                {log.id === 'virtual-DELAYED' || log.data.status === 'DELAYED' ? 'Order Delayed' : log.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                                                                                {log.id === 'virtual-DELAYED' || (log.data.status || '').toUpperCase() === 'DELAYED' || (log.data.status || '').toUpperCase() === 'SHIPMENT_DELAYED' ? (group.id === 'SHIPPED' ? 'Shipment Delayed' : 'Order Delayed') : log.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
                                                                             </span>
                                                                             <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#575757]">
                                                                                 {log.data.message}
