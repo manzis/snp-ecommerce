@@ -70,7 +70,7 @@ const HomeBottomNav: React.FC = () => {
                 window.requestAnimationFrame(() => {
                     const currentScrollY = window.scrollY;
                     const isAtBottom = (currentScrollY + window.innerHeight) >= (document.documentElement.scrollHeight - 120);
-                    
+
                     if (isAtBottom) {
                         setIsScrollVisible(false);
                     } else if (pathname === '/' && currentScrollY < 20) {
@@ -83,7 +83,7 @@ const HomeBottomNav: React.FC = () => {
                 ticking = true;
             }
         };
-        
+
         // Zero-reflow initial state check on page transition/mount
         const currentScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
         if (pathname === '/' && currentScrollY < 20) {
@@ -91,7 +91,7 @@ const HomeBottomNav: React.FC = () => {
         } else {
             setIsScrollVisible(true);
         }
-        
+
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
     }, [isExcludedPage, pathname]);
@@ -153,8 +153,8 @@ const HomeBottomNav: React.FC = () => {
             <nav
                 className="pointer-events-auto relative flex w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
                 style={{
-                    paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
-                    paddingTop: '4px',
+                    paddingBottom: 'calc(env(safe-area-inset-bottom) + 7px)',
+                    paddingTop: '5px',
                     transform: `translateY(${isScrollVisible ? 0 : 120}px) translateZ(0)`,
                     WebkitTransform: `translateY(${isScrollVisible ? 0 : 120}px) translateZ(0)`,
                     opacity: isScrollVisible ? 1 : 0
@@ -199,7 +199,7 @@ const HomeBottomNav: React.FC = () => {
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 }
                             }}
-                            className="relative flex h-full flex-1 basis-0 flex-col items-center justify-center gap-[8px] py-[15px] outline-none z-10 group"
+                            className="relative flex h-full flex-1 basis-0 flex-col items-center justify-center gap-[4px] py-[8px] outline-none z-10 group"
                         >
                             <div className={`relative h-[24px] w-[24px] flex items-center justify-center transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100 group-active:scale-95'}`}>
                                 <Icon className={`h-full w-full ${isActive ? 'text-[#242424]' : 'text-[#626262]'}`} />

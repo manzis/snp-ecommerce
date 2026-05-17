@@ -123,8 +123,8 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
       <footer
         className="pointer-events-auto relative flex w-full max-w-[410px] items-center justify-between px-[16px] gap-[12px] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] border-t border-[#f1f5f9]"
         style={{
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)',
-          paddingTop: '12px',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 9px)',
+          paddingTop: '11px',
         }}
       >
         {/* Add to Cart / Go to Cart */}
