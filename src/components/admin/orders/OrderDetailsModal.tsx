@@ -25,7 +25,9 @@ interface OrderDetailsModalProps {
 // Timeline Rank Configuration
 const STATUS_RANK: Record<string, number> = {
     'PENDING': 1, 'CONFIRMED': 2, 'PROCESSING': 3,
+    'DELAYED': 3.5,
     'SHIPPED': 4, 'IN_TRANSIT': 5, 'SHIPMENT_ARRIVED': 6,
+    'SHIPMENT_DELAYED': 6.5,
     'OUT_FOR_DELIVERY': 7, 'DELIVERED': 8,
     'RETURNED': 8, 'FAILED': 8, 'CANCELLED': 8,
     'RESCHEDULED': 8
@@ -366,10 +368,14 @@ export default function OrderDetailsModal({
                     <div className="space-y-4">
                         {MILESTONES.map((m) => {
                             const isExpanded = expandedMilestones.has(m.id);
-                            const milestoneLogs = order.statusUpdates?.filter(u => {
-                                const rank = STATUS_RANK[u.status.toUpperCase()] || 0;
-                                return rank >= m.rankRange[0] && rank <= m.rankRange[1];
-                            }) || [];
+                            const milestoneLogs = order.statusUpdates
+                                ?.filter(u => new Date(u.date).getTime() <= new Date().getTime()) // Hide future-stamped logs for safety
+                                .filter(u => {
+                                    const rank = STATUS_RANK[u.status.toUpperCase()] || 0;
+                                    if (u.status.toUpperCase() === 'DELAYED' && m.id === 'ORDERED') return true;
+                                    if (u.status.toUpperCase() === 'SHIPMENT_DELAYED' && m.id === 'SHIPPED') return true;
+                                    return rank >= m.rankRange[0] && rank <= m.rankRange[1];
+                                }) || [];
 
                             const isFinalMilestone = m.id === 'DELIVERY';
                             const isTerminal = ['DELIVERED', 'CANCELLED', 'FAILED', 'RETURNED'].includes(normalizedStatus);
