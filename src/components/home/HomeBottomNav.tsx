@@ -151,11 +151,12 @@ const HomeBottomNav: React.FC = () => {
             </AnimatePresence>
 
             <nav
-                className="pointer-events-auto relative flex h-[86px] w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
+                className="pointer-events-auto relative flex h-[92px] w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
                 style={{
-                    paddingBottom: 'env(safe-area-inset-bottom)',
-                    transform: `translateY(${isScrollVisible ? 0 : 100}px) translateZ(0)`,
-                    WebkitTransform: `translateY(${isScrollVisible ? 0 : 100}px) translateZ(0)`,
+                    paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+                    paddingTop: '4px',
+                    transform: `translateY(${isScrollVisible ? 0 : 120}px) translateZ(0)`,
+                    WebkitTransform: `translateY(${isScrollVisible ? 0 : 120}px) translateZ(0)`,
                     opacity: isScrollVisible ? 1 : 0
                 }}
             >
