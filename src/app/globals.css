@@ -43,17 +43,10 @@ html, body {
     touch-action: manipulation;
   }
 
-  /* Hide body on mobile while viewport is being set to prevent blink/bounce.
-     The viewport script removes 'initial-loading' after setting the correct scale. */
-  html.initial-loading body {
-    opacity: 0;
-  }
-
   /* Desktop View: Keep it clean and centered */
   @media (min-width: 768px) {
 
     /* Bypass the "hide body" logic on desktop for better LCP performance */
-    html.initial-loading body,
     html body {
       opacity: 1 !important;
       visibility: visible !important;

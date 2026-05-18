@@ -76,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased initial-loading`}
+      className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased`}
     >
       <head>
         <meta name="facebook-domain-verification" content="7ishqpnop66zzwgrcpe0m7l77iqkbc" />
@@ -146,8 +146,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   fixAll();
                 });
                 obs.observe(document.head, { childList: true });
-                
-                document.documentElement.classList.remove('initial-loading');
               })();
             `
           }}
