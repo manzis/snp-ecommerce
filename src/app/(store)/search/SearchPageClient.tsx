@@ -28,19 +28,30 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
   const router = useRouter();
   
   // Read initial query from URL
-  const [query, setQuery] = useState(searchParams.get('q') || '');
-  const [isSearched, setIsSearched] = useState(!!searchParams.get('q'));
+  const urlQuery = searchParams.get('q') || '';
+  const [query, setQuery] = useState(urlQuery);
+  const [isSearched, setIsSearched] = useState(!!urlQuery);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   const sessionId = useSessionId();
   
-  const [products, setProducts] = useState<Product[]>([]);
+  // Compute initial search results synchronously on mount to avoid layout shift & enable scroll restoration
+  const [products, setProducts] = useState<Product[]>(() => {
+    if (urlQuery && initialProducts.length > 0) {
+      return performSearch(urlQuery, initialProducts);
+    }
+    return [];
+  });
+
   const [activeFilters, setActiveFilters] = useState<SelectedFilters>({
     categories: [],
     brands: [],
     price: [],
   });
+
+  // Track if it's the initial mount to skip debounced search on first render
+  const isFirstMount = React.useRef(true);
 
   // Load recent searches from localStorage
   useEffect(() => {
@@ -50,15 +61,26 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
 
   // Synchronize state when URL query changes (e.g. Back button)
   useEffect(() => {
-    const urlQuery = searchParams.get('q') || '';
-    if (urlQuery !== query) {
-      setQuery(urlQuery);
-      setIsSearched(!!urlQuery);
+    const newUrlQuery = searchParams.get('q') || '';
+    if (newUrlQuery !== query) {
+      setQuery(newUrlQuery);
+      setIsSearched(!!newUrlQuery);
+      // Synchronously search to prevent any footer layout shift/flicker
+      if (newUrlQuery && initialProducts.length > 0) {
+        setProducts(performSearch(newUrlQuery, initialProducts));
+      } else {
+        setProducts([]);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, initialProducts]);
 
   // Fuzzy Search Engine Logic
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    
     if (isSearched && initialProducts.length > 0) {
       setIsLoading(true);
       

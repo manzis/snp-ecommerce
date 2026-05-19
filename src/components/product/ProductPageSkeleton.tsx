@@ -64,9 +64,21 @@ export default function ProductPageSkeleton() {
             </div>
 
             {/* Selector Options */}
+            <div className="flex flex-col gap-y-4 mb-6">
+              <div className="w-full h-[64px] bg-gray-50 rounded-[12px]" />
+              <div className="w-full h-[64px] bg-gray-50 rounded-[12px]" />
+            </div>
+
+            {/* Desktop Only CTA Skeleton */}
+            <div className="hidden lg:flex w-full flex-row gap-[16px] mb-8">
+              <div className="flex-1 h-[60px] bg-gray-50 rounded-[12px]" />
+              <div className="flex-1 h-[60px] bg-gray-100 rounded-[12px]" />
+            </div>
+
+            {/* Offers/Bundle Skeleton */}
             <div className="flex flex-col gap-y-4 mb-8">
-              <div className="w-full h-[64px] bg-gray-50 rounded-[12px]" />
-              <div className="w-full h-[64px] bg-gray-50 rounded-[12px]" />
+              <div className="w-full h-[90px] bg-gray-50 rounded-[16px]" />
+              <div className="w-full h-[150px] bg-gray-50 rounded-[16px]" />
             </div>
             
             {/* Delivery/Service Highlights */}
@@ -79,7 +91,7 @@ export default function ProductPageSkeleton() {
       {/* MOBILE CTA SKELETON */}
       <div className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none lg:hidden animate-pulse">
         <footer
-          className="relative flex w-full max-w-[410px] items-center justify-between px-[16px] gap-[12px] bg-[#fcfff8] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] border-t border-[#f1f5f9]"
+          className="relative flex w-full max-w-[410px] items-center justify-between px-[16px] gap-[12px] bg-[#ffffff] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] border-t border-[#f1f5f9]"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 9px)',
             paddingTop: '11px',

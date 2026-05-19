@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BackIcon from '@/components/icons/BackIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
@@ -16,6 +16,10 @@ import { useCartStore } from '@/store/cartStore';
 export default function ProductNav() {
   const router = useRouter();
   const { cartCount } = useCart();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleBack = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();

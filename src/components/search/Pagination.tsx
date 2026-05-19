@@ -34,6 +34,15 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     return range;
   };
 
+  const handlePageClick = (page: number) => {
+    onPageChange(page);
+    try {
+      window.scrollTo({ top: 0, behavior: 'instant' as any });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+  };
+
   const pages = getPageRange();
   const isFirstPage = currentPage === 1;
   const isLastPage = currentPage === Math.max(1, totalPages);
@@ -52,7 +61,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         
         {/* Prev Button - Disabled if page is 1 */}
         <button 
-          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          onClick={() => handlePageClick(Math.max(1, currentPage - 1))}
           disabled={isFirstPage}
           className="flex h-[40px] px-[16px] items-center gap-[6px] border-r border-[#eaebf0] hover:bg-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0 outline-none"
         >
@@ -70,7 +79,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
             <button
               key={idx}
               disabled={page === '...' || (typeof page === 'number' && totalPages <= 1)}
-              onClick={() => typeof page === 'number' && onPageChange(page)}
+              onClick={() => typeof page === 'number' && handlePageClick(page)}
               className={`flex w-[40px] h-[40px] items-center justify-center border-r border-[#eaebf0] font-inter text-[14px] font-medium transition-colors outline-none
                 ${currentPage === page 
                   ? 'text-[#3f9633] bg-[#f9fdf9]' 
@@ -84,7 +93,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
         {/* Next Button - Disabled if page is last or only 1 page exists */}
         <button 
-          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          onClick={() => handlePageClick(Math.min(totalPages, currentPage + 1))}
           disabled={isLastPage}
           className="flex h-[40px] px-[16px] items-center gap-[6px] hover:bg-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0 outline-none"
         >
