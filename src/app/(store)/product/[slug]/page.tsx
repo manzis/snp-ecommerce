@@ -1,4 +1,5 @@
 import ProductNav from '@/components/product/ProductNav';
+import ProductPageSkeleton from '@/components/product/ProductPageSkeleton';
 import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import ProductImage from '@/components/product/ProductImage';
 import ProductHeader from '@/components/product/ProductHeader';
@@ -124,19 +125,6 @@ async function QAWrapper({ productId }: { productId: string }) {
 const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
   <div className="w-full px-[24px] py-4 animate-pulse">
     <div className={`w-full bg-gray-50 rounded-[12px]`} style={{ height }} />
-  </div>
-);
-
-const ProductPageSkeleton = () => (
-  <div className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 animate-pulse">
-    <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
-      <div className="w-full max-w-[700px] lg:w-[58%] aspect-square bg-gray-50 rounded-[20px]" />
-      <div className="w-full max-w-[700px] lg:w-[38%] flex flex-col gap-6">
-        <div className="h-10 w-3/4 bg-gray-50 rounded" />
-        <div className="h-6 w-1/4 bg-gray-50 rounded" />
-        <div className="h-[200px] w-full bg-gray-50 rounded" />
-      </div>
-    </div>
   </div>
 );
 
@@ -318,14 +306,7 @@ async function ProductContent({ slug }: { slug: string }) {
 export default function ProductPage({ params }: ProductPageProps) {
   return (
     <article className="relative min-h-screen">
-      <Suspense fallback={
-        <>
-          <header className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFFF]/90 backdrop-blur-md w-full border-b border-[#F5F5F5]">
-            <ProductNav />
-          </header>
-          <ProductPageSkeleton />
-        </>
-      }>
+      <Suspense fallback={<ProductPageSkeleton />}>
         <ProductContentWrapper params={params} />
       </Suspense>
     </article>

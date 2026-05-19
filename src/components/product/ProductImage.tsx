@@ -237,7 +237,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
       {mounted && (
         <MediaLightbox
           isOpen={isLightboxOpen}
-          media={displayImages.map(img => ({ type: 'image', url: img, alt: productName }))}
+          media={displayImages.map(img => ({ type: 'image', url: optimizeImage(img, 1200), alt: productName }))}
           initialIndex={activeIndex}
           onClose={() => setIsLightboxOpen(false)}
         />

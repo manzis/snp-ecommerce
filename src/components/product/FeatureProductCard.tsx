@@ -55,7 +55,6 @@ export default function FeaturedProductCard({
         <article className="group flex w-full max-w-[169px] mx-auto flex-col gap-[8px] items-start relative font-['Titillium_Web',sans-serif]">
             <Link 
                 href={productUrl} 
-                prefetch={false}
                 onPointerDown={handlePrefetch}
                 onTouchStart={handlePrefetch}
                 onMouseEnter={handlePrefetch}

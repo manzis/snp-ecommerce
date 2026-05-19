@@ -28,7 +28,6 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <Link
       href={`/product/${product.slug}`}
-      prefetch={false}
       onPointerDown={handlePrefetch}
       onTouchStart={handlePrefetch}
       onMouseEnter={handlePrefetch}

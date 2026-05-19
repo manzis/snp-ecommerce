@@ -7,12 +7,12 @@ import { useUIStore } from '@/store/uiStore';
 import { useCartStore } from '@/store/cartStore';
 
 import HomeBottomNav from '@/components/home/HomeBottomNav';
+import FloatingNav from '@/components/layout/FloatingNav';
+import DynamicPageNav from '@/components/layout/DynamicPageNav';
 
 // Lazy-load below-fold / non-critical layout elements
 // Footer & FloatingNav must SSR so Googlebot can see internal links (products, brands, policies)
 const Footer = dynamic(() => import('@/components/layout/footer'));
-const FloatingNav = dynamic(() => import('@/components/layout/FloatingNav'));
-const DynamicPageNav = dynamic(() => import('@/components/layout/DynamicPageNav'));
 // These are interactive-only — safe to skip SSR
 const CartSidebar = dynamic(() => import('@/components/cart/CartSidebar'), { ssr: false });
 

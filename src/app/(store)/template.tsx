@@ -16,24 +16,22 @@ let isFirstLoad = true;
  */
 export default function Template({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [animClass, setAnimClass] = useState('');
+  const [animClass, setAnimClass] = useState(() => (isFirstLoad ? '' : 'animate-page-enter'));
+  const [lastPath, setLastPath] = useState(pathname);
+
+  // Fallback: if Next.js does not remount the template but pathname changes
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    if (!isFirstLoad) {
+      setAnimClass('animate-page-enter');
+    }
+  }
 
   useEffect(() => {
     if (isFirstLoad) {
       isFirstLoad = false;
-      return;
     }
-
-    // Reset transition class to trigger keyframe animation fresh on navigation
-    setAnimClass('');
-    
-    // Toggle on next render frame to trigger CSS keyframes smoothly
-    const handle = requestAnimationFrame(() => {
-      setAnimClass('animate-page-enter');
-    });
-
-    return () => cancelAnimationFrame(handle);
-  }, [pathname]);
+  }, []);
 
   return (
     <main className={`flex-grow flex flex-col w-full relative flex-1 ${animClass}`}>
