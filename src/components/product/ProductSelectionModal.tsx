@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import CloseIcon from '@/components/icons/CloseIcon';
@@ -112,25 +111,18 @@ export default function ProductSelectionModal({
   if (!mounted) return null;
 
   const content = (
-    <AnimatePresence>
+    <>
       {isOpen && (
         <div className="fixed inset-0 z-[100000] flex items-end lg:items-center justify-center p-0 lg:p-6">
           {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-page-enter"
             onClick={onClose}
           />
 
           {/* Modal Container */}
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="relative w-full max-w-[500px] bg-white rounded-t-[24px] lg:rounded-[24px] h-[85vh] lg:h-[700px] flex flex-col overflow-hidden font-titillium"
+          <div
+            className="relative w-full max-w-[500px] bg-white rounded-t-[24px] lg:rounded-[24px] h-[85vh] lg:h-[700px] flex flex-col overflow-hidden font-titillium animate-slide-up"
           >
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">
@@ -230,10 +222,8 @@ export default function ProductSelectionModal({
                         </div>
 
                         {isExpanded && (
-                            <motion.div 
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                className="px-4 pb-4 pt-2 border-t border-gray-50 flex flex-col gap-4"
+                            <div 
+                                className="px-4 pb-4 pt-2 border-t border-gray-50 flex flex-col gap-4 animate-page-enter"
                             >
                                 <ProductVariantPicker 
                                     sizes={product.product_sizes || []}
@@ -293,7 +283,7 @@ export default function ProductSelectionModal({
                                         }
                                     </button>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
                       </div>
                     );
@@ -305,10 +295,10 @@ export default function ProductSelectionModal({
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
-    </AnimatePresence>
+    </>
   );
 
   return createPortal(content, document.body);

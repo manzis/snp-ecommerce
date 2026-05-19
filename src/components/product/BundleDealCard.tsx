@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon';
 import PlusIcon from '@/components/icons/PlusIcon';
 import CloseIcon from '@/components/icons/CloseIcon';
@@ -37,24 +36,9 @@ interface SelectedProduct {
 }
 
 const SavingsBadge = ({ text, type = 'saved' }: { text: string, type?: 'saved' | 'available' }) => {
-  const [particles, setParticles] = React.useState<{ x: number, y: number, rotate: number, scale: number }[]>([]);
-
-  React.useEffect(() => {
-    if (type === 'saved') {
-      setParticles([...Array(6)].map(() => ({
-        x: (Math.random() - 0.5) * 60,
-        y: -(Math.random() * 30 + 10),
-        rotate: Math.random() * 360,
-        scale: Math.random() * 0.5 + 1
-      })));
-    }
-  }, [type]);
-
   return (
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0, y: 5 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap z-10"
+    <div
+      className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap z-10 animate-slide-up"
     >
       <div className="relative min-h-[20px]">
         <span
@@ -65,22 +49,8 @@ const SavingsBadge = ({ text, type = 'saved' }: { text: string, type?: 'saved' |
         >
           {text}
         </span>
-        {particles.map((p, i) => (
-          <motion.div
-            key={i}
-            initial={{ scale: 0, x: 0, y: 0 }}
-            animate={{
-              scale: [0, p.scale, 0],
-              x: p.x,
-              y: p.y,
-              rotate: p.rotate
-            }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className={`absolute top-1/2 left-1/2 w-1 h-1 rounded-sm ${i % 2 === 0 ? 'bg-[#33D81D]' : 'bg-[#318126]'}`}
-          />
-        ))}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -277,14 +247,14 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
           </div>
           <span className="text-[16px] font-semibold">Apply offers for maximum savings</span>
         </div>
-        <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+        <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : 'rotate-0'}`}>
           <ChevronLeftIcon className="w-5 h-5 text-white" />
-        </motion.div>
+        </div>
       </button>
 
-      <AnimatePresence>
+      <>
         {isExpanded && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+          <div className="overflow-hidden animate-page-enter">
             <div className="p-[8px] flex flex-col gap-2 bg-[#FAFAFA] rounded-t-[12px]">
 
               <div className="flex items-baseline gap-2 px-3 pt-2">
@@ -341,9 +311,9 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       {selectedProducts.length === 0 && <SavingsBadge text="Current" type="available" />}
                     </div>
                     {((sizeError && !selectedSize) || (flavorError && !selectedFlavorId)) && (
-                      <motion.span initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-red-500 font-bold">
+                      <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-red-500 font-bold animate-slide-up">
                         Select Variant
-                      </motion.span>
+                      </span>
                     )}
                   </div>
 
@@ -485,9 +455,9 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
               mainProduct={mainProduct}
               initialSearch={pendingBulkQty ? '' : ''}
             />
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
     </div>
   );
 };

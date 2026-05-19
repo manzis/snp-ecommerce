@@ -16,7 +16,7 @@ let isFirstLoad = true;
  */
 export default function Template({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex-grow flex flex-col w-full relative flex-1">
+    <main className="flex-grow flex flex-col w-full relative flex-1 animate-page-enter">
       {children}
     </main>
   );

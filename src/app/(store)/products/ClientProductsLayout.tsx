@@ -7,7 +7,6 @@ import ProductCard from '@/components/home/ProductCard';
 import Pagination from '@/components/search/Pagination';
 import SearchIcon from '@/components/icons/SearchIcon';
 import DropDownIcon from '@/components/icons/DropDownIcon';
-import { motion, AnimatePresence } from 'framer-motion';
 
 import type { Product, Category, Brand } from '@/services/productService';
 
@@ -88,14 +87,9 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                     <DropDownIcon className={`h-[16px] w-[16px] text-[#242424] transition-transform duration-300 ${isBrandsOpen ? 'rotate-180' : ''}`} />
                                 </div>
                             </div>
-                            <AnimatePresence>
+                            <>
                                 {isBrandsOpen && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden"
-                                    >
+                                    <div className="overflow-hidden animate-page-enter">
                                         <div className="no-scrollbar flex gap-[8px] overflow-x-auto pb-[8px] pt-[4px]">
                                             {BRANDS.map((brand) => (
                                                 <button
@@ -113,9 +107,9 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                                 </button>
                                             ))}
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 )}
-                            </AnimatePresence>
+                            </>
                         </div>
                     </div>
 
@@ -130,14 +124,9 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                     <DropDownIcon className={`h-[16px] w-[16px] text-[#242424] transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
                                 </div>
                             </div>
-                            <AnimatePresence>
+                            <>
                                 {isCategoriesOpen && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden"
-                                    >
+                                    <div className="overflow-hidden animate-page-enter">
                                         <div className="no-scrollbar flex gap-[8px] overflow-x-auto pb-[8px] pt-[4px]">
                                             {CATEGORIES.map((cat) => (
                                                 <button
@@ -155,9 +144,9 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                                 </button>
                                             ))}
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 )}
-                            </AnimatePresence>
+                            </>
                         </div>
                     </div>
                 </div>

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import MediaLightbox, { LightboxMedia } from '@/components/ui/MediaLightBox'; // Import the new Lightbox
 
 // Icons
@@ -82,14 +81,10 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                     const hasMedia = !!review.image;
 
                     return (
-                      <motion.div
+                      <div
                         key={review.id}
-                        initial={hasMedia ? "hidden" : "visible"}
-                        whileInView="visible"
-                        whileHover={hasMedia ? "hover" : ""}
-                        viewport={{ once: true, amount: 0.6 }}
                         onClick={() => hasMedia && handleOpenLightbox(index)}
-                        className={`relative flex ${hasMedia ? 'h-[290px]' : 'h-[220px]'} w-[225px] flex-shrink-0 flex-col rounded-[8px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer transition-transform ${!hasMedia ? theme.bg : 'bg-white'}`}
+                        className={`relative group/review flex ${hasMedia ? 'h-[290px]' : 'h-[220px]'} w-[225px] flex-shrink-0 flex-col rounded-[8px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer transition-transform ${!hasMedia ? theme.bg : 'bg-white'}`}
                       >
                         {/* 1. Base Layer: Content Media (Photo/Video) */}
                         {hasMedia && (
@@ -132,28 +127,10 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                         </div>
 
                         {/* 3. Smooth Interactive Text Overlay (or static text if no media) */}
-                        <motion.div
-                          variants={hasMedia ? {
-                            hidden: { y: "150%", opacity: 0 },
-                            visible: {
-                              y: [0, 0, 120, 120, 0],
-                              opacity: [1, 1, 0, 0, 1],
-                              transition: {
-                                times: [0, 0.65, 0.7, 0.95, 1],
-                                duration: 7,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }
-                            },
-                            hover: {
-                              y: 0,
-                              opacity: 1,
-                              transition: { duration: 0.3, ease: "easeOut" }
-                            }
-                          } : {}}
+                        <div
                           className={`
                           ${hasMedia
-                              ? `absolute bottom-[2px] left-[2px] right-[2px] z-10 p-[12px] rounded-[6px] ${theme.bg}`
+                              ? `absolute bottom-[2px] left-[2px] right-[2px] z-10 p-[12px] rounded-[6px] ${theme.bg} translate-y-0 opacity-100 lg:translate-y-full lg:opacity-0 lg:group-hover/review:translate-y-0 lg:group-hover/review:opacity-100 transition-all duration-300`
                               : "relative h-full flex flex-col justify-center items-center p-[20px] pt-[40px]"}
                           flex flex-col gap-[6px] overflow-hidden pointer-events-none
                         `}
@@ -190,21 +167,12 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
 
                           {/* 4. Original Smooth Continuous Shine (Only if media exists to make it pop) */}
                           {hasMedia && (
-                            <motion.div
-                              initial={{ x: "-150%" }}
-                              animate={{ x: "250%" }}
-                              transition={{
-                                repeat: Infinity,
-                                repeatType: "loop",
-                                duration: 2.5,
-                                delay: 2.2,
-                                ease: "linear"
-                              }}
-                              className="absolute inset-0 z-20 w-[50%] skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none mix-blend-overlay"
+                            <div
+                              className="absolute inset-0 z-20 w-[50%] animate-[shimmerEffect_2.5s_linear_infinite_2.2s] bg-gradient-to-r from-transparent via-white/60 to-transparent pointer-events-none mix-blend-overlay"
                             />
                           )}
-                        </motion.div>
-                      </motion.div>
+                        </div>
+                      </div>
                     );
                   })
                 )}

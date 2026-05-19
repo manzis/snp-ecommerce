@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // Icon imports
 import PackageIcon2 from '@/components/icons/PackageIcon2';
@@ -101,17 +100,14 @@ const HomeBottomNav: React.FC = () => {
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none md:hidden">
             {/* Cart Checkout Indicator - Mobile Only */}
-            <AnimatePresence>
+            <>
                 {isIndicatorVisible && (
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{
-                            y: isScrollVisible ? 0 : 100,
+                    <div
+                        className="pointer-events-auto mb-[12px] transition-all duration-300 ease-out will-change-transform animate-page-enter"
+                        style={{
+                            transform: `translateY(${isScrollVisible ? 0 : 100}px) translateZ(0)`,
                             opacity: isScrollVisible ? 1 : 0
                         }}
-                        exit={{ y: 20, opacity: 0 }}
-                        transition={{ type: 'tween', ease: 'easeOut', duration: 0.3 }}
-                        className="pointer-events-auto mb-[12px]"
                     >
                         <div
                             className="rounded-[13px] p-[1px]"
@@ -146,9 +142,9 @@ const HomeBottomNav: React.FC = () => {
                                 </div>
                             </Link>
                         </div>
-                    </motion.div>
+                    </div>
                 )}
-            </AnimatePresence>
+            </>
 
             <nav
                 className="pointer-events-auto relative flex w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
