@@ -18,7 +18,8 @@
    1. VIEWPORT STABILITY
    Ensures the background color is consistent during initial load.
 */
-html, body {
+html,
+body {
   background-color: #ffffff;
 }
 
@@ -75,9 +76,9 @@ html, body {
     scrollbar-width: none;
   }
 
-  /* Premium Industrial Shadows */
+  /* Premium Industrial Shadows — simplified to 2 layers for performance */
   .shadow-smooth {
-    filter: drop-shadow(-13px 99px 40px rgba(0, 0, 0, 0.01)) drop-shadow(-7px 56px 34px rgba(0, 0, 0, 0.02)) drop-shadow(-3px 25px 25px rgba(0, 0, 0, 0.03)) drop-shadow(-1px 6px 14px rgba(0, 0, 0, 0.04));
+    filter: drop-shadow(-3px 25px 25px rgba(0, 0, 0, 0.03)) drop-shadow(-1px 6px 14px rgba(0, 0, 0, 0.04));
   }
 
   /* Scrolling Marquee Animation */
@@ -110,9 +111,12 @@ html, body {
   .custom-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .custom-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 
   @keyframes shine {
@@ -126,8 +130,13 @@ html, body {
   }
 
   @keyframes shine-once {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
   }
 
   .group-hover\:animate-shine-once:hover .group-hover\:animate-shine-once,
@@ -145,7 +154,6 @@ html, body {
   /* GPU-accelerated scroll containers */
   .scroll-gpu {
     -webkit-overflow-scrolling: touch;
-    will-change: scroll-position;
     transform: translateZ(0);
   }
 
@@ -158,7 +166,6 @@ html, body {
   /* Lightweight image containers — prevent layout shift + enable GPU compositing */
   .img-container {
     contain: layout style paint;
-    will-change: auto;
   }
 
   /* CSS-only page transition — replaces framer-motion template animation */
@@ -166,6 +173,7 @@ html, body {
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -180,19 +188,383 @@ html, body {
     height: 4px;
     background: transparent;
   }
+
   .subtle-scrollbar::-webkit-scrollbar-thumb {
     background: #e2e8f0;
     border-radius: 10px;
   }
+
   .subtle-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #cbd5e1;
   }
+
   @media (max-width: 768px) {
     .subtle-scrollbar {
       scrollbar-width: none;
     }
+
     .subtle-scrollbar::-webkit-scrollbar {
       display: none;
     }
+  }
+
+  /* ============================================
+     HERO SECTION STYLES (moved from inline <style>)
+     ============================================ */
+
+  .hero-bg-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    transform: translateZ(0);
+  }
+
+  .hero-bg-image-filter {
+    filter: blur(2px);
+    transform: scale(1.03) translateZ(0);
+    object-fit: cover;
+    object-position: left center;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-bg-image-filter {
+      object-position: center;
+    }
+  }
+
+  .hero-pattern-layer {
+    position: absolute;
+    inset: 0;
+    background-image: url('/images/herobgpattern.webp');
+    background-repeat: repeat;
+    background-position: center;
+    background-size: cover;
+    opacity: 0.09;
+    mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 1) 80%);
+    -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 1) 80%);
+    pointer-events: none;
+    z-index: 0;
+    transform: translateZ(0);
+  }
+
+  @media (min-width: 1024px) {
+    .hero-pattern-layer {
+      opacity: 0.04;
+    }
+  }
+
+  /* Hero gradient overlay — combines 4 corner gradients + 2 blur blobs into single element */
+  .hero-gradient-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%),
+      radial-gradient(circle at 0% 0%, rgba(148, 255, 0, 0.05) 0%, transparent 70%),
+      radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.04) 0%, transparent 70%),
+      radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.04) 0%, transparent 70%),
+      radial-gradient(circle at 100% 100%, rgba(148, 255, 0, 0.03) 0%, transparent 70%);
+  }
+
+  @keyframes marquee-ltr {
+    0% {
+      transform: translate3d(-50%, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0%, 0, 0);
+    }
+  }
+
+  .animate-marquee-ltr {
+    display: flex;
+    gap: 12px;
+    animation: marquee-ltr 20s linear infinite;
+    width: max-content;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .animate-marquee-ltr:hover {
+    animation-play-state: paused;
+  }
+
+  /* ============================================
+     SERVICES MARQUEE STYLES (moved from inline <style>)
+     ============================================ */
+
+  @keyframes marqueeRow1 {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(-33.33%, 0, 0);
+    }
+  }
+
+  @keyframes marqueeRow2 {
+    0% {
+      transform: translate3d(-33.33%, 0, 0);
+    }
+
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .marquee-container {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .animate-r1 {
+    animation: marqueeRow1 40s linear infinite;
+  }
+
+  .animate-r2 {
+    animation: marqueeRow2 45s linear infinite;
+  }
+
+  @media (max-width: 1023px) {
+    .animate-r1 {
+      animation: marqueeRow1 20s linear infinite;
+    }
+
+    .animate-r2 {
+      animation: marqueeRow2 25s linear infinite;
+    }
+  }
+
+  .service-item {
+    width: var(--item-width-mobile);
+  }
+
+  @media (min-width: 1024px) {
+    .service-item {
+      width: var(--item-width-desktop);
+    }
+  }
+
+  .services-marquee-mask {
+    mask-image: linear-gradient(to right,
+        transparent 0px,
+        rgba(0, 0, 0, 0.1) 10px,
+        rgba(0, 0, 0, 0.45) 24px,
+        rgba(0, 0, 0, 0.85) 38px,
+        black 48px,
+        black calc(100% - 48px),
+        rgba(0, 0, 0, 0.85) calc(100% - 38px),
+        rgba(0, 0, 0, 0.45) calc(100% - 24px),
+        rgba(0, 0, 0, 0.1) calc(100% - 10px),
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(to right,
+        transparent 0px,
+        rgba(0, 0, 0, 0.1) 10px,
+        rgba(0, 0, 0, 0.45) 24px,
+        rgba(0, 0, 0, 0.85) 38px,
+        black 48px,
+        black calc(100% - 48px),
+        rgba(0, 0, 0, 0.85) calc(100% - 38px),
+        rgba(0, 0, 0, 0.45) calc(100% - 24px),
+        rgba(0, 0, 0, 0.1) calc(100% - 10px),
+        transparent 100%);
+  }
+
+  @media (min-width: 1024px) {
+    .services-marquee-mask {
+      mask-image: linear-gradient(to right,
+          transparent 0px,
+          rgba(0, 0, 0, 0.1) 15px,
+          rgba(0, 0, 0, 0.45) 35px,
+          rgba(0, 0, 0, 0.85) 55px,
+          black 70px,
+          black calc(100% - 70px),
+          rgba(0, 0, 0, 0.85) calc(100% - 55px),
+          rgba(0, 0, 0, 0.45) calc(100% - 35px),
+          rgba(0, 0, 0, 0.1) calc(100% - 15px),
+          transparent 100%);
+      -webkit-mask-image: linear-gradient(to right,
+          transparent 0px,
+          rgba(0, 0, 0, 0.1) 15px,
+          rgba(0, 0, 0, 0.45) 35px,
+          rgba(0, 0, 0, 0.85) 55px,
+          black 70px,
+          black calc(100% - 70px),
+          rgba(0, 0, 0, 0.85) calc(100% - 55px),
+          rgba(0, 0, 0, 0.45) calc(100% - 35px),
+          rgba(0, 0, 0, 0.1) calc(100% - 15px),
+          transparent 100%);
+    }
+  }
+
+  /* ============================================
+     TODAYS DEALS SHIMMER (moved from inline <style>)
+     ============================================ */
+
+  @keyframes shimmerEffect {
+    0% {
+      transform: translateX(-150%) skewX(-20deg);
+    }
+
+    100% {
+      transform: translateX(250%) skewX(-20deg);
+    }
+  }
+
+  .animate-shimmer-custom {
+    animation: shimmerEffect 2.5s ease-in-out 3;
+    /* Limited to 3 iterations instead of infinite */
+  }
+
+  /* ============================================
+     TESTIMONIAL FLOATING ANIMATIONS (CSS-only, replaces framer-motion)
+     Runs on compositor thread — zero main-thread cost.
+     ============================================ */
+
+  @keyframes float-particle-left {
+
+    0%,
+    100% {
+      transform: translate(-5px, 0);
+      opacity: 0.4;
+    }
+
+    50% {
+      transform: translate(5px, 15px);
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes float-img-1 {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(4.71deg);
+    }
+
+    50% {
+      transform: translateY(-8px) rotate(6.71deg);
+    }
+  }
+
+  @keyframes float-img-2 {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(-4.89deg);
+    }
+
+    50% {
+      transform: translateY(10px) rotate(-2.89deg);
+    }
+  }
+
+  @keyframes float-img-3 {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+      transform: translateY(-12px) rotate(3deg);
+    }
+  }
+
+  @keyframes float-img-4 {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(7.72deg);
+    }
+
+    50% {
+      transform: translateY(8px) rotate(5.72deg);
+    }
+  }
+
+  @keyframes float-img-5 {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(-1.21deg);
+    }
+
+    50% {
+      transform: translateY(-10px) rotate(1.21deg);
+    }
+  }
+
+  @keyframes float-particle-right {
+
+    0%,
+    100% {
+      transform: translate(5px, 10px);
+      opacity: 0.3;
+    }
+
+    50% {
+      transform: translate(-5px, -10px);
+      opacity: 0.6;
+    }
+  }
+
+  .animate-float-particle-left {
+    animation: float-particle-left 3s ease-in-out infinite alternate;
+    animation-delay: 0.2s;
+  }
+
+  .animate-float-img-1 {
+    animation: float-img-1 3s ease-in-out infinite alternate;
+  }
+
+  .animate-float-img-2 {
+    animation: float-img-2 3s ease-in-out infinite alternate;
+    animation-delay: 0.5s;
+  }
+
+  .animate-float-img-3 {
+    animation: float-img-3 3s ease-in-out infinite alternate;
+    animation-delay: 1s;
+  }
+
+  .animate-float-img-4 {
+    animation: float-img-4 3s ease-in-out infinite alternate;
+    animation-delay: 1.5s;
+  }
+
+  .animate-float-img-5 {
+    animation: float-img-5 3s ease-in-out infinite alternate;
+    animation-delay: 2s;
+  }
+
+  .animate-float-particle-right {
+    animation: float-particle-right 3s ease-in-out infinite alternate;
+    animation-delay: 0.8s;
+  }
+
+  /* ============================================
+     FAQ ACCORDION (CSS-only, replaces framer-motion)
+     ============================================ */
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .faq-answer.faq-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .faq-answer-inner {
+    overflow: hidden;
   }
 }

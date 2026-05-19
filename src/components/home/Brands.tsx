@@ -3,7 +3,6 @@
 import React, { useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import RedirectIcon from '@/components/icons/RedirectIcon';
 
 interface BrandProp {
@@ -55,11 +54,10 @@ const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
                     className="no-scrollbar flex gap-[12px] overflow-x-auto scroll-smooth pb-[24px] pt-[12px] md:gap-[20px] lg:gap-[24px]"
                 >
                     {brands.map((brand) => (
-                        <motion.div
+                        <div
                             key={`home-brand-list-${brand.slug}`}
-                            whileHover={{ y: -8 }}
-                            transition={{ type: 'spring', stiffness: 300 }}
-                            className="shrink-0"
+                            className="shrink-0 transition-transform duration-300 hover:translate-y-[-8px]"
+                            style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
                         >
                             <Link
                                 href={`/brand/${brand.slug}`}
@@ -81,7 +79,7 @@ const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
                                     <RedirectIcon className="h-[12px] w-[12px] text-[#308026] transition-all duration-300 opacity-100 lg:opacity-0 lg:group-hover:translate-x-1 lg:group-hover:opacity-100 md:h-[14px] md:w-[14px]" />
                                 </div>
                             </Link>
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
             </div>

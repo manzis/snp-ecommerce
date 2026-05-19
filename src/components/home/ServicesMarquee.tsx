@@ -55,96 +55,10 @@ const ServicesMarquee: React.FC = () => {
     return (
         <section className="relative mx-auto w-full overflow-hidden bg-white  lg:py-[60px] touch-pan-y">
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes marqueeRow1 {
-                    0% { transform: translate3d(0, 0, 0); }
-                    100% { transform: translate3d(-33.33%, 0, 0); }
-                }
-                @keyframes marqueeRow2 {
-                    0% { transform: translate3d(-33.33%, 0, 0); }
-                    100% { transform: translate3d(0, 0, 0); }
-                }
-                .marquee-container {
-                    display: flex;
-                    width: max-content;
-                    will-change: transform;
-                    backface-visibility: hidden;
-                }
-                .animate-r1 { animation: marqueeRow1 40s linear infinite; }
-                .animate-r2 { animation: marqueeRow2 45s linear infinite; }
-                @media (max-width: 1023px) {
-                    .animate-r1 { animation: marqueeRow1 20s linear infinite; }
-                    .animate-r2 { animation: marqueeRow2 25s linear infinite; }
-                }
-
-                .service-item {
-                    width: var(--item-width-mobile);
-                }
-                @media (min-width: 1024px) {
-                    .service-item {
-                        width: var(--item-width-desktop);
-                    }
-                }
-
-                .marquee-mask {
-                    mask-image: linear-gradient(to right, 
-                        transparent 0px, 
-                        rgba(0,0,0,0.1) 10px, 
-                        rgba(0,0,0,0.45) 24px, 
-                        rgba(0,0,0,0.85) 38px, 
-                        black 48px, 
-                        black calc(100% - 48px), 
-                        rgba(0,0,0,0.85) calc(100% - 38px), 
-                        rgba(0,0,0,0.45) calc(100% - 24px), 
-                        rgba(0,0,0,0.1) calc(100% - 10px), 
-                        transparent 100%
-                    );
-                    -webkit-mask-image: linear-gradient(to right, 
-                        transparent 0px, 
-                        rgba(0,0,0,0.1) 10px, 
-                        rgba(0,0,0,0.45) 24px, 
-                        rgba(0,0,0,0.85) 38px, 
-                        black 48px, 
-                        black calc(100% - 48px), 
-                        rgba(0,0,0,0.85) calc(100% - 38px), 
-                        rgba(0,0,0,0.45) calc(100% - 24px), 
-                        rgba(0,0,0,0.1) calc(100% - 10px), 
-                        transparent 100%
-                    );
-                }
-                @media (min-width: 1024px) {
-                    .marquee-mask {
-                        mask-image: linear-gradient(to right, 
-                            transparent 0px, 
-                            rgba(0,0,0,0.1) 15px, 
-                            rgba(0,0,0,0.45) 35px, 
-                            rgba(0,0,0,0.85) 55px, 
-                            black 70px, 
-                            black calc(100% - 70px), 
-                            rgba(0,0,0,0.85) calc(100% - 55px), 
-                            rgba(0,0,0,0.45) calc(100% - 35px), 
-                            rgba(0,0,0,0.1) calc(100% - 15px), 
-                            transparent 100%
-                        );
-                        -webkit-mask-image: linear-gradient(to right, 
-                            transparent 0px, 
-                            rgba(0,0,0,0.1) 15px, 
-                            rgba(0,0,0,0.45) 35px, 
-                            rgba(0,0,0,0.85) 55px, 
-                            black 70px, 
-                            black calc(100% - 70px), 
-                            rgba(0,0,0,0.85) calc(100% - 55px), 
-                            rgba(0,0,0,0.45) calc(100% - 35px), 
-                            rgba(0,0,0,0.1) calc(100% - 15px), 
-                            transparent 100%
-                        );
-                    }
-                }
-            `}} />
+            {/* All keyframe/style CSS moved to globals.css — no more dangerouslySetInnerHTML */}
 
             {/* MAX WIDTH CONTAINER FOR DESKTOP */}
-            <div className="relative mx-auto max-w-[1440px] flex flex-col border-y border-[#e2e8f0] marquee-mask">
+            <div className="relative mx-auto max-w-[1440px] flex flex-col border-y border-[#e2e8f0] services-marquee-mask">
 
                 {/* TOP ROW */}
                 <div className="relative flex h-[100px] lg:h-[180px] w-full items-center overflow-hidden border-b border-[#e2e8f0]">

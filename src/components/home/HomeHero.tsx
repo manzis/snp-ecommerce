@@ -38,6 +38,28 @@ const fallbackDeals = [
     }
 ];
 
+// Extracted repeated SVG icons to reduce JSX size
+const IconSparkle = ({ size }: { size: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#3f9733' }}>
+        <path d="m6.5 6.5 11 11"/>
+        <path d="m21 21-1-1"/>
+        <path d="m3 3 1 1"/>
+        <path d="m18 22 4-4"/>
+        <path d="m2 6 4-4"/>
+        <path d="m3 10 7-7"/>
+        <path d="m14 21 7-7"/>
+        <path d="M6.5 12.5 12.5 6.5"/>
+        <path d="m11.5 17.5 6-6"/>
+    </svg>
+);
+
+const IconTag = ({ size }: { size: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#3f9733' }}>
+        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+        <path d="m8.5 8.5 7 7"/>
+    </svg>
+);
+
 const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
     // If no deals or not enough, fill with fallback deals to always have beautiful products
     const displayDeals = deals.length >= 3
@@ -45,72 +67,11 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
         : [...deals, ...fallbackDeals].slice(0, 3);
 
     return (
-        <section
-            className="relative w-full h-[764px] lg:h-screen lg:min-h-[764px] overflow-hidden flex items-center justify-center bg-[#081908]"
-        >
-            {/* Global style for Hero Section background & Marquee */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .hero-bg-layer {
-                    position: absolute;
-                    inset: 0;
-                    pointer-events: none;
-                    z-index: 0;
-                    overflow: hidden;
-                    transform: translate3d(0, 0, 0);
-                    will-change: transform;
-                }
-                .hero-bg-image-filter {
-                    filter: blur(2px);
-                    transform: scale(1.03) translate3d(0, 0, 0);
-                    object-fit: cover;
-                    object-position: left center;
-                    will-change: transform, filter;
-                }
-                @media (min-width: 1024px) {
-                    .hero-bg-image-filter {
-                        object-position: center;
-                    }
-                }
-                .hero-pattern-layer {
-                    position: absolute;
-                    inset: 0;
-                    background-image: url('/images/herobgpattern.webp');
-                    background-repeat: repeat;
-                    background-position: center;
-                    background-size: cover;
-                    opacity: 0.09;
-                    mask-image: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%);
-                    -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,1) 80%);
-                    pointer-events: none;
-                    z-index: 0;
-                    transform: translate3d(0, 0, 0);
-                    will-change: transform;
-                }
-                @media (min-width: 1024px) {
-                    .hero-pattern-layer {
-                        opacity: 0.04;
-                    }
-                }
-                @keyframes marquee-ltr {
-                    0% { transform: translate3d(-50%, 0, 0); }
-                    100% { transform: translate3d(0%, 0, 0); }
-                }
-                .animate-marquee-ltr {
-                    display: flex;
-                    gap: 12px;
-                    animation: marquee-ltr 20s linear infinite;
-                    width: max-content;
-                    transform: translate3d(0, 0, 0);
-                    will-change: transform;
-                }
-                .animate-marquee-ltr:hover {
-                    animation-play-state: paused;
-                }
-            `}} />
+        <section className="relative w-full h-[764px] lg:h-screen lg:min-h-[764px] overflow-hidden flex items-center justify-center bg-[#081908]">
+            {/* Global style for Hero Section background & Marquee moved to globals.css */}
 
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
-            <div className="hero-bg-layer" style={{ transform: 'translate3d(0, 0, 0)', willChange: 'transform' }}>
+            <div className="hero-bg-layer">
                 <Image
                     src="/images/heroimage.webp"
                     alt="Hero Background Image"
@@ -123,295 +84,60 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 />
                 {/* Radial Gradient Overlay Mask */}
                 <div 
-                    style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%)',
-                        zIndex: 1,
-                        transform: 'translate3d(0, 0, 0)',
-                        willChange: 'transform'
-                    }}
+                    className="absolute inset-0 z-[1]"
+                    style={{ background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%)' }}
                 />
             </div>
 
             {/* Repeating background pattern layer with responsive opacity */}
-            <div className="hero-pattern-layer" style={{ transform: 'translate3d(0, 0, 0)', willChange: 'transform' }} />
+            <div className="hero-pattern-layer" />
 
             {/* Corner Radial Gradient Glows (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '500px',
-                    height: '500px',
-                    background: 'radial-gradient(circle at 0% 0%, rgba(148, 255, 0, 0.05) 0%, rgba(148, 255, 0, 0) 70%)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    width: '500px',
-                    height: '500px',
-                    background: 'radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.04) 0%, rgba(52, 211, 153, 0) 70%)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    width: '500px',
-                    height: '500px',
-                    background: 'radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.04) 0%, rgba(16, 185, 129, 0) 70%)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    width: '500px',
-                    height: '500px',
-                    background: 'radial-gradient(circle at 100% 100%, rgba(148, 255, 0, 0.03) 0%, rgba(148, 255, 0, 0) 70%)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }}
-            />
+            <div className="absolute top-0 left-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 0% 0%, rgba(148, 255, 0, 0.05) 0%, rgba(148, 255, 0, 0) 70%)' }} />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.04) 0%, rgba(52, 211, 153, 0) 70%)' }} />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.04) 0%, rgba(16, 185, 129, 0) 70%)' }} />
+            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 100% 100%, rgba(148, 255, 0, 0.03) 0%, rgba(148, 255, 0, 0) 70%)' }} />
 
             {/* Ambient Radiant Gradient Spotlight Blobs */}
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '-100px',
-                    right: '10%',
-                    width: '600px',
-                    height: '600px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(148, 255, 0, 0.04) 0%, rgba(148, 255, 0, 0) 70%)',
-                    filter: 'blur(120px)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }}
-            />
-            <div
-                style={{
-                    position: 'absolute',
-                    bottom: '-100px',
-                    left: '10%',
-                    width: '600px',
-                    height: '600px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%)',
-                    filter: 'blur(120px)',
-                    pointerEvents: 'none',
-                    zIndex: 0
-                }}
-            />
+            <div className="absolute top-[-100px] right-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(148, 255, 0, 0.04) 0%, rgba(148, 255, 0, 0) 70%)' }} />
+            <div className="absolute bottom-[-100px] left-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%)' }} />
 
             {/* MOBILE & TABLET LAYOUT: 1:1 exact matching herosection.html coordinates */}
             <div className="relative w-[410px] h-[764px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
                 {/* Title & CTA Block */}
-                <div
-                    style={{
-                        display: 'flex',
-                        width: '340px',
-                        height: 'auto',
-                        padding: '24px 20px',
-                        flexDirection: 'column',
-                        gap: '16px',
-                        justifyContent: 'center',
-                        alignItems: 'flex-start',
-                        flexShrink: 0,
-                        flexWrap: 'nowrap',
-                        position: 'absolute',
-                        top: '185px',
-                        left: '24px',
-                        transform: 'none',
-                        zIndex: 1
-                    }}
-                >
+                <div className="absolute top-[185px] left-[24px] flex w-[340px] h-auto p-[24px_20px] flex-col gap-[16px] justify-center items-start shrink-0 flex-nowrap z-[1]">
                     {/* Soft Dark Oval Gradient Background */}
                     <div 
-                        style={{
-                            position: 'absolute',
-                            inset: '-10px -20px',
-                            background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)',
-                            borderRadius: '100%',
-                            filter: 'blur(15px)',
-                            pointerEvents: 'none',
-                            zIndex: 0
-                        }}
+                        className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px]"
+                        style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
-                    <h1
-                        style={{
-                            minWidth: 0,
-                            alignSelf: 'stretch',
-                            flexShrink: 0,
-                            fontFamily: "var(--font-titillium), sans-serif",
-                            fontSize: '36px',
-                            fontWeight: 900,
-                            lineHeight: '50px',
-                            letterSpacing: '1px',
-                            position: 'relative',
-                            textAlign: 'left',
-                            zIndex: 2,
-                            textTransform: 'uppercase'
-                        }}
-                    >
-                        <span
-                            style={{
-                                fontFamily: "var(--font-titillium), sans-serif",
-                                fontSize: '36px',
-                                fontWeight: 900,
-                                lineHeight: '50px',
-                                color: '#ffffff',
-                                letterSpacing: '1px',
-                                position: 'relative',
-                                textAlign: 'left',
-                                textTransform: 'uppercase'
-                            }}
-                        >
+                    <h1 className="w-full shrink-0 font-titillium text-[36px] font-black leading-[50px] tracking-[1px] relative text-left z-[2] uppercase">
+                        <span className="font-titillium text-[36px] font-black leading-[50px] text-white tracking-[1px] relative text-left uppercase">
                             MEET THE{' '}
                             <span 
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#ffffff',
-                                    borderRadius: '10px',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
-                                    padding: '6px',
-                                    transform: 'rotate(-15deg) translateY(-3px)',
-                                    transformOrigin: 'center',
-                                    verticalAlign: 'middle',
-                                    marginLeft: '10px',
-                                    marginRight: '6px'
-                                }}
+                                className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
+                                style={{ transform: 'rotate(-15deg) translateY(-3px)' }}
                             >
-                                <svg 
-                                    width="22" 
-                                    height="22" 
-                                    viewBox="0 0 24 24" 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    strokeWidth="2.5" 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    style={{
-                                        color: '#3f9733'
-                                    }}
-                                >
-                                    <path d="m6.5 6.5 11 11"/>
-                                    <path d="m21 21-1-1"/>
-                                    <path d="m3 3 1 1"/>
-                                    <path d="m18 22 4-4"/>
-                                    <path d="m2 6 4-4"/>
-                                    <path d="m3 10 7-7"/>
-                                    <path d="m14 21 7-7"/>
-                                    <path d="M6.5 12.5 12.5 6.5"/>
-                                    <path d="m11.5 17.5 6-6"/>
-                                </svg>
+                                <IconSparkle size={22} />
                             </span>
                             <br />BEST PLATFORM FOR YOUR <br />DAILY NEEDS &{' '}
                         </span>
-                        <span
-                            style={{
-                                fontFamily: "var(--font-titillium), sans-serif",
-                                fontSize: '36px',
-                                fontWeight: 900,
-                                color: '#95FF00',
-                                lineHeight: '50px',
-                                letterSpacing: '1px',
-                                position: 'relative',
-                                textAlign: 'left',
-                                textTransform: 'uppercase'
-                            }}
-                        >
+                        <span className="font-titillium text-[36px] font-black text-[#95FF00] leading-[50px] tracking-[1px] relative text-left uppercase">
                             ESSENTIALS{' '}
                             <span 
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#ffffff',
-                                    borderRadius: '10px',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
-                                    padding: '6px',
-                                    transform: 'rotate(15deg) translateY(-3px)',
-                                    transformOrigin: 'center',
-                                    verticalAlign: 'middle',
-                                    marginLeft: '8px',
-                                    marginRight: '4px'
-                                }}
+                                className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
+                                style={{ transform: 'rotate(15deg) translateY(-3px)' }}
                             >
-                                <svg 
-                                    width="22" 
-                                    height="22" 
-                                    viewBox="0 0 24 24" 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    strokeWidth="2.5" 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    style={{
-                                        color: '#3f9733'
-                                    }}
-                                >
-                                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
-                                    <path d="m8.5 8.5 7 7"/>
-                                </svg>
+                                <IconTag size={22} />
                             </span>
                         </span>
                     </h1>
 
                     <Link
                         href="/products"
-                        style={{
-                            display: 'flex',
-                            width: '102px',
-                            height: '45px',
-                            padding: '10px',
-                            gap: '10px',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 0,
-                            flexWrap: 'nowrap',
-                            backgroundColor: '#ffffff',
-                            position: 'relative',
-                            zIndex: 3
-                        }}
-                        className="active:scale-95 transition-transform"
+                        className="flex w-[102px] h-[45px] p-[10px] gap-[10px] justify-center items-center shrink-0 flex-nowrap bg-white relative z-[3] active:scale-95 transition-transform"
                     >
-                        <span
-                            style={{
-                                display: 'flex',
-                                width: '67px',
-                                height: '48px',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                flexShrink: 0,
-                                flexBasis: 'auto',
-                                fontFamily: "var(--font-titillium), sans-serif",
-                                fontSize: '14px',
-                                fontWeight: 700,
-                                lineHeight: '48px',
-                                color: '#308026',
-                                letterSpacing: '-0.4px',
-                                position: 'relative',
-                                textAlign: 'center',
-                                whiteSpace: 'nowrap',
-                                zIndex: 4
-                            }}
-                        >
+                        <span className="flex w-[67px] h-[48px] justify-center items-center shrink-0 basis-auto font-titillium text-[14px] font-bold leading-[48px] text-[#308026] tracking-[-0.4px] relative text-center whitespace-nowrap z-[4]">
                             SHOP NOW
                         </span>
                     </Link>
@@ -419,114 +145,40 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
 
                 {/* Products Carousel / Cards */}
                 <div
-                    style={{
-                        display: 'flex',
-                        width: '478px',
-                        height: '160px',
-                        padding: '16px',
-                        alignItems: 'center',
-                        flexShrink: 0,
-                        flexWrap: 'nowrap',
-                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                        position: 'absolute',
-                        top: '570px',
-                        left: '50%',
-                        transform: 'translate3d(-46.86%, 0, 0)',
-                        willChange: 'transform',
-                        zIndex: 5,
-                        overflow: 'hidden'
-                    }}
+                    className="absolute top-[570px] left-[50%] flex w-[478px] h-[160px] p-[16px] items-center shrink-0 flex-nowrap z-[5] overflow-hidden"
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', transform: 'translateX(-46.86%)' }}
                 >
                     <div className="animate-marquee-ltr">
                         {[...displayDeals, ...displayDeals].map((item, index) => {
-                            const leftPositions = ['45px', '42px', '45px'];
                             const zIndexes = [6, 10, 14];
                             const badgeZIndexes = [8, 12, 16];
                             return (
                                 <Link
                                     key={`${item.id}-${index}`}
                                     href={`/product/${item.id}`}
-                                    style={{
-                                        display: 'flex',
-                                        width: '115px',
-                                        height: '125px',
-                                        padding: '14px 8px 8px 8px',
-                                        gap: '10px',
-                                        alignItems: 'center',
-                                        flexShrink: 0,
-                                        flexWrap: 'nowrap',
-                                        backgroundColor: '#ffffff',
-                                        borderRadius: '5px',
-                                        position: 'relative',
-                                        zIndex: zIndexes[index % 3],
-                                        transform: 'translate3d(0, 0, 0)',
-                                        willChange: 'transform'
-                                    }}
-                                    className="active:scale-95 transition-transform"
+                                    className="flex w-[115px] h-[125px] p-[14px_8px_8px_8px] gap-[10px] items-center shrink-0 flex-nowrap bg-white rounded-[5px] relative active:scale-95 transition-transform"
+                                    style={{ zIndex: zIndexes[index % 3] }}
                                 >
-                                    <div
-                                        style={{
-                                            minWidth: 0,
-                                            minHeight: 0,
-                                            alignSelf: 'stretch',
-                                            flexGrow: 1,
-                                            flexShrink: 0,
-                                            flexBasis: 0,
-                                            position: 'relative',
-                                            zIndex: zIndexes[index % 3] + 1
-                                        }}
-                                    >
+                                    <div style={{ minWidth: 0, minHeight: 0, alignSelf: 'stretch', flexGrow: 1, flexShrink: 0, flexBasis: 0, position: 'relative', zIndex: zIndexes[index % 3] + 1 }}>
                                         <Image
                                             src={item.image}
                                             alt={item.title}
                                             fill
-                                            priority
+                                            loading="lazy"
                                             sizes="99px"
                                             className="object-contain"
                                         />
                                     </div>
                                     {/* 3D Wrapped Discount Ribbon */}
                                     <div
-                                        style={{
-                                            display: 'flex',
-                                            padding: '3px 6px 3px 8px',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            backgroundColor: '#308026',
-                                            borderTopRightRadius: '6px',
-                                            borderBottomRightRadius: '6px',
-                                            position: 'absolute',
-                                            top: '10px',
-                                            left: '-6px',
-                                            zIndex: badgeZIndexes[index % 3]
-                                        }}
+                                        className="absolute top-[10px] left-[-6px] flex p-[3px_6px_3px_8px] justify-center items-center bg-[#308026] rounded-tr-[6px] rounded-br-[6px]"
+                                        style={{ zIndex: badgeZIndexes[index % 3] }}
                                     >
-                                        <span
-                                            style={{
-                                                fontFamily: "var(--font-titillium), sans-serif",
-                                                fontSize: '10px',
-                                                fontWeight: 700,
-                                                lineHeight: '14px',
-                                                color: '#ffffff',
-                                                textTransform: 'uppercase',
-                                                whiteSpace: 'nowrap'
-                                            }}
-                                        >
+                                        <span className="font-titillium text-[10px] font-bold leading-[14px] text-white uppercase whitespace-nowrap">
                                             {item.discount}% OFF
                                         </span>
                                         {/* Ribbon fold triangle */}
-                                        <div
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                top: '100%',
-                                                width: 0,
-                                                height: 0,
-                                                borderStyle: 'solid',
-                                                borderWidth: '0 6px 6px 0',
-                                                borderColor: 'transparent #183f13 transparent transparent'
-                                            }}
-                                        />
+                                        <div className="absolute left-0 top-[100%] w-0 h-0 border-solid border-[0_6px_6px_0] border-transparent border-r-[#183f13]" />
                                     </div>
                                 </Link>
                             );
@@ -541,115 +193,33 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 <div className="relative flex flex-col gap-[28px] items-center max-w-[850px] shrink-0 lg:-mt-[40px] px-[40px] py-[30px] rounded-full text-center">
                     {/* Soft Dark Oval Gradient Background */}
                     <div 
-                        style={{
-                            position: 'absolute',
-                            inset: '-20px -30px',
-                            background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)',
-                            borderRadius: '100%',
-                            filter: 'blur(20px)',
-                            pointerEvents: 'none',
-                            zIndex: 0
-                        }}
+                        className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px]"
+                        style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
-                    <h1
-                        style={{
-                            fontFamily: "var(--font-titillium), sans-serif",
-                            fontSize: '42px',
-                            fontWeight: 900,
-                            lineHeight: '58px',
-                            letterSpacing: '1.5px',
-                            textTransform: 'uppercase',
-                            textAlign: 'center',
-                            position: 'relative',
-                            zIndex: 1
-                        }}
-                        className="text-[#ffffff]"
-                    >
+                    <h1 className="font-titillium text-[36px] font-black leading-[50px] tracking-[1.5px] uppercase text-center relative z-[1] text-white">
                         MEET THE{' '}
                         <span 
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: '#ffffff',
-                                borderRadius: '12px',
-                                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)',
-                                padding: '8px',
-                                transform: 'rotate(-15deg) translateY(-4px)',
-                                transformOrigin: 'center',
-                                verticalAlign: 'middle',
-                                marginLeft: '10px',
-                                marginRight: '6px'
-                            }}
+                            className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
+                            style={{ transform: 'rotate(-15deg) translateY(-4px)' }}
                         >
-                            <svg 
-                                width="24" 
-                                height="24" 
-                                viewBox="0 0 24 24" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                strokeWidth="2.5" 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                style={{
-                                    color: '#3f9733'
-                                }}
-                            >
-                                <path d="m6.5 6.5 11 11"/>
-                                <path d="m21 21-1-1"/>
-                                <path d="m3 3 1 1"/>
-                                <path d="m18 22 4-4"/>
-                                <path d="m2 6 4-4"/>
-                                <path d="m3 10 7-7"/>
-                                <path d="m14 21 7-7"/>
-                                <path d="M6.5 12.5 12.5 6.5"/>
-                                <path d="m11.5 17.5 6-6"/>
-                            </svg>
+                            <IconSparkle size={24} />
                         </span>
                         <br />BEST PLATFORM FOR YOUR <br />DAILY NEEDS &{' '}
-                        <span style={{ color: '#95FF00' }}>
+                        <span className="text-[#95FF00]">
                             ESSENTIALS{' '}
                             <span 
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#ffffff',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06)',
-                                    padding: '8px',
-                                    transform: 'rotate(15deg) translateY(-4px)',
-                                    transformOrigin: 'center',
-                                    verticalAlign: 'middle',
-                                    marginLeft: '10px',
-                                    marginRight: '6px'
-                                }}
+                                className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
+                                style={{ transform: 'rotate(15deg) translateY(-4px)' }}
                             >
-                                <svg 
-                                    width="24" 
-                                    height="24" 
-                                    viewBox="0 0 24 24" 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    strokeWidth="2.5" 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
-                                    style={{
-                                        color: '#3f9733'
-                                    }}
-                                >
-                                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
-                                    <path d="m8.5 8.5 7 7"/>
-                                </svg>
+                                <IconTag size={24} />
                             </span>
                         </span>
                     </h1>
                     <Link
                         href="/products"
-                        className="relative flex h-[56px] w-[150px] shrink-0 items-center justify-center gap-[10px] bg-[#ffffff] rounded-none transition-all hover:bg-[#f8fafc] hover:scale-[1.03] active:scale-95"
-                        style={{ zIndex: 2 }}
+                        className="relative flex h-[56px] w-[150px] shrink-0 items-center justify-center gap-[10px] bg-white rounded-none transition-all hover:bg-[#f8fafc] hover:scale-[1.03] active:scale-95 z-[2]"
                     >
-                        <span className="font-titillium text-[18px] font-[700] leading-none tracking-[-0.4px] text-[#308026] whitespace-nowrap">
+                        <span className="font-titillium text-[18px] font-bold leading-none tracking-[-0.4px] text-[#308026] whitespace-nowrap">
                             SHOP NOW
                         </span>
                     </Link>
@@ -657,108 +227,34 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
 
                 {/* Bottom Row: Premium carousel showing Today's Deals dynamically */}
                 <div className="absolute bottom-[50px] left-1/2 -translate-x-1/2 flex flex-col items-center shrink-0 z-10">
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            padding: '16px 24px',
-                            borderRadius: '0px',
-                            backdropFilter: 'blur(12px)',
-                            width: '520px',
-                            overflow: 'hidden',
-                            position: 'relative'
-                        }}
-                    >
+                    <div className="flex items-center p-[16px_24px] rounded-none backdrop-blur-[12px] w-[520px] overflow-hidden relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
                         <div className="animate-marquee-ltr">
-                            {[...displayDeals, ...displayDeals].map((item, index) => {
-                                const leftPositions = ['45px', '42px', '45px'];
-                                const badgeLeft = leftPositions[index % 3];
-                                return (
-                                    <Link
-                                        key={`${item.id}-${index}`}
-                                        href={`/product/${item.id}`}
-                                        style={{
-                                            display: 'flex',
-                                            width: '115px',
-                                            height: '125px',
-                                            padding: '14px 8px 8px 8px',
-                                            gap: '10px',
-                                            alignItems: 'center',
-                                            flexShrink: 0,
-                                            flexWrap: 'nowrap',
-                                            backgroundColor: '#ffffff',
-                                            borderRadius: '5px',
-                                            position: 'relative'
-                                        }}
-                                        className="transition-all hover:scale-[1.05] active:scale-95"
-                                    >
-                                        <div
-                                            style={{
-                                                minWidth: 0,
-                                                minHeight: 0,
-                                                alignSelf: 'stretch',
-                                                flexGrow: 1,
-                                                flexShrink: 0,
-                                                flexBasis: 0,
-                                                position: 'relative'
-                                            }}
-                                        >
-                                            <Image
-                                                src={item.image}
-                                                alt={item.title}
-                                                fill
-                                                priority
-                                                sizes="99px"
-                                                className="object-contain"
-                                            />
-                                        </div>
-                                        {/* 3D Wrapped Discount Ribbon */}
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                padding: '3px 6px 3px 8px',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                backgroundColor: '#308026',
-                                                borderTopRightRadius: '6px',
-                                                borderBottomRightRadius: '6px',
-                                                position: 'absolute',
-                                                top: '10px',
-                                                left: '-6px',
-                                                zIndex: 10
-                                            }}
-                                        >
-                                            <span
-                                                style={{
-                                                    fontFamily: "var(--font-titillium), sans-serif",
-                                                    fontSize: '10px',
-                                                    fontWeight: 700,
-                                                    lineHeight: '14px',
-                                                    color: '#ffffff',
-                                                    textTransform: 'uppercase',
-                                                    whiteSpace: 'nowrap'
-                                                }}
-                                            >
-                                                {item.discount}% OFF
-                                            </span>
-                                            {/* Ribbon fold triangle */}
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    left: 0,
-                                                    top: '100%',
-                                                    width: 0,
-                                                    height: 0,
-                                                    borderStyle: 'solid',
-                                                    borderWidth: '0 6px 6px 0',
-                                                    borderColor: 'transparent #183f13 transparent transparent'
-                                                }}
-                                            />
-                                        </div>
-                                    </Link>
-                                );
-                            })}
+                            {[...displayDeals, ...displayDeals].map((item, index) => (
+                                <Link
+                                    key={`${item.id}-${index}`}
+                                    href={`/product/${item.id}`}
+                                    className="flex w-[115px] h-[125px] p-[14px_8px_8px_8px] gap-[10px] items-center shrink-0 flex-nowrap bg-white rounded-[5px] relative transition-all hover:scale-[1.05] active:scale-95"
+                                >
+                                    <div style={{ minWidth: 0, minHeight: 0, alignSelf: 'stretch', flexGrow: 1, flexShrink: 0, flexBasis: 0, position: 'relative' }}>
+                                        <Image
+                                            src={item.image}
+                                            alt={item.title}
+                                            fill
+                                            loading="lazy"
+                                            sizes="99px"
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                    {/* 3D Wrapped Discount Ribbon */}
+                                    <div className="absolute top-[10px] left-[-6px] flex p-[3px_6px_3px_8px] justify-center items-center bg-[#308026] rounded-tr-[6px] rounded-br-[6px] z-10">
+                                        <span className="font-titillium text-[10px] font-bold leading-[14px] text-white uppercase whitespace-nowrap">
+                                            {item.discount}% OFF
+                                        </span>
+                                        {/* Ribbon fold triangle */}
+                                        <div className="absolute left-0 top-[100%] w-0 h-0 border-solid border-[0_6px_6px_0] border-transparent border-r-[#183f13]" />
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
                     </div>
                 </div>

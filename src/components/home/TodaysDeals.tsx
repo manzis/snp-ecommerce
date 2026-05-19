@@ -32,20 +32,7 @@ const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false, deals =
                     : 'lg:hidden pb-[24px] pt-[40px] rounded-b-[48px]'
                 }`}
         >
-            {/* 
-                FIXED SHIMMER EFFECT: 
-                In Next.js App Router, global styles in components are restricted. 
-                Using standard <style> tag with keyframes for reliability.
-            */}
-            <style>{`
-                @keyframes shimmerEffect {
-                    0% { transform: translateX(-150%) skewX(-20deg); }
-                    100% { transform: translateX(250%) skewX(-20deg); }
-                }
-                .animate-shimmer-custom {
-                    animation: shimmerEffect 2.5s infinite ease-in-out;
-                }
-            `}</style>
+            {/* Shimmer keyframe moved to globals.css — limited to 3 iterations for CPU savings */}
 
             <header className={`flex flex-col items-center lg:items-center gap-[16px] px-[24px] lg:px-0 ${isHeroWidget ? 'mb-[20px] ' : 'mb-[28px] text-center lg:items-center'}`}>
                 <h2 className={` font-custom text-[#308026] ${isHeroWidget ? 'text-[24px]  leading-[28px]' : 'text-[24px] leading-[30px] lg:text-[42px] lg:leading-[48px]'}`}>

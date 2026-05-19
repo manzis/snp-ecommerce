@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import PlusIcon from '@/components/icons/PlusIcon';
 
 interface FaqItem {
@@ -89,22 +88,16 @@ const FaqRow = ({ faq, isOpen, onClick }: { faq: FaqItem; isOpen: boolean; onCli
                 </div>
             </button>
             
-            <AnimatePresence initial={false}>
-                {isOpen && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                    >
-                        <div className="px-[20px] pb-[20px] pt-0 lg:px-[24px] lg:pb-[24px]">
-                            <p className="font-titillium text-[15px] font-[400] leading-[24px] text-[#535353] lg:text-[16px]">
-                                {faq.answer}
-                            </p>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* CSS-only accordion — replaces framer-motion AnimatePresence */}
+            <div className={`faq-answer ${isOpen ? 'faq-open' : ''}`}>
+                <div className="faq-answer-inner">
+                    <div className="px-[20px] pb-[20px] pt-0 lg:px-[24px] lg:pb-[24px]">
+                        <p className="font-titillium text-[15px] font-[400] leading-[24px] text-[#535353] lg:text-[16px]">
+                            {faq.answer}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
