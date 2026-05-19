@@ -159,7 +159,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
             exit={{ height: 0, opacity: 0 }}
             className="w-full overflow-hidden"
           >
-            <div className="flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
+            <div className="w-full max-w-full min-w-0 flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
 
               <AddressSelector
                 addresses={addresses}

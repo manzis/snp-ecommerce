@@ -10,6 +10,8 @@ import { reverseGeocode } from '@/utils/geocode';
 import { supabase } from '@/lib/supabase/client';
 import { useCheckoutStore } from '@/store/checkoutStore';
 import { useUIStore } from '@/store/uiStore';
+import CloseIcon from '@/components/icons/CloseIcon';
+
 
 
 interface AddressModalProps {
@@ -87,7 +89,6 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
     if (!formData.address_line_1) newErrors.address_line_1 = "Address Line 1 is required";
     if (!formData.street) newErrors.street = "Street name is required";
     if (!formData.city) newErrors.city = "City is required";
-    if (!formData.pincode) newErrors.pincode = "Pincode is required";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -153,14 +154,16 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          {/* OVERLAY */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[200] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px]"
+        >
+          {/* OVERLAY / CLICK OUTSIDE */}
+          <div
             onClick={onClose}
-            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0 cursor-pointer"
           />
 
           {/* PANEL */}
@@ -169,16 +172,27 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-            className={`fixed bottom-0 left-0 right-0 z-[70] flex flex-col w-full bg-white rounded-t-[24px] overflow-hidden transition-all duration-300 ${isMapFullscreen ? 'h-[95vh]' : 'h-[90%] max-h-[850px]'}`}
+            className={`relative z-[201] flex flex-col w-full bg-white rounded-t-[24px] overflow-hidden transition-all duration-300
+              lg:rounded-[16px] lg:max-w-[650px] lg:shadow-2xl
+              ${isMapFullscreen ? 'h-[95vh] lg:h-[85vh]' : 'h-[90%] max-h-[850px] lg:h-auto lg:max-h-[90vh]'}`}
           >
-            {/* CLOSE HANDLE */}
-            <div className="flex justify-center p-[16px]">
+            {/* CLOSE HANDLE (Mobile only) */}
+            <div className="flex justify-center p-[16px] lg:hidden">
               <button onClick={() => isMapFullscreen ? setIsMapFullscreen(false) : onClose()} className="w-[40px] h-[5px] bg-[#eaebf0] rounded-full" />
             </div>
 
+            {/* CLOSE BUTTON (Desktop only) */}
+            <button
+              onClick={() => isMapFullscreen ? setIsMapFullscreen(false) : onClose()}
+              className="absolute top-5 right-6 hidden lg:flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors z-[210]"
+              title="Close modal"
+            >
+              <CloseIcon className="w-4 h-4" />
+            </button>
+
             {!isMapFullscreen ? (
               // NORMAL FORM VIEW
-              <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] overflow-y-auto w-full">
+              <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] overflow-y-auto w-full lg:pt-[32px]">
                 <div className="flex justify-between items-center">
                   <h2 className="font-titillium text-[20px] font-bold text-[#242424]">
                     {mode === 'add' ? 'Add New Address' : 'Edit Address'}
@@ -187,7 +201,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                     <button
                       disabled={isDeleting}
                       onClick={handleDelete}
-                      className="font-titillium font-semibold text-[13px] text-[#d92d20] bg-[#fff0f0] px-[8px] py-[4px] rounded-[6px] hover:underline active:scale-95 transition-transform"
+                      className="font-titillium font-semibold text-[13px] text-[#d92d20] bg-[#fff0f0] px-[8px] py-[4px] rounded-[6px] hover:underline active:scale-95 transition-transform lg:mr-[36px]"
                     >
                       {isDeleting ? "Removing..." : "Remove address"}
                     </button>
@@ -304,15 +318,12 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                       {errors.city && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.city}</span>}
                     </div>
                     <div className="flex flex-col flex-1">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Pincode*</label>
-                      <motion.input
-                        animate={errors.pincode ? { x: [-5, 5, -5, 5, 0] } : {}}
-                        transition={{ duration: 0.4 }}
+                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Pincode (Optional)</label>
+                      <input
                         type="text" placeholder="44600" value={formData.pincode || ''}
-                        onChange={(e) => { setFormData({ ...formData, pincode: e.target.value }); setErrors(prev => ({ ...prev, pincode: '' })); }}
-                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.pincode ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                        onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                        className="w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]"
                       />
-                      {errors.pincode && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.pincode}</span>}
                     </div>
                   </div>
                 </div>
@@ -346,7 +357,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
               </div>
             ) : (
               // FULLSCREEN MAP VIEW
-              <div className="flex flex-col w-full h-full px-[24px] pb-[32px]">
+              <div className="flex flex-col w-full h-full px-[24px] pb-[32px] lg:pt-[32px]">
                 <div className="flex flex-col mb-[16px] min-h-[48px]">
                   <h2 className="font-titillium text-[20px] font-bold text-[#242424]">Select Location</h2>
                   <p className="font-titillium text-[14px] text-[#838383]">Tap anywhere on the map to drop a pin.</p>
@@ -381,7 +392,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
               </div>
             )}
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );

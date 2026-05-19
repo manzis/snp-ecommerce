@@ -37,7 +37,7 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none">
-      <nav className="pointer-events-auto relative flex h-[81px] w-full max-w-[410px] md:max-w-7xl items-center gap-[4px] bg-white px-[24px] py-[16px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
+      <nav className="pointer-events-auto relative flex h-[81px] w-full   items-center gap-[4px] bg-white px-[24px] py-[16px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
         {/* Back Button */}
         {showBack && (
           <button

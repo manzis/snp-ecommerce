@@ -76,6 +76,17 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/admin', request.url));
       }
     }
+  } else {
+    // Storefront routes: Redirect unauthenticated users trying to access checkout or account
+    if (!user) {
+      const isCheckoutRoute = request.nextUrl.pathname.startsWith('/checkout');
+      const isAccountRoute = request.nextUrl.pathname.startsWith('/account');
+      if (isCheckoutRoute || isAccountRoute) {
+        const redirectUrl = new URL('/login', request.url);
+        redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
   }
 
   return supabaseResponse

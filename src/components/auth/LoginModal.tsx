@@ -13,6 +13,10 @@ import GoogleIcon from '@/components/icons/GoogleIcon';
 import WhatsappIcon from '@/components/icons/WhatsAppIcon2';
 
 import { sendWhatsappOtpAction, verifyWhatsappOtpAction } from '@/app/actions/whatsappAuthActions';
+import dynamic from 'next/dynamic';
+import FloatingNav from '@/components/layout/FloatingNav';
+
+const CartSidebar = dynamic(() => import('@/components/cart/CartSidebar'), { ssr: false });
 
 interface LoginModalProps {
     isPage?: boolean;
@@ -348,7 +352,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
 
             showToast("Logged in successfully!", "success");
             closeLogin();
-            router.refresh();
+            
+            const redirectParam = typeof window !== 'undefined'
+                ? new URLSearchParams(window.location.search).get('redirect')
+                : null;
+            
+            if (isPage) {
+                router.replace(redirectParam || '/account');
+            } else {
+                router.refresh();
+            }
             triggerLoginSuccess();
         } catch (err: any) {
             console.error("OTP Verify Failed:", err?.message || err);
@@ -365,8 +378,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             // Get base URL for redirects (production or development)
             const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
                 (typeof window !== 'undefined' ? window.location.origin : '');
+            const redirectParam = typeof window !== 'undefined'
+                ? new URLSearchParams(window.location.search).get('redirect')
+                : null;
             // Pass current path as 'next' so auth callback returns user here, not /account
-            const nextPath = encodeURIComponent(pathname || '/');
+            const nextPath = encodeURIComponent(redirectParam || pathname || '/');
             const redirectUrl = `${siteUrl.replace(/\/$/, '')}/auth/callback?next=${nextPath}`;
 
             const { error: googleError } = await supabase.auth.signInWithOAuth({
@@ -611,7 +627,17 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         </motion.div>
     );
 
-    if (isPage) return <main className="flex items-start lg:items-center justify-center font-titillium mb-[36px]  min-h-screen ">{Content}</main>;
+    if (isPage) {
+        return (
+            <>
+                <div className="hidden lg:block">
+                    <FloatingNav alwaysScrolled={true} />
+                </div>
+                <main className="flex items-start lg:items-center justify-center font-titillium mb-[36px]  min-h-screen ">{Content}</main>
+                <CartSidebar />
+            </>
+        );
+    }
 
     return (
         <AnimatePresence>

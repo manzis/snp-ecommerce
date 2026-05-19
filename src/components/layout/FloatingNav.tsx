@@ -17,18 +17,24 @@ const Sidebar = dynamic(() => import('@/components/layout/Sidebar'), { ssr: fals
 interface FloatingNavProps {
     bannerText?: string;
     showBanner?: boolean;
+    alwaysScrolled?: boolean;
 }
 
 const FloatingNav: React.FC<FloatingNavProps> = ({
     bannerText = "Free Delivery for Orders above 5000",
-    showBanner = true
+    showBanner = true,
+    alwaysScrolled = false
 }) => {
     const { cartCount } = useCart();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isScrolled, setIsScrolled] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(alwaysScrolled);
     const router = useRouter();
 
     useEffect(() => {
+        if (alwaysScrolled) {
+            setIsScrolled(true);
+            return;
+        }
         const handleScroll = () => {
             if (window.scrollY > 40) {
                 setIsScrolled(true);
@@ -43,7 +49,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, []);
+    }, [alwaysScrolled]);
 
     return (
         <>

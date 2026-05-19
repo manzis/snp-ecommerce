@@ -45,10 +45,10 @@ export default function CheckoutPage() {
 
   const contactData = useCheckoutStore((state) => state.contactData);
   const setContactData = useCheckoutStore((state) => state.setContactData);
-  
+
   const deliveryData = useCheckoutStore((state) => state.deliveryData);
   const setDeliveryData = useCheckoutStore((state) => state.setDeliveryData);
-  
+
   const selectedPaymentId = useCheckoutStore((state) => state.selectedPaymentId);
   const setSelectedPaymentId = useCheckoutStore((state) => state.setSelectedPaymentId);
   const resetCheckout = useCheckoutStore((state) => state.reset);
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
-      return; 
+      return;
     }
 
     // 2. Delivery Validation
@@ -186,7 +186,7 @@ export default function CheckoutPage() {
     try {
       const finalQrData = overrideQrData || qrData;
       let paymentScreenshotUrl = null;
-      
+
       if (selectedPaymentId === 'qr') {
         if (!finalQrData.qrFile) {
           setPaymentError("Please upload payment receipt to continue");
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
         formData.append('file', finalQrData.qrFile);
         formData.append('bucket', 'payment-proofs');
         formData.append('path', `orders/${currentUserId}`);
-        
+
         setProcessingMessage("Uploading receipt...");
         const uploadRes = await uploadFileAction(formData);
         if (uploadRes.success) {
@@ -274,11 +274,11 @@ export default function CheckoutPage() {
         total_amount: finalTotal,
         session_id: typeof window !== 'undefined' ? localStorage.getItem('cart_session_id') : null
       });
-      
+
       // Clear flags and prepare for jump
       sessionStorage.removeItem('checkout_initiated');
       resetCheckout();
-      
+
       // If we have pushed an extra state for back-button interception, go back 3 times
       // to land on the Product page (skipping dummy, checkout, and cart).
       if (completedSteps.includes('delivery')) {
@@ -364,18 +364,18 @@ export default function CheckoutPage() {
   return (
     <>
       <CheckoutLoader isLoading={isProcessing} message={processingMessage} />
-      
+
       <div className={`min-h-screen bg-[#f7faf6] pt-[81px] pb-[80px] transition-all duration-500 ${isProcessing ? 'blur-[4px] pointer-events-none grayscale-[0.2]' : ''}`}>
         <DynamicPageNav title="Checkout" onBack={handleBackAttempt} />
-        
-        <CheckoutCancelModal 
+
+        <CheckoutCancelModal
           isOpen={showCancelModal}
           onClose={() => setShowCancelModal(false)}
           onConfirm={handleConfirmExit}
           isProcessing={isAbandoning}
         />
-        
-        <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
+
+        <main className="mx-auto w-full lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
           <div className="flex-1 flex flex-col gap-[12px]">
             <CheckoutPriceHeader
               totalAmount={`NPR ${finalTotal.toLocaleString()}`}

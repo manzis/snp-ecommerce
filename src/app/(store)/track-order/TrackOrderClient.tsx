@@ -4,9 +4,13 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import FloatingNav from '@/components/layout/FloatingNav';
 import TrackModalForm from '@/components/track-order/TrackModalForm';
 import CloseIcon from '@/components/icons/CloseIcon2';
 import type { OrderProps, OrderStatus, StatusUpdateLog } from '@/components/orders/OrderCard';
+
+const CartSidebar = dynamic(() => import('@/components/cart/CartSidebar'), { ssr: false });
 import { STATUS_CONFIG } from '@/components/orders/OrderCard';
 import CopyIcon from '@/components/icons/CopyIcon';
 import InfoIcon from '@/components/icons/InfoIcon';
@@ -552,7 +556,11 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
   };
 
   return (
-    <main className="flex flex-col items-center justify-start font-titillium min-h-screen">
+    <>
+      <div className="hidden lg:block">
+        <FloatingNav alwaysScrolled={true} />
+      </div>
+      <main className="flex flex-col items-center justify-start font-titillium min-h-screen lg:pt-[160px] pt-0">
       <motion.div
         initial={{}}
         animate={{ y: 0 }}
@@ -682,6 +690,8 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
           </div>
         </div>
       </div>
-    </main>
+      </main>
+      <CartSidebar />
+    </>
   );
 }

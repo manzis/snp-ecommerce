@@ -24,9 +24,9 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
   onAddNew,
 }) => {
   return (
-    <div className="flex flex-col gap-[24px]">
+    <div className="w-full max-w-full min-w-0 flex flex-col gap-[24px]">
       {addresses.length > 0 ? (
-        <div className="flex flex-col gap-[20px]">
+        <div className="w-full max-w-full min-w-0 flex flex-col gap-[20px]">
           <div className="flex justify-between items-center">
             <span className="font-titillium text-[18px] font-semibold leading-[22px] text-[#242424]">
               Your saved addresses:
@@ -43,12 +43,12 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
             </button>
           </div>
 
-          <div className="flex flex-col gap-[12px]">
+          <div className="w-full max-w-full min-w-0 flex flex-col gap-[12px]">
             {addresses.map((addr) => (
               <div
                 key={addr.id}
                 onClick={() => onSelect(addr.id!)}
-                className={`relative flex justify-between items-start p-[16px] rounded-[12px] border transition-all cursor-pointer ${selectedId === addr.id ? 'border-[1.5px] border-[#242424] bg-[#fafbfb]' : 'border-[#eaebf0]'
+                className={`relative w-full max-w-full min-w-0 flex justify-between items-start p-[16px] rounded-[12px] border transition-all cursor-pointer ${selectedId === addr.id ? 'border-[1.5px] border-[#242424] bg-[#fafbfb]' : 'border-[#eaebf0]'
                   }`}
               >
                 <div className="flex flex-col gap-[4px] min-w-0 flex-1">
@@ -56,12 +56,12 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                     <span className="font-semibold">Delivery To :</span> {addr.first_name} {addr.last_name}
                   </p>
                   <div className="flex flex-col text-[#838383] font-titillium min-w-0">
-                    <span className="text-[15px] truncate">
+                    <p className="text-[15px] truncate">
                       {addr.address_line_1}, {addr.street}, {addr.area ? `${addr.area}, ` : ''}{addr.city} - {addr.pincode}
-                    </span>
-                    <span className="text-[14px] truncate">
+                    </p>
+                    <p className="text-[14px] truncate">
                       {addr.email} <span className="mx-1 text-[#eaebf0]">|</span> {addr.phone}
-                    </span>
+                    </p>
                   </div>
                 </div>
 
