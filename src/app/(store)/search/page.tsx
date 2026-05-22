@@ -31,6 +31,7 @@ export default async function SearchPage() {
     fetchCategories(),
   ]);
 
+  // Triggering a new Vercel deployment with this comment
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white">
