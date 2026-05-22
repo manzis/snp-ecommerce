@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { fetchProducts, fetchCategories, fetchBrands } from '@/services/productService';
 import ClientProductsLayout from './ClientProductsLayout';
 import type { Metadata } from 'next';
@@ -61,10 +61,12 @@ export default async function ProductsPage() {
     // Pass the strictly resolved cache payload directly into the client framework
     // Eliminates all loading spinners and prevents layout shift delays
     return (
-        <ClientProductsLayout 
-            initialProducts={products}
-            brandsData={brands}
-            categoriesData={categories}
-        />
+        <Suspense fallback={<div className="min-h-screen bg-white" />}>
+            <ClientProductsLayout 
+                initialProducts={products}
+                brandsData={brands}
+                categoriesData={categories}
+            />
+        </Suspense>
     );
 }

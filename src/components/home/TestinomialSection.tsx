@@ -46,7 +46,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
     };
 
     return (
-        <section className="relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px] lg:max-w-[1440px]  lg:pt-[280px] ">
+        <section className="cv-auto relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px] lg:max-w-[1440px]  lg:pt-[280px] ">
             {/* Athlete images — CSS animations instead of framer-motion (compositor thread, zero JS cost) */}
             <div className="absolute top-[31.96px] left-[-24px] flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
                 {/* LEFT SCATTER PARTICLES */}

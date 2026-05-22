@@ -11,6 +11,7 @@ import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
 import LazyLoginModal from '@/components/auth/LazyLoginModal';
+import NextTopLoader from 'nextjs-toploader';
 
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
@@ -152,6 +153,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ></script>
       </head>
       <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
+        <NextTopLoader 
+          color="#308026" 
+          initialPosition={0.08} 
+          crawlSpeed={200} 
+          height={3} 
+          crawl={true} 
+          showSpinner={false} 
+          easing="ease" 
+          speed={200} 
+          shadow="none" 
+        />
         {/* Organization + WebSite JSON-LD — global structured data for Google */}
         <OrganizationJsonLd />
 

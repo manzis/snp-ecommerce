@@ -28,6 +28,12 @@ const HomeBottomNav: React.FC = () => {
     const hideBottomNav = useUIStore(state => state.hideBottomNav);
     const [isScrollVisible, setIsScrollVisible] = useState(pathname !== '/');
     const [showIndicator, setShowIndicator] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setIsMounted(true), 50);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         setShowIndicator(true);
@@ -103,7 +109,7 @@ const HomeBottomNav: React.FC = () => {
             <>
                 {isIndicatorVisible && (
                     <div
-                        className="pointer-events-auto mb-[12px] transition-all duration-300 ease-out will-change-transform animate-page-enter"
+                        className={`pointer-events-auto mb-[12px] ${isMounted ? 'transition-all duration-300 ease-out animate-page-enter' : ''} will-change-transform`}
                         style={{
                             transform: `translateY(${isScrollVisible ? 0 : 100}px) translateZ(0)`,
                             opacity: isScrollVisible ? 1 : 0
@@ -147,7 +153,7 @@ const HomeBottomNav: React.FC = () => {
             </>
 
             <nav
-                className="pointer-events-auto relative flex w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] transition-all duration-300 ease-out will-change-transform"
+                className={`pointer-events-auto relative flex w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] ${isMounted ? 'transition-all duration-300 ease-out' : ''} will-change-transform`}
                 style={{
                     paddingBottom: 'calc(env(safe-area-inset-bottom) + 7px)',
                     paddingTop: '5px',
@@ -162,7 +168,7 @@ const HomeBottomNav: React.FC = () => {
                         {activeIndex !== -1 && (
                             <div
                                 key="nav-sliding-indicator"
-                                className="absolute top-0 h-full w-[20%] transition-transform duration-300 ease-out will-change-transform"
+                                className={`absolute top-0 h-full w-[20%] ${isMounted ? 'transition-transform duration-300 ease-out' : ''} will-change-transform`}
                                 style={{
                                     transform: `translateX(${activeIndex * 100}%) translateZ(0)`,
                                     WebkitTransform: `translateX(${activeIndex * 100}%) translateZ(0)`
@@ -197,10 +203,10 @@ const HomeBottomNav: React.FC = () => {
                             }}
                             className="relative flex h-full flex-1 basis-0 flex-col items-center justify-center gap-[4px] py-[8px] outline-none z-10 group"
                         >
-                            <div className={`relative h-[24px] w-[24px] flex items-center justify-center transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100 group-active:scale-95'}`}>
+                            <div className={`relative h-[24px] w-[24px] flex items-center justify-center ${isMounted ? 'transition-transform duration-300' : ''} ${isActive ? 'scale-110' : 'scale-100 group-active:scale-95'}`}>
                                 <Icon className={`h-full w-full ${isActive ? 'text-[#242424]' : 'text-[#626262]'}`} />
                             </div>
-                            <span className={`relative font-titillium text-[12px] font-semibold leading-[18px] transition-colors duration-300 ${isActive ? 'text-[#242424]' : 'text-[#626262]'
+                            <span className={`relative font-titillium text-[12px] font-semibold leading-[18px] ${isMounted ? 'transition-colors duration-300' : ''} ${isActive ? 'text-[#242424]' : 'text-[#626262]'
                                 }`}>
                                 {item.label}
                             </span>
