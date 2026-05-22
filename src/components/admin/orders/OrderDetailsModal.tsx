@@ -11,6 +11,7 @@ import { useAdminToast } from '../ui/AdminToastProvider';
 import { resolveOrderPhone, openWhatsAppForOrder, getWhatsAppButtonLabel } from '@/lib/whatsappTemplates';
 import PhoneIcon from '@/components/icons/PhoneIcon';
 import CopyIcon from '@/components/icons/CopyIcon';
+import { syncExternalOrderTrackingAction } from '@/app/actions/orderActions';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -62,6 +63,13 @@ export default function OrderDetailsModal({
             setExpandedMilestones(new Set([activeMilestone.id]));
         }
     }, [order]);
+
+    // Trigger Expo Express background sync when modal opens
+    React.useEffect(() => {
+        if (isOpen && order?.id) {
+            syncExternalOrderTrackingAction(order.id).catch(err => console.error("Sync error:", err));
+        }
+    }, [isOpen, order?.id]);
 
     const getRelativeDate = (dateStr?: string): string => {
         if (!dateStr) return '';

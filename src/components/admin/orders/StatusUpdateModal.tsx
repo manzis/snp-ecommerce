@@ -200,13 +200,27 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
                         <div className="border border-dotted border-gray-300 rounded-[6px] overflow-hidden bg-zinc-50/10">
                             <div className="p-5 border-b border-dotted border-gray-300">
                                 <p className="text-[10px] font-medium text-[#71717a] uppercase mb-2">Carrier Name</p>
-                                <input 
-                                    type="text"
-                                    value={carrierName}
-                                    onChange={(e) => setCarrierName(e.target.value)}
-                                    placeholder="e.g. Fedex, DHL, Local Courier"
-                                    className="w-full bg-transparent text-[14px] leading-relaxed font-regular text-[#242424] transition-all outline-none placeholder:text-gray-300"
-                                />
+                                <div className="flex flex-col gap-2">
+                                    <select 
+                                        value={['', 'ExpoExpress'].includes(carrierName) ? carrierName : 'Other'}
+                                        onChange={(e) => setCarrierName(e.target.value === 'Other' ? 'Custom Courier' : e.target.value)}
+                                        className="w-full bg-transparent text-[14px] font-medium text-[#242424] transition-all outline-none"
+                                    >
+                                        <option value="">No Carrier / Manual</option>
+                                        <option value="ExpoExpress">Expo Express (Auto-Tracking)</option>
+                                        <option value="Other">Other / Custom Courier</option>
+                                    </select>
+                                    {!['', 'ExpoExpress'].includes(carrierName) && (
+                                        <input 
+                                            type="text"
+                                            value={carrierName}
+                                            onChange={(e) => setCarrierName(e.target.value)}
+                                            placeholder="Enter custom carrier name..."
+                                            className="w-full bg-transparent text-[14px] leading-relaxed font-regular text-[#242424] transition-all outline-none border-t border-dashed border-gray-200 pt-2 placeholder:text-gray-300"
+                                            autoFocus
+                                        />
+                                    )}
+                                </div>
                             </div>
                             <div className="p-5">
                                 <p className="text-[10px] font-medium text-[#71717a] uppercase mb-2">Tracking Number</p>

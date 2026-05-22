@@ -14,6 +14,69 @@ import {
   sendCustomerPaymentConfirmedEmail,
 } from '@/services/emailService';
 import { getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
+import { fetchExpoExpressUpdate } from '@/services/expoExpressService';
+
+async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
+  if (!order || !order.id || !order.tracking_number) return;
+  
+  const carrier = (order.carrier_name || '').toLowerCase().replace(/\s+/g, '');
+  if (!carrier.includes('expoexpress')) return;
+
+  const TERMINAL_STATUSES = ['delivered', 'cancelled', 'failed', 'returned'];
+  const dbStatus = (order.status || '').toLowerCase();
+  if (TERMINAL_STATUSES.includes(dbStatus)) return;
+
+  const newUpdates = await fetchExpoExpressUpdate(order.tracking_number);
+  if (!newUpdates || newUpdates.length === 0) return;
+
+  const statusUpdates = [...(order.status_updates || [])];
+  let didUpdate = false;
+  let latestStatus = dbStatus;
+  let latestMessage = '';
+
+  // newUpdates is sorted oldest to newest
+  for (const nu of newUpdates) {
+    const hasUpdate = statusUpdates.some((up: any) => up.message === nu.message);
+    if (!hasUpdate) {
+      statusUpdates.push(nu);
+      didUpdate = true;
+      latestStatus = nu.status;
+      latestMessage = nu.message;
+    }
+  }
+
+  if (!didUpdate) return;
+
+  // Perform database write for the entire array at once
+  const { error } = await supabase
+    .from('orders')
+    .update({ 
+      status: latestStatus, 
+      status_updates: statusUpdates,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', order.id);
+
+  if (!error) {
+    // Fire email ONLY IF the primary status changed and only for the latest status
+    if (dbStatus !== latestStatus) {
+      const normalizedStatus = latestStatus;
+      if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit') {
+        sendOrderShippedEmail(order.id, latestMessage).catch(console.error);
+      } else if (normalizedStatus === 'out_for_delivery') {
+        sendOutForDeliveryEmail(order.id).catch(console.error);
+      } else if (normalizedStatus === 'failed') {
+        sendDeliveryFailedEmail(order.id, latestMessage).catch(console.error);
+      }
+    }
+
+    order.status = latestStatus;
+    order.status_updates = statusUpdates;
+  } else {
+    console.error('[ExpoExpress] Failed to persist tracking updates:', error);
+  }
+}
+
 
 async function checkAndPersistDelayedStatus(order: any, supabase: any) {
   if (!order || !order.id) return;
@@ -166,6 +229,8 @@ export async function trackOrderByIdAction(shortId: string) {
 
     // Check and persist delay update to Postgres if necessary
     await checkAndPersistDelayedStatus(data, supabase);
+    // Fetch external courier API updates if applicable
+    await checkAndSyncExpoExpressStatus(data, supabase);
 
     return { success: true, order: mapToOrderProps(data as any) };
   } catch (error: any) {
@@ -267,7 +332,10 @@ export async function fetchUserOrdersAction(page: number = 1, limit: number = 10
     if (data && data.length > 0) {
       // Run checks in parallel to minimize latency
       await Promise.allSettled(
-        data.map(order => checkAndPersistDelayedStatus(order, supabase))
+        data.map(async (order) => {
+          await checkAndPersistDelayedStatus(order, supabase);
+          await checkAndSyncExpoExpressStatus(order, supabase);
+        })
       );
     }
 
@@ -895,5 +963,39 @@ export async function resendStatusEmailAction(orderId: string, status: string, m
   } catch (error: any) {
     console.error('Action Error: resendStatusEmailAction:', error);
     return { success: false, message: error.message || 'Failed to resend email.' };
+  }
+}
+
+/**
+ * Server action to manually trigger an external sync (Expo Express and Delay logic)
+ * Used when a user opens an order details page or admin modal.
+ */
+export async function syncExternalOrderTrackingAction(orderId: string) {
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return { success: false };
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select(`
+        id, total_amount, mrp_amount, status, payment_method, created_at,
+        status_updates, carrier_name, tracking_number,
+        shipping_address, contact_details,
+        order_items (
+          id, quantity, price, mrp, selected_size, selected_flavor,
+          products (name, images, stock_status, brands (name))
+        )
+      `)
+      .eq('id', orderId)
+      .single();
+
+    if (error || !order) return { success: false };
+
+    await checkAndPersistDelayedStatus(order, supabase);
+    await checkAndSyncExpoExpressStatus(order, supabase);
+    
+    return { success: true };
+  } catch (err) {
+    console.error('syncExternalOrderTrackingAction Error:', err);
+    return { success: false };
   }
 }

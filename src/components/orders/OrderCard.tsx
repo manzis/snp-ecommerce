@@ -29,6 +29,7 @@ export interface StatusUpdateLog {
     status: string;
     message: string;
     date: string;
+    location?: string;
 }
 
 export interface OrderProps {

@@ -11,6 +11,7 @@ import DeliveryDetails from '@/components/orders/details/DeliveryDetails';
 import PriceDetails from '@/components/orders/details/PriceDetails';
 import { fetchOrderDetails, mapToOrderProps } from '@/services/orderService';
 import { OrderProps } from '@/components/orders/OrderCard';
+import { syncExternalOrderTrackingAction } from '@/app/actions/orderActions';
 
 export default function OrderDetailsPage() {
     const params = useParams();
@@ -23,6 +24,9 @@ export default function OrderDetailsPage() {
         async function getOrder() {
             if (!orderId) return;
             try {
+                // Sync external tracking (Expo Express) in the background before fetching
+                await syncExternalOrderTrackingAction(orderId);
+                
                 const data = await fetchOrderDetails(orderId);
                 if (data) {
                     setOrderData(data);

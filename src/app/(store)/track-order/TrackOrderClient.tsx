@@ -357,7 +357,8 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
                                   </span>
                                   <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#575757]">{log.data.message}</p>
                                   <span className="font-titillium text-[10px] font-[400] text-[#8a8e91] opacity-70">
-                                    {new Date(log.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at {new Date(log.data.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                    {new Date(log.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {new Date(log.data.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                    {log.data.location ? ` • ${log.data.location}` : ''}
                                   </span>
                                 </div>
                               </div>

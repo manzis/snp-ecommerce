@@ -63,6 +63,8 @@ export function AdminOrderList({
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [targetStatus, setTargetStatus] = useState<string>('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [carrierName, setCarrierName] = useState<string>('');
+  const [trackingNumber, setTrackingNumber] = useState<string>('');
 
   const statuses = [
     'pending', 'confirmed', 'processing', 'shipped', 'in_transit',
@@ -74,6 +76,8 @@ export function AdminOrderList({
     const currentStatus = order.status.toLowerCase();
     setTargetStatus(currentStatus);
     setStatusMessage(DEFAULT_MESSAGES[currentStatus] || 'Order status updated.');
+    setCarrierName(order.carrierName || '');
+    setTrackingNumber(order.trackingNumber || '');
     setShowModal(true);
   };
 
@@ -89,10 +93,10 @@ export function AdminOrderList({
     setShowModal(false);
 
     try {
-      const result = await updateOrderStatusAdminAction(selectedOrderId, targetStatus, statusMessage);
+      const result = await updateOrderStatusAdminAction(selectedOrderId, targetStatus, statusMessage, trackingNumber, carrierName);
       if (result.success) {
         setOrders(prev => prev.map(o =>
-          o.id === selectedOrderId ? { ...o, status: targetStatus.toUpperCase() as any } : o
+          o.id === selectedOrderId ? { ...o, status: targetStatus.toUpperCase() as any, carrierName, trackingNumber } : o
         ));
       } else {
         alert(result.message || 'Failed to update order');
@@ -388,6 +392,30 @@ export function AdminOrderList({
                       <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')}</option>
                     ))}
                   </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Carrier</label>
+                    <select
+                      className="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none"
+                      value={carrierName}
+                      onChange={(e) => setCarrierName(e.target.value)}
+                    >
+                      <option value="">Manual / Other</option>
+                      <option value="ExpoExpress">Expo Express</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tracking Number</label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                      placeholder="e.g. 49621966041"
+                    />
+                  </div>
                 </div>
 
                 <div>
