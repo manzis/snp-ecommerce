@@ -79,7 +79,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           </span>
 
           {/* Product Title - Custom Font for Branding */}
-          <h3 className="font-titillium text-[13px] lg:text-[20px] font-semibold leading-[18px] lg:leading-[24px] tracking-[0.2px] text-[#242424] lg:h-[48px] overflow-hidden line-clamp-2">
+          <h3 className="font-titillium text-[13px] lg:text-[16px] font-semibold leading-[18px] lg:leading-[20px] tracking-[0.2px] text-[#242424] lg:h-[40px] overflow-hidden line-clamp-2">
             {product.title}
           </h3>
         </div>

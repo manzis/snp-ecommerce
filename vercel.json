@@ -43,5 +43,11 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/sync-tracking",
+      "schedule": "15 3-11 * * 0-5"
+    }
   ]
 }

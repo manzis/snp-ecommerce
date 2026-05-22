@@ -561,17 +561,17 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
       <div className="hidden lg:block">
         <FloatingNav alwaysScrolled={true} />
       </div>
-      <main className="flex flex-col items-center justify-start font-titillium min-h-screen lg:pt-[160px] pt-0">
+      <main className="flex flex-col items-center justify-start font-titillium min-h-screen lg:h-screen lg:pt-0 pt-0 bg-white lg:bg-[#3f9633]">
       <motion.div
         initial={{}}
         animate={{ y: 0 }}
-        className="relative w-full max-w-[410px] lg:max-w-[900px] lg:min-h-[600px] bg-[#3f9633] flex flex-col lg:flex-row overflow-hidden lg:rounded-[32px] lg:border-4 lg:border-[#3f9633] lg:p-[4px]"
+        className="relative w-full max-w-[410px] lg:max-w-[1280px] lg:mx-auto lg:w-full lg:h-full lg:min-h-screen bg-[#3f9633] flex flex-col lg:flex-row lg:p-[48px] lg:pt-[160px] lg:pb-[48px] overflow-hidden"
       >
         {/* ── LEFT: GREEN BRANDING PANEL (identical to LoginModal) ── */}
-        <div className="absolute top-0 left-0 w-full h-[40%] lg:h-full opacity-40 pointer-events-none z-0">
+        <div className="absolute top-0 left-0 w-full h-[40%] lg:w-full lg:h-full opacity-40 pointer-events-none z-0">
           <Image src="/images/supplement-pattern.webp" alt="Supplement Pattern" fill className="object-cover object-top" priority />
         </div>
-        <section className="relative z-10 flex-1 flex flex-col justify-between p-[24px] lg:p-[48px] lg:gap-[32px]">
+        <section className="relative z-10 flex-1 flex flex-col justify-between p-[24px] lg:p-0 lg:pr-[48px] lg:gap-[32px]">
           <div className="flex items-center justify-between lg:justify-start gap-[10px]">
             <div className="flex items-center gap-[10px]">
               <div className="relative w-[60px] h-[60px] shrink-0 rounded-[12px] p-[2px] bg-[linear-gradient(to_right,#3F9733,#EAFFCD)]">
@@ -589,13 +589,35 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
             </button>
           </div>
           <div className="hidden lg:flex flex-col gap-[12px] text-left">
-            <h2 className="font-custom text-[32px] text-white leading-tight">Track your order <br />in real time.</h2>
-            <p className="text-[#b1e7aa] text-[16px]">Enter your Order ID and get instant shipment updates.</p>
+            <h2 className="font-custom text-[32px] lg:text-[48px] text-white leading-tight">Track your order <br />in real time.</h2>
+            <p className="text-[#b1e7aa] text-[16px] lg:text-[18px]">Enter your Order ID and get instant shipment updates.</p>
+          </div>
+
+          {/* Desktop Only: Notice Div positioned at the bottom of the left panel */}
+          <div className="hidden lg:flex flex-col gap-[12px] mt-auto">
+            <div className="flex flex-col gap-[4px] text-left">
+              <h3 className="font-custom text-[18px] text-white leading-tight">Thank you for shopping with us!</h3>
+              <p className="font-titillium text-[14px] text-[#b1e7aa]">Your high-performance supplements are being prepared with care.</p>
+            </div>
+
+            <div className="flex items-start gap-[10px] bg-[#35802b] border border-[#44a637] rounded-[12px] p-[16px] mt-[4px]">
+              <div className="mt-[2px]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#facc15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" />
+                </svg>
+              </div>
+              <div className="flex flex-col gap-[4px]">
+                <span className="font-titillium font-bold text-[14px] text-[#facc15] uppercase tracking-[0.5px]">Important Security Notice</span>
+                <span className="font-titillium text-[14px] text-white">
+                  Supplyment Nepal will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
+                </span>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* ── RIGHT: WHITE CONTENT PANEL ── */}
-        <section className="relative z-10 bg-white w-full lg:w-[450px] rounded-t-[32px] lg:rounded-[24px] flex flex-col shadow-lg lg:shadow-none overflow-hidden">
+        <section className="relative z-10 bg-white w-full lg:w-[450px] rounded-t-[32px] lg:rounded-[24px] flex flex-col shadow-2xl overflow-hidden lg:h-full lg:ml-[48px]">
           <AnimatePresence mode="wait">
             {!trackedOrder ? (
               /* ── FORM STATE ── */
@@ -605,7 +627,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                className="flex flex-col"
+                className="flex flex-col w-full max-w-[450px] mx-auto lg:h-full lg:justify-center lg:py-[40px]"
               >
                 <TrackModalForm onResult={handleResult} initialOrderId={orderIdToFetch} />
               </motion.div>
@@ -617,7 +639,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                className="flex flex-col h-full max-h-[85vh] lg:max-h-[580px]"
+                className="flex flex-col h-full max-h-[85vh] lg:max-h-none lg:h-full w-full max-w-[600px] mx-auto pb-[40px]"
               >
                 {/* Back + Order ID Header */}
                 <div className="flex items-center justify-between px-[24px] pt-[24px] pb-[12px]">
@@ -668,10 +690,10 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
         </section>
       </motion.div>
 
-      {/* Custom Page Footer with Fraud Warning */}
-      <div className="w-full max-w-[410px] lg:max-w-[900px] mt-[80px] lg:mt-[32px] ">
-        <div className="flex flex-col gap-[12px] bg-[#FCFFF3]  p-[16px] pt-[32px] lg:p-[24px] rounded-t-[24px]">
-          <div className="flex flex-col gap-[4px] text-center lg:text-left">
+      {/* Mobile Only: Custom Page Footer with Fraud Warning */}
+      <div className="w-full max-w-[410px] mt-[80px] lg:hidden">
+        <div className="flex flex-col gap-[12px] bg-[#FCFFF3]  p-[16px] pt-[32px] rounded-t-[24px]">
+          <div className="flex flex-col gap-[4px] text-center">
             <h3 className="font-custom text-[18px] text-[#308026] leading-tight">Thank you for shopping with us!</h3>
             <p className="font-titillium text-[13px] text-[#626262]">Your high-performance supplements are being prepared with care.</p>
           </div>

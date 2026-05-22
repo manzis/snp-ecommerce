@@ -182,7 +182,7 @@ async function ProductContent({ slug }: { slug: string }) {
         ratingOverride={(dbOverride as any)?.rich_snippet_data?.rating_value ? Number((dbOverride as any).rich_snippet_data.rating_value) : undefined}
       />
       <header className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none w-full bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
-        <div className="pointer-events-auto relative w-full max-w-[410px] md:max-w-7xl mx-auto">
+        <div className="pointer-events-auto relative w-full max-w-[410px] md:max-w-[1440px] mx-auto">
           <ProductNav />
           <div className="px-0">
             <Breadcrumbs path={breadcrumbPath} />

@@ -86,7 +86,7 @@ const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery, ini
   };
 
   return (
-    <nav ref={containerRef} className="relative flex h-[81px] w-full items-center bg-white px-[24px] py-[16px] ">
+    <nav ref={containerRef} className="relative flex h-[81px] w-full items-center bg-white px-[24px] lg:px-[60px] py-[16px] ">
       <button onClick={() => router.back()} type="button" className="flex h-[42px] w-[36px] shrink-0 items-center rounded-[5px] active:scale-95 transition-transform">
         <ChevronLeftIcon className="h-[24px] w-[24px] text-[#242424]" />
       </button>

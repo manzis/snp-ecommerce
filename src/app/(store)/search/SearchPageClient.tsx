@@ -168,13 +168,13 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
   return (
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-50 w-full bg-white border-b border-[#F5F5F5]">
-        <div className="mx-auto w-full max-w-[1280px]">
+        <div className="mx-auto w-full max-w-[1440px]">
           <SearchNavbar onSearch={handleSearch} currentQuery={query} initialProducts={initialProducts} />
           <FilterBar onFilterChange={setActiveFilters} />
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px]">
+      <main className="mx-auto w-full max-w-[410px] lg:max-w-[1440px] lg:px-[36px]">
         {!isSearched ? (
           <div className="flex flex-col">
             <RecentSearches

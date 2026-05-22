@@ -121,7 +121,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="relative flex w-full flex-col bg-white border-t border-[#f1f5f9]">
+    <div ref={containerRef} className="relative flex w-full flex-col bg-white border-t border-[#f1f5f9] lg:px-[60px]">
       <div className="flex w-full items-center h-[44px]">
         {/* Main Filter Icon */}
         <div className="flex w-[36px] shrink-0 items-center justify-center pl-[4px]">

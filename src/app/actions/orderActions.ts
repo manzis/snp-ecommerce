@@ -16,7 +16,7 @@ import {
 import { getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
 import { fetchExpoExpressUpdate } from '@/services/expoExpressService';
 
-async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
+export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
   if (!order || !order.id || !order.tracking_number) return;
   
   const carrier = (order.carrier_name || '').toLowerCase().replace(/\s+/g, '');
@@ -78,7 +78,7 @@ async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
 }
 
 
-async function checkAndPersistDelayedStatus(order: any, supabase: any) {
+export async function checkAndPersistDelayedStatus(order: any, supabase: any) {
   if (!order || !order.id) return;
 
   const dbStatus = (order.status || '').toLowerCase();
