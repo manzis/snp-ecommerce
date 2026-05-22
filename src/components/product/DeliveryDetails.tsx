@@ -124,7 +124,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         </div>
 
         {/* Delivery Date Row */}
-        <div className="flex items-center gap-[6px] self-stretch rounded-[6px] bg-[#efefef] px-[12px] py-[14px]">
+        <div className="flex items-center gap-[6px] self-stretch rounded-[6px] bg-gray-50 px-[12px] py-[14px]">
           <VanIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0" />
           <span className="font-titillium text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
             {getDeliveryText()}
@@ -132,7 +132,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         </div>
 
         {/* Seller Info Row */}
-        <div className="relative flex items-start gap-[6px] self-stretch rounded-[6px] bg-[#efefef] px-[12px] py-[14px]">
+        <div className="relative flex items-start gap-[6px] self-stretch rounded-[6px] bg-gray-50 px-[12px] py-[14px]">
           <StoreIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0 mt-[1px]" />
           <div className="flex flex-col items-start justify-center gap-[4px]">
             <span className="font-titillium text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">

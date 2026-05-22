@@ -63,7 +63,7 @@ export const useCartStore = create<CartState>()(
             if (state.userId) addToCart(item, state.userId);
           }
 
-          return { items: newItems };
+          return { items: newItems, coupon: null };
         });
       },
 
@@ -86,7 +86,7 @@ export const useCartStore = create<CartState>()(
           }
         });
 
-        set({ items: updatedItems });
+        set({ items: updatedItems, coupon: null });
 
         if (userId) {
           // Use mergeCart to sync the full batch state to database in one go
@@ -101,12 +101,12 @@ export const useCartStore = create<CartState>()(
         if (item.bundle_id) {
           // Atomic Bundle Removal: Remove ALL items associated with this bundle
           const newItems = items.filter(i => i.bundle_id !== item.bundle_id);
-          set({ items: newItems });
+          set({ items: newItems, coupon: null });
           if (userId) removeBundleItems(userId, item.bundle_id);
         } else {
           // Standard Individual Item Removal
           const newItems = items.filter(i => i.id !== item.id);
-          set({ items: newItems });
+          set({ items: newItems, coupon: null });
           if (userId) removeCartItem(userId, item);
         }
       },
@@ -139,7 +139,7 @@ export const useCartStore = create<CartState>()(
           if (userId) updateCartItem(userId, item, quantity);
         }
 
-        set({ items: newItems });
+        set({ items: newItems, coupon: null });
       },
 
 
@@ -224,8 +224,7 @@ export const useCartStore = create<CartState>()(
       // only persist items and userId. Hydration manages the rest.
       partialize: (state) => ({
         items: state.items,
-        userId: state.userId,
-        coupon: state.coupon
+        userId: state.userId
       })
     }
   )
