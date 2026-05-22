@@ -87,7 +87,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.phone) newErrors.phone = "Phone number is required";
     if (!formData.address_line_1) newErrors.address_line_1 = "Address Line 1 is required";
-    if (!formData.street) newErrors.street = "Street name is required";
+
     if (!formData.city) newErrors.city = "City is required";
 
     if (Object.keys(newErrors).length > 0) {
@@ -158,7 +158,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[200] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] p-[8px] lg:p-[16px] touch-none"
         >
           {/* OVERLAY / CLICK OUTSIDE */}
           <div
@@ -166,31 +166,34 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
             className="absolute inset-0 cursor-pointer"
           />
 
-          {/* PANEL */}
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
-            className={`relative z-[201] flex flex-col w-full bg-white rounded-t-[24px] overflow-hidden transition-all duration-300
-              lg:rounded-[16px] lg:max-w-[650px] lg:shadow-2xl
-              ${isMapFullscreen ? 'h-[95vh] lg:h-[85vh]' : 'h-[90%] max-h-[850px] lg:h-auto lg:max-h-[90vh]'}`}
-          >
-            {/* CLOSE HANDLE (Mobile only) */}
-            <div className="flex justify-center p-[16px] lg:hidden">
-              <button onClick={() => isMapFullscreen ? setIsMapFullscreen(false) : onClose()} className="w-[40px] h-[5px] bg-[#eaebf0] rounded-full" />
+          <div className="flex w-full flex-col items-center max-w-full lg:max-w-[650px] z-[201] pointer-events-none">
+            {/* CLOSE BUTTON (Floating in blur area) */}
+            <div className="flex w-full justify-end mb-[10px] pointer-events-auto">
+                <button
+                    onClick={() => isMapFullscreen ? setIsMapFullscreen(false) : onClose()}
+                    className="flex h-[40px] w-[40px] items-center justify-center rounded-[12px] bg-gray-100 hover:bg-gray-200 transition-colors shadow-md"
+                    title="Close modal"
+                >
+                    <CloseIcon className="h-[20px] w-[20px] text-[#3f3f3f]" />
+                </button>
             </div>
 
-            {/* CLOSE BUTTON (Desktop only) */}
-            <button
-              onClick={() => isMapFullscreen ? setIsMapFullscreen(false) : onClose()}
-              className="absolute top-5 right-6 hidden lg:flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors z-[210]"
-              title="Close modal"
+            {/* PANEL */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+              className={`relative flex flex-col w-full bg-white rounded-[24px] overflow-hidden transition-all duration-300 pointer-events-auto
+                lg:rounded-[16px] lg:shadow-2xl
+                ${isMapFullscreen ? 'h-[90vh] lg:h-[85vh]' : 'h-[80vh] max-h-[850px] lg:h-auto lg:max-h-[85vh]'}`}
             >
-              <CloseIcon className="w-4 h-4" />
-            </button>
+              {/* CLOSE HANDLE (Mobile only) */}
+              <div className="flex justify-center p-[16px] lg:hidden">
+                <button onClick={() => isMapFullscreen ? setIsMapFullscreen(false) : onClose()} className="w-[40px] h-[5px] bg-[#eaebf0] rounded-full" />
+              </div>
 
-            {!isMapFullscreen ? (
+              {!isMapFullscreen ? (
               // NORMAL FORM VIEW
               <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] overflow-y-auto w-full lg:pt-[32px]">
                 <div className="flex justify-between items-center">
@@ -288,17 +291,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                     {errors.address_line_1 && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.address_line_1}</span>}
                   </div>
 
-                  <div className="flex flex-col">
-                    <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Street Name*</label>
-                    <motion.input
-                      animate={errors.street ? { x: [-5, 5, -5, 5, 0] } : {}}
-                      transition={{ duration: 0.4 }}
-                      type="text" placeholder="Putalisadak" value={formData.street || ''}
-                      onChange={(e) => { setFormData({ ...formData, street: e.target.value }); setErrors(prev => ({ ...prev, street: '' })); }}
-                      className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.street ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
-                    />
-                    {errors.street && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.street}</span>}
-                  </div>
+
 
                   <div className="flex flex-col">
                     <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Area / Landmark (Optional)</label>
@@ -392,6 +385,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
               </div>
             )}
           </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

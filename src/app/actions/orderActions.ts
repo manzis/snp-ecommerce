@@ -89,13 +89,8 @@ async function checkAndPersistDelayedStatus(order: any, supabase: any) {
 
   // Calculate delivery details using our helper
   const deliveryDetails = getExpectedDeliveryDetails(order.created_at, order.order_items);
-  console.log('[DELAY LOG] Starting check for Order ID:', order.id);
-  console.log('[DELAY LOG] dbStatus:', dbStatus);
-  console.log('[DELAY LOG] isDelayed:', deliveryDetails.isDelayed);
-  console.log('[DELAY LOG] maxExpectedDate:', deliveryDetails.maxExpectedDate.toISOString());
 
   if (!deliveryDetails.isDelayed) {
-    console.log('[DELAY LOG] Order is not considered delayed by helper. Exiting.');
     return;
   }
 
@@ -104,12 +99,7 @@ async function checkAndPersistDelayedStatus(order: any, supabase: any) {
   delayDate.setDate(delayDate.getDate() + 1);
   delayDate.setHours(0, 0, 0, 0);
 
-  console.log('[DELAY LOG] delayDate (Trigger Time):', delayDate.toISOString());
-  console.log('[DELAY LOG] current time now:', now.toISOString());
-  console.log('[DELAY LOG] is now < delayDate?:', now < delayDate);
-
   if (now < delayDate) {
-    console.log('[DELAY LOG] Trigger time has not arrived yet. Exiting.');
     return;
   }
 
@@ -120,10 +110,7 @@ async function checkAndPersistDelayedStatus(order: any, supabase: any) {
     return s === 'DELAYED' || s === 'SHIPMENT_DELAYED' || s === 'RESCHEDULED';
   });
 
-  console.log('[DELAY LOG] hasDelayLog in DB?:', hasDelayLog);
-
   if (hasDelayLog) {
-    console.log('[DELAY LOG] Delay log already exists in database. Exiting.');
     return;
   }
 
