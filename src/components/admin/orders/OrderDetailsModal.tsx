@@ -725,9 +725,47 @@ export default function OrderDetailsModal({
                         <div className="grid grid-cols-2 divide-x divide-dotted divide-gray-300">
                             <div className="p-5 flex flex-col gap-1.5">
                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Contact Payload</label>
-                                <p className="text-[13px] font-medium text-black">{order.customerName}</p>
+                                <div 
+                                    className="text-[13px] font-medium text-black flex items-center gap-1 group cursor-pointer w-fit"
+                                    onClick={() => {
+                                        if (order.customerName) {
+                                            if (navigator.clipboard) {
+                                                navigator.clipboard.writeText(order.customerName);
+                                            } else {
+                                                fallbackCopyTextToClipboard(order.customerName);
+                                            }
+                                            showAdminToast('Name copied!', 'success');
+                                        }
+                                    }}
+                                >
+                                    {order.customerName}
+                                    {order.customerName && (
+                                        <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Name">
+                                            <CopyIcon width="12" height="12" />
+                                        </button>
+                                    )}
+                                </div>
                                 <p className="text-[11px] text-[#71717a]">{order.customerEmail || 'No Email'}</p>
-                                <p className="text-[11px] text-[#71717a]">{order.customerPhone || 'No Phone'}</p>
+                                <div 
+                                    className="text-[11px] text-[#71717a] flex items-center gap-1 group cursor-pointer w-fit"
+                                    onClick={() => {
+                                        if (order.customerPhone) {
+                                            if (navigator.clipboard) {
+                                                navigator.clipboard.writeText(order.customerPhone);
+                                            } else {
+                                                fallbackCopyTextToClipboard(order.customerPhone);
+                                            }
+                                            showAdminToast('Phone number copied!', 'success');
+                                        }
+                                    }}
+                                >
+                                    {order.customerPhone || 'No Phone'}
+                                    {order.customerPhone && (
+                                        <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Phone">
+                                            <CopyIcon width="10" height="10" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                             <div className="p-5 flex flex-col gap-1.5">
                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Payment Architecture</label>
@@ -743,7 +781,22 @@ export default function OrderDetailsModal({
                                 <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
                                 {order.shippingAddress ? (
                                     <div className="text-[13px] leading-relaxed text-[#242424] space-y-1 max-w-sm">
-                                        <p className="font-medium">
+                                        <div 
+                                            className="font-medium flex items-center gap-1 group cursor-pointer w-fit"
+                                            onClick={() => {
+                                                const addr = order.shippingAddress;
+                                                const details = addr.addressDetails || {};
+                                                const fName = addr.first_name || details.first_name || '';
+                                                const lName = addr.last_name || details.last_name || '';
+                                                const nameToCopy = (!fName && !lName) ? (order.customerName || 'Manual Order Recipient') : `${fName} ${lName}`.trim();
+                                                if (navigator.clipboard) {
+                                                    navigator.clipboard.writeText(nameToCopy);
+                                                } else {
+                                                    fallbackCopyTextToClipboard(nameToCopy);
+                                                }
+                                                showAdminToast('Name copied!', 'success');
+                                            }}
+                                        >
                                             {(() => {
                                                 const addr = order.shippingAddress;
                                                 const details = addr.addressDetails || {};
@@ -752,7 +805,10 @@ export default function OrderDetailsModal({
                                                 if (!fName && !lName) return order.customerName || 'Manual Order Recipient';
                                                 return `${fName} ${lName}`.trim();
                                             })()}
-                                        </p>
+                                            <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Name">
+                                                <CopyIcon width="12" height="12" />
+                                            </button>
+                                        </div>
                                         <div className="text-[#71717a]">
                                             {(() => {
                                                 const addr = order.shippingAddress;
@@ -810,9 +866,22 @@ export default function OrderDetailsModal({
                                             const phone = addr.phone || details.phone || order.customerPhone;
                                             if (!phone) return null;
                                             return (
-                                                <p className="text-[#242424] font-medium pt-1">
+                                                <div 
+                                                    className="text-[#242424] font-medium pt-1 flex items-center gap-1 group cursor-pointer w-fit"
+                                                    onClick={() => {
+                                                        if (navigator.clipboard) {
+                                                            navigator.clipboard.writeText(phone);
+                                                        } else {
+                                                            fallbackCopyTextToClipboard(phone);
+                                                        }
+                                                        showAdminToast('Phone number copied!', 'success');
+                                                    }}
+                                                >
                                                     <span className="text-[#a1a1aa] font-normal">Phone:</span> {phone}
-                                                </p>
+                                                    <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Phone">
+                                                        <CopyIcon width="12" height="12" />
+                                                    </button>
+                                                </div>
                                             );
                                         })()}
                                     </div>
