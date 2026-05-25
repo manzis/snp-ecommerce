@@ -126,10 +126,12 @@ export async function fetchExpoExpressUpdate(trackingNumber: string): Promise<Ar
     for (const rawUpdate of updates) {
       const mapped = mapExpoUpdate(rawUpdate);
       if (mapped) {
-        let parsedDate = new Date().toISOString();
+        let parsedDate = new Date().toISOString().replace('T', ' ').replace('Z', '');
         try {
-          const d = new Date(rawUpdate.UpdateDateTime);
-          if (!isNaN(d.getTime())) parsedDate = d.toISOString();
+          if (rawUpdate.UpdateDateTime) {
+            // Remove 'Z' and replace 'T' with space so frontend parses it as local time
+            parsedDate = rawUpdate.UpdateDateTime.replace('Z', '').replace('T', ' ');
+          }
         } catch (e) { }
 
         mappedResults.push({

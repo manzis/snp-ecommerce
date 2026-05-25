@@ -506,6 +506,16 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
 
     if (error) throw error;
 
+    if (data && data.length > 0) {
+      // Run checks in parallel to minimize latency
+      await Promise.allSettled(
+        data.map(async (order) => {
+          await checkAndPersistDelayedStatus(order, adminClient);
+          await checkAndSyncExpoExpressStatus(order, adminClient);
+        })
+      );
+    }
+
     return { 
       success: true, 
       orders: data.map(mapToOrderProps),
