@@ -37,14 +37,14 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
     const hasMore = products.length > INITIAL_LIMIT;
 
     return (
-        <section className={`mx-auto w-full max-w-[1440px] py-[32px]  lg:px-[48px] lg:py-[48px] md:py-[64px] transition-colors duration-300 ${bgColorClass}`}>
+        <section className={`mx-auto w-full  py-[32px]  lg:px-[48px] lg:py-[48px] md:py-[64px] transition-colors duration-300 ${bgColorClass}`}>
             {/* HEADER */}
-            <div className="mb-[24px] flex items-center justify-between px-[24px] md:mb-[40px] md:px-0">
+            <div className="mb-[24px] max-w-[1440px] mx-auto flex items-center justify-between px-[24px] md:mb-[40px] md:px-0">
                 <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.8px] text-[#242424] md:text-[32px]">
                     {title}
                 </h2>
-                <Link 
-                    href="/products" 
+                <Link
+                    href="/products"
                     className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
                     aria-label={`View all ${title}`}
                 >
@@ -53,7 +53,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
             </div>
 
             {/* HORIZONTAL SCROLL ON MOBILE / GRID ON DESKTOP */}
-            <div className="no-scrollbar flex w-full gap-[10px] overflow-x-auto px-[24px] pb-[10px] md:grid md:grid-cols-3 md:gap-[24px] md:px-0 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="no-scrollbar flex max-w-[1440px] mx-auto w-full gap-[10px] overflow-x-auto px-[24px] pb-[10px] md:grid md:grid-cols-3 md:gap-[24px] md:px-0 lg:grid-cols-4 xl:grid-cols-5">
                 {visibleProducts.map((product) => (
                     <ProductCard key={product.slug} {...product} />
                 ))}

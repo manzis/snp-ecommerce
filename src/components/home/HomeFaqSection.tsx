@@ -53,11 +53,11 @@ const HomeFaqSection: React.FC = () => {
             {/* FAQ LIST */}
             <div className="flex w-full max-w-[800px] flex-col gap-[16px]">
                 {FAQS.map((faq, idx) => (
-                    <FaqRow 
-                        key={idx} 
-                        faq={faq} 
-                        isOpen={openIndex === idx} 
-                        onClick={() => setOpenIndex(openIndex === idx ? null : idx)} 
+                    <FaqRow
+                        key={idx}
+                        faq={faq}
+                        isOpen={openIndex === idx}
+                        onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                     />
                 ))}
             </div>
@@ -67,27 +67,24 @@ const HomeFaqSection: React.FC = () => {
 
 const FaqRow = ({ faq, isOpen, onClick }: { faq: FaqItem; isOpen: boolean; onClick: () => void }) => {
     return (
-        <div 
-            className={`group overflow-hidden rounded-[16px] border transition-all duration-300 ${
-                isOpen ? 'border-[#308026] bg-[#fafff9]' : 'border-[#f1f5f9] bg-white hover:border-[#e2efe0]'
-            }`}
+        <div
+            className={`group overflow-hidden rounded-[16px] border transition-all duration-300 ${isOpen ? 'border-[#308026] bg-[#fafff9]' : 'border-[#f1f5f9] bg-white hover:border-[#e2efe0]'
+                }`}
         >
-            <button 
+            <button
                 onClick={onClick}
                 className="flex w-full items-center justify-between px-[20px] py-[20px] text-left lg:px-[24px]"
             >
-                <span className={`font-titillium text-[16px] font-[600] leading-[22px] transition-colors lg:text-[18px] ${
-                    isOpen ? 'text-[#308026]' : 'text-[#242424]'
-                }`}>
+                <span className={`font-titillium text-[16px] font-[600] leading-[22px] transition-colors lg:text-[18px] ${isOpen ? 'text-[#308026]' : 'text-[#242424]'
+                    }`}>
                     {faq.question}
                 </span>
-                <div className={`flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
-                    isOpen ? 'rotate-45 border-[#308026] bg-[#308026] text-white' : 'border-[#d1d5db] text-[#242424]'
-                }`}>
+                <div className={`flex h-[24px] w-[24px] shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${isOpen ? 'rotate-45 border-[#308026] bg-[#308026] text-white' : 'border-[#d1d5db] text-[#242424]'
+                    }`}>
                     <PlusIcon className="h-[14px] w-[14px]" />
                 </div>
             </button>
-            
+
             {/* CSS-only accordion — replaces framer-motion AnimatePresence */}
             <div className={`faq-answer ${isOpen ? 'faq-open' : ''}`}>
                 <div className="faq-answer-inner">

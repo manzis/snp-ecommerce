@@ -46,9 +46,9 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
     };
 
     return (
-        <section className="cv-auto relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px] lg:max-w-[1440px]  lg:pt-[280px] ">
+        <section className="cv-auto relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px]  lg:pt-[280px] ">
             {/* Athlete images — CSS animations instead of framer-motion (compositor thread, zero JS cost) */}
-            <div className="absolute top-[31.96px] left-[-24px] flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
+            <div className="absolute top-[31.96px] left-[-24px] lg:max-w-[1440px]  flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
                 {/* LEFT SCATTER PARTICLES */}
                 <div className="animate-float-particle-left absolute left-[-20px] top-[40px] z-30 h-[24px] w-[24px] blur-[2px] lg:left-[-40px]">
                     <Image src="/images/athelete.webp" alt="Professional athlete testimonial" fill sizes="24px" loading="lazy" className="rounded-full object-cover" />
@@ -84,7 +84,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
             </div>
 
             {/* HEADER */}
-            <div className="flex w-full flex-col items-center gap-[12px] px-[24px] lg:pb-[20px] text-center">
+            <div className="max-w-[1440px] mx-auto flex w-full flex-col items-center gap-[12px] px-[24px] lg:pb-[20px] text-center">
                 <div className="inline-flex items-center justify-center rounded-[100px] bg-[#d5ffb2] px-[12px] py-[4px]">
                     <span className="font-titillium text-[16px] font-[400] leading-[24px] text-[#242424]">Testimonials</span>
                 </div>
@@ -98,7 +98,7 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
             </div>
 
             {/* SLIDER & CONTROLS */}
-            <div className="relative w-full overflow-hidden">
+            <div className="max-w-[1440px] mx-auto relative w-full overflow-hidden">
                 <div ref={scrollRef} className="no-scrollbar flex w-full gap-[12px] overflow-x-auto px-[24px] pb-[10px] lg:gap-[24px] lg:px-[64px]">
                     {testimonials.length > 0 ? (
                         testimonials.map((item) => (

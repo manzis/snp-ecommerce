@@ -17,7 +17,7 @@ const HomeFaqSection = dynamic(() => import('@/components/home/HomeFaqSection'))
 const ProductBanners = dynamic(() => import('@/components/product/ProductBanners'));
 
 import ProductGridSectionSkeleton from '@/components/home/ProductGridSectionSkeleton';
-import { 
+import {
   fetchHomepageFullData,
   fetchHomepageProducts,
 } from '@/services/productService.server';
@@ -96,7 +96,7 @@ export default async function HomePage() {
       {/* === ABOVE THE FOLD — Render eagerly (covers full width & height) === */}
       <HomeHero deals={deals.length > 0 ? deals : []} />
 
-      <main className="flex flex-col items-center max-w-[1200px] lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
+      <main className="flex flex-col items-center  lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
         <HomeCategories />
 
         {/* Stream heavy sections after critical content is visible. */}

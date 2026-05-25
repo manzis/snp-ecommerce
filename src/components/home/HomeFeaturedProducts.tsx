@@ -25,11 +25,11 @@ export default function HomeFeaturedProducts({ products, limit = 10 }: HomeFeatu
         <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.8px] text-[#242424] md:text-[32px]">
           Featured Products
         </h2>
-        <Link 
-            href="/products" 
-            className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
+        <Link
+          href="/products"
+          className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
         >
-            View All
+          View All
         </Link>
       </div>
 
@@ -39,10 +39,10 @@ export default function HomeFeaturedProducts({ products, limit = 10 }: HomeFeatu
           {featuredProducts.map((product) => {
             const currentPriceNum = Number(product.discounted_price || product.original_price);
             const originalPriceNum = Number(product.original_price);
-            
+
             const currentPriceStr = `Rs. ${currentPriceNum.toLocaleString('en-IN')}`;
-            const originalPriceStr = currentPriceNum < originalPriceNum 
-              ? `Rs. ${originalPriceNum.toLocaleString('en-IN')}` 
+            const originalPriceStr = currentPriceNum < originalPriceNum
+              ? `Rs. ${originalPriceNum.toLocaleString('en-IN')}`
               : undefined;
 
             let discountText: string | undefined;
@@ -52,12 +52,12 @@ export default function HomeFeaturedProducts({ products, limit = 10 }: HomeFeatu
               const diff = originalPriceNum - currentPriceNum;
               const per = Math.round((diff / originalPriceNum) * 100);
               // Adding negative check safeguard
-              if(per > 0) discountText = `save ${per}%`;
+              if (per > 0) discountText = `save ${per}%`;
             }
 
-            const primaryImage = product.images && product.images.length > 0 
-                ? product.images[0] 
-                : '/images/product-placeholder.png';
+            const primaryImage = product.images && product.images.length > 0
+              ? product.images[0]
+              : '/images/product-placeholder.png';
 
             return (
               <FeaturedProductCard
