@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!brand) return { title: 'Brand Not Found | SNP Store' };
 
   const fallback = generateBrandFallbackSeo(brand);
-  const canonical = `https://www.brightsupplements.store/brand/${slug}`;
+  const canonical = `https://brightsupplements.store/brand/${slug}`;
   const brandCover = brand.cover_image || gSeo?.default_og_image || '/icon.png';
 
   // Build a rich image array: brand cover first, then up to 8 product images

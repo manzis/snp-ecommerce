@@ -38,6 +38,27 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/cart') &&
     !request.nextUrl.pathname.startsWith('/api/user');
 
+  // --- SEO Redirects ---
+  // Evaluate active SEO redirects from the database before proceeding
+  try {
+    const { data: redirectRule } = await supabase
+      .from('seo_redirects')
+      .select('to_url, type')
+      .eq('from_url', request.nextUrl.pathname)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (redirectRule && redirectRule.to_url) {
+      // Use 308 for Permanent (301) to preserve HTTP method, 307 for Temporary (302)
+      return NextResponse.redirect(
+        new URL(redirectRule.to_url, request.url),
+        redirectRule.type === 301 ? 308 : 307
+      );
+    }
+  } catch (error) {
+    console.error('[Middleware] SEO Redirect Check Error:', error);
+  }
+
   // If it's a public route and NOT an admin route, we can skip the heavy auth.getUser() check
   // for the initial response. Supabase will still handle session persistence via cookies.
   // We only run getUser for Admin routes or Account routes to keep the storefront lightning fast.

@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const fallback = generateProductFallbackSeo(product);
   const title = dbOverride?.custom_title || fallback.title;
   const description = dbOverride?.custom_description || fallback.description;
-  const canonical = `https://www.brightsupplements.store/product/${dbOverride?.custom_slug || product.slug}`;
+  const canonical = `https://brightsupplements.store/product/${product.slug}`;
   const ogImage = product.images?.[0] || gSeo?.default_og_image || '/icon.png';
   const ogTitle = title;
   const ogDescription = description;
@@ -163,7 +163,7 @@ async function ProductContent({ slug }: { slug: string }) {
         name={product.title || product.name}
         description={`Buy authentic ${product.title} by ${product.brands?.name || 'Supplyment Nepal'} in Nepal. ${product.categories?.name || 'Premium supplement'} available at the best price with fast delivery from Supplyment Nepal (brightsupplements.store).`}
         images={product.images || []}
-        slug={dbOverride?.custom_slug || product.slug}
+        slug={product.slug}
         brand={product.brands?.name || 'Supplyment Nepal'}
         originalPrice={product.original_price}
         discountedPrice={product.discounted_price}
@@ -172,9 +172,9 @@ async function ProductContent({ slug }: { slug: string }) {
         reviewCount={product.reviews_count}
         category={product.categories?.name}
         breadcrumbs={[
-          { name: product.categories?.name || 'Category', url: `https://www.brightsupplements.store/category/${product.categories?.slug || ''}` },
-          { name: product.brands?.name || 'Brand', url: `https://www.brightsupplements.store/brand/${product.brands?.slug || ''}` },
-          { name: product.name, url: `https://www.brightsupplements.store/product/${product.slug}` },
+          { name: product.categories?.name || 'Category', url: `https://brightsupplements.store/category/${product.categories?.slug || ''}` },
+          { name: product.brands?.name || 'Brand', url: `https://brightsupplements.store/brand/${product.brands?.slug || ''}` },
+          { name: product.name, url: `https://brightsupplements.store/product/${product.slug}` },
         ]}
         faqs={faqData}
         priceOverride={(dbOverride as any)?.rich_snippet_data?.price ? Number((dbOverride as any).rich_snippet_data.price) : undefined}

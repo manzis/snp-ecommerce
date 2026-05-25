@@ -20,7 +20,7 @@ export default function CategoryJsonLd({
   products = [],
   description,
 }: CategoryJsonLdProps) {
-  const categoryUrl = `https://www.brightsupplements.store/category/${categorySlug}`;
+  const categoryUrl = `https://brightsupplements.store/category/${categorySlug}`;
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -30,13 +30,13 @@ export default function CategoryJsonLd({
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://www.brightsupplements.store',
+        item: 'https://brightsupplements.store',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Products',
-        item: 'https://www.brightsupplements.store/products',
+        item: 'https://brightsupplements.store/products',
       },
       {
         '@type': 'ListItem',
@@ -58,7 +58,7 @@ export default function CategoryJsonLd({
         itemListElement: products.slice(0, 20).map((p, idx) => ({
           '@type': 'ListItem',
           position: idx + 1,
-          url: `https://www.brightsupplements.store/product/${p.slug}`,
+          url: `https://brightsupplements.store/product/${p.slug}`,
           name: p.name,
           ...(p.image && { image: p.image }),
         })),
