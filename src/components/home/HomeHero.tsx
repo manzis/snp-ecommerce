@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import heroBg from '../../../../public/images/heroimage.webp';
+import heroBg from '../../../public/images/heroimage.webp';
 
 interface HomeHeroProps {
     deals?: any[];
