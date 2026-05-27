@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Reorder } from 'framer-motion';
 import { Product, fetchProducts } from '@/services/productService';
 import AdminProductCard from './AdminProductCard';
 import SectionSearch from './SectionSearch';
@@ -73,19 +74,31 @@ const LayoutSection: React.FC<LayoutSectionProps> = ({
 
         {selectedProducts.length === 0 ? (
           <div className="py-[40px] flex flex-center border-2 border-dashed border-[#f1f5f9] rounded-[12px]">
-            <span className="text-[#bebebe] text-[14px]">No products selected. Search above to add products.</span>
+            <span className="text-[#bebebe] text-[14px] text-center w-full block">No products selected. Search above to add products.</span>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-t border-l border-[#e8e8e8]">
+          <Reorder.Group 
+            axis="x" 
+            values={selectedProducts} 
+            onReorder={setSelectedProducts} 
+            className="flex overflow-x-auto gap-4 p-2 pb-4 subtle-scrollbar bg-gray-50/50 rounded-xl border border-gray-100"
+          >
             {selectedProducts.map(product => (
-              <AdminProductCard
-                key={product.id}
-                product={product}
-                isSelected={true}
-                onToggle={() => toggleProduct(product)}
-              />
+              <Reorder.Item 
+                key={product.id} 
+                value={product}
+                className="shrink-0 cursor-grab active:cursor-grabbing w-[160px] md:w-[200px]"
+              >
+                <div className="pointer-events-auto">
+                  <AdminProductCard
+                    product={product}
+                    isSelected={true}
+                    onToggle={() => toggleProduct(product)}
+                  />
+                </div>
+              </Reorder.Item>
             ))}
-          </div>
+          </Reorder.Group>
         )}
       </div>
     </div>

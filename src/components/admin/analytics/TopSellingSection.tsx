@@ -43,12 +43,13 @@ export const TopSellingSection = ({ topSelling, onViewAll }: TopSellingSectionPr
               />
               
               {/* Sold Count Badge Overlay */}
-              <div className="absolute bottom-[8px] left-[8px] z-[10] flex px-2.5 py-1.5 gap-[4px] justify-center items-center bg-white/90 backdrop-blur-md rounded-xl border border-white/50">
-                <ShoppingBag className="w-3 h-3 text-[#242424]" />
-                <span className="text-[11px] font-bold text-[#242424]">
-                  {item.order_count || 0}
-                </span>
-                <span className="text-[9px] text-[#242424]/60 font-medium uppercase tracking-tight">Orders</span>
+              <div className="absolute bottom-[8px] left-[8px] z-[10] flex px-2.5 py-1.5 gap-[2px] justify-center items-baseline bg-white/90 backdrop-blur-md rounded-xl border border-white/50">
+                <ShoppingBag className="w-3 h-3 text-[#242424] self-center mr-[2px]" />
+                <div className="flex items-baseline text-[11px] font-bold text-[#242424]">
+                  <span className="text-[#242424]/60 font-semibold mr-[1px]">{item.order_count || 0}/</span>
+                  <span className="text-[#242424]">{item.sold_count || 0}</span>
+                </div>
+                <span className="text-[9px] text-[#242424]/60 font-medium uppercase tracking-tight ml-[2px]">Sold</span>
               </div>
 
               {/* Rank Badge */}

@@ -270,7 +270,9 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                             </div>
                             <div>
                               <h4 className="text-[11px] font-semibold text-[#242424] truncate leading-tight">{item.name}</h4>
-                              <p className="text-[9px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-0.5">{item.order_count} Sold</p>
+                              <p className="text-[9px] font-bold text-[#a1a1aa] uppercase tracking-widest mt-0.5 flex items-baseline gap-1">
+                                <span><span className="font-medium text-[#a1a1aa]/70">{item.order_count}/</span><span className="text-[#242424] font-bold">{item.sold_count}</span> Sold</span>
+                              </p>
                             </div>
                           </div>
                         ))}

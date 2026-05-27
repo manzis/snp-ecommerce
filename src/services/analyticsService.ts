@@ -122,7 +122,7 @@ export const analyticsService = {
     // We group and count based on order_items
     const { data, error } = await supabase
       .from('order_items')
-      .select('product_id, products(title, images, name)')
+      .select('product_id, quantity, products(title, images, name), orders(status)')
       .limit(2000); // Get a larger sample size for accuracy
 
     if (error || !data) {
@@ -130,7 +130,7 @@ export const analyticsService = {
       return [];
     }
 
-    // Aggregate by product_id: Count entries (number of times it was ordered)
+    // Aggregate by product_id: Track orders and sold quantities
     const aggregated = data.reduce((acc: any, curr: any) => {
       const id = curr.product_id;
       if (!acc[id]) {
@@ -139,15 +139,24 @@ export const analyticsService = {
           product_id: id,
           name: product?.title || product?.name || 'Unknown Product',
           thumbnail: product?.images?.[0] || '/images/protein.webp',
-          order_count: 0
+          order_count: 0,
+          sold_count: 0
         };
       }
-      acc[id].order_count += 1; // Count each order entry as 1 order received
+      
+      // Every item entry represents an appearance in an order
+      acc[id].order_count += 1; 
+      
+      // Only count quantity as "sold" if the order is not cancelled
+      if (curr.orders && curr.orders.status !== 'cancelled') {
+        acc[id].sold_count += (curr.quantity || 1);
+      }
+      
       return acc;
     }, {});
 
     return Object.values(aggregated || {})
-      .sort((a: any, b: any) => b.order_count - a.order_count)
+      .sort((a: any, b: any) => b.sold_count - a.sold_count)
       .slice(0, limit);
   }),
 

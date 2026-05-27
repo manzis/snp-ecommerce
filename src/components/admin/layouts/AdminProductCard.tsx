@@ -18,14 +18,22 @@ interface AdminProductCardProps {
 const AdminProductCard: React.FC<AdminProductCardProps> = ({ product, isSelected, onToggle }) => {
   return (
     <div 
-      onClick={() => onToggle(product.id)}
-      className={`group relative flex w-full flex-col gap-[4px] border-r border-b border-[#e8e8e8] bg-white transition-all cursor-pointer ${isSelected ? 'bg-gray-50' : ''}`}
+      onClick={!isSelected ? () => onToggle(product.id) : undefined}
+      className={`group relative flex w-full flex-col gap-[4px] border-r border-b border-[#e8e8e8] bg-white transition-all ${isSelected ? '' : 'cursor-pointer'}`}
     >
-      {/* SELECTION INDICATOR */}
-      <div className="absolute top-[10px] left-[10px] z-20">
-        <div className={`w-[20px] h-[20px] border-2 flex items-center justify-center transition-colors ${isSelected ? 'bg-[#308026] border-[#308026]' : 'bg-white border-[#e8e8e8]'}`}>
-          {isSelected && (
+      {/* SELECTION INDICATOR / REMOVE BUTTON */}
+      <div 
+        className="absolute top-[10px] left-[10px] z-20"
+        onClick={isSelected ? (e) => { e.stopPropagation(); onToggle(product.id); } : undefined}
+      >
+        <div className={`w-[24px] h-[24px] rounded-full flex items-center justify-center transition-all ${isSelected ? 'bg-red-500 shadow-sm cursor-pointer hover:bg-red-600 hover:scale-105' : 'bg-white border-2 border-[#e8e8e8] group-hover:border-black'}`}>
+          {isSelected ? (
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="transparent" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           )}
