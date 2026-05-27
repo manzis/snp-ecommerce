@@ -15,15 +15,10 @@ interface ProductBannersProps {
  * Optimized for both desktop and mobile with distinct interaction patterns.
  */
 const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBanners = [] }) => {
-  const [mounted, setMounted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   
   // High-performance normalization of banner data from multiple source patterns
   const normalizedBanners = React.useMemo(() => {
@@ -94,7 +89,7 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
     router.push(banner.link);
   };
 
-  if (!mounted || total === 0) return null;
+  if (total === 0) return null;
 
   return (
     <section 
@@ -134,7 +129,8 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
                     className="object-cover object-center transition-transform duration-[2000ms]"
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1920px"
                     priority={currentIndex === 0}
-                    loading={currentIndex === 0 ? undefined : "lazy"}
+                    loading={currentIndex === 0 ? "eager" : "lazy"}
+                    fetchPriority={currentIndex === 0 ? "high" : "auto"}
                 />
                 
                 {/* Visual Depth Overlay */}

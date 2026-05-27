@@ -272,8 +272,23 @@ function HomeDeferredSectionsFallback() {
         <div className="h-[200px] w-full rounded-[20px] bg-gray-100 mx-[24px] md:mx-0" />
       </section>
 
+      {/* Product Banners #1 skeleton */}
+      <div className="w-full h-[530px] md:h-[650px] lg:h-[720px] bg-gray-100 animate-pulse border-y border-gray-100" />
+
+      {/* Testimonials skeleton (approx) */}
+      <section className="w-full py-16 bg-gray-50 animate-pulse">
+        <div className="h-[300px] w-full max-w-4xl mx-auto rounded-[20px] bg-gray-200" />
+      </section>
+
       {/* Best Sellers skeleton */}
       <ProductGridSectionSkeleton bgColor="bg-white" />
+
+      {/* Services, Subscribe skeleton */}
+      <div className="w-full h-[150px] bg-gray-100 animate-pulse mt-8" />
+      <div className="w-full h-[300px] bg-gray-50 animate-pulse mt-8" />
+
+      {/* Product Banners #2 skeleton */}
+      <div className="w-full h-[530px] md:h-[650px] lg:h-[720px] bg-gray-100 animate-pulse border-y border-gray-100 mt-8" />
     </>
   );
 }
