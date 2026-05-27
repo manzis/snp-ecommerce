@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import heroBg from '../../../../public/images/heroimage.webp';
 
 interface HomeHeroProps {
     deals?: any[];
@@ -73,13 +74,14 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
             <div className="hero-bg-layer">
                 <Image
-                    src="/images/heroimage.webp"
+                    src={heroBg}
                     alt="Hero Background Image"
                     fill
                     priority
+                    placeholder="blur"
                     sizes="100vw"
                     className="hero-bg-image-filter"
-                    decoding="sync"
+                    decoding="async"
                     {...({ fetchPriority: 'high' } as any)}
                 />
                 {/* Radial Gradient Overlay Mask */}
