@@ -79,6 +79,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     priority
                     sizes="100vw"
                     className="hero-bg-image-filter"
+                    decoding="sync"
                     {...({ fetchPriority: 'high' } as any)}
                 />
                 {/* Radial Gradient Overlay Mask */}
