@@ -61,10 +61,10 @@ function mapExpoUpdate(update: ExpoUpdate): { status: string; message: string; l
 
   // 4. Shipment Arrived (Received at facility)
   if (desc.includes('received at facility') || desc.includes('arrived at facility')) {
-    const locationStr = loc ? ` at ${loc}` : ' at local processing hub';
+    //const locationStr = loc ? ` at ${loc}` : ' at local processing hub';
     return {
       status: 'shipment_arrived',
-      message: `Package arrived${locationStr}.`,
+      message: `Package arrived at local processing hub.`,
       location: loc
     };
   }
