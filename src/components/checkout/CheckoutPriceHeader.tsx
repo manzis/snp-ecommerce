@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, forwardRef, useImperativeHandle, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DiscountIcon from '@/components/icons/DiscountIcon';
 import GreenCheckIcon from '@/components/icons/DiscountIcon2';
@@ -18,8 +18,11 @@ interface CheckoutPriceHeaderProps {
   onApplyCoupon: (code: string) => void;
   onRemoveCoupon: () => void;
 }
+export interface CheckoutPriceHeaderHandle {
+  expandAndScroll: () => void;
+}
 
-const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
+const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceHeaderProps>(({
   totalAmount,
   mrp,
   subtotal,
@@ -30,10 +33,23 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
   bundleDiscount,
   onApplyCoupon,
   onRemoveCoupon
-}) => {
+}, ref) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [couponInput, setCouponInput] = useState(couponCode);
   const [lastDiscount, setLastDiscount] = useState(couponDiscount);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    expandAndScroll: () => {
+      setIsExpanded(true);
+      if (containerRef.current) {
+        const yOffset = -100; // offset for fixed headers
+        const element = containerRef.current;
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }
+  }));
 
 
   const isApplied = couponDiscount > 0;
@@ -53,7 +69,7 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
   const itemDiscountValue = mrp - subtotal;
 
   return (
-    <div className="flex flex-col bg-white border-t border-[#f1f5f9] z-[1]">
+    <div ref={containerRef} className="flex flex-col bg-white border-t border-[#f1f5f9] z-[1]">
       <div className="p-[24px_24px_24px_24px] flex flex-col gap-[10px]">
 
         {/* Expandable Total Amount Banner */}
@@ -187,6 +203,6 @@ const CheckoutPriceHeader: React.FC<CheckoutPriceHeaderProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default CheckoutPriceHeader;

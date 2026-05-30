@@ -40,22 +40,22 @@ const fallbackDeals = [
 // Extracted repeated SVG icons to reduce JSX size
 const IconSparkle = ({ size }: { size: number }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#3f9733' }}>
-        <path d="m6.5 6.5 11 11"/>
-        <path d="m21 21-1-1"/>
-        <path d="m3 3 1 1"/>
-        <path d="m18 22 4-4"/>
-        <path d="m2 6 4-4"/>
-        <path d="m3 10 7-7"/>
-        <path d="m14 21 7-7"/>
-        <path d="M6.5 12.5 12.5 6.5"/>
-        <path d="m11.5 17.5 6-6"/>
+        <path d="m6.5 6.5 11 11" />
+        <path d="m21 21-1-1" />
+        <path d="m3 3 1 1" />
+        <path d="m18 22 4-4" />
+        <path d="m2 6 4-4" />
+        <path d="m3 10 7-7" />
+        <path d="m14 21 7-7" />
+        <path d="M6.5 12.5 12.5 6.5" />
+        <path d="m11.5 17.5 6-6" />
     </svg>
 );
 
 const IconTag = ({ size }: { size: number }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#3f9733' }}>
-        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
-        <path d="m8.5 8.5 7 7"/>
+        <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+        <path d="m8.5 8.5 7 7" />
     </svg>
 );
 
@@ -81,7 +81,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     {...({ fetchPriority: 'high' } as any)}
                 />
                 {/* Radial Gradient Overlay Mask */}
-                <div 
+                <div
                     className="absolute inset-0 z-[1]"
                     style={{ background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.55) 100%)' }}
                 />
@@ -105,14 +105,14 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 {/* Title & CTA Block */}
                 <div className="absolute top-[185px] left-[24px] flex w-[340px] h-auto p-[24px_20px] flex-col gap-[16px] justify-center items-start shrink-0 flex-nowrap z-[1]">
                     {/* Soft Dark Oval Gradient Background */}
-                    <div 
+                    <div
                         className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px]"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
                     <h1 className="w-full shrink-0 font-titillium text-[36px] font-black leading-[50px] tracking-[1px] relative text-left z-[2] uppercase">
                         <span className="font-titillium text-[36px] font-black leading-[50px] text-white tracking-[1px] relative text-left uppercase">
                             MEET THE{' '}
-                            <span 
+                            <span
                                 className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
                                 style={{ transform: 'rotate(-15deg) translateY(-3px)' }}
                             >
@@ -122,7 +122,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         </span>
                         <span className="font-titillium text-[36px] font-black text-[#95FF00] leading-[50px] tracking-[1px] relative text-left uppercase">
                             ESSENTIALS{' '}
-                            <span 
+                            <span
                                 className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
                                 style={{ transform: 'rotate(15deg) translateY(-3px)' }}
                             >
@@ -190,13 +190,13 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 {/* Left Column: Heading and SHOP NOW button with local soft oval dark gradient */}
                 <div className="relative flex flex-col gap-[28px] items-center max-w-[850px] shrink-0 lg:-mt-[40px] px-[40px] py-[30px] rounded-full text-center">
                     {/* Soft Dark Oval Gradient Background */}
-                    <div 
+                    <div
                         className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px]"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
                     <h1 className="font-titillium text-[36px] font-black leading-[50px] tracking-[1.5px] uppercase text-center relative z-[1] text-white">
                         MEET THE{' '}
-                        <span 
+                        <span
                             className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
                             style={{ transform: 'rotate(-15deg) translateY(-4px)' }}
                         >
@@ -205,7 +205,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         <br />BEST PLATFORM FOR YOUR <br />DAILY NEEDS &{' '}
                         <span className="text-[#95FF00]">
                             ESSENTIALS{' '}
-                            <span 
+                            <span
                                 className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
                                 style={{ transform: 'rotate(15deg) translateY(-4px)' }}
                             >

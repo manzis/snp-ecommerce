@@ -13,6 +13,7 @@ interface QrPaymentDetailsProps {
   initialFile?: File | null;
   initialRemarks?: string;
   hasError?: boolean;
+  totalAmount?: string;
 }
 
 const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
@@ -20,7 +21,8 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
   onChange,
   initialFile = null,
   initialRemarks = 'Shopping Payment',
-  hasError = false
+  hasError = false,
+  totalAmount
 }) => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
@@ -74,6 +76,16 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
     onVerify({ file: selectedFile, remarks });
   };
 
+  const handleDownloadQR = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const link = document.createElement('a');
+    link.href = '/images/payments/qr.png';
+    link.download = 'QR_Payment.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex w-full flex-col gap-[24px] items-center transition-all duration-300 pt-[4px]" >
 
@@ -99,6 +111,12 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
                 <span className="font-custom text-[24px] text-[#308026] leading-none mt-1">
                   {formatTime(timeLeft)}
                 </span>
+                {totalAmount && (
+                  <div className="mt-[6px] flex items-center justify-center gap-[6px] px-[12px] py-[4px] bg-[#308026] rounded-[6px]">
+                    <span className="font-titillium text-[13px] text-white/90">Amount to pay:</span>
+                    <span className="font-titillium text-[15px] font-bold text-white">{totalAmount}</span>
+                  </div>
+                )}
               </motion.div>
             ) : (
               <div className="w-full flex flex-col items-center py-[14px]">
@@ -127,10 +145,10 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
           {!isRevealed && (
             <button
               onClick={() => setIsRevealed(true)}
-              className="absolute z-10 flex items-center gap-[10px] p-[16px_20px] border border-[#eaebf0] rounded-[12px] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform"
+              className="absolute z-10 flex items-center gap-[10px] p-[16px_20px] rounded-[12px] bg-[#308026] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform hover:bg-[#2a7022]"
             >
-              <span className="font-titillium text-[14px] font-semibold text-[#6a6c6e]">Show QR</span>
-              <EyeIcon className="w-[18px] h-[18px] text-[#6a6c6e]" />
+              <span className="font-titillium text-[14px] font-semibold text-white">Show QR</span>
+              <EyeIcon className="w-[18px] h-[18px] text-white" />
             </button>
           )}
 
@@ -140,11 +158,11 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
               <motion.button
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                onClick={() => console.log("Save QR")}
+                onClick={handleDownloadQR}
                 className="absolute top-[10px] right-[12px] z-10 flex items-center gap-[10px] p-[6px_12px] border border-[#eaebf0] bg-white opacity-[80%] rounded-[100px]  shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform"
               >
                 <span className="font-titillium text-[14px] font-semibold text-[#6a6c6e]">Save</span>
-                <SaveIcon className="w-[18px] h-[18px] text-[#6a6c6e]" />
+                <UploadIcon className="w-[18px] h-[18px] text-[#6a6c6e] rotate-180" />
               </motion.button>
             )}
           </AnimatePresence>

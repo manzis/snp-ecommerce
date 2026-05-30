@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import ContactIcon from '@/components/icons/ChevronLeftIcon';
 import CheckIcon from '@/components/icons/TickIcon';
+import { useAuth } from '@/context/AuthContext';
 
 interface ContactSectionProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
   const [isMarketing, setIsMarketing] = useState(initialMarketing);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [shakeTrigger, setShakeTrigger] = useState(0);
+  const { user } = useAuth();
 
   // Sync with initial store data precisely
   useEffect(() => {
@@ -40,8 +42,10 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
         ? initialValue.replace('+977 ', '')
         : initialValue;
       setInputValue(cleanValue);
+    } else if (user?.email && !inputValue) {
+      setInputValue(user.email);
     }
-  }, [initialValue]);
+  }, [initialValue, user]);
 
   useEffect(() => {
     setIsMarketing(initialMarketing);

@@ -13,6 +13,7 @@ interface CartCheckoutBarProps {
   onCheckout: () => void;
   isStatic?: boolean;
   buttonText?: string;
+  onInfoClick?: () => void;
 }
 
 const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
@@ -20,7 +21,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   mrpAmount,
   onCheckout,
   isStatic = false,
-  buttonText = "Checkout"
+  buttonText = "Checkout",
+  onInfoClick
 }) => {
   // FIXED: Moved the hook call inside the component body
   const { openLogin } = useAuthModal();
@@ -84,9 +86,12 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
               ))}
             </div>
           </div>
-          <div className="mt-[4px]">
+          <button 
+            onClick={onInfoClick} 
+            className="mt-[4px] cursor-pointer hover:bg-gray-100 p-1 -m-1 rounded-full transition-colors outline-none"
+          >
             <InfoIcon className="h-[18px] w-[18px] text-[#4d4d4d]" />
-          </div>
+          </button>
         </div>
       </div>
 

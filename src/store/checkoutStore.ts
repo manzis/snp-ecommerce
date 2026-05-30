@@ -36,7 +36,7 @@ export const useCheckoutStore = create<CheckoutState>()(
       completedSteps: [],
       contactData: { value: '', marketing: true },
       deliveryData: null,
-      selectedPaymentId: null,
+      selectedPaymentId: 'qr',
 
       setActiveStep: (step) => set({ activeStep: step }),
       setCompletedSteps: (steps) =>
@@ -52,14 +52,14 @@ export const useCheckoutStore = create<CheckoutState>()(
         completedSteps: [],
         contactData: { value: '', marketing: true },
         deliveryData: null,
-        selectedPaymentId: null
+        selectedPaymentId: 'qr'
       }),
 
       clearSelections: () => set({
         activeStep: 'contact',
         completedSteps: [],
         deliveryData: null,
-        selectedPaymentId: null
+        selectedPaymentId: 'qr'
       }),
     }),
     {

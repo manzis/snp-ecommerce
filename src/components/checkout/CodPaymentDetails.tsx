@@ -8,7 +8,7 @@ interface CodPaymentDetailsProps {
 }
 
 const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({ 
-  handlingFee = 13, 
+  handlingFee = 23, 
   onPlaceOrder 
 }) => {
   return (

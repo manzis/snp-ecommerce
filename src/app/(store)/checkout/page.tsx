@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
-import CheckoutPriceHeader from '@/components/checkout/CheckoutPriceHeader';
+import CheckoutPriceHeader, { CheckoutPriceHeaderHandle } from '@/components/checkout/CheckoutPriceHeader';
 import ContactSection, { ContactSectionHandle } from '@/components/checkout/ContactSection';
 import DeliverySection, { DeliverySectionHandle } from '@/components/checkout/DeliverySection';
 import PaymentSection from '@/components/checkout/PaymentSection';
@@ -19,6 +19,7 @@ import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
 import CheckoutCancelModal from '@/components/checkout/CheckoutCancelModal';
 import { recordAbandonedCheckoutAction } from '@/app/actions/marketingActions';
 import { useUIStore } from '@/store/uiStore';
+import PickupCodWarningModal from '@/components/checkout/PickupCodWarningModal';
 
 export default function CheckoutPage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -59,6 +60,8 @@ export default function CheckoutPage() {
 
   // ABANDONED CART RECOVERY
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showPickupCodWarning, setShowPickupCodWarning] = useState(false);
+  const [modalMode, setModalMode] = useState<'pickup-warning' | 'cod-confirm'>('pickup-warning');
   const [isAbandoning, setIsAbandoning] = useState(false);
   const setHideBottomNav = useUIStore((state) => state.setHideBottomNav);
 
@@ -67,7 +70,12 @@ export default function CheckoutPage() {
   const deliveryRef = useRef<DeliverySectionHandle>(null);
   const deliveryScrollRef = useRef<HTMLDivElement>(null);
   const paymentsRef = useRef<HTMLDivElement>(null);
+  const priceHeaderRef = useRef<CheckoutPriceHeaderHandle>(null);
   const [qrData, setQrData] = useState<{ qrFile: File | null; qrRemarks: string }>({ qrFile: null, qrRemarks: 'Shopping Payment' });
+
+  const handleInfoClick = () => {
+    priceHeaderRef.current?.expandAndScroll();
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -123,9 +131,23 @@ export default function CheckoutPage() {
   };
 
   // SMART NEXT STEP DRIVER
-  const handlePlaceOrder = async (overrideQrData?: { qrFile?: File | null; qrRemarks?: string }) => {
+  const handlePlaceOrder = async (overrideQrData?: { qrFile?: File | null; qrRemarks?: string }, skipCodConfirm: boolean = false) => {
     if (items.length === 0) {
       alert("Your cart is empty");
+      return;
+    }
+
+    // Validation for Pickup + COD combination
+    if (deliveryData?.option === 'pickup' && selectedPaymentId === 'cod') {
+      setModalMode('pickup-warning');
+      setShowPickupCodWarning(true);
+      return;
+    }
+
+    // COD Confirmation
+    if (selectedPaymentId === 'cod' && !skipCodConfirm) {
+      setModalMode('cod-confirm');
+      setShowPickupCodWarning(true);
       return;
     }
 
@@ -349,7 +371,7 @@ export default function CheckoutPage() {
   }, [items]);
 
   const shippingCharge = deliveryData?.shippingPrice || 0;
-  const codCharge = selectedPaymentId === 'cod' ? 13 : 0;
+  const codCharge = selectedPaymentId === 'cod' ? 23 : 0;
   const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - bundleDiscount - couponDiscountValue, [subtotal, shippingCharge, codCharge, bundleDiscount, couponDiscountValue]);
 
   const mainButtonText = useMemo(() => {
@@ -378,6 +400,7 @@ export default function CheckoutPage() {
         <main className="mx-auto w-full lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
           <div className="flex-1 flex flex-col gap-[12px]">
             <CheckoutPriceHeader
+              ref={priceHeaderRef}
               totalAmount={`NPR ${finalTotal.toLocaleString()}`}
               mrp={totalMRP}
               subtotal={subtotal}
@@ -437,6 +460,7 @@ export default function CheckoutPage() {
                   initialQrData={{ file: qrData.qrFile, remarks: qrData.qrRemarks }}
                   hasQrError={selectedPaymentId === 'qr' && !!paymentError}
                   externalError={paymentError}
+                  totalAmount={`Rs. ${finalTotal.toLocaleString()}`}
                 />
               </div>
             </div>
@@ -451,6 +475,7 @@ export default function CheckoutPage() {
                   mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
                   buttonText={mainButtonText}
                   onCheckout={handlePlaceOrder}
+                  onInfoClick={handleInfoClick}
                 />
               </div>
             </div>
@@ -459,11 +484,32 @@ export default function CheckoutPage() {
 
         <CheckoutPrompt />
 
+        <PickupCodWarningModal
+          isOpen={showPickupCodWarning}
+          mode={modalMode}
+          onClose={() => setShowPickupCodWarning(false)}
+          onSwitchToHomeDelivery={() => {
+            if (deliveryData) {
+              setDeliveryData({ ...deliveryData, option: 'home', shippingPrice: 150 });
+            }
+            setShowPickupCodWarning(false);
+          }}
+          onPayOnline={() => {
+            setSelectedPaymentId('qr');
+            setShowPickupCodWarning(false);
+          }}
+          onConfirmOrder={() => {
+            setShowPickupCodWarning(false);
+            handlePlaceOrder(undefined, true);
+          }}
+        />
+
         <CartCheckoutBar
           totalAmount={`NPR ${finalTotal.toLocaleString()}`}
           mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
           buttonText={mainButtonText}
           onCheckout={handlePlaceOrder}
+          onInfoClick={handleInfoClick}
         />
       </div>
     </>

@@ -26,8 +26,8 @@ interface PaymentSectionProps {
   onQrDataChange?: (data: { file: File | null; remarks: string }) => void;
   initialQrData?: { file: File | null; remarks: string };
   hasQrError?: boolean;
-  externalError?: string | null;
   excludeOptions?: string[];
+  totalAmount?: string;
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({
@@ -42,7 +42,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   initialQrData,
   hasQrError = false,
   externalError,
-  excludeOptions = []
+  excludeOptions = [],
+  totalAmount
 }) => {
   return (
     <div className={`main-container mx-auto flex w-full max-w-[412px] flex-col items-start border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
@@ -151,6 +152,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       onVerify={(data) => {
                         onPlaceOrder({ qrFile: data.file, qrRemarks: data.remarks });
                       }}
+                      totalAmount={totalAmount}
                     />
                   </PaymentOption>
 
