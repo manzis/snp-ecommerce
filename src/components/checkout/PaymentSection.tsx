@@ -177,7 +177,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       isActive={selectedId === 'cod'}
                       onSelect={onSelect}
                     >
-                      <CodPaymentDetails handlingFee={13} onPlaceOrder={onPlaceOrder} />
+                      <CodPaymentDetails handlingFee={23} onPlaceOrder={onPlaceOrder} />
                     </PaymentOption>
                   )}
                 </div>

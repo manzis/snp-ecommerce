@@ -7,9 +7,9 @@ interface CodPaymentDetailsProps {
   onPlaceOrder: () => void;
 }
 
-const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({ 
-  handlingFee = 23, 
-  onPlaceOrder 
+const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({
+  handlingFee = 23,
+  onPlaceOrder
 }) => {
   return (
     <div className="flex w-full flex-col gap-[15px] items-start transition-all duration-300">
