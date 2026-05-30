@@ -26,7 +26,7 @@ interface PaymentSectionProps {
   onQrDataChange?: (data: { file: File | null; remarks: string }) => void;
   initialQrData?: { file: File | null; remarks: string };
   hasQrError?: boolean;
-  externalError?: string;
+  externalError?: string | null;
   excludeOptions?: string[];
   totalAmount?: string;
 }
