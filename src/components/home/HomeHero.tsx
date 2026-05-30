@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -78,10 +76,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                     alt="Hero Background Image"
                     fill
                     priority
-                    placeholder="blur"
                     sizes="100vw"
                     className="hero-bg-image-filter"
-                    decoding="async"
                     {...({ fetchPriority: 'high' } as any)}
                 />
                 {/* Radial Gradient Overlay Mask */}

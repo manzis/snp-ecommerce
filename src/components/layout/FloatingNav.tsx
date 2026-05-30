@@ -28,11 +28,9 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
     const { cartCount } = useCart();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(alwaysScrolled);
-    const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        setIsMounted(true);
         if (alwaysScrolled) {
             setIsScrolled(true);
             return;
@@ -60,9 +58,9 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                 onClose={() => setIsSidebarOpen(false)} 
             />
             
-            <nav className={`fixed top-[12px] left-1/2 z-[100] w-full -translate-x-1/2 px-[13px] md:top-[24px] lg:top-0 lg:left-0 lg:translate-x-0 lg:w-full lg:max-w-none lg:px-0 transform-gpu ${isMounted ? 'transition-[transform] duration-300 ease-out' : ''} will-change-transform`}>
+            <nav className={`fixed top-[12px] left-1/2 z-[100] w-full -translate-x-1/2 px-[13px] md:top-[24px] lg:top-0 lg:left-0 lg:translate-x-0 lg:w-full lg:max-w-none lg:px-0 transform-gpu transition-[transform] duration-300 ease-out will-change-transform`}>
                 <div 
-                    className={`mx-auto flex w-full max-w-[384px] flex-col items-center overflow-hidden rounded-[16px] border p-[6px] md:max-w-[1100px] md:p-[10px] lg:max-w-none lg:w-full lg:rounded-none lg:p-0 transform-gpu ${isMounted ? 'transition-[background-color,border-color] duration-200 ease-out' : ''} will-change-[background-color,border-color] ${
+                    className={`mx-auto flex w-full max-w-[384px] flex-col items-center overflow-hidden rounded-[16px] border p-[6px] md:max-w-[1100px] md:p-[10px] lg:max-w-none lg:w-full lg:rounded-none lg:p-0 transform-gpu transition-[background-color,border-color] duration-200 ease-out will-change-[background-color,border-color] ${
                         isScrolled 
                             ? 'border-[#f1f5f9] bg-white lg:border-none lg:border-b lg:border-[#f1f5f9]' 
                             : 'border-transparent bg-transparent lg:border-none'
