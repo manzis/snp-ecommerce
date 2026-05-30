@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!catData) return { title: 'Category Not Found | Supplyment Nepal' };
 
   const fallback = generateCategoryFallbackSeo(catData);
-  const canonical = `https://brightsupplements.store/category/${slug}`;
+  const canonical = `https://www.brightsupplements.store/category/${slug}`;
   const catCover = catData.image_url || gSeo?.default_og_image || '/icon.png';
 
   // Build a rich image array: category image first, then up to 8 product images

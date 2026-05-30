@@ -39,7 +39,7 @@ interface OrderEmailData {
 }
 
 export const STORE_NAME = process.env.STORE_NAME || 'Supplyment Nepal';
-const STORE_URL = process.env.STORE_URL || 'https://brightsupplements.store';
+const STORE_URL = process.env.STORE_URL || 'https://www.brightsupplements.store';
 const SUPPORT_EMAIL = process.env.GMAIL_USER || 'support@supplymentnepal.store';
 
 // ─── Shared Layout Helpers ───────────────────────────────────────────
@@ -469,7 +469,7 @@ export function adminOrderReceivedTemplate(data: OrderEmailData): string {
     </tr>
     <tr>
       <td style="padding:10px 30px 40px;" align="center">
-        <a href="${process.env.STORE_URL || 'https://brightsupplements.store'}/admin/orders" style="display:block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:18px;text-transform:uppercase;letter-spacing:1px;">View Order In Dashboard</a>
+        <a href="${process.env.STORE_URL || 'https://www.brightsupplements.store'}/admin/orders" style="display:block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:18px;text-transform:uppercase;letter-spacing:1px;">View Order In Dashboard</a>
       </td>
     </tr>
   `;

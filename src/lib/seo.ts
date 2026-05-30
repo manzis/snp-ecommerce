@@ -8,7 +8,7 @@ export function generateBreadcrumbJsonLd(path: BreadcrumbItem[]) {
     '@type': 'ListItem',
     position: index + 1,
     name: item.name,
-    item: `https://brightsupplements.store${item.href}`,
+    item: `https://www.brightsupplements.store${item.href}`,
   }));
 
   return {

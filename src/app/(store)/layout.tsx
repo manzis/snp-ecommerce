@@ -16,7 +16,7 @@ import NextTopLoader from 'nextjs-toploader';
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
   return {
-    metadataBase: new URL('https://brightsupplements.store'),
+    metadataBase: new URL('https://www.brightsupplements.store'),
     applicationName: 'Supplyment Nepal',
     appleWebApp: {
       title: 'Supplyment Nepal',

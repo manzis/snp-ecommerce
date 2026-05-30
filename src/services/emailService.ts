@@ -212,7 +212,7 @@ export async function sendPaymentAcknowledgeEmail(orderId: string, screenshotUrl
   const data = await fetchOrderEmailData(orderId);
   if (!data) return false;
 
-  const adminLink = `https://brightsupplements.store/admin/orders?orderId=${orderId}`;
+  const adminLink = `https://www.brightsupplements.store/admin/orders?orderId=${orderId}`;
   const html = paymentAcknowledgeTemplate({ ...data, screenshotUrl, adminLink });
   return await sendEmail(ADMIN_EMAIL, `Payment Receipt Uploaded — #${data.shortId}`, html);
 }

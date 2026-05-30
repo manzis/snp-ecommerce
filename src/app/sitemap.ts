@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const BASE_URL = 'https://brightsupplements.store';
+const BASE_URL = 'https://www.brightsupplements.store';
 
 // Regenerate once a week (safety net; primarily refreshed via on-demand revalidation)
 export const revalidate = 604800;
