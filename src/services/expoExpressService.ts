@@ -51,18 +51,20 @@ function mapExpoUpdate(update: ExpoUpdate): { status: string; message: string; l
 
   // 3. In Transit (Departed from facility)
   if (desc.includes('departed from facility') || desc.includes('dispatched')) {
+    const locationStr = loc ? ` from ${loc}` : '';
     return {
       status: 'in_transit',
-      message: `Your shipment is in transit and on the way to your destination.`,
+      message: `Your shipment is in transit and on the way to your destination${locationStr}.`,
       location: loc
     };
   }
 
   // 4. Shipment Arrived (Received at facility)
   if (desc.includes('received at facility') || desc.includes('arrived at facility')) {
+    const locationStr = loc ? ` at ${loc}` : ' at local processing hub';
     return {
       status: 'shipment_arrived',
-      message: `Package arrived at local processing hub.`,
+      message: `Package arrived${locationStr}.`,
       location: loc
     };
   }
