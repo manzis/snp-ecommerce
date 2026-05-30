@@ -36,12 +36,7 @@ export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
 
   // newUpdates is sorted oldest to newest
   for (const nu of newUpdates) {
-    const hasUpdate = statusUpdates.some((up: any) => {
-      if (nu.status === 'in_transit' || nu.status === 'shipment_arrived') {
-        return up.status === nu.status && up.date === nu.date;
-      }
-      return up.message === nu.message;
-    });
+    const hasUpdate = statusUpdates.some((up: any) => up.message === nu.message);
     
     if (!hasUpdate) {
       statusUpdates.push(nu);
