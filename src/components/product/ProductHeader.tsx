@@ -80,7 +80,7 @@ const ProductHeader = ({
         {/* Title */}
         <div className="relative flex w-full flex-col items-start gap-[6px] shrink-0 lg:h-auto">
           <div className="relative flex w-full items-center lg:h-auto">
- <h1 className="uppercase font-rajdhani font-bold text-[22px] lg:text-[26px] leading-[30px] lg:leading-[36px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent">
+            <h1 className="uppercase font-rajdhani font-bold text-[22px] lg:text-[26px] leading-[30px] lg:leading-[34px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent">
               {title}
             </h1>
           </div>
@@ -90,14 +90,14 @@ const ProductHeader = ({
         <div className="relative flex flex-col items-start justify-center gap-[5px] shrink-0 lg:h-auto">
           <div className="relative flex items-center gap-[10px]">
             <div className="flex h-[22px] w-[63px] items-center justify-center bg-[#95FF00] rounded-[6px] px-[6px] py-[4px]">
- <span className="font-rajdhani font-bold text-[12px] leading-[14px] text-[#242424] whitespace-nowrap">
+              <span className="font-rajdhani uppercase font-bold text-[12px] leading-[14px] text-[#242424] whitespace-nowrap">
                 save {displayPercentage}
               </span>
             </div>
             <span className="h-[30px] font-rajdhani text-[28px] font-medium leading-[30px] text-[#979797] tracking-[-0.07em] line-through whitespace-nowrap">
               {displayOriginal}
             </span>
- <span className="h-[30px] font-rajdhani font-bold text-[28px] lg:text-[32px] leading-[30px] lg:leading-[32px] bg-[linear-gradient(87.93deg,#318126_10.71%,#33D81D_124.28%)] bg-clip-text text-transparent whitespace-nowrap">
+            <span className="h-[30px] font-rajdhani font-bold text-[28px] lg:text-[32px] leading-[30px] lg:leading-[32px] bg-[linear-gradient(87.93deg,#318126_10.71%,#33D81D_124.28%)] bg-clip-text text-transparent whitespace-nowrap">
               {displayDiscounted}
             </span>
           </div>

@@ -67,10 +67,10 @@ export default function ProductNav() {
         onPointerUp={handleSearchRedirect}
         className="flex flex-col justify-center items-center self-stretch flex-grow shrink-0 basis-0 flex-nowrap bg-[#ffffff] rounded-[6px] relative z-[3] outline-none transition-all duration-200 border border-transparent md:hover:bg-[#f2f3f5] active:scale-[0.99]"
       >
-        <div className="flex px-[12px] py-[10px] gap-[4px] items-center self-stretch shrink-0 flex-nowrap relative z-[4]">
+        <div className="flex px-[12px] py-[10px] gap-[6px] items-center self-stretch shrink-0 flex-nowrap relative z-[4]">
           <SearchIcon className="w-[22px] h-[22px] shrink-0 relative z-[5] text-[#BEBEBE]" />
           <span
-            className="font-rajdhani text-[20px] font-[500] tracking-[-0.8px] bg-[linear-gradient(48.47deg,#bebebe,#020202)] bg-clip-text text-transparent whitespace-nowrap relative z-[6]"
+            className="inline-block pt-[2px] font-rajdhani text-[20px] leading-none font-[500] tracking-[-0.8px] bg-[linear-gradient(48.47deg,#bebebe,#020202)] bg-clip-text text-transparent whitespace-nowrap relative z-[6]"
           >
             Search products
           </span>

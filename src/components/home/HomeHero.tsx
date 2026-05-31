@@ -112,24 +112,24 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px]"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
-                    <h1 className={`w-full shrink-0 ${barlowFont.className} text-[36px] font-black leading-[50px] tracking-[1px] relative text-left z-[2] uppercase`}>
-                        <span className={`${barlowFont.className} text-[36px] font-black leading-[50px] text-white tracking-[1px] relative text-left uppercase`}>
+                    <h1 className={`w-full shrink-0 ${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] relative text-left z-[2] uppercase`}>
+                        <span className={`${barlowFont.className} text-[32px] font-black leading-[44px] text-white tracking-[1px] relative text-left uppercase`}>
                             MEET THE{' '}
                             <span
-                                className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
-                                style={{ transform: 'rotate(-15deg) translateY(-3px)' }}
+                                className="inline-flex items-center justify-center bg-white rounded-[8px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
+                                style={{ transform: 'rotate(-15deg) translateY(-2px)' }}
                             >
-                                <IconSparkle size={22} />
+                                <IconSparkle size={20} />
                             </span>
                             <br />BEST PLATFORM FOR YOUR <br />DAILY NEEDS &{' '}
                         </span>
-                        <span className={`${barlowFont.className} text-[36px] font-black text-[#95FF00] leading-[50px] tracking-[1px] relative text-left uppercase`}>
+                        <span className={`${barlowFont.className} text-[32px] font-black text-[#95FF00] leading-[44px] tracking-[1px] relative text-left uppercase`}>
                             ESSENTIALS{' '}
                             <span
-                                className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
-                                style={{ transform: 'rotate(15deg) translateY(-3px)' }}
+                                className="inline-flex items-center justify-center bg-white rounded-[8px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
+                                style={{ transform: 'rotate(15deg) translateY(-2px)' }}
                             >
-                                <IconTag size={22} />
+                                <IconTag size={20} />
                             </span>
                         </span>
                     </h1>
@@ -197,22 +197,22 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px]"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
-                    <h1 className={`${barlowFont.className} text-[36px] font-black leading-[50px] tracking-[1.5px] uppercase text-center relative z-[1] text-white`}>
+                    <h1 className={`${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] uppercase text-center relative z-[1] text-white`}>
                         MEET THE{' '}
                         <span
-                            className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
-                            style={{ transform: 'rotate(-15deg) translateY(-4px)' }}
+                            className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
+                            style={{ transform: 'rotate(-15deg) translateY(-2px)' }}
                         >
-                            <IconSparkle size={24} />
+                            <IconSparkle size={20} />
                         </span>
                         <br />BEST PLATFORM FOR YOUR <br />DAILY NEEDS &{' '}
                         <span className="text-[#95FF00]">
                             ESSENTIALS{' '}
                             <span
-                                className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
-                                style={{ transform: 'rotate(15deg) translateY(-4px)' }}
+                                className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
+                                style={{ transform: 'rotate(15deg) translateY(-2px)' }}
                             >
-                                <IconTag size={24} />
+                                <IconTag size={20} />
                             </span>
                         </span>
                     </h1>
