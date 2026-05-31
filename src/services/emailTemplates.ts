@@ -266,7 +266,7 @@ function divider(): string {
 // ─── Template Generators ─────────────────────────────────────────────
 
 export function orderConfirmationTemplate(data: OrderEmailData): string {
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
   const content = [
     statusBanner('#242424', '✅', 'Order Confirmed!', `Hi ${data.customerName}, we've received your order.`),
@@ -291,7 +291,7 @@ export function orderConfirmationTemplate(data: OrderEmailData): string {
 }
 
 export function orderShippedTemplate(data: OrderEmailData): string {
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
   const content = [
     statusBanner('#1d4ed8', '📦', 'Your Order Has Been Shipped!', data.statusMessage || 'Your package is on its way!'),
@@ -316,7 +316,7 @@ export function orderShippedTemplate(data: OrderEmailData): string {
 }
 
 export function outForDeliveryTemplate(data: OrderEmailData): string {
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
   const content = [
     statusBanner('#0d9488', '🚚', 'Out for Delivery!', 'Your order arrives today.'),
@@ -341,7 +341,7 @@ export function outForDeliveryTemplate(data: OrderEmailData): string {
 }
 
 export function orderCancelledTemplate(data: OrderEmailData): string {
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
   const content = [
     statusBanner('#dc2626', '❌', 'Order Cancelled', `Hi ${data.customerName}, your order has been cancelled.`),
@@ -376,6 +376,7 @@ export function orderCancelledTemplate(data: OrderEmailData): string {
 
 export function adminOrderReceivedTemplate(data: OrderEmailData): string {
   const dateStr = new Date().toLocaleString('en-US', { 
+    timeZone: 'Asia/Kathmandu',
     month: 'short', day: 'numeric', year: 'numeric', 
     hour: '2-digit', minute: '2-digit' 
   });
@@ -478,7 +479,7 @@ export function adminOrderReceivedTemplate(data: OrderEmailData): string {
 }
 
 export function deliveryFailedTemplate(data: OrderEmailData): string {
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
   const content = [
     statusBanner('#d97706', '⚠️', 'Delivery Attempt Failed', `Hi ${data.customerName}, we couldn't deliver your order.`),
@@ -566,6 +567,7 @@ export function contactFormEmailTemplate(data: ContactEmailData): string {
  */
 export function paymentAttemptTemplate(data: OrderEmailData): string {
   const dateStr = new Date().toLocaleString('en-US', { 
+    timeZone: 'Asia/Kathmandu',
     month: 'short', day: 'numeric', year: 'numeric', 
     hour: '2-digit', minute: '2-digit' 
   });
@@ -603,6 +605,7 @@ export function paymentAttemptTemplate(data: OrderEmailData): string {
  */
 export function paymentAcknowledgeTemplate(data: OrderEmailData & { screenshotUrl: string, adminLink: string }): string {
   const dateStr = new Date().toLocaleString('en-US', { 
+    timeZone: 'Asia/Kathmandu',
     month: 'short', day: 'numeric', year: 'numeric', 
     hour: '2-digit', minute: '2-digit' 
   });
@@ -653,7 +656,7 @@ export function paymentAcknowledgeTemplate(data: OrderEmailData & { screenshotUr
  * Customer Payment Confirmed Template
  */
 export function customerPaymentConfirmedTemplate(data: OrderEmailData): string {
-  const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
   const content = [
     statusBanner('#3f9733', '💰', 'Payment Received!', `Hi ${data.customerName}, we've successfully received your payment for order #${data.shortId}.`),
