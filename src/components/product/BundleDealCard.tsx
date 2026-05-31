@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon';
+import DiscountIcon from '@/components/icons/DiscountIcon';
 import PlusIcon from '@/components/icons/PlusIcon';
 import CloseIcon from '@/components/icons/CloseIcon';
 import Image from 'next/image';
@@ -290,13 +291,13 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                     <span className="text-[16px] font-bold text-[#242424]">
                       {selectedProducts.length === 0 ? 'Rs. 20 off' : selectedProducts.length === 1 ? 'Rs. 40 off' : 'Rs. 60 Saved!'}
                     </span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-[13px] text-[#71717a]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[13px] leading-none pt-[1px] text-[#71717a]">
                         {selectedProducts.length === 0 ? 'Add 1 more item to unlock Rs. 20 off' :
                           selectedProducts.length === 1 ? 'Add 1 more to get Rs. 40 more off' :
                             'Maximum bundle discount applied!'}
                       </span>
-                      {selectedProducts.length < 2 && <ChevronLeftIcon className="w-3 h-3 text-[#71717a] rotate-180" />}
+                      {selectedProducts.length < 2 && <DiscountIcon className="w-[14px] h-[14px] text-[#71717a] shrink-0" />}
                     </div>
                   </div>
                 </div>
@@ -322,10 +323,15 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                   {/* Slot 1 */}
                   <div
                     onClick={!selectedProducts[0] ? () => { setPendingBulkQty(null); setIsModalOpen(true); } : undefined}
-                    className={`w-[60px] h-[60px] rounded-[12px] relative shrink-0 transition-colors ${!selectedProducts[0] ? 'cursor-pointer hover:bg-[#FAFAFA]' : 'bg-white border border-zinc-200'}`}
-                    style={!selectedProducts[0] ? { backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23E8E8E8' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")` } : {}}
+                    className={`w-[60px] h-[60px] rounded-[12px] relative shrink-0 transition-colors ${!selectedProducts[0] ? 'cursor-pointer hover:bg-[#f0fff4]' : 'bg-white border border-zinc-200'}`}
                   >
-                    <div className="w-full h-full p-1 flex items-center justify-center">
+                    {!selectedProducts[0] && (
+                      <div 
+                        className="absolute inset-0 rounded-[12px] pointer-events-none animate-pulse" 
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23318126' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")` }} 
+                      />
+                    )}
+                    <div className="w-full h-full p-1 flex items-center justify-center relative z-10">
                       {selectedProducts[0] ? (
                         <>
                           <SavingsBadge text="Rs. 20 Saved" type="saved" />
@@ -336,7 +342,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                         </>
                       ) : (
                         <>
-                          <PlusIcon className="w-5 h-5 text-[#d1d1d6]" />
+                          <PlusIcon className="w-6 h-6 text-[#318126] animate-pulse" />
                           <SavingsBadge text="Save Rs. 20" type="available" />
                         </>
                       )}
@@ -348,10 +354,15 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                   {/* Slot 2 */}
                   <div
                     onClick={!selectedProducts[1] ? () => { setPendingBulkQty(null); setIsModalOpen(true); } : undefined}
-                    className={`w-[60px] h-[60px] rounded-[12px] relative shrink-0 transition-colors ${!selectedProducts[1] ? 'cursor-pointer hover:bg-[#FAFAFA]' : 'bg-white border border-zinc-200'}`}
-                    style={!selectedProducts[1] ? { backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23E8E8E8' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")` } : {}}
+                    className={`w-[60px] h-[60px] rounded-[12px] relative shrink-0 transition-colors ${!selectedProducts[1] ? 'cursor-pointer hover:bg-[#f0fff4]' : 'bg-white border border-zinc-200'}`}
                   >
-                    <div className="w-full h-full p-1 flex items-center justify-center">
+                    {!selectedProducts[1] && (
+                      <div 
+                        className="absolute inset-0 rounded-[12px] pointer-events-none animate-pulse" 
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='12' ry='12' stroke='%23318126' stroke-width='2' stroke-dasharray='6%2c 4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")` }} 
+                      />
+                    )}
+                    <div className="w-full h-full p-1 flex items-center justify-center relative z-10">
                       {selectedProducts[1] ? (
                         <>
                           <SavingsBadge text="Rs. 60 Saved" type="saved" />
@@ -362,7 +373,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                         </>
                       ) : (
                         <>
-                          <PlusIcon className="w-5 h-5 text-[#d1d1d6]" />
+                          <PlusIcon className="w-6 h-6 text-[#318126] animate-pulse" />
                           <SavingsBadge text="Save Rs. 40" type="available" />
                         </>
                       )}
