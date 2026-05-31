@@ -128,7 +128,7 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
           )) : (
             <div className="col-span-full py-16 text-center bg-gray-50 rounded-[20px] border border-dashed border-gray-200">
               <Package className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-400 text-sm font-medium italic font-rubik">No abandoned checkouts found.</p>
+              <p className="text-gray-400 text-sm font-normal italic font-rubik">No abandoned checkouts found.</p>
             </div>
           )}
         </AnimatePresence>

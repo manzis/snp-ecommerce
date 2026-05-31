@@ -129,7 +129,7 @@ export function ReviewCard({
                             <span className="h-[18px] w-full shrink-0 text-[12px] font-[500] leading-[18px] text-[#242424] whitespace-nowrap overflow-hidden text-ellipsis relative z-[13]">
                                 {reviewerName}
                             </span>
-                            <span className="h-[13px] w-full shrink-0 text-[10px] font-[500] leading-[13px] text-[#68727d] whitespace-nowrap overflow-hidden text-ellipsis relative z-[14]">
+                            <span className="h-[13px] w-full shrink-0 text-[10px] font-[400] leading-[13px] text-[#68727d] whitespace-nowrap overflow-hidden text-ellipsis relative z-[14]">
                                 {reviewerRole}
                             </span>
                         </div>
@@ -141,7 +141,7 @@ export function ReviewCard({
             {/* Product Context Tag (Many-to-Many support) */}
             {(review.products_data?.length ?? 0) > 0 ? (
                 <div className="flex items-center gap-2 px-[10px] py-[6.5px] bg-zinc-50 rounded-[8px] border border-gray-200/50 self-start max-w-full overflow-hidden">
-                    <span className="text-[9px] font-medium text-[#a1a1aa] uppercase tracking-[0.05em] shrink-0">Linked to:</span>
+                    <span className="text-[9px] font-normal text-[#a1a1aa] uppercase tracking-[0.05em] shrink-0">Linked to:</span>
                     <span className="text-[10px] font-medium text-[#52525b] truncate">
                         {review.products_data![0].title || review.products_data![0].name}
                         {review.products_data!.length > 1 && ` + ${review.products_data!.length - 1} more`}
@@ -149,7 +149,7 @@ export function ReviewCard({
                 </div>
             ) : review.products ? (
                 <div className="flex items-center gap-2 px-[10px] py-[6.5px] bg-zinc-50 rounded-[8px] border border-gray-200/50 self-start max-w-full overflow-hidden">
-                    <span className="text-[9px] font-medium text-[#a1a1aa] uppercase tracking-[0.05em] shrink-0">Added on:</span>
+                    <span className="text-[9px] font-normal text-[#a1a1aa] uppercase tracking-[0.05em] shrink-0">Added on:</span>
                     <span className="text-[10px] font-medium text-[#52525b] truncate">
                         {review.products.title || review.products.name}
                     </span>

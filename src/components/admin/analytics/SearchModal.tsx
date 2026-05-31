@@ -61,7 +61,7 @@ export const SearchModal = ({ isOpen, onClose, data }: SearchModalProps) => {
                 </span>
               </div>
             )) : highFreq.length === 0 && (
-              <p className="text-left w-full text-gray-400 text-xs font-medium italic">No search data available yet.</p>
+              <p className="text-left w-full text-gray-400 text-xs font-normal italic">No search data available yet.</p>
             )}
           </div>
         </div>

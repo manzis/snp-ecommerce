@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "../globals.css"; // Ensure Tailwind stays loaded for Admin
 
-import { inter, interTight, rajdhani, rubik, customFont } from "@/lib/fonts";
+import { inter, interTight, barlow, rubik, customFont } from "@/lib/fonts";
 import { AdminToastProvider } from "@/components/admin/ui/AdminToastProvider";
 import { AdminUIProvider } from "@/context/AdminUIContext";
 
@@ -24,7 +24,7 @@ export default function AdminRootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${interTight.variable} ${rajdhani.variable} ${rubik.variable} ${customFont.variable} antialiased bg-gray-50 h-[100dvh] w-screen m-0 p-0 overflow-hidden text-gray-900 selection:bg-black selection:text-white`}>
+      <body className={`${inter.variable} ${interTight.variable} ${barlow.variable} ${rubik.variable} ${customFont.variable} antialiased bg-gray-50 h-[100dvh] w-screen m-0 p-0 overflow-hidden text-gray-900 selection:bg-black selection:text-white`}>
         <AdminUIProvider>
           <AdminToastProvider>
             {children}

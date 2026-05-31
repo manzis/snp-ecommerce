@@ -91,7 +91,7 @@ export default function CustomerActionMenu({
                     >
                         <button
                             onClick={(e) => handleAction(e, () => onView?.(customer))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-normal rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <Eye className="w-4 h-4 text-[#71717a]" />
                             <span>View Profile</span>
@@ -99,7 +99,7 @@ export default function CustomerActionMenu({
 
                         <button
                             onClick={(e) => handleAction(e, () => onEdit?.(customer))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-normal rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <ActionIcon icon={TrendingUp} />
                             <span>Analyze Pattern</span>
@@ -109,7 +109,7 @@ export default function CustomerActionMenu({
 
                         <button
                             onClick={(e) => handleAction(e, () => onWhatsApp?.(customer))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-normal rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <MessageCircle className="w-4 h-4 text-green-600" />
                             <span>WhatsApp Offer</span>
@@ -117,7 +117,7 @@ export default function CustomerActionMenu({
 
                         <button
                             onClick={(e) => handleAction(e, () => onEmail?.(customer))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-normal rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <Mail className="w-4 h-4 text-amber-600" />
                             <span>Email Marketing</span>
@@ -127,7 +127,7 @@ export default function CustomerActionMenu({
 
                         <button
                             onClick={(e) => handleAction(e, () => onRestrict?.(customer))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-normal rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
                         >
                             <UserX className="w-4 h-4 text-[#71717a]" />
                             <span>Restrict User</span>
@@ -135,7 +135,7 @@ export default function CustomerActionMenu({
 
                         <button
                             onClick={(e) => handleAction(e, () => onDelete?.(customer))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-[6px] text-[#ef4444] hover:bg-red-50 transition-colors"
+                            className="w-full flex items-center gap-3 px-3 py-2 text-[13px] font-normal rounded-[6px] text-[#ef4444] hover:bg-red-50 transition-colors"
                         >
                             <Trash2 className="w-4 h-4" />
                             <span>Delete Customer</span>

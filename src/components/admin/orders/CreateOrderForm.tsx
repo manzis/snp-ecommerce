@@ -676,7 +676,7 @@ export default function CreateOrderForm() {
                                                                                 className={`w-full text-left px-4 py-2.5 text-[11px] hover:bg-zinc-50 transition-colors ${item.variant_id === v.id ? 'bg-zinc-100 font-medium' : ''}`}
                                                                             >
                                                                                 {v.size?.size_label || 'Default'} — {v.flavour?.flavour_name || 'Standard'}
-                                                                                <span className="block text-[10px] text-zinc-400 font-medium mt-0.5">Rs. {v.discounted_price}</span>
+                                                                                <span className="block text-[10px] text-zinc-400 font-normal mt-0.5">Rs. {v.discounted_price}</span>
                                                                             </button>
                                                                         ))}
                                                                     </div>
@@ -709,7 +709,7 @@ export default function CreateOrderForm() {
                                                                             className={`w-full text-left px-6 py-4 text-[12px] hover:bg-zinc-50 transition-colors ${item.variant_id === v.id ? 'bg-zinc-100 font-medium' : ''}`}
                                                                         >
                                                                             {v.size?.size_label || 'Default'} — {v.flavour?.flavour_name || 'Standard'}
-                                                                            <span className="block text-[11px] text-zinc-400 font-medium mt-1">Rs. {v.discounted_price}</span>
+                                                                            <span className="block text-[11px] text-zinc-400 font-normal mt-1">Rs. {v.discounted_price}</span>
                                                                         </button>
                                                                     ))}
                                                                 </div>
@@ -721,12 +721,12 @@ export default function CreateOrderForm() {
                                                         <div className="flex items-center border border-zinc-200 h-9 sm:h-10">
                                                             <button 
                                                                 onClick={() => updateItemQuantity(item.id, -1)}
-                                                                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-zinc-50 text-[14px] sm:text-[16px] font-medium border-r border-zinc-200"
+                                                                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-zinc-50 text-[14px] sm:text-[16px] font-light border-r border-zinc-200"
                                                             >-</button>
                                                             <span className="w-8 sm:w-10 text-center text-[12px] sm:text-[13px] font-medium">{item.quantity}</span>
                                                             <button 
                                                                 onClick={() => updateItemQuantity(item.id, 1)}
-                                                                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-zinc-50 text-[14px] sm:text-[16px] font-medium border-l border-zinc-200"
+                                                                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-zinc-50 text-[14px] sm:text-[16px] font-light border-l border-zinc-200"
                                                             >+</button>
                                                         </div>
                                                         <div className="hidden sm:block text-[14px] font-medium text-zinc-900 min-w-[100px] text-right">

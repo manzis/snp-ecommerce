@@ -70,7 +70,7 @@ export const SellerCard = ({
                 </div>
 
                 {/* Slug/ID */}
-                <p className="self-stretch shrink-0 text-[11px] font-[500] leading-[14.4px] relative z-[8] line-clamp-1">
+                <p className="self-stretch shrink-0 text-[11px] font-[400] leading-[14.4px] relative z-[8] line-clamp-1">
                     <span className="text-[#a1a1aa] font-mono">
                         {seller.slug || seller.id}
                     </span>

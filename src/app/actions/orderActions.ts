@@ -318,11 +318,12 @@ export async function fetchUserOrdersAction(page: number = 1, limit: number = 10
     if (error) throw error;
 
     if (data && data.length > 0) {
-      // Run checks in parallel to minimize latency
+      // Run internal checks in parallel
+      // Note: We skip checkAndSyncExpoExpressStatus here to prevent 429 Too Many Requests errors.
+      // Tracking sync is handled by cron jobs and individual order tracking endpoints.
       await Promise.allSettled(
         data.map(async (order) => {
           await checkAndPersistDelayedStatus(order, supabase);
-          await checkAndSyncExpoExpressStatus(order, supabase);
         })
       );
     }
@@ -508,11 +509,12 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
     if (error) throw error;
 
     if (data && data.length > 0) {
-      // Run checks in parallel to minimize latency
+      // Run internal checks in parallel
+      // Note: We skip checkAndSyncExpoExpressStatus here to prevent 429 Too Many Requests errors.
+      // Tracking sync is handled by cron jobs and individual order tracking endpoints.
       await Promise.allSettled(
         data.map(async (order) => {
           await checkAndPersistDelayedStatus(order, adminClient);
-          await checkAndSyncExpoExpressStatus(order, adminClient);
         })
       );
     }

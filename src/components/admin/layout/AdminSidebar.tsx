@@ -122,7 +122,7 @@ const NavItem = memo(({ item, isActive, isCollapsed, onClick, activeStyles, inac
                 </div>
                 {!isCollapsed && (
                     <div className="flex items-center justify-between flex-1 min-w-0">
-                        <span className="font-['Rubik',_sans-serif] text-[14px] font-medium leading-[17px] truncate">{item.name}</span>
+                        <span className="font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px] truncate">{item.name}</span>
                         {badgeCount ? badgeCount > 0 && (
                             <span className="bg-[#242424] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full min-w-[20px] text-center">
                                 {badgeCount}
@@ -240,7 +240,7 @@ export default function AdminSidebar() {
                         {/* Main Menu Section */}
                         <nav className={`flex flex-col gap-[8px] self-stretch shrink-0 border-y border-[#e5e5e5] relative z-40 ${isCollapsed ? 'items-center py-[8px]' : 'py-[12px]'}`}>
                             {!isCollapsed && (
-                                <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-medium leading-[14px] text-[#71717a] tracking-[0.24px]">
+                                <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-normal leading-[14px] text-[#71717a] tracking-[0.24px]">
                                     MAIN MENU
                                 </span>
                             )}
@@ -277,7 +277,7 @@ export default function AdminSidebar() {
                                         <ProductsIcon className={`w-[16px] h-[16px] shrink-0 ${isProductsSectionActive ? 'text-[#242424]' : 'text-[#3f3f46]'}`} />
                                         {!isCollapsed && (
                                             <>
-                                                <span className="flex-grow text-left font-['Rubik',_sans-serif] text-[14px] font-medium leading-[17px]">Products</span>
+                                                <span className="flex-grow text-left font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px]">Products</span>
                                                 <motion.div
                                                     animate={{ rotate: isProductsOpen ? 180 : 0 }}
                                                     transition={{ duration: 0.2 }}
@@ -308,7 +308,7 @@ export default function AdminSidebar() {
                                                                 onClick={() => handleLinkClick(item.href)}
                                                                 className={`flex py-[5px] px-[8px] gap-[10px] items-center self-stretch rounded-[6px] transition-all duration-200 outline-none focus-visible:bg-[#f4f4f5] relative ${isActive(item.href) ? 'bg-[#f4f4f5] text-[#242424] border-transparent' : 'bg-white border-transparent text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#242424]'}`}
                                                             >
-                                                                <span className="flex-grow font-['Rubik',_sans-serif] text-[14px] font-medium leading-[17px]">{item.name}</span>
+                                                                <span className="flex-grow font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px]">{item.name}</span>
                                                             </Link>
                                                         </li>
                                                     ))}
@@ -351,7 +351,7 @@ export default function AdminSidebar() {
                                         <PreferencesIcon className={`w-[16px] h-[16px] shrink-0 ${isMoreOptionsSectionActive ? 'text-[#242424]' : 'text-[#3f3f46]'}`} />
                                         {!isCollapsed && (
                                             <>
-                                                <span className="flex-grow text-left font-['Rubik',_sans-serif] text-[14px] font-medium leading-[17px]">More Options</span>
+                                                <span className="flex-grow text-left font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px]">More Options</span>
                                                 <motion.div
                                                     animate={{ rotate: isMoreOptionsOpen ? 180 : 0 }}
                                                     transition={{ duration: 0.2 }}
@@ -382,7 +382,7 @@ export default function AdminSidebar() {
                                                                 onClick={() => handleLinkClick(item.href)}
                                                                 className={`flex py-[5px] px-[8px] gap-[10px] items-center self-stretch rounded-[6px] transition-all duration-200 outline-none focus-visible:bg-[#f4f4f5] relative ${isActive(item.href) ? 'bg-[#f4f4f5] text-[#242424] border-transparent' : 'bg-white border-transparent text-[#3f3f46] hover:bg-[#f4f4f5] hover:text-[#242424]'}`}
                                                             >
-                                                                <span className="flex-grow font-['Rubik',_sans-serif] text-[14px] font-medium leading-[17px]">{item.name}</span>
+                                                                <span className="flex-grow font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px]">{item.name}</span>
                                                             </Link>
                                                         </li>
                                                     ))}
@@ -398,7 +398,7 @@ export default function AdminSidebar() {
                         {/* Stores Section content */}
                         <nav className={`flex flex-col gap-[8px] self-stretch shrink-0 relative z-30 ${isCollapsed ? 'items-center py-[6px]' : 'py-[8px]'}`}>
                             {!isCollapsed && (
-                                <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-medium leading-[14px] text-[#71717a] tracking-[0.24px]">
+                                <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-normal leading-[14px] text-[#71717a] tracking-[0.24px]">
                                     STORES
                                 </span>
                             )}
@@ -420,7 +420,7 @@ export default function AdminSidebar() {
                         {/* Preview Section content */}
                         <div className={`flex flex-col gap-[8px] self-stretch shrink-0 border-t border-[#e4e4e7]  ${isCollapsed ? 'items-center py-[10px]' : 'py-[12px]'}`}>
                             {!isCollapsed && (
-                                <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-medium leading-[14px] text-[#71717a] tracking-[0.24px] px-[8px]">
+                                <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-normal leading-[14px] text-[#71717a] tracking-[0.24px] px-[8px]">
                                     PREVIEW
                                 </span>
                             )}
@@ -431,7 +431,7 @@ export default function AdminSidebar() {
                                     className={`flex items-center bg-[#bef264] hover:bg-[#aee64b] border border-[#add86f] transition-colors duration-200 group outline-none focus-visible:ring-2 focus-visible:ring-[#add86f] ${isCollapsed ? 'w-full h-[36px] justify-center rounded-[10px] overflow-hidden' : 'w-full py-[6px] px-[12px] justify-between rounded-[8px]'}`}
                                     title={isCollapsed ? "Visit Shop" : ""}
                                 >
-                                    {!isCollapsed && <span className="font-['Rubik',_sans-serif] text-[14px] font-medium leading-[17px] text-[#242424]">Visit Shop</span>}
+                                    {!isCollapsed && <span className="font-['Rubik',_sans-serif] text-[14px] font-normal leading-[17px] text-[#242424]">Visit Shop</span>}
                                     <ExternalLinkIcon className="w-[18px] h-[18px] text-[#242424] transition-transform duration-200 group-hover:-translate-y-[1px] group-hover:translate-x-[1px]" />
                                 </Link>
                             </div>
@@ -443,7 +443,7 @@ export default function AdminSidebar() {
                 <div className={`flex flex-col shrink-0   ${isCollapsed ? 'items-center' : 'pt-2 items-stretch p-[12px]'}`}>
                     <nav className={`flex flex-col gap-[8px] border-b border-[#e5e5e5]  self-stretch shrink-0 ${isCollapsed ? 'items-center py-[6px]' : 'py-[12px]'}`}>
                         {!isCollapsed && (
-                            <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-medium leading-[14px] text-[#71717a] tracking-[0.24px] px-[6px]">
+                            <span className="h-[14px] self-stretch font-['Rubik',_sans-serif] text-[10px] font-normal leading-[14px] text-[#71717a] tracking-[0.24px] px-[6px]">
                                 SYSTEM
                             </span>
                         )}
@@ -478,7 +478,7 @@ export default function AdminSidebar() {
                                 {!isCollapsed && (
                                     <div className="flex flex-col items-start self-stretch flex-grow basis-0 min-h-0 justify-center ">
                                         <span className="h-[18px] self-stretch font-['Rubik',_sans-serif] text-[14.5px] font-medium leading-[18px] text-[#242424] truncate group-hover:text-black">Bright Nepcare</span>
-                                        <span className="h-[12px] self-stretch font-['Rubik',_sans-serif] text-[9px] font-medium leading-[12px] text-[#52525b] truncate">brightnepcare@gmail.com</span>
+                                        <span className="h-[12px] self-stretch font-['Rubik',_sans-serif] text-[9px] font-normal leading-[12px] text-[#52525b] truncate">brightnepcare@gmail.com</span>
                                     </div>
                                 )}
                             </Link>

@@ -169,7 +169,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                                 {/* Total Sold */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">Total Sold</h3>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">Total Sold</h3>
                                                     <p className="text-2xl font-semibold text-[#bef264] font-rubik tracking-tight">
                                                         {data?.productStats.totalSold.toLocaleString()}
                                                     </p>
@@ -177,7 +177,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
                                                 {/* Catalog Size */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">Catalog Size</h3>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">Catalog Size</h3>
                                                     <p className="text-2xl font-semibold text-white font-rubik tracking-tight">
                                                         {data?.productStats.totalProducts.toLocaleString()}
                                                     </p>
@@ -185,7 +185,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
                                                 {/* In Stock */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">In Stock</h3>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">In Stock</h3>
                                                     <p className="text-2xl font-semibold text-white font-rubik tracking-tight">
                                                         {data?.productStats.inStock.toLocaleString()}
                                                     </p>
@@ -193,7 +193,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
                                                 {/* Out of Stock */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">Out of Stock</h3>
+                                                    <h3 className="text-sm font-normal text-gray-400 mb-1">Out of Stock</h3>
                                                     <div className="flex items-center gap-2">
                                                         <p className={`text-2xl font-semibold font-rubik tracking-tight ${(data?.productStats?.outOfStock ?? 0) > 0 ? 'text-red-400' : 'text-white'}`}>
                                                             {data?.productStats?.outOfStock.toLocaleString() ?? '0'}
@@ -243,7 +243,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                                 {/* Total Customers */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-[#71717a] mb-1">Total Users</h3>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Total Users</h3>
                                                     <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
                                                         {data?.stats.totalCustomers.toLocaleString() || '0'}
                                                     </p>
@@ -251,7 +251,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
                                                 {/* Active Sessions (Mock) */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-[#71717a] mb-1">Active Now</h3>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Active Now</h3>
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
                                                             24
@@ -262,7 +262,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
                                                 {/* Returning Customers (Mock) */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-[#71717a] mb-1">Return Rate</h3>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Return Rate</h3>
                                                     <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
                                                         18<span className="text-base text-[#a1a1aa] ml-0.5">%</span>
                                                     </p>
@@ -270,7 +270,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
 
                                                 {/* Avg Order Value */}
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-[#71717a] mb-1">Avg Order</h3>
+                                                    <h3 className="text-sm font-normal text-[#71717a] mb-1">Avg Order</h3>
                                                     <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
                                                         रु {Math.round(data?.stats.avgOrderValue || 0).toLocaleString()}
                                                     </p>
@@ -299,7 +299,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                     <Activity className="w-4 h-4 text-[#242424]" />
                                                     Revenue Trend
                                                 </h3>
-                                                <p className="text-xs text-[#71717a] font-medium mt-1">Last 30 Days visualization</p>
+                                                <p className="text-xs text-[#71717a] font-normal mt-1">Last 30 Days visualization</p>
                                             </div>
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-2.5 h-2.5 rounded-full bg-[#242424]" />
@@ -343,7 +343,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <span className="text-sm font-semibold">Quick Actions</span>
                                             </div>
                                             <h3 className="text-2xl font-semibold font-rubik mb-2">Store Management</h3>
-                                            <p className="text-gray-400 text-sm mb-6 max-w-md font-medium">Frequently used shortcuts and store operations.</p>
+                                            <p className="text-gray-400 text-sm mb-6 max-w-md font-normal">Frequently used shortcuts and store operations.</p>
 
                                             <div className="flex flex-col gap-3 mt-auto">
                                                 <Link href="/admin/orders/create" className="bg-[#bef264] text-[#242424] px-6 py-3 rounded-[10px] font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all text-center w-full block">
@@ -399,7 +399,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-base text-[#242424]">Recent Orders</h3>
-                                            <p className="text-xs text-[#71717a] font-medium mt-0.5">Latest activity</p>
+                                            <p className="text-xs text-[#71717a] font-normal mt-0.5">Latest activity</p>
                                         </div>
                                     </div>
                                     <Link href="/admin/orders" className="text-xs font-semibold text-[#242424] bg-gray-50 hover:bg-gray-100 border border-gray-100 px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5">
@@ -427,7 +427,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                             <span className="text-sm font-semibold text-[#242424] truncate max-w-[200px]">
                                                                 {order.title || 'Products'}
                                                             </span>
-                                                            <span className="text-[11px] text-[#71717a] font-medium mt-1 bg-gray-100 px-1.5 py-0.5 rounded-md inline-block w-fit border border-gray-200">
+                                                            <span className="text-[11px] text-[#71717a] font-normal mt-1 bg-gray-100 px-1.5 py-0.5 rounded-md inline-block w-fit border border-gray-200">
                                                                 #{order.shortId}
                                                             </span>
                                                         </div>
@@ -435,7 +435,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
                                                             <span className="text-sm font-semibold text-[#242424]">{order.customerName || 'Guest'}</span>
-                                                            {order.customerPhone && <span className="text-[11px] text-[#a1a1aa] font-medium mt-0.5">{order.customerPhone}</span>}
+                                                            {order.customerPhone && <span className="text-[11px] text-[#a1a1aa] font-normal mt-0.5">{order.customerPhone}</span>}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
@@ -446,11 +446,11 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                             {order.status}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 text-xs text-[#71717a] font-medium">{order.dateText}</td>
+                                                    <td className="px-6 py-4 text-xs text-[#71717a] font-normal">{order.dateText}</td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex flex-col items-end">
                                                             <span className="text-sm font-semibold text-[#242424]">रु {(order.totalAmount || 0).toLocaleString()}</span>
-                                                            <span className="text-[11px] text-[#a1a1aa] font-medium mt-0.5 capitalize">{order.paymentMethod}</span>
+                                                            <span className="text-[11px] text-[#a1a1aa] font-normal mt-0.5 capitalize">{order.paymentMethod}</span>
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -45,7 +45,7 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
       <AuthProvider>
         <CartProvider>
           <AuthModalProvider>
-            <article className="relative h-full w-full overflow-y-auto bg-white custom-scrollbar flex flex-col pt-0 pb-[80px] font-rajdhani">
+            <article className="relative h-full w-full overflow-y-auto bg-white custom-scrollbar flex flex-col pt-0 pb-[80px] font-titillium">
               {/* ADMIN PREVIEW BANNER */}
               <div className="sticky top-0 left-0 right-0 z-[110] bg-indigo-600 text-white px-4 py-3 flex items-center justify-between text-[13px] font-medium font-rubik shadow-md">
                 <div className="flex items-center gap-2">

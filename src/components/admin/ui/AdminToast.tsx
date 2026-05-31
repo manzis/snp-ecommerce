@@ -50,7 +50,7 @@ export const AdminToast = ({ message, type, onClose }: AdminToastProps) => {
                         ) : (
                             <div className="w-2 h-2 bg-white rounded-full ml-1" />
                         )}
-                        <p className="text-white text-[14px] font-medium leading-tight m-0 p-0">
+                        <p className="text-white text-[14px] font-normal leading-tight m-0 p-0">
                             {message}
                         </p>
                     </div>

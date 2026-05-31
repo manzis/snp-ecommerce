@@ -127,7 +127,7 @@ export default function OrderCard({
                 <header className={`flex px-[14px] py-[12px] justify-between items-center self-stretch shrink-0 ${isPaymentAttempted ? 'bg-[#f0f9eb]' : statusColors.bg} relative z-[20] rounded-t-[12px] transition-colors duration-300`}>
                     {/* Status Segment */}
                     <div className="flex gap-[8px] items-center shrink-0 relative z-[2]">
-                        <span className={`shrink-0 text-[13px] font-[500] ${statusValue ? 'opacity-70' : ''} text-[#71717a] whitespace-nowrap`}>
+                        <span className={`shrink-0 text-[13px] font-[400] ${statusValue ? 'opacity-70' : ''} text-[#71717a] whitespace-nowrap`}>
                             Status:
                         </span>
                         <span className={`text-[13px] font-medium whitespace-nowrap ${statusColors.text}`}>
@@ -159,7 +159,7 @@ export default function OrderCard({
                     {/* Order ID + Date Row */}
                     <div className="flex items-center justify-between self-stretch shrink-0 relative z-[10]">
                         <div className="flex items-center gap-[6px]">
-                            <h3 className="shrink-0 text-[12px] font-[500] leading-[14px] text-[#71717a] uppercase tracking-wider whitespace-nowrap">
+                            <h3 className="shrink-0 text-[12px] font-[400] leading-[14px] text-[#71717a] uppercase tracking-wider whitespace-nowrap">
                                 Order #{orderIdValue}
                             </h3>
                             {isNew && (
@@ -169,7 +169,7 @@ export default function OrderCard({
                             )}
                         </div>
                         {relativeDateLabel && (
-                            <span className="text-[11px] text-[#a1a1aa] tracking-tight font-medium">
+                            <span className="text-[11px] text-[#a1a1aa] tracking-tight font-normal">
                                 {relativeDateLabel}
                             </span>
                         )}
@@ -194,7 +194,7 @@ export default function OrderCard({
                             {/* Product Details */}
                             <div className="flex flex-col gap-[8px] justify-between items-start self-stretch grow basis-[0px] relative z-[15] pr-[10px]">
                                 <div className="flex flex-col gap-[4px] items-start self-stretch relative z-[16]">
-                                    <span className="shrink-0 text-[11px] font-[500] leading-[14px] text-[#71717a] whitespace-nowrap">
+                                    <span className="shrink-0 text-[11px] font-[400] leading-[14px] text-[#71717a] whitespace-nowrap">
                                         {brandValue}
                                     </span>
 

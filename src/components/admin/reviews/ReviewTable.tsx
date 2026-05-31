@@ -113,7 +113,7 @@ export default function ReviewTable({
                                             <span className="text-[13px] font-semibold text-[#242424] line-clamp-1">
                                                 {review.products_data![0].title || review.products_data![0].name}
                                                 {review.products_data!.length > 1 && (
-                                                    <span className="ml-1 text-[11px] text-[#71717a] font-medium">
+                                                    <span className="ml-1 text-[11px] text-[#71717a] font-normal">
                                                         + {review.products_data!.length - 1} more
                                                     </span>
                                                 )}

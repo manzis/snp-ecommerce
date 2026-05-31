@@ -260,7 +260,7 @@ export default function CustomerOfferModal({
                                 </button>
                             )}
                         </div>
-                        <p className="text-[12px] text-[#242424] whitespace-pre-wrap leading-relaxed font-medium italic">
+                        <p className="text-[12px] text-[#242424] whitespace-pre-wrap leading-relaxed font-normal italic">
                             {selectedProduct ? (
                                 generateWhatsAppLink().split('text=')[1] ? decodeURIComponent(generateWhatsAppLink().split('text=')[1]) : "Generating message..."
                             ) : (

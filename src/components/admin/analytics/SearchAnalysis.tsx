@@ -26,7 +26,7 @@ export const SearchAnalysis = ({ trendingSearches, onViewAll }: SearchAnalysisPr
             <p className="text-sm font-semibold text-[#242424]">
               {item.keyword || item.normalized_query || item.query || item.search_term || 'Unknown Query'}
             </p>
-            <p className="text-[10px] text-[#a1a1aa] font-medium">Last searched: {new Date(item.last_searched || item.last_searched_at || Date.now()).toLocaleDateString()}</p>
+            <p className="text-[10px] text-[#a1a1aa] font-normal">Last searched: {new Date(item.last_searched || item.last_searched_at || Date.now()).toLocaleDateString()}</p>
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-[#242424]">{item.search_count || 0}</p>
@@ -34,7 +34,7 @@ export const SearchAnalysis = ({ trendingSearches, onViewAll }: SearchAnalysisPr
           </div>
         </div>
       )) : (
-        <p className="text-center text-gray-400 text-xs py-4 font-medium">No trending searches recorded yet.</p>
+        <p className="text-center text-gray-400 text-xs py-4 font-normal">No trending searches recorded yet.</p>
       )}
     </div>
   </div>

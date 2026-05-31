@@ -125,7 +125,7 @@ export default function AnalyticsClient({ initialData }: AnalyticsClientProps) {
                   Search Results for "{searchQuery}"
                 </h2>
                 <div className="py-[100px] text-center bg-white border border-gray-100 rounded-xl">
-                  <p className="text-[#a1a1aa] text-sm font-medium">Showing detailed metrics for your search term.</p>
+                  <p className="text-[#a1a1aa] text-sm font-normal">Showing detailed metrics for your search term.</p>
                 </div>
               </div>
             )}

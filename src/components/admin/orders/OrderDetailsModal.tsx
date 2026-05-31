@@ -877,7 +877,7 @@ export default function OrderDetailsModal({
                                                         showAdminToast('Phone number copied!', 'success');
                                                     }}
                                                 >
-                                                    <span className="text-[#a1a1aa] font-medium">Phone:</span> {phone}
+                                                    <span className="text-[#a1a1aa] font-normal">Phone:</span> {phone}
                                                     <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Phone">
                                                         <CopyIcon width="12" height="12" />
                                                     </button>

@@ -47,7 +47,7 @@ const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
         <div>
             <p className="text-[#71717a] text-[10px] font-semibold uppercase tracking-wider mb-1">{title}</p>
             <h3 className="text-xl md:text-2xl font-semibold font-rubik text-[#242424] tracking-tight">{value}</h3>
-            {subValue && <p className="text-[10px] text-[#a1a1aa] mt-1 font-medium">{subValue}</p>}
+            {subValue && <p className="text-[10px] text-[#a1a1aa] mt-1 font-normal">{subValue}</p>}
         </div>
     </motion.div>
 );
@@ -59,7 +59,7 @@ const SectionHeader = ({ title, description, isOpen, onToggle }: any) => (
     >
         <div className="text-left">
             <h4 className="text-sm font-semibold text-[#242424] group-hover:text-blue-600 transition-colors">{title}</h4>
-            <p className="text-[11px] text-[#71717a] font-medium">{description}</p>
+            <p className="text-[11px] text-[#71717a] font-normal">{description}</p>
         </div>
         {isOpen ? <ChevronUp className="w-4 h-4 text-[#a1a1aa]" /> : <ChevronDown className="w-4 h-4 text-[#a1a1aa]" />}
     </button>
@@ -119,7 +119,7 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 md:mb-10 gap-6 relative z-10">
                 <div>
                     <h3 className="font-semibold text-base text-[#242424]">Revenue Analytics</h3>
-                    <p className="text-[11px] text-[#71717a] font-medium uppercase tracking-wider">Financial performance visualization</p>
+                    <p className="text-[11px] text-[#71717a] font-normal uppercase tracking-wider">Financial performance visualization</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 bg-gray-50/80 p-1.5 rounded-2xl w-full sm:w-auto">
@@ -731,7 +731,7 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-base text-[#242424]">Recent Transactions</h3>
-                                            <p className="text-[11px] text-[#71717a] font-medium uppercase tracking-wider">Audit trail</p>
+                                            <p className="text-[11px] text-[#71717a] font-normal uppercase tracking-wider">Audit trail</p>
                                         </div>
                                     </div>
                                     <button className="text-[11px] font-semibold text-blue-600 flex items-center gap-1 hover:underline">
@@ -763,7 +763,7 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
                                                             <span className="text-[13px] font-semibold text-[#242424] tracking-tight">{tx.customer}</span>
-                                                            <span className="text-[10px] text-[#a1a1aa] font-medium uppercase mt-0.5 tracking-wider">#{tx.id.split('-')[0]}</span>
+                                                            <span className="text-[10px] text-[#a1a1aa] font-normal uppercase mt-0.5 tracking-wider">#{tx.id.split('-')[0]}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
