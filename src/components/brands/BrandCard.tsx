@@ -54,14 +54,14 @@ const BrandCard: React.FC<BrandCardProps> = ({ brand, layout, colors }) => {
         >
           <div className="flex items-center gap-[2px]">
             <StarIcon className="h-[13px] w-[13px] text-[#242424]" />
-            <span className="font-titillium text-[14px] font-semibold leading-[10px] text-[#242424]">
+            <span className="font-rajdhani text-[14px] font-semibold leading-[10px] text-[#242424]">
               {brand.rating}
             </span>
           </div>
 
           {isPopular && brand.reviews && (
             <div className="ml-[2px] flex items-center border-l border-black/20 pl-[6px]">
-              <span className="font-titillium text-[12px] font-semibold leading-[10px] text-[#797979]">
+              <span className="font-rajdhani text-[12px] font-semibold leading-[10px] text-[#797979]">
                 {brand.reviews}
               </span>
             </div>
@@ -71,12 +71,12 @@ const BrandCard: React.FC<BrandCardProps> = ({ brand, layout, colors }) => {
 
       <div className="flex flex-col gap-[6px] items-start self-stretch">
         <h3
-          className="font-titillium text-[13px] font-semibold uppercase leading-[18px] tracking-[0.56px] text-[#242424] truncate w-full transition-colors group-hover:text-[#308026]"
+          className="font-rajdhani text-[13px] font-semibold uppercase leading-[18px] tracking-[0.56px] text-[#242424] truncate w-full transition-colors group-hover:text-[#308026]"
           style={{ '--hover-color': colors?.text || '#308026' } as React.CSSProperties}
         >
           {brand.name}
         </h3>
-        <span className="font-titillium text-[12px] font-normal leading-[18px] tracking-[-0.24px] text-[#979797]">
+        <span className="font-rajdhani text-[12px] font-medium leading-[18px] tracking-[-0.24px] text-[#979797]">
           Total: {brand.totalProducts} Products
         </span>
       </div>

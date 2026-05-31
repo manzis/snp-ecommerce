@@ -254,19 +254,19 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
       <div className="flex w-full flex-col rounded-[12px] bg-[#FCFFF3] border border-[#EDF0E4] pt-[16px] pb-[8px]">
         <div className="flex w-full items-center">
           <div className="flex flex-1 flex-col items-start gap-[4px] border-r border-[#e2e8f0] px-[16px]">
-            <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#242424]">Delivery Partner</span>
-            <span className="font-titillium text-[14px] font-[600] leading-[18px] text-[#242424]">{order.carrierName || 'Unknown'}</span>
+            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#242424]">Delivery Partner</span>
+            <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424]">{order.carrierName || 'Unknown'}</span>
           </div>
           <div className="flex flex-1 flex-col items-start gap-[4px] px-[20px]">
-            <span className="w-full font-titillium text-[14px] font-[400] leading-[18px] text-[#242424]">Tracking Number</span>
+            <span className="w-full font-rajdhani text-[14px] font-[500] leading-[18px] text-[#242424]">Tracking Number</span>
             <div className="flex items-center gap-[4px]">
-              <span className="font-titillium text-[14px] font-[600] leading-[18px] text-[#242424] max-w-[130px] truncate">{order.trackingNumber || 'Unassigned'}</span>
+              <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424] max-w-[130px] truncate">{order.trackingNumber || 'Unassigned'}</span>
               <CopyIcon className="h-[16px] w-[16px] text-[#308026]" />
             </div>
           </div>
         </div>
         <div className="w-full px-[16px] mt-[12px] pt-[8px] border-t border-[#e2e8f0]/50">
-          <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#626262]">
+          <p className="font-rajdhani text-[11px] font-[500] leading-[15px] text-[#626262]">
             <span className="font-[600]">Note:</span> Carrier details are only available once the product has been shipped or dispatched from the warehouse.
           </p>
         </div>
@@ -275,17 +275,17 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
       {/* Expected Delivery Section */}
       {showExpectedDelivery && (
         <div className="flex w-full flex-col rounded-[12px] bg-[#F2F9F1] p-[16px] gap-[4px] relative overflow-hidden">
-          <span className="font-titillium text-[11px] font-[600] text-[#308026] uppercase tracking-[0.5px] leading-none">
+          <span className="font-rajdhani text-[11px] font-[600] text-[#308026] uppercase leading-none">
             {deliveryTitle}
           </span>
           <div className="flex items-center justify-between mt-[2px]">
-            <span className="font-titillium text-[16px] font-[700] text-[#242424] leading-none">
+            <span className="font-rajdhani text-[16px] font-[700] text-[#242424] leading-none">
               {deliveryValue}
             </span>
             {normalizedCurrentStatus !== 'DELIVERED' && normalizedCurrentStatus !== 'CANCELLED' && (
               <Link 
                 href="/info#shipping-policy" 
-                className="font-titillium text-[12px] font-[600] text-[#308026] underline hover:text-[#242424] transition-colors"
+                className="font-rajdhani text-[12px] font-[600] text-[#308026] underline hover:text-[#242424] transition-colors"
               >
                 Know why?
               </Link>
@@ -297,7 +297,7 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
       {/* Timeline */}
       <div className="flex w-full flex-col flex-1 p-[24px_24px_20px] overflow-y-auto scrollbar-hide">
         {(order.statusUpdates || []).length === 0 ? (
-          <div className="w-full text-center py-4 font-titillium text-[14px] text-[#626262]">No tracking updates available yet.</div>
+          <div className="w-full text-center py-4 font-rajdhani text-[14px] text-[#626262]">No tracking updates available yet.</div>
         ) : (
           <div className="flex flex-col w-full relative pl-[60px]">
             {reconciliation.groups.map((group, groupIndex) => {
@@ -325,7 +325,7 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
                     <TimelineSegment isIncomingActive={isIncomingActive} isOutgoingActive={isOutgoingActive} isFirst={groupIndex === 0} isLast={isLastRenderedGroupNode} progressColor={progress.color} />
                     <TimelineDot size="large" isActive={group.isActive} isLatest={milestoneIdx === reconciliation.latestActiveIndex} glowColor={group.id === 'SHIPPED' ? '#A16207' : progress.hex} progressColor={progress.color} />
                     <div className="flex items-center gap-[8px]">
-                      <span className={`font-titillium text-[15px] font-[700] tracking-[0.2px] leading-[1] ${group.isActive ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>{group.label}</span>
+                      <span className={`font-rajdhani text-[15px] font-[700] leading-[1] ${group.isActive ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>{group.label}</span>
                     </div>
                     <ChevronIcon className="h-[16px] w-[16px] text-[#8a8e91]" rotated={isExpanded} />
                   </motion.div>
@@ -352,11 +352,11 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
                                 <TimelineSegment isIncomingActive={isLogIncomingActive} isOutgoingActive={isLogOutgoingActive} isFirst={false} isLast={isLastRenderedLog} progressColor={progress.color} />
                                 <TimelineDot isActive={log.isActive} isLatest={isLatest} glowColor={progress.hex} progressColor={progress.color} />
                                 <div className="flex flex-col items-start gap-[2px]">
-                                  <span className={`font-titillium text-[12px] font-[700] tracking-[0.2px] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>
+                                  <span className={`font-rajdhani text-[12px] font-[700] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>
                                     {log.id === 'virtual-DELAYED' || (log.data.status || '').toUpperCase() === 'DELAYED' || (log.data.status || '').toUpperCase() === 'SHIPMENT_DELAYED' ? (group.id === 'SHIPPED' ? 'Shipment Delayed' : 'Order Delayed') : log.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
                                   </span>
-                                  <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#575757]">{log.data.message}</p>
-                                  <span className="font-titillium text-[10px] font-[400] text-[#8a8e91] opacity-70">
+                                  <p className="font-rajdhani text-[11px] font-[500] leading-[15px] text-[#575757]">{log.data.message}</p>
+                                  <span className="font-rajdhani text-[10px] font-[500] text-[#8a8e91] opacity-70">
                                     {new Date(log.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {new Date(log.data.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                     {log.data.location ? ` • ${log.data.location}` : ''}
                                   </span>
@@ -378,7 +378,7 @@ function TrackingDetailsPanel({ order }: { order: OrderProps }) {
       {/* Info Banner */}
       <div className="flex w-full items-start gap-[6px] rounded-[12px] bg-[#3f9633] p-[8px_16px] md:items-center mt-[3px]">
         <div className="mt-[2px] shrink-0 md:mt-0"><InfoIcon className="h-[16px] w-[16px] text-white" /></div>
-        <span className="flex-1 font-titillium text-[13px] font-[400] leading-[18px] text-[#ffffff]">
+        <span className="flex-1 font-rajdhani text-[13px] font-[500] leading-[18px] text-[#ffffff]">
           This is the same tracking information our customer support can access
         </span>
       </div>
@@ -419,12 +419,12 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
             </div>
           </div>
           <div className="flex flex-1 flex-col items-start">
-            <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[#242424]/80 uppercase">{order.brand}</span>
-            <h2 className="font-titillium text-[16px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">{order.title}</h2>
+            <span className="font-rajdhani text-[12px] font-[500] leading-[18px] text-[#242424]/80 uppercase">{order.brand}</span>
+            <h2 className="font-rajdhani text-[16px] font-[600] leading-[22px] text-[#242424]">{order.title}</h2>
             <div className="flex flex-wrap items-center gap-[13px] mt-[4px]">
-              <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Size : {order.size}</span>
-              <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Flavour : {order.flavour}</span>
-              <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Qty : {firstItem.quantity}</span>
+              <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Size : {order.size}</span>
+              <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Flavour : {order.flavour}</span>
+              <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Qty : {firstItem.quantity}</span>
             </div>
           </div>
         </div>
@@ -434,7 +434,7 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
       {otherItems.length > 0 && (
         <div className="flex flex-col gap-[12px] rounded-[12px] border border-[#e2e8f0] p-[16px]">
           <div className="flex h-[32px] w-fit items-center gap-[10px] rounded-[6px] bg-[#f4ffeb] px-[8px]">
-            <h4 className="font-titillium text-[14px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">Other Items in this shipment</h4>
+            <h4 className="font-rajdhani text-[14px] font-[600] leading-[22px] text-[#242424]">Other Items in this shipment</h4>
           </div>
           <ul className="flex flex-col gap-[16px]">
             {otherItems.map((item: any, idx: number) => (
@@ -445,12 +445,12 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col gap-[4px]">
-                  <span className="font-titillium text-[10px] font-[400] leading-[12px] text-[#242424]/80 uppercase">{item.products?.brands?.name || 'SNP Nutrition'}</span>
-                  <span className="font-titillium text-[12px] font-[600] leading-[18px] tracking-[0.2px] text-[#242424] line-clamp-1">{item.products?.name}</span>
+                  <span className="font-rajdhani text-[10px] font-[500] leading-[12px] text-[#242424]/80 uppercase">{item.products?.brands?.name || 'SNP Nutrition'}</span>
+                  <span className="font-rajdhani text-[12px] font-[600] leading-[18px] text-[#242424] line-clamp-1">{item.products?.name}</span>
                   <div className="flex flex-wrap items-center gap-[10px]">
-                    {item.selected_size && <span className="font-titillium text-[12px] font-[400] leading-[16px] text-[#8a8e91]">Size : {item.selected_size}</span>}
-                    {item.selected_flavor && <span className="font-titillium text-[12px] font-[400] leading-[16px] text-[#8a8e91]">Flavour : {item.selected_flavor}</span>}
-                    <span className="font-titillium text-[12px] font-[400] leading-[16px] text-[#8a8e91]">Qty : {item.quantity}</span>
+                    {item.selected_size && <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#8a8e91]">Size : {item.selected_size}</span>}
+                    {item.selected_flavor && <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#8a8e91]">Flavour : {item.selected_flavor}</span>}
+                    <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#8a8e91]">Qty : {item.quantity}</span>
                   </div>
                 </div>
               </li>
@@ -462,64 +462,64 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
       {/* Order Status + Amount */}
       <div className="flex w-full items-center justify-between rounded-[12px] bg-[#FCFFF3] border border-[#EDF0E4] p-[16px]">
         <div className="flex flex-col gap-[2px]">
-          <span className="font-titillium text-[12px] font-[400] text-[#626262]">Status</span>
-          <span className={`font-titillium text-[16px] font-[700] ${config.color}`}>{config.text}</span>
+          <span className="font-rajdhani text-[12px] font-[500] text-[#626262]">Status</span>
+          <span className={`font-rajdhani text-[16px] font-[700] ${config.color}`}>{config.text}</span>
         </div>
         <div className="flex flex-col gap-[2px] items-end">
-          <span className="font-titillium text-[12px] font-[400] text-[#626262]">Total Amount</span>
-          <span className="font-titillium text-[16px] font-[700] text-[#242424]">NPR {order.totalAmount?.toLocaleString() || '—'}</span>
+          <span className="font-rajdhani text-[12px] font-[500] text-[#626262]">Total Amount</span>
+          <span className="font-rajdhani text-[16px] font-[700] text-[#242424]">NPR {order.totalAmount?.toLocaleString() || '—'}</span>
         </div>
       </div>
 
       {/* Preferred Shipment Method */}
       <DetailCard title="Preferred Shipment Method">
-        <p className="font-titillium text-[14px] text-[#242424] font-[600]">
+        <p className="font-rajdhani text-[14px] text-[#242424] font-[600]">
           {address?.option === 'pickup' ? 'Pickup from station' : 'Home Delivery'}
         </p>
         {address?.option !== 'pickup' && order.carrierName && (
-          <p className="font-titillium text-[13px] text-[#626262] mt-[4px]">Carrier: {order.carrierName}</p>
+          <p className="font-rajdhani text-[13px] text-[#626262] mt-[4px]">Carrier: {order.carrierName}</p>
         )}
         {order.trackingNumber && (
-          <p className="font-titillium text-[13px] text-[#626262] mt-[2px]">Tracking: {order.trackingNumber}</p>
+          <p className="font-rajdhani text-[13px] text-[#626262] mt-[2px]">Tracking: {order.trackingNumber}</p>
         )}
       </DetailCard>
 
       {/* Shipping Address */}
       <DetailCard title="Shipping Address">
         {addressDetails ? (
-          <div className="flex flex-col gap-[2px] font-titillium text-[14px]">
+          <div className="flex flex-col gap-[2px] font-rajdhani text-[14px]">
             <p className="font-[600] text-[#242424]">{fullName}</p>
-            <p className="font-[400] text-[#626262]">{streetAddress}</p>
-            {email && <p className="font-[400] text-[#626262]">{email}</p>}
+            <p className="font-[500] text-[#626262]">{streetAddress}</p>
+            {email && <p className="font-[500] text-[#626262]">{email}</p>}
             {phone && <p className="font-[600] text-[#242424] mt-[2px]">Ph: {phone}</p>}
           </div>
         ) : (
-          <p className="font-titillium text-[14px] text-[#8a8e91]">Address not available</p>
+          <p className="font-rajdhani text-[14px] text-[#8a8e91]">Address not available</p>
         )}
       </DetailCard>
 
       {/* Payment Method */}
       <DetailCard title="Payment Method">
         <div className="flex items-center justify-between">
-          <p className="font-titillium text-[14px] font-[600] text-[#242424]">{order.paymentMethod || 'N/A'}</p>
+          <p className="font-rajdhani text-[14px] font-[600] text-[#242424]">{order.paymentMethod || 'N/A'}</p>
           {order.paymentStatus && (
-            <span className={`font-titillium text-[12px] font-[600] px-[8px] py-[2px] rounded-[6px] ${order.paymentStatus === 'paid' ? 'bg-[#ECF7E8] text-[#308026]' : 'bg-[#FFF8E5] text-[#A16207]'}`}>
+            <span className={`font-rajdhani text-[12px] font-[600] px-[8px] py-[2px] rounded-[6px] ${order.paymentStatus === 'paid' ? 'bg-[#ECF7E8] text-[#308026]' : 'bg-[#FFF8E5] text-[#A16207]'}`}>
               {order.paymentStatus.toUpperCase()}
             </span>
           )}
         </div>
         {order.amountPaid !== undefined && order.amountPaid > 0 && (
-          <p className="font-titillium text-[13px] text-[#626262] mt-[4px]">Amount Paid: NPR {order.amountPaid.toLocaleString()}</p>
+          <p className="font-rajdhani text-[13px] text-[#626262] mt-[4px]">Amount Paid: NPR {order.amountPaid.toLocaleString()}</p>
         )}
       </DetailCard>
 
       {/* Sender Details */}
       <DetailCard title="Sender Details">
         <div className="flex flex-col gap-[2px]">
-          <p className="font-titillium text-[14px] font-[600] text-[#242424]">Bright Nepcare Pvt. Ltd.</p>
-          <p className="font-titillium text-[13px] text-[#626262]">Supplyment Nepal</p>
-          <p className="font-titillium text-[13px] text-[#626262]">Kathmandu, Nepal</p>
-          <p className="font-titillium text-[13px] text-[#626262]">support@supplymentnepal.com</p>
+          <p className="font-rajdhani text-[14px] font-[600] text-[#242424]">Bright Nepcare Pvt. Ltd.</p>
+          <p className="font-rajdhani text-[13px] text-[#626262]">Supplyment Nepal</p>
+          <p className="font-rajdhani text-[13px] text-[#626262]">Kathmandu, Nepal</p>
+          <p className="font-rajdhani text-[13px] text-[#626262]">support@supplymentnepal.com</p>
         </div>
       </DetailCard>
     </div>
@@ -529,7 +529,7 @@ function OrderDetailsPanel({ order }: { order: OrderProps }) {
 function DetailCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-[8px] rounded-[12px] border border-[#f1f5f9] p-[16px]">
-      <h4 className="font-titillium text-[13px] font-[700] text-[#242424] uppercase tracking-[0.5px]">{title}</h4>
+      <h4 className="font-rajdhani text-[13px] font-[700] text-[#242424] uppercase">{title}</h4>
       {children}
     </div>
   );
@@ -561,7 +561,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
       <div className="hidden lg:block">
         <FloatingNav alwaysScrolled={true} />
       </div>
-      <main className="flex flex-col items-center justify-start font-titillium min-h-screen lg:h-screen lg:pt-0 pt-0 bg-white lg:bg-[#3f9633]">
+      <main className="flex flex-col items-center justify-start font-rajdhani min-h-screen lg:h-screen lg:pt-0 pt-0 bg-white lg:bg-[#3f9633]">
       <motion.div
         initial={{}}
         animate={{ y: 0 }}
@@ -580,8 +580,8 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
                 </div>
               </div>
               <div className="flex flex-col text-left">
-                <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
-                <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
+ <span className="uppercase font-rajdhani font-bold text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
+                <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercaser">Powered By Bright Nepcare Pvt. Ltd.</span>
               </div>
             </div>
             <button onClick={() => window.location.href = '/'} className="lg:hidden flex w-[44px] h-[44px] items-center justify-center bg-[#edffe7] rounded-[12px]">
@@ -589,15 +589,15 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
             </button>
           </div>
           <div className="hidden lg:flex flex-col gap-[12px] text-left">
-            <h2 className="font-custom text-[32px] lg:text-[48px] text-white leading-tight">Track your order <br />in real time.</h2>
+ <h2 className="font-rajdhani font-bold text-[32px] lg:text-[48px] text-white leading-tight">Track your order <br />in real time.</h2>
             <p className="text-[#b1e7aa] text-[16px] lg:text-[18px]">Enter your Order ID and get instant shipment updates.</p>
           </div>
 
           {/* Desktop Only: Notice Div positioned at the bottom of the left panel */}
           <div className="hidden lg:flex flex-col gap-[12px] mt-auto">
             <div className="flex flex-col gap-[4px] text-left">
-              <h3 className="font-custom text-[18px] text-white leading-tight">Thank you for shopping with us!</h3>
-              <p className="font-titillium text-[14px] text-[#b1e7aa]">Your high-performance supplements are being prepared with care.</p>
+ <h3 className="font-rajdhani font-bold text-[18px] text-white leading-tight">Thank you for shopping with us!</h3>
+              <p className="font-rajdhani text-[14px] text-[#b1e7aa]">Your high-performance supplements are being prepared with care.</p>
             </div>
 
             <div className="flex items-start gap-[10px] bg-[#35802b] border border-[#44a637] rounded-[12px] p-[16px] mt-[4px]">
@@ -607,8 +607,8 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
                 </svg>
               </div>
               <div className="flex flex-col gap-[4px]">
-                <span className="font-titillium font-bold text-[14px] text-[#facc15] uppercase tracking-[0.5px]">Important Security Notice</span>
-                <span className="font-titillium text-[14px] text-white">
+ <span className="font-rajdhani font-bold text-[14px] text-[#facc15] uppercase">Important Security Notice</span>
+                <span className="font-rajdhani text-[14px] text-white">
                   Supplyment Nepal will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
                 </span>
               </div>
@@ -649,21 +649,21 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
                     </button>
                     <button onClick={handleBack} className="text-[14px] font-semibold text-[#242424] hover:underline bg-transparent border-none outline-none cursor-pointer">Track another</button>
                   </div>
-                  <span className="font-titillium text-[13px] font-[400] text-[#8a8e91]">#{trackedOrder.shortId}</span>
+                  <span className="font-rajdhani text-[13px] font-[500] text-[#8a8e91]">#{trackedOrder.shortId}</span>
                 </div>
 
                 {/* Tab Bar */}
                 <div className="flex w-full border-b border-[#f1f5f9] px-[24px]">
                   <button
                     onClick={() => setActiveTab('tracking')}
-                    className={`flex-1 py-[12px] text-center font-titillium text-[14px] font-[600] transition-colors relative ${activeTab === 'tracking' ? 'text-[#308026]' : 'text-[#8a8e91] hover:text-[#242424]'}`}
+                    className={`flex-1 py-[12px] text-center font-rajdhani text-[14px] font-[600] transition-colors relative ${activeTab === 'tracking' ? 'text-[#308026]' : 'text-[#8a8e91] hover:text-[#242424]'}`}
                   >
                     Tracking Details
                     {activeTab === 'tracking' && <motion.div layoutId="tab-line" className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#308026] rounded-full" />}
                   </button>
                   <button
                     onClick={() => setActiveTab('order')}
-                    className={`flex-1 py-[12px] text-center font-titillium text-[14px] font-[600] transition-colors relative ${activeTab === 'order' ? 'text-[#308026]' : 'text-[#8a8e91] hover:text-[#242424]'}`}
+                    className={`flex-1 py-[12px] text-center font-rajdhani text-[14px] font-[600] transition-colors relative ${activeTab === 'order' ? 'text-[#308026]' : 'text-[#8a8e91] hover:text-[#242424]'}`}
                   >
                     Order Details
                     {activeTab === 'order' && <motion.div layoutId="tab-line" className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#308026] rounded-full" />}
@@ -694,8 +694,8 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
       <div className="w-full max-w-[410px] mt-[80px] lg:hidden">
         <div className="flex flex-col gap-[12px] bg-[#FCFFF3]  p-[16px] pt-[32px] rounded-t-[24px]">
           <div className="flex flex-col gap-[4px] text-center">
-            <h3 className="font-custom text-[18px] text-[#308026] leading-tight">Thank you for shopping with us!</h3>
-            <p className="font-titillium text-[13px] text-[#626262]">Your high-performance supplements are being prepared with care.</p>
+ <h3 className="font-rajdhani font-bold text-[18px] text-[#308026] leading-tight">Thank you for shopping with us!</h3>
+            <p className="font-rajdhani text-[13px] text-[#626262]">Your high-performance supplements are being prepared with care.</p>
           </div>
 
           <div className="flex items-start gap-[10px] bg-[#FFF8E5] border border-[#FBE6A2] rounded-[12px] p-[12px] mt-[4px]">
@@ -705,8 +705,8 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
               </svg>
             </div>
             <div className="flex flex-col gap-[2px]">
-              <span className="font-titillium font-bold text-[13px] text-[#A16207] uppercase tracking-[0.5px]">Important Security Notice</span>
-              <span className="font-titillium text-[13px] text-[#626262]">
+ <span className="font-rajdhani font-bold text-[13px] text-[#A16207] uppercase">Important Security Notice</span>
+              <span className="font-rajdhani text-[13px] text-[#626262]">
                 Supplyment Nepal will <strong>never</strong> call you to ask for your OTP, passwords, or direct payments over the phone. Please beware of fraudulent calls.
               </span>
             </div>

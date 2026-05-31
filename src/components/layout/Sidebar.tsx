@@ -166,7 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                         />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="font-titillium text-[18px] font-bold text-white uppercase leading-tight">
+                                        <span className="font-rajdhani text-[18px] font-bold text-white uppercase leading-tight">
                                             Hi, {displayName}
                                         </span>
                                         <span className="text-[13px] text-white/70 font-medium tracking-wide flex items-center gap-1">
@@ -177,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-[8px] pb-[10px]">
-                                <h3 className="font-titillium text-[20px] font-bold text-white uppercase leading-tight">
+                                <h3 className="font-rajdhani text-[20px] font-bold text-white uppercase leading-tight">
                                     Welcome to <br /> SNP Store
                                 </h3>
                                 <Link
@@ -185,7 +185,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     onClick={onClose}
                                     className="mt-2 flex h-[44px] w-fit items-center justify-center rounded-[100px] bg-white px-[24px] transition-transform active:scale-95"
                                 >
-                                    <span className="font-titillium text-[16px] font-semibold text-[#242424]">
+                                    <span className="font-rajdhani text-[16px] font-semibold text-[#242424]">
                                         Log in / Register
                                     </span>
                                 </Link>
@@ -206,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     className="relative flex items-center justify-between rounded-[12px] p-[14px_16px] transition-colors hover:bg-gray-50 active:bg-gray-100 overflow-hidden group/link"
                                 >
                                     <div className="relative z-10 flex items-center flex-1 mr-2 overflow-hidden">
-                                        <span className="font-titillium text-[16px] font-semibold text-[#242424] uppercase tracking-[0.2px] shrink-0">
+                                        <span className="font-rajdhani text-[16px] font-semibold text-[#242424] uppercase tracking-[0.2px] shrink-0">
                                             {link.name}
                                         </span>
                                         {link.name === 'Brands' && (
@@ -234,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     onClick={onClose}
                                     className="flex items-center justify-between rounded-[12px] p-[14px_16px] transition-colors hover:bg-gray-50 active:bg-gray-100"
                                 >
-                                    <span className="font-titillium font-semibold text-[#242424] uppercase tracking-[0.2px] text-[13px] border-b-[1.5px] border-[#242424]">
+                                    <span className="font-rajdhani font-semibold text-[#242424] uppercase tracking-[0.2px] text-[13px] border-b-[1.5px] border-[#242424]">
                                         {link.name}
                                     </span>
                                     <ArrowRightIcon className="h-4 w-4 text-gray-400" />

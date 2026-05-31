@@ -73,7 +73,7 @@ export default function ProductVariantPicker({
       {/* Flavour Selection */}
       <div className="flex flex-col gap-3">
         <h4 className="text-[14px] font-bold text-[#242424] flex items-center justify-between">
-            <span>Flavour: <span className="font-normal text-[#71717a]">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Select')}</span></span>
+            <span>Flavour: <span className="font-medium text-[#71717a]">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Select')}</span></span>
         </h4>
         <div 
           ref={flavorScrollRef}
@@ -111,7 +111,7 @@ export default function ProductVariantPicker({
       {/* Size Selection */}
       <div className="flex flex-col gap-3">
         <h4 className="text-[14px] font-bold text-[#242424]">
-            Size: <span className="font-normal text-[#71717a]">{sizes.length === 0 ? 'One Size' : (selectedSize || 'Select')}</span>
+            Size: <span className="font-medium text-[#71717a]">{sizes.length === 0 ? 'One Size' : (selectedSize || 'Select')}</span>
         </h4>
         <div 
           ref={sizeScrollRef}

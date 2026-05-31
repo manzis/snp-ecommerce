@@ -18,7 +18,7 @@ const Tooltip: React.FC<TooltipProps> = ({ text, isVisible }) => {
         z-[1000] pointer-events-none
         animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200"
     >
-      <p className="font-titillium text-[13px] font-normal leading-[18px] text-[#242424] text-center">
+      <p className="font-rajdhani text-[13px] font-medium leading-[18px] text-[#242424] text-center">
         {text}
       </p>
       

@@ -12,7 +12,7 @@ export default async function SeoManagementPage() {
             <h1 className="text-[20px] md:text-[24px] font-medium leading-tight text-[#242424] tracking-tight">
               SEO Management
             </h1>
-            <p className="text-[13px] md:text-[14px] font-normal leading-[20px] text-[#52525b]">
+            <p className="text-[13px] md:text-[14px] font-medium leading-[20px] text-[#52525b]">
               Centralized hub for Store Search Engine Optimization, Structured Data, and Redirects.
             </p>
           </div>

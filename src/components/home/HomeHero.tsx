@@ -2,6 +2,9 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import heroBg from '../../../public/images/heroimage.webp';
+import { Barlow } from 'next/font/google';
+
+const barlowFont = Barlow({ subsets: ['latin'], weight: ['800', '900'] });
 
 interface HomeHeroProps {
     deals?: any[];
@@ -109,8 +112,8 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px]"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
-                    <h1 className="w-full shrink-0 font-titillium text-[36px] font-black leading-[50px] tracking-[1px] relative text-left z-[2] uppercase">
-                        <span className="font-titillium text-[36px] font-black leading-[50px] text-white tracking-[1px] relative text-left uppercase">
+                    <h1 className={`w-full shrink-0 ${barlowFont.className} text-[36px] font-black leading-[50px] tracking-[1px] relative text-left z-[2] uppercase`}>
+                        <span className={`${barlowFont.className} text-[36px] font-black leading-[50px] text-white tracking-[1px] relative text-left uppercase`}>
                             MEET THE{' '}
                             <span
                                 className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
@@ -120,7 +123,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                             </span>
                             <br />BEST PLATFORM FOR YOUR <br />DAILY NEEDS &{' '}
                         </span>
-                        <span className="font-titillium text-[36px] font-black text-[#95FF00] leading-[50px] tracking-[1px] relative text-left uppercase">
+                        <span className={`${barlowFont.className} text-[36px] font-black text-[#95FF00] leading-[50px] tracking-[1px] relative text-left uppercase`}>
                             ESSENTIALS{' '}
                             <span
                                 className="inline-flex items-center justify-center bg-white rounded-[10px] p-[6px] origin-center align-middle ml-[8px] mr-[4px] shadow-[0_4px_12px_rgba(0,0,0,0.08),0_2px_4px_rgba(0,0,0,0.04)]"
@@ -135,7 +138,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         href="/products"
                         className="flex w-[102px] h-[45px] p-[10px] gap-[10px] justify-center items-center shrink-0 flex-nowrap bg-white relative z-[3] active:scale-95 transition-transform"
                     >
-                        <span className="flex w-[67px] h-[48px] justify-center items-center shrink-0 basis-auto font-titillium text-[14px] font-bold leading-[48px] text-[#308026] tracking-[-0.4px] relative text-center whitespace-nowrap z-[4]">
+                        <span className="flex w-[67px] h-[48px] justify-center items-center shrink-0 basis-auto font-rajdhani text-[14px] font-bold leading-[48px] text-[#308026] tracking-[-0.4px] relative text-center whitespace-nowrap z-[4]">
                             SHOP NOW
                         </span>
                     </Link>
@@ -172,7 +175,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                         className="absolute top-[10px] left-[-6px] flex p-[3px_6px_3px_8px] justify-center items-center bg-[#308026] rounded-tr-[6px] rounded-br-[6px]"
                                         style={{ zIndex: badgeZIndexes[index % 3] }}
                                     >
-                                        <span className="font-titillium text-[10px] font-bold leading-[14px] text-white uppercase whitespace-nowrap">
+                                        <span className="font-rajdhani text-[10px] font-bold leading-[14px] text-white uppercase whitespace-nowrap">
                                             {item.discount}% OFF
                                         </span>
                                         {/* Ribbon fold triangle */}
@@ -194,7 +197,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px]"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
-                    <h1 className="font-titillium text-[36px] font-black leading-[50px] tracking-[1.5px] uppercase text-center relative z-[1] text-white">
+                    <h1 className={`${barlowFont.className} text-[36px] font-black leading-[50px] tracking-[1.5px] uppercase text-center relative z-[1] text-white`}>
                         MEET THE{' '}
                         <span
                             className="inline-flex items-center justify-center bg-white rounded-[12px] p-[8px] origin-center align-middle ml-[10px] mr-[6px] shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)]"
@@ -217,7 +220,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                         href="/products"
                         className="relative flex h-[56px] w-[150px] shrink-0 items-center justify-center gap-[10px] bg-white rounded-none transition-all hover:bg-[#f8fafc] hover:scale-[1.03] active:scale-95 z-[2]"
                     >
-                        <span className="font-titillium text-[18px] font-bold leading-none tracking-[-0.4px] text-[#308026] whitespace-nowrap">
+                        <span className="font-rajdhani text-[18px] font-bold leading-none tracking-[-0.4px] text-[#308026] whitespace-nowrap">
                             SHOP NOW
                         </span>
                     </Link>
@@ -245,7 +248,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                     </div>
                                     {/* 3D Wrapped Discount Ribbon */}
                                     <div className="absolute top-[10px] left-[-6px] flex p-[3px_6px_3px_8px] justify-center items-center bg-[#308026] rounded-tr-[6px] rounded-br-[6px] z-10">
-                                        <span className="font-titillium text-[10px] font-bold leading-[14px] text-white uppercase whitespace-nowrap">
+                                        <span className="font-rajdhani text-[10px] font-bold leading-[14px] text-white uppercase whitespace-nowrap">
                                             {item.discount}% OFF
                                         </span>
                                         {/* Ribbon fold triangle */}

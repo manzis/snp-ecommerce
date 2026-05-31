@@ -17,7 +17,7 @@ export default function QuickLinksNav() {
       label: 'Quick Links',
       items: [
         { text: 'Products', href: '/products', type: 'link' },
-        { text: 'Brands', href: '/brands', type: 'link' },
+        { text: 'Brands', href: '/brand', type: 'link' },
         { text: 'About Us', href: '/info#about-us', type: 'link' },
         { text: 'Essentials', href: '/essentials', type: 'link' },
       ]
@@ -62,7 +62,7 @@ export default function QuickLinksNav() {
               className="flex justify-between items-center w-full self-stretch shrink-0 group focus:outline-none"
               aria-expanded={isOpen}
             >
-              <span className="font-custom text-[20px] font-normal leading-[32px] text-white transition-colors hover:text-gray-300">
+ <span className="uppercase tracking-[-0.2px] font-rajdhani font-bold text-[22px] leading-[32px] text-white transition-colors hover:text-gray-300">
                 {section.label}
               </span>
               <ArrowDown

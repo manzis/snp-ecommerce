@@ -31,7 +31,7 @@ const Loader: React.FC = () => {
 
       {/* CENTERED LOADING TEXT */}
       <div className="relative z-10 flex items-center justify-center">
-        <span className="font-custom text-[15px] font-[400] leading-none text-white flex items-baseline tracking-[0.3px]">
+ <span className="font-rajdhani font-bold text-[15px] font-[500] leading-none text-white flex items-baseline tracking-[0.3px]">
           Loading
           <div className="flex ml-[2px] gap-[1px]">
             {[0, 1, 2].map((i) => (

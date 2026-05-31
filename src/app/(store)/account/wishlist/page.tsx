@@ -9,7 +9,7 @@ const WishlistPage = () => {
             <DynamicPageNav title="My Wishlist" />
             <main className="mx-auto w-full max-w-[1280px] p-[24px]">
                 <div className="rounded-[24px] bg-white p-[48px] text-center shadow-sm">
-                    <p className="font-titillium text-[18px] text-[#242424]">Demo Page: Your wishlist items will appear here.</p>
+                    <p className="font-rajdhani text-[18px] text-[#242424]">Demo Page: Your wishlist items will appear here.</p>
                 </div>
             </main>
         </div>

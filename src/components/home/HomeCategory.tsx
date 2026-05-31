@@ -32,7 +32,7 @@ const HomeCategories: React.FC = () => {
                                 sizes="(max-width: 768px) 75px, (max-width: 1024px) 100px, 120px"
                             />
                         </div>
-                        <span className="font-titillium text-[13px] font-semibold text-[#242424] md:text-[16px]">
+                        <span className="font-rajdhani text-[13px] font-semibold text-[#242424] md:text-[16px]">
                             {cat.name}
                         </span>
                     </Link>

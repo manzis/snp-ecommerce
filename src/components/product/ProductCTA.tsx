@@ -135,7 +135,7 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
           disabled={isOutOfStock}
           className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
         >
-          <span className="relative z-[1] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#4d4d4d] whitespace-nowrap">
+          <span className="uppercase relative z-[1] h-[16px] shrink-0 font-rajdhani font-bold text-[16px] tracking-[-0.015em] font-[500] leading-[16px] text-[#4d4d4d] whitespace-nowrap">
             {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
           </span>
         </button>
@@ -148,7 +148,7 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
           disabled={isOutOfStock}
           className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
         >
-          <span className="relative z-[3] h-[15px] shrink-0 font-custom text-[16px] font-[400] leading-[14.592px] text-[#1e1e1e] whitespace-nowrap">
+          <span className="uppercase relative z-[3] h-[16px] shrink-0 font-rajdhani font-bold text-[16px] tracking-[-0.015em] font-[500] leading-[16px] text-[#1e1e1e] whitespace-nowrap">
             {isOutOfStock ? "Unavailable" : "Buy Now"}
           </span>
         </button>

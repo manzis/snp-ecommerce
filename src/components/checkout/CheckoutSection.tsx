@@ -32,14 +32,14 @@ const CheckoutSection: React.FC<CheckoutSectionProps> = ({
         className="flex p-[24px] justify-between items-center w-full active:bg-[#f9fafb] transition-colors outline-none"
       >
         <div className="flex items-center gap-[12px]">
-          <h3 className="font-titillium text-[20px] font-semibold leading-[30px] text-[#242424] tracking-[-0.8px]">
+          <h3 className="font-rajdhani text-[20px] font-semibold leading-[30px] text-[#242424] tracking-[-0.8px]">
             {title}
           </h3>
           
           {/* Status Badge: Only show if NOT disabled and statusText exists */}
           {!disabled && statusText && (
             <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-titillium text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
+              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
                 {statusText}
               </span>
             </div>

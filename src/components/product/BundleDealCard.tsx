@@ -234,7 +234,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
 
   return (
     <div
-      className="w-full max-w-[700px] flex flex-col rounded-[16px] overflow-hidden  font-titillium"
+      className="w-full max-w-[700px] flex flex-col rounded-[16px] overflow-hidden  font-rajdhani"
       style={{ background: 'linear-gradient(87.93deg, #318126 10.71%, #33D81D 124.28%)' }}
     >
       <button
@@ -258,7 +258,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
             <div className="p-[8px] flex flex-col gap-2 bg-[#FAFAFA] rounded-t-[12px]">
 
               <div className="flex items-baseline gap-2 px-3 pt-2">
-                <h2 className="text-[24px] font-bold bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent leading-none">
+                <h2 className="font-rajdhani text-[24px] font-bold bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent leading-none">
                   Buy at Rs. {displayPrice}
                 </h2>
                 <span className="text-[16px] text-[#71717a] line-through">

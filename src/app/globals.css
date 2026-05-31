@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-titillium: var(--font-titillium);
+  --font-rajdhani: var(--font-rajdhani);
   --font-inter: var(--font-inter);
   --font-inter-tight: var(--font-inter-tight);
   --font-rubik: var(--font-rubik);

@@ -86,13 +86,13 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
             {/* HEADER */}
             <div className="max-w-[1440px] mx-auto flex w-full flex-col items-center gap-[12px] px-[24px] lg:pb-[20px] text-center">
                 <div className="inline-flex items-center justify-center rounded-[100px] bg-[#d5ffb2] px-[12px] py-[4px]">
-                    <span className="font-titillium text-[16px] font-[400] leading-[24px] text-[#242424]">Testimonials</span>
+                    <span className="font-rajdhani text-[16px] font-[500] leading-[24px] text-[#242424]">Testimonials</span>
                 </div>
-                <h2 className="w-full font-titillium text-[32px] font-[600] leading-[36px] tracking-[-0.64px] text-[#242424] lg:text-[48px] lg:leading-[54px]">
+                <h2 className="w-full font-rajdhani text-[32px] font-bold leading-[36px] text-[#242424] lg:text-[48px] lg:leading-[54px]">
                     Trusted by Athletes<br />
                     <span className="text-[#5ca452]">from various industries</span>
                 </h2>
-                <p className="max-w-[362px] font-titillium text-[16px] font-[300] leading-[22px] text-[#242424] lg:max-w-[600px] lg:text-[18px]">
+                <p className="max-w-[362px] font-rajdhani text-[16px] font-[500] leading-[22px] text-[#515151] lg:max-w-[600px] lg:text-[18px]">
                     Learn why professional trainers and fitness athletes choose us over others
                 </p>
             </div>
@@ -161,14 +161,14 @@ const TestimonialCard = ({ review, onMediaClick }: { review: PartialReview, onMe
                         {review.author_avatar ? (
                             <Image src={review.author_avatar} alt={review.author} fill sizes="36px" className="object-cover" />
                         ) : (
-                            <span className="text-white font-titillium font-bold text-[16px] leading-none mb-[1px]">
+ <span className="text-white font-rajdhani font-bold text-[16px] leading-none mb-[1px]">
                                 {review.author.charAt(0).toUpperCase()}
                             </span>
                         )}
                     </div>
                     <div className="flex flex-col">
                         <span className={`text-[15px] font-[600] leading-[18px] drop-shadow-sm ${hasMedia ? 'text-white' : 'text-[#242424]'}`}>{review.author}</span>
-                        <span className={`text-[11px] font-[400] drop-shadow-sm ${hasMedia ? 'text-white/80' : 'text-[#535353]'}`}>{review.role || 'Verified Buyer'}</span>
+                        <span className={`text-[11px] font-[500] drop-shadow-sm ${hasMedia ? 'text-white/80' : 'text-[#535353]'}`}>{review.role || 'Verified Buyer'}</span>
                     </div>
                 </div>
                 {!hasMedia && (
@@ -176,7 +176,7 @@ const TestimonialCard = ({ review, onMediaClick }: { review: PartialReview, onMe
                         <span className="text-[16px] font-[600] text-[#242424]">
                             {review.home_title || "Excellent Product"}
                         </span>
-                        <p className="line-clamp-4 text-[14px] font-[400] leading-[19px] text-[#535353]">{review.text}</p>
+                        <p className="line-clamp-4 text-[14px] font-[500] leading-[19px] text-[#515151]">{review.text}</p>
                     </div>
                 )}
             </div>
@@ -186,7 +186,7 @@ const TestimonialCard = ({ review, onMediaClick }: { review: PartialReview, onMe
                         <StarIcon key={i} className={`h-[14px] w-[14px] drop-shadow-sm ${i < review.rating ? 'text-[#ffe900]' : 'text-gray-200'}`} />
                     ))}
                 </div>
-                <span className={`text-[10px] font-[400] drop-shadow-sm ${hasMedia ? 'text-white' : 'text-[#979797]'}`}>{cleanDate}</span>
+                <span className={`text-[10px] font-[500] drop-shadow-sm ${hasMedia ? 'text-white' : 'text-[#979797]'}`}>{cleanDate}</span>
             </div>
         </article>
     );

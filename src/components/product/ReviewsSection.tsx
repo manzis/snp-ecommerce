@@ -57,7 +57,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
         >
-          <h2 className="font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
+          <h2 className="font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
             Rating and Reviews
           </h2>
           <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px]   outline-none overflow-hidden group-active:scale-95 transition-transform duration-300">
@@ -121,7 +121,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                         {/* 2. Top Layer: Rating Badge */}
                         <div className="absolute right-[8px] top-[8px] z-20 flex h-[26px] items-center justify-center gap-[4px] rounded-[6px] bg-white/90 backdrop-blur-md px-[8px] py-[4px] shadow-[0_2px_10px_rgba(0,0,0,0.08)] pointer-events-none">
                           <StarIcon className="h-[12px] w-[12px]" />
-                          <div className="font-titillium text-[11px] font-bold text-[#242424]">
+                          <div className="font-rajdhani text-[11px] font-bold text-[#242424]">
                             {Number(review.rating).toFixed(1)}
                           </div>
                         </div>
@@ -137,7 +137,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                         >
                           <div className="flex flex-col items-center justify-center gap-[8px] self-stretch text-center relative z-10">
                             <span
-                              className={`font-custom text-[14px] leading-[18px] tracking-[0.1px] bg-clip-text text-transparent line-clamp-6 ${theme.text}`}
+ className={`font-rajdhani font-bold text-[14px] leading-[18px] tracking-[0.1px] bg-clip-text text-transparent line-clamp-6 ${theme.text}`}
                               style={{ maskImage: !hasMedia ? 'none' : 'linear-gradient(to bottom, black 80%, rgba(0,0,0,0.5) 100%)', WebkitMaskImage: !hasMedia ? 'none' : 'linear-gradient(to bottom, black 80%, rgba(0,0,0,0.5) 100%)' }}
                             >
                               {review.text}
@@ -149,16 +149,16 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                                   {review.author_avatar ? (
                                     <Image src={review.author_avatar} alt="" fill className="object-cover" />
                                   ) : (
-                                    <span className={`${theme.author} font-titillium`}>{review.author?.charAt(0).toUpperCase()}</span>
+                                    <span className={`${theme.author} font-rajdhani`}>{review.author?.charAt(0).toUpperCase()}</span>
                                   )}
                                 </div>
-                                <span className={`font-titillium text-[10px] leading-[12px] tracking-[0.1px] font-bold ${theme.author}`}>
+                                <span className={`font-rajdhani text-[10px] leading-[12px] tracking-[0.1px] font-bold ${theme.author}`}>
                                   {review.author}
                                 </span>
                               </div>
                               <div className="flex items-center gap-[2px]">
                                 <VerifiedIcon className="h-[10px] w-[10px]" />
-                                <span className={`font-titillium text-[8px] font-semibold leading-[7px] ${theme.verified}`}>
+                                <span className={`font-rajdhani text-[8px] font-semibold leading-[7px] ${theme.verified}`}>
                                   Verified Buyer
                                 </span>
                               </div>

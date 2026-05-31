@@ -78,14 +78,14 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
           className="flex justify-between items-center p-[12px] bg-[#eaffcc] rounded-[12px] z-[2] w-full outline-none active:scale-[0.99] transition-transform"
         >
           <div className="flex items-center gap-[8px]">
-            <span className="font-titillium text-[18px] leading-[30px] text-[#242424] tracking-[-0.72px]">
+            <span className="font-rajdhani text-[18px] leading-[30px] text-[#242424] tracking-[-0.72px]">
               Total Amount
             </span>
             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
               <DropDownIcon className="w-[16px] h-[16px] text-[#242424]" />
             </motion.div>
           </div>
-          <span className="font-titillium text-[18px] font-semibold leading-[30px] text-[#242424] tracking-[-0.72px]">
+          <span className="font-rajdhani text-[18px] font-semibold leading-[30px] text-[#242424] tracking-[-0.72px]">
             {totalAmount}
           </span>
         </button>
@@ -101,35 +101,35 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
             >
               <div className="flex flex-col gap-[12px] py-[12px] px-[12px] border-b border-[#f1f5f9]">
                 <div className="flex justify-between items-center">
-                  <span className="font-titillium text-[14px] text-[#242424] opacity-60">MRP</span>
-                  <span className="font-titillium text-[14px] text-[#242424]">NPR {mrp.toLocaleString()}</span>
+                  <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">MRP</span>
+                  <span className="font-rajdhani text-[14px] text-[#242424]">NPR {mrp.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-titillium text-[14px] text-[#242424] opacity-60">Item Discount</span>
-                  <span className="font-titillium text-[14px] text-[#308026]">- NPR {itemDiscountValue.toLocaleString()}</span>
+                  <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">Item Discount</span>
+                  <span className="font-rajdhani text-[14px] text-[#308026]">- NPR {itemDiscountValue.toLocaleString()}</span>
                 </div>
                 {bundleDiscountValue > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="font-titillium text-[14px] text-[#242424] opacity-60">Bundle Discount</span>
-                    <span className="font-titillium text-[14px] text-[#308026]">- NPR {bundleDiscountValue.toLocaleString()}</span>
+                    <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">Bundle Discount</span>
+                    <span className="font-rajdhani text-[14px] text-[#308026]">- NPR {bundleDiscountValue.toLocaleString()}</span>
                   </div>
                 )}
                 {couponDiscount > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="font-titillium text-[14px] text-[#242424] opacity-60">Coupon ({couponCode})</span>
-                    <span className="font-titillium text-[14px] text-[#308026]">- NPR {couponDiscount.toLocaleString()}</span>
+                    <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">Coupon ({couponCode})</span>
+                    <span className="font-rajdhani text-[14px] text-[#308026]">- NPR {couponDiscount.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center">
-                  <span className="font-titillium text-[14px] text-[#242424] opacity-60">Shipping</span>
-                  <span className={`font-titillium text-[14px] font-semibold ${shippingCharge > 0 ? 'text-[#242424]' : 'text-[#308026]'}`}>
+                  <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">Shipping</span>
+                  <span className={`font-rajdhani text-[14px] font-semibold ${shippingCharge > 0 ? 'text-[#242424]' : 'text-[#308026]'}`}>
                     {shippingCharge > 0 ? `+ NPR ${shippingCharge.toLocaleString()}` : 'FREE'}
                   </span>
                 </div>
                 {codCharge > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="font-titillium text-[14px] text-[#242424] opacity-60">COD Handling Fee</span>
-                    <span className="font-titillium text-[14px] text-[#242424]">
+                    <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">COD Handling Fee</span>
+                    <span className="font-rajdhani text-[14px] text-[#242424]">
                       + NPR {codCharge.toLocaleString()}
                     </span>
                   </div>
@@ -152,13 +152,13 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
               >
                 <div className="flex items-center gap-[8px]">
                   <DiscountIcon className="w-[22px] h-[22px] text-[#308026]" />
-                  <span className="font-titillium text-[16px] font-bold uppercase tracking-[0.5px] text-[#308026]">
+                  <span className="font-rajdhani text-[16px] font-bold uppercase tracking-[0.5px] text-[#308026]">
                     {couponCode} Applied
                   </span>
                 </div>
                 <button
                   onClick={onRemoveCoupon}
-                  className="font-titillium text-[14px] font-regular text-[#8b8e92] underline hover:text-[#242424] transition-colors"
+                  className="font-rajdhani text-[14px] font-regular text-[#8b8e92] underline hover:text-[#242424] transition-colors"
                 >
                   Remove
                 </button>
@@ -167,7 +167,7 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
               {/* Savings Summary Line */}
               <div className="flex gap-[10px] justify-center items-center">
                 <GreenCheckIcon className="w-[18px] h-[18px] text-[#308026]" />
-                <div className="font-titillium text-[15px] leading-[24px] text-[#242424]">
+                <div className="font-rajdhani text-[15px] leading-[24px] text-[#242424]">
                   Rs {lastDiscount || couponDiscount} Saved with Coupon
                   <span className="font-semibold uppercase ml-1 tracking-[0.3px]">“ {couponCode} “</span>
                 </div>
@@ -188,12 +188,12 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
                   placeholder="Enter Coupon Code"
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value)}
-                  className="w-full bg-transparent font-titillium text-[16px] text-[#242424] outline-none placeholder:text-[#] "
+                  className="w-full bg-transparent font-rajdhani text-[16px] text-[#242424] outline-none placeholder:text-[#] "
                 />
               </div>
               <button
                 onClick={handleApply}
-                className="font-titillium text-[14px] font-semibold text-[#3F9733] pl-[12px] hover:text-[#347d2a] transition-all active:scale-95"
+                className="font-rajdhani text-[14px] font-semibold text-[#3F9733] pl-[12px] hover:text-[#347d2a] transition-all active:scale-95"
               >
                 Apply
               </button>

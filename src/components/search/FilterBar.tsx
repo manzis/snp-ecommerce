@@ -107,8 +107,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   {isChecked && <TickIcon className="w-[8px] h-[8px] text-white" />}
                 </div>
                 {/* Text Wrap logic */}
-                <span className={`flex-1 font-titillium text-[13px] leading-[16px] tracking-[-0.1px] break-words
-                  ${isChecked ? 'font-semibold text-[#242424]' : 'font-normal text-[#656565]'}`}
+                <span className={`flex-1 font-rajdhani text-[13px] leading-[16px] tracking-[-0.1px] break-words
+                  ${isChecked ? 'font-semibold text-[#242424]' : 'font-medium text-[#656565]'}`}
                 >
                   {opt.label}
                 </span>
@@ -143,7 +143,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     ${idx !== visibleFilters.length - 1 ? 'border-r border-[#f1f5f9]' : ''}
                     ${isOpen ? 'bg-[#fafbfc]' : 'bg-white'}`}
                 >
-                  <span className={`font-titillium text-[13px] font-semibold tracking-[-0.2px] truncate max-w-[75px]
+                  <span className={`font-rajdhani text-[13px] font-semibold tracking-[-0.2px] truncate max-w-[75px]
                     ${hasSelection ? 'text-[#3F9733]' : 'text-[#242424]'}`}
                   >
                     {hasSelection ? `${label} (${selected[type].length})` : label}

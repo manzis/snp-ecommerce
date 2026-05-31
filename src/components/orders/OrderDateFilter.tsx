@@ -101,7 +101,7 @@ const OrderDateFilter: React.FC<OrderDateFilterProps> = ({ isOpen, onClose, onAp
                     ref={popoverRef}
                 >
                     <div className="flex items-center justify-between pb-[12px] border-b border-[#f1f5f9] mb-[12px]">
-                        <h3 className="font-titillium text-[16px] font-[600] text-[#242424]">Filter by Date</h3>
+                        <h3 className="font-rajdhani text-[16px] font-[600] text-[#242424]">Filter by Date</h3>
                         <button onClick={onClose} className="p-[4px] opacity-50 hover:opacity-100 transition-opacity">
                             <CloseIcon className="w-[12px] h-[12px] text-[#242424]" />
                         </button>
@@ -111,7 +111,7 @@ const OrderDateFilter: React.FC<OrderDateFilterProps> = ({ isOpen, onClose, onAp
                         <button onClick={prevMonth} className="flex items-center justify-center w-[28px] h-[28px] rounded-full hover:bg-gray-100 transition-colors">
                             <ChevronLeftIcon className="w-[14px] h-[14px] text-[#242424]" />
                         </button>
-                        <span className="font-titillium text-[14px] font-[600] text-[#242424]">
+                        <span className="font-rajdhani text-[14px] font-[600] text-[#242424]">
                             {currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}
                         </span>
                         <button onClick={nextMonth} className="flex items-center justify-center w-[28px] h-[28px] rounded-full hover:bg-gray-100 transition-colors">
@@ -121,7 +121,7 @@ const OrderDateFilter: React.FC<OrderDateFilterProps> = ({ isOpen, onClose, onAp
 
                     <div className="grid grid-cols-7 gap-y-[8px] gap-x-[4px] mb-[16px]">
                         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                            <div key={day} className="text-center font-titillium text-[12px] font-[600] text-[#838383]">
+                            <div key={day} className="text-center font-rajdhani text-[12px] font-[600] text-[#838383]">
                                 {day}
                             </div>
                         ))}
@@ -138,7 +138,7 @@ const OrderDateFilter: React.FC<OrderDateFilterProps> = ({ isOpen, onClose, onAp
                                     onClick={() => handleDateClick(date)}
                                     onMouseEnter={() => setHoverDate(date)}
                                     onMouseLeave={() => setHoverDate(null)}
-                                    className={`relative flex items-center justify-center w-[36px] h-[36px] text-[13px] font-titillium transition-all
+                                    className={`relative flex items-center justify-center w-[36px] h-[36px] text-[13px] font-rajdhani transition-all
                                         ${selected ? 'font-[600] text-white z-10' : 'text-[#242424] hover:bg-gray-100'}
                                     `}
                                 >
@@ -162,19 +162,19 @@ const OrderDateFilter: React.FC<OrderDateFilterProps> = ({ isOpen, onClose, onAp
                     </div>
 
                     {errorMsg && (
-                        <p className="font-titillium text-[12px] text-[#d92d20] mb-[12px] text-center">{errorMsg}</p>
+                        <p className="font-rajdhani text-[12px] text-[#d92d20] mb-[12px] text-center">{errorMsg}</p>
                     )}
 
                     <div className="flex items-center gap-[8px] justify-between border-t border-[#f1f5f9] pt-[12px]">
                         <button 
                             onClick={handleReset}
-                            className="font-titillium text-[13px] font-[600] text-[#838383] hover:text-[#242424] transition-colors"
+                            className="font-rajdhani text-[13px] font-[600] text-[#838383] hover:text-[#242424] transition-colors"
                         >
                             Reset
                         </button>
                         <button 
                             onClick={handleApply}
-                            className="bg-[#308026] text-white font-titillium text-[14px] font-[600] px-[16px] py-[8px] rounded-[8px] hover:bg-opacity-90 transition-opacity active:scale-95"
+                            className="bg-[#308026] text-white font-rajdhani text-[14px] font-[600] px-[16px] py-[8px] rounded-[8px] hover:bg-opacity-90 transition-opacity active:scale-95"
                         >
                             Apply Filter
                         </button>

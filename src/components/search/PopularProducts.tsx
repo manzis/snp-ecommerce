@@ -19,7 +19,7 @@ const PopularProducts: React.FC<PopularProductsProps> = ({ products = [] }) => {
 
   return (
     <section className="flex flex-col gap-[20px] self-stretch border-t border-[#f1f5f9] py-[24px] px-[24px]">
-      <h3 className="font-titillium text-[16px] font-semibold leading-[20px] text-[#242424]">
+      <h3 className="font-rajdhani text-[16px] font-semibold leading-[20px] text-[#242424]">
         Popular Products:
       </h3>
       <div className="no-scrollbar flex w-full gap-[16px] overflow-x-auto pb-[4px]">
@@ -43,10 +43,10 @@ const PopularProducts: React.FC<PopularProductsProps> = ({ products = [] }) => {
             {/* Details Container */}
             <div className="flex flex-col gap-[8px] px-[16px] py-[8px]">
               <div className="flex flex-col gap-[2px] pb-[4px]">
-                <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#bebebe]">
+                <span className="font-rajdhani text-[10px] font-medium leading-[14px] text-[#bebebe]">
                   {product.brand}
                 </span>
-                <span className="h-[32px] font-titillium text-[12px] font-semibold leading-[16px] tracking-[0.2px] text-[#242424] line-clamp-2">
+                <span className="h-[32px] font-rajdhani text-[12px] font-semibold leading-[16px] tracking-[0.2px] text-[#242424] line-clamp-2">
                   {product.name}
                 </span>
               </div>

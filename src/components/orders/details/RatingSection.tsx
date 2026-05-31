@@ -8,7 +8,7 @@ export default function RatingSection() {
     return (
         <section className="flex w-full flex-col items-center justify-center bg-[#ffffff] py-[20px] px-[24px]">
             <div className="flex w-full flex-col gap-[16px] items-start">
-                <h2 className="font-titillium text-[18px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
+                <h2 className="font-rajdhani text-[18px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
                     Rate your Experience
                 </h2>
                 <button className="flex w-full items-center justify-between rounded-[12px] bg-[#eaffcc] p-[14px_16px] hover:bg-[#e0fbba] transition-colors">
@@ -16,7 +16,7 @@ export default function RatingSection() {
                         <div className="flex h-[24px] w-[24px] shrink-0 items-center justify-center">
                             <LikeIcon className="h-full w-full text-[#242424]" />
                         </div>
-                        <span className="font-titillium text-[16px] font-[400] leading-[18px] tracking-[-0.64px] text-[#242424]">
+                        <span className="font-rajdhani text-[16px] font-[500] leading-[18px] tracking-[-0.64px] text-[#242424]">
                             Did your find this page Helpful?
                         </span>
                     </div>

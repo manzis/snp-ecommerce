@@ -24,17 +24,17 @@ const FeatureBanners: React.FC = () => {
             {/* HEADER SECTION */}
             <div className="mb-[24px] flex flex-col items-center gap-[12px] px-[24px] text-center lg:mb-[48px] lg:px-0">
                 <div className="inline-flex h-[32px] items-center justify-center rounded-[100px] bg-[#d5ffb2] px-[12px] py-[4px]">
-                    <span className="font-titillium text-[14px] font-[400] leading-[24px] text-[#242424]">
+                    <span className="font-rajdhani text-[14px] font-[500] leading-[24px] text-[#242424]">
                         Best Choice
                     </span>
                 </div>
 
-                <h2 className="w-full font-titillium text-[30px] font-[600] leading-[34px] text-[#242424] lg:text-[48px] lg:leading-[54px]">
+                <h2 className="w-full font-rajdhani text-[30px] font-bold leading-[34px] text-[#242424] lg:text-[48px] lg:leading-[54px]">
                     Everything you need<br />
                     <span className="text-[#308026]">at oneplace</span>
                 </h2>
 
-                <p className="max-w-[362px] font-titillium text-[16px] font-[300] leading-[22px] text-[#242424] lg:max-w-[600px] lg:text-[18px]">
+                <p className="max-w-[362px] font-rajdhani text-[16px] font-[500] leading-[22px] text-[#515151] lg:max-w-[600px] lg:text-[18px]">
                     Learns why professional trainers and fitness athletes choose us over others
                 </p>
             </div>
@@ -62,7 +62,7 @@ const FeatureBanners: React.FC = () => {
                                 href={banner.href}
                                 className={`${banner.buttonBg} flex h-[34px] w-[75px] lg:h-[50px] lg:w-[100px] items-center justify-center rounded-[12px] transition-all hover:brightness-110 active:scale-95`}
                             >
-                                <span className="font-custom text-[12px] lg:text-[16px] font-[400] leading-[18px] lg:leading-[24px] text-white">
+ <span className="font-rajdhani font-bold text-[12px] lg:text-[16px] font-[500] leading-[18px] lg:leading-[24px] text-white">
                                     shop now
                                 </span>
                             </Link>

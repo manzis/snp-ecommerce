@@ -125,18 +125,18 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                     <div className="flex flex-1 flex-col items-start">
                         <div className="flex w-full flex-col items-start pb-[2px]">
                             <div className="flex w-full flex-col items-start gap-[2px] pb-[4px]">
-                                <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[#242424]/80 uppercase">
+                                <span className="font-rajdhani text-[12px] font-[500] leading-[18px] text-[#242424]/80 uppercase">
                                     {order.brand}
                                 </span>
-                                <h2 className="font-titillium text-[16px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
+                                <h2 className="font-rajdhani text-[16px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
                                     {order.title}
                                 </h2>
                             </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-[13px]">
-                            <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Size : {order.size}</span>
-                            <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Flavour : {order.flavour}</span>
-                            <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91]">Qty : 1</span>
+                            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Size : {order.size}</span>
+                            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Flavour : {order.flavour}</span>
+                            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Qty : 1</span>
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
 
             <div className="flex flex-col items-start gap-[6px]">
                 <div className="flex items-center gap-[6px]">
-                    <span className="font-titillium text-[14px] font-[400] leading-[30px] text-[#242424]/40 text-right">
+                    <span className="font-rajdhani text-[14px] font-[500] leading-[30px] text-[#242424]/40 text-right">
                         ORDER ID: #{order.shortId}
                     </span>
                     <div className="flex h-[16px] w-[16px] shrink-0 items-center justify-center">
@@ -155,19 +155,19 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                 <div className="flex w-full flex-col justify-between items-start gap-[24px] rounded-[20px] bg-[#ffffff] p-[12px] md:h-auto border border-[#f1f5f9]">
                     <div className="flex w-full flex-col gap-[24px]">
                         <div className="flex w-full flex-col px-[6px] py-[4px]">
-                            <span className="w-full text-left font-titillium text-[11px] font-[400] leading-[12px] text-[#242424]/40">
+                            <span className="w-full text-left font-rajdhani text-[11px] font-[500] leading-[12px] text-[#242424]/40">
                                 {topHeaderText}
                             </span>
                             <div className="flex w-full items-center justify-between mt-[4px]">
                                 <div className="flex flex-col justify-center items-start">
-                                    <h3 className={`font-titillium text-[18px] font-[700] leading-[30px] ${config.color}`}>
+                                    <h3 className={`font-rajdhani text-[18px] font-[700] leading-[30px] ${config.color}`}>
                                         {config.text}
                                     </h3>
                                     <div className="flex flex-col mt-[2px]">
-                                        <p className="font-titillium text-[13px] font-[500] leading-[18px] text-[#242424]">
-                                            Update: <span className="font-[400] opacity-80">{displayUpdateMessage}</span>
+                                        <p className="font-rajdhani text-[13px] font-[500] leading-[18px] text-[#242424]">
+                                            Update: <span className="font-[500] opacity-80">{displayUpdateMessage}</span>
                                         </p>
-                                        <span className="font-titillium text-[11px] font-[400] leading-[14px] text-[#8a8e91] mt-[2px]">
+                                        <span className="font-rajdhani text-[11px] font-[500] leading-[14px] text-[#8a8e91] mt-[2px]">
                                             {displayUpdateDate}
                                         </span>
                                     </div>
@@ -226,28 +226,28 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                             {/* Timeline Labels */}
                             <div className="flex w-full justify-between items-center">
                                 <div className="flex flex-1 flex-col items-start">
-                                    <span className={`font-titillium text-[13px] font-[600] leading-[18px] ${isNode1Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
+                                    <span className={`font-rajdhani text-[13px] font-[600] leading-[18px] ${isNode1Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
                                         {progress.label1 || 'Order Received'}
                                     </span>
-                                    <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262]">
+                                    <span className="font-rajdhani text-[11px] font-[500] leading-[18px] text-[#626262]">
                                         {node1Date}
                                     </span>
                                 </div>
                                 {!hideShipping && (
                                     <div className="flex flex-1 flex-col items-center">
-                                        <span className={`font-titillium text-[13px] font-[600] leading-[18px] text-center ${isNode2Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
+                                        <span className={`font-rajdhani text-[13px] font-[600] leading-[18px] text-center ${isNode2Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
                                             {progress.label2 || 'Shipped'}
                                         </span>
-                                        <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262] text-center">
+                                        <span className="font-rajdhani text-[11px] font-[500] leading-[18px] text-[#626262] text-center">
                                             {node2Date}
                                         </span>
                                     </div>
                                 )}
                                 <div className="flex flex-1 flex-col items-end">
-                                    <span className={`font-titillium text-[13px] font-[600] leading-[18px] text-right ${isNode3Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
+                                    <span className={`font-rajdhani text-[13px] font-[600] leading-[18px] text-right ${isNode3Active ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
                                         {progress.label3 || 'Delivery'}
                                     </span>
-                                    <span className="font-titillium text-[11px] font-[400] leading-[18px] text-[#626262] text-right">
+                                    <span className="font-rajdhani text-[11px] font-[500] leading-[18px] text-[#626262] text-right">
                                         {node3Date}
                                     </span>
                                 </div>
@@ -260,7 +260,7 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                             onClick={() => setIsTrackingModalOpen(true)}
                             className="flex h-[42px] w-full items-center justify-center gap-[10px] rounded-[12px] bg-[#ffe900] py-[12px] transition-transform active:scale-[0.98] hover:bg-[#ffe000]"
                         >
-                            <span className="font-titillium text-[16px] font-[600] leading-[22px] tracking-[-0.2px] text-[#242424]">
+                            <span className="font-rajdhani text-[16px] font-[600] leading-[22px] tracking-[-0.2px] text-[#242424]">
                                 See all updates
                             </span>
                         </button>

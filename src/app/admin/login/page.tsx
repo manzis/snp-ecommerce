@@ -76,7 +76,7 @@ export default function AdminLoginPage() {
 
           <div className="space-y-3">
             <h1 className="text-[24px] font-semibold leading-tight">Welcome Back</h1>
-            <p className="text-[14px] text-[#71717a] font-normal">Sign in to continue building</p>
+            <p className="text-[14px] text-[#71717a] font-medium">Sign in to continue building</p>
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
           <div className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-[11px] font-normal text-[#71717a] uppercase tracking-wide">Email</label>
+              <label className="text-[11px] font-medium text-[#71717a] uppercase tracking-wide">Email</label>
               <input
                 name="email"
                 type="email"
@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-[11px] font-normal text-[#71717a] uppercase tracking-wide">Password</label>
+              <label className="text-[11px] font-medium text-[#71717a] uppercase tracking-wide">Password</label>
               <div className="relative">
                 <input
                   name="password"

@@ -35,7 +35,7 @@ const ExploreCategories: React.FC<ExploreCategoriesProps> = ({ categories = [] }
 
   return (
     <section className="flex flex-col gap-[20px] self-stretch border-t border-[#f1f5f9] py-[24px] px-[24px] bg-white">
-      <h3 className="font-titillium text-[16px] font-semibold leading-[20px] text-[#242424]">
+      <h3 className="font-rajdhani text-[16px] font-semibold leading-[20px] text-[#242424]">
         Explore Categories:
       </h3>
       <div className="no-scrollbar flex w-full gap-[12px] overflow-x-auto pb-[4px]">
@@ -64,7 +64,7 @@ const ExploreCategories: React.FC<ExploreCategoriesProps> = ({ categories = [] }
 
               {/* Top Badge: Product Count */}
               <div className="absolute right-[4px] top-[4px] flex h-[16px] px-[4px] items-center justify-center rounded-[3px] bg-white/90 backdrop-blur-[2px] z-10 border border-[#f1f5f9]">
-                <span className="font-titillium text-[7px] font-bold tracking-[0.2px] text-[#242424] uppercase">
+                <span className="font-rajdhani text-[7px] font-bold tracking-[0.2px] text-[#242424] uppercase">
                   {count} items
                 </span>
               </div>
@@ -78,7 +78,7 @@ const ExploreCategories: React.FC<ExploreCategoriesProps> = ({ categories = [] }
                 }}
               >
                 <span
-                  className="font-titillium text-[9px] font-bold tracking-[0.2px] uppercase leading-none truncate max-w-[70px]"
+                  className="font-rajdhani text-[9px] font-bold tracking-[0.2px] uppercase leading-none truncate max-w-[70px]"
                   style={{ color: colors.text }}
                 >
                   {cat.name}

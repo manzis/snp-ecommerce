@@ -52,9 +52,9 @@ export default function FeaturedProductCard({
     };
 
     return (
-        <article className="group flex w-full max-w-[169px] mx-auto flex-col gap-[8px] items-start relative font-['Titillium_Web',sans-serif]">
-            <Link 
-                href={productUrl} 
+        <article className="group flex w-full max-w-[169px] mx-auto flex-col gap-[8px] items-start relative font-['Rajdhani',sans-serif]">
+            <Link
+                href={productUrl}
                 onPointerDown={handlePrefetch}
                 onTouchStart={handlePrefetch}
                 onMouseEnter={handlePrefetch}
@@ -71,11 +71,11 @@ export default function FeaturedProductCard({
                         sizes="(max-width: 768px) 159px, 169px"
                         className={`p-[12px] object-contain object-center transition-transform duration-[300ms] ease-in-out group-hover:scale-110 ${stockStatus === 'out_of_stock' ? 'opacity-40' : ''}`}
                     />
-                    
+
                     {stockStatus === 'out_of_stock' && (
                         <div className="absolute inset-0 z-[11] flex items-center justify-center p-2">
                             <div className="w-full bg-red-600/90 py-1.5 flex items-center justify-center shadow-xl transform -rotate-1">
-                                <span className="font-custom text-[10px] font-bold tracking-[0.2em] text-white uppercase drop-shadow-sm">
+                                <span className="font-rajdhani font-bold text-[10px] font-bold tracking-[0.2em] text-white uppercase drop-shadow-sm">
                                     Out of Stock
                                 </span>
                             </div>
@@ -91,7 +91,7 @@ export default function FeaturedProductCard({
                         <span className="w-full shrink-0 text-[12px] font-[600] leading-[16px] text-[#242424] truncate">
                             {brand}
                         </span>
-                        <h3 className="w-full shrink-0 text-[13px] font-[400] leading-[19px] text-[#525252] truncate">
+                        <h3 className=" w-full shrink-0 text-[13px] font-[500] leading-[19px] text-[#525252] truncate">
                             {title}
                         </h3>
                     </header>
@@ -106,7 +106,7 @@ export default function FeaturedProductCard({
 
                         {/* Original Price */}
                         {originalPrice && (
-                            <span className="shrink-0 text-[14px] font-[400] leading-[20px] text-[#525252] line-through whitespace-nowrap decoration-[#525252]/50">
+                            <span className="shrink-0 text-[14px] font-[500] leading-[20px] text-[#525252] line-through whitespace-nowrap decoration-[#525252]/50">
                                 {originalPrice}
                             </span>
                         )}
@@ -114,7 +114,7 @@ export default function FeaturedProductCard({
                         {/* Discount Badge */}
                         {discountText && (
                             <div className="flex w-[40px] px-[3px] py-[1px] justify-center items-center shrink-0 bg-[#94ff00] rounded-[6px] relative z-[9]">
-                                <span className="shrink-0 text-[8px] font-[400] leading-[14px] text-[#242424] font-custom whitespace-nowrap">
+                                <span className="shrink-0 text-[8px] font-[500] leading-[14px] text-[#242424] font-rajdhani font-bold whitespace-nowrap">
                                     {discountText}
                                 </span>
                             </div>

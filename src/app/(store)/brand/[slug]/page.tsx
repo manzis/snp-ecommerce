@@ -171,12 +171,12 @@ async function BrandDataWrapper({ slug }: { slug: string }) {
 
           <div className="flex flex-col gap-[8px] flex-1 min-w-0 ">
             <h1
-              className="font-titillium text-[18px] lg:text-[28px] font-semibold tracking-[-0.72px] leading-[26px]"
+              className="font-rajdhani text-[18px] lg:text-[28px] font-semibold tracking-[-0.72px] leading-[26px]"
               style={{ color: brandInfo.accentColor }}
             >
               {brandInfo.name}
             </h1>
-            <div className="font-titillium text-[13px] lg:text-[16px] leading-[20px] lg:leading-[24px] tracking-[-0.52px] text-[#1e1e1e] max-w-[850px]">
+            <div className="font-rajdhani text-[13px] lg:text-[16px] leading-[20px] lg:leading-[24px] tracking-[-0.52px] text-[#1e1e1e] max-w-[850px]">
               {brandInfo.description}
             </div>
           </div>
@@ -192,10 +192,10 @@ async function BrandDataWrapper({ slug }: { slug: string }) {
               key={stat.label}
               className={`flex-1 flex flex-col items-start lg:items-center justify-center gap-[10px] px-[24px] py-[24px] ${idx !== 2 ? 'border-r border-[#f1f5f9]' : ''}`}
             >
-              <span className="font-titillium text-[12px] lg:text-[14px] font-semibold text-[#242424] opacity-50  tracking-[-0.48px] leading-[18px]">
+              <span className="font-rajdhani text-[12px] lg:text-[14px] font-semibold text-[#242424] opacity-50  tracking-[-0.48px] leading-[18px]">
                 {stat.label}
               </span>
-              <span className="font-titillium text-[18px] lg:text-[24px] font-semibold text-[#242424] leading-[18px]">
+              <span className="font-rajdhani text-[18px] lg:text-[24px] font-semibold text-[#242424] leading-[18px]">
                 {stat.value}
               </span>
             </div>
@@ -203,7 +203,7 @@ async function BrandDataWrapper({ slug }: { slug: string }) {
         </section>
 
         <div className="flex items-center gap-[10px]  border-[#f1f5f9] px-[24px] py-[24px] bg-white">
-          <span className="flex-1 font-titillium text-[16px] lg:text-[20px] font-semibold text-[#242424] tracking-[-0.64px] leading-[26px]">
+          <span className="flex-1 font-rajdhani text-[16px] lg:text-[20px] font-semibold text-[#242424] tracking-[-0.64px] leading-[26px]">
             Explore Brand & Products
           </span>
         </div>
@@ -221,8 +221,8 @@ async function BrandDataWrapper({ slug }: { slug: string }) {
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
               </svg>
             </div>
-            <p className="font-titillium text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
-            <p className="font-titillium text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
+            <p className="font-rajdhani text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
+            <p className="font-rajdhani text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
             <BackButton
               className="px-8 py-3 bg-[#242424] text-white rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
             >

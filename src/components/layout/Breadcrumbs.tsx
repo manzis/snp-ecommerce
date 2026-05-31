@@ -35,7 +35,7 @@ export default function Breadcrumbs({ path }: { path: BreadcrumbItem[] }) {
                 <>
                   <Link
                     href={item.href}
-                    className="h-[14px] shrink-0 font-['Titillium_Web',sans-serif] text-[12px] font-[400] leading-[14px] text-[#838383] whitespace-nowrap"
+                    className="h-[14px] shrink-0 font-['Rajdhani',sans-serif] text-[12px] font-[500] leading-[14px] text-[#838383] whitespace-nowrap"
                   >
                     {item.name}
                   </Link>
@@ -44,7 +44,7 @@ export default function Breadcrumbs({ path }: { path: BreadcrumbItem[] }) {
               ) : (
                 <span
                   aria-current="page"
-                  className="h-[14px] shrink-0 font-['Titillium_Web',sans-serif] text-[12px] font-[400] leading-[14px] text-[#242424] whitespace-nowrap"
+                  className="h-[14px] shrink-0 font-['Rajdhani',sans-serif] text-[12px] font-[500] leading-[14px] text-[#242424] whitespace-nowrap"
                 >
                   {displayName}
                 </span>

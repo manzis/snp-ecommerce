@@ -70,11 +70,11 @@ export default function UnderConstruction({
            
            {/* Visual Overlay */}
            <div className="absolute inset-0 flex items-center justify-center pt-12">
-             <span className="font-titillium text-[130px] font-black text-[#242424]/5 pointer-events-none select-none">OOPS</span>
+             <span className="font-rajdhani text-[130px] font-black text-[#242424]/5 pointer-events-none select-none">OOPS</span>
            </div>
         </div>
 
-        <h1 className="font-titillium text-4xl font-bold tracking-tight text-[#242424] sm:text-5xl">
+        <h1 className="font-rajdhani text-4xl font-bold tracking-tight text-[#242424] sm:text-5xl">
           {title}
         </h1>
         

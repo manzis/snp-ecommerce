@@ -52,7 +52,7 @@ export default function ClientOrdersLayout({ initialOrders }: ClientOrdersLayout
                         <input
                             type="text"
                             placeholder="Search orders, brands or ID..."
-                            className="font-titillium w-full h-full bg-transparent text-[16px] text-[#242424] outline-none placeholder:text-[#838383] md:text-[16px]"
+                            className="font-rajdhani w-full h-full bg-transparent text-[16px] text-[#242424] outline-none placeholder:text-[#838383] md:text-[16px]"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -83,7 +83,7 @@ export default function ClientOrdersLayout({ initialOrders }: ClientOrdersLayout
                         ))
                     ) : (
                         <div className="flex flex-col items-center justify-center py-[60px] col-span-1 lg:col-span-2">
-                            <p className="font-titillium text-[16px] text-[#838383]">
+                            <p className="font-rajdhani text-[16px] text-[#838383]">
                                 {searchQuery ? 'No orders found matching your search.' : 'You haven\'t placed any orders yet.'}
                             </p>
                             {!searchQuery && (

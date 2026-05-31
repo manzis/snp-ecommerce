@@ -26,7 +26,7 @@ const AccountHeader: React.FC<ProfileHeaderProps> = ({ name, avatarUrl }) => {
                     </div>
 
                     {/* GREETING */}
-                    <div className="font-titillium text-[22px] leading-[26px] tracking-[-0.4px] text-white uppercase whitespace-nowrap">
+                    <div className="font-rajdhani text-[22px] leading-[26px] tracking-[-0.4px] text-white uppercase whitespace-nowrap">
                         <span className="font-[600]">HI,</span>
                         <span className="font-[700]"> {name}</span>
                     </div>
@@ -40,7 +40,7 @@ const AccountHeader: React.FC<ProfileHeaderProps> = ({ name, avatarUrl }) => {
                         className="flex h-[34px] w-[65px] items-center justify-center gap-[4px] rounded-[100px] bg-white transition-transform active:scale-95"
                     >
                         <EditIcon className="w-[14px] h-[14px] text-[#242424]" />
-                        <span className="font-titillium text-[16px] font-[600] leading-[10px] tracking-[-0.03px] text-[#242424]">Edit</span>
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[10px] tracking-[-0.03px] text-[#242424]">Edit</span>
                     </Link>
 
                     {/* STORE BUTTON */}
@@ -48,7 +48,7 @@ const AccountHeader: React.FC<ProfileHeaderProps> = ({ name, avatarUrl }) => {
                         href="/"
                         className="flex h-[34px] w-[79px] items-center justify-center gap-[4px] rounded-[100px] bg-[#eaffcc] transition-transform active:scale-95"
                     >
-                        <span className="font-titillium text-[16px] font-[600] leading-[10px] tracking-[-0.03px] text-[#242424]">Store</span>
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[10px] tracking-[-0.03px] text-[#242424]">Store</span>
                         <ArrowRightIcon className="w-[14px] h-[14px] mb-[1px] text-[#242424]" />
                     </Link>
                 </div>

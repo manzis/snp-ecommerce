@@ -31,23 +31,23 @@ const AvailabilityPopup: React.FC<AvailabilityPopupProps> = ({ isOpen, onClose }
           }}>
             <StockIcon className="h-[20px] w-[20px] shrink-0 text-[#242424]" />
             <div className="flex flex-1 flex-col items-start justify-center gap-[6px]">
-              <span className="font-titillium text-[18px] font-semibold leading-[20px] tracking-[-0.50px] text-[#242424] whitespace-nowrap">
+              <span className="font-rajdhani text-[18px] font-semibold leading-[20px] tracking-[-0.50px] text-[#242424] whitespace-nowrap">
                 In Stock
               </span>
               <div className="flex flex-col items-start gap-[10px] self-stretch">
-                <p className="font-titillium text-[14px] font-normal leading-[18px] tracking-[-0.50px] text-[#242424]">
+                <p className="font-rajdhani text-[14px] font-medium leading-[18px] tracking-[-0.50px] text-[#242424]">
                   Shipped Directly From Store within Nepal.
                 </p>
                 <div className="flex items-center gap-[12px] shrink-0">
                   <div className="flex items-center gap-[6px] shrink-0">
                     <TickIcon className="h-[16px] w-[16px] text-[#575757]" />
-                    <span className="font-titillium text-[14px] font-normal leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
+                    <span className="font-rajdhani text-[14px] font-medium leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
                       Faster Delivery
                     </span>
                   </div>
                   <div className="flex items-center gap-[6px] shrink-0">
                     <TickIcon className="h-[16px] w-[16px] text-[#575757]" />
-                    <span className="font-titillium text-[14px] font-normal leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
+                    <span className="font-rajdhani text-[14px] font-medium leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
                       Verified Products
                     </span>
                   </div>
@@ -60,23 +60,23 @@ const AvailabilityPopup: React.FC<AvailabilityPopupProps> = ({ isOpen, onClose }
           <div className="flex w-full items-start gap-[12px] border-t border-[#E5E5E5] p-[16px] bg-white rounded-b-[7px]">
             <PreOrderIcon className="h-[20px] w-[20px] shrink-0 text-[#242424]" />
             <div className="flex flex-1 flex-col items-start justify-center gap-[6px]">
-              <span className="font-titillium text-[18px] font-semibold leading-[20px] tracking-[-0.50px] text-[#242424] whitespace-nowrap">
+              <span className="font-rajdhani text-[18px] font-semibold leading-[20px] tracking-[-0.50px] text-[#242424] whitespace-nowrap">
                 Warehouse (Pre-Order)
               </span>
               <div className="flex flex-col items-start gap-[10px] self-stretch">
-                <p className="font-titillium text-[14px] font-normal leading-[18px] tracking-[-0.50px] text-[#242424]">
+                <p className="font-rajdhani text-[14px] font-medium leading-[18px] tracking-[-0.50px] text-[#242424]">
                   Shipped internationally in pre-order Basis.
                 </p>
                 <div className="flex items-center gap-[12px] shrink-0">
                   <div className="flex items-center gap-[6px] shrink-0">
                     <TickIcon className="h-[16px] w-[16px] text-[#575757]" />
-                    <span className="font-titillium text-[14px] font-normal leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
+                    <span className="font-rajdhani text-[14px] font-medium leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
                       7 Day Delivery
                     </span>
                   </div>
                   <div className="flex items-center gap-[6px] shrink-0">
                     <TickIcon className="h-[16px] w-[16px] text-[#575757]" />
-                    <span className="font-titillium text-[14px] font-normal leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
+                    <span className="font-rajdhani text-[14px] font-medium leading-[16px] tracking-[-0.50px] text-[#575757] whitespace-nowrap">
                       Verified Products
                     </span>
                   </div>

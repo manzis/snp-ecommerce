@@ -212,7 +212,7 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
         ) : (
           <div className="flex flex-col py-[20px]">
             <div className="px-[24px] mb-[16px]">
-              <p className="font-titillium text-[14px] text-[#656565]">
+              <p className="font-rajdhani text-[14px] text-[#656565]">
                 {isLoading ? 'Searching...' : (
                   filteredResults.length > 0
                     ? `Showing ${filteredResults.length} results for "${query}"`

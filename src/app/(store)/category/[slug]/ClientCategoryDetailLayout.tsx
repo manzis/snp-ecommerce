@@ -85,10 +85,10 @@ export default function ClientCategoryDetailLayout({
 
       <main className="mx-auto w-full max-w-[410px] lg:px-[48px] lg:max-w-[1440px]">
         <section className="px-[24px] py-[24px]" style={{ background: theme.gradient }}>
-          <h2 className="font-titillium text-[20px] font-semibold leading-[26px] tracking-[-0.8px]" style={{ color: theme.textColor }}>
+          <h2 className="font-rajdhani text-[20px] font-semibold leading-[26px] tracking-[-0.8px]" style={{ color: theme.textColor }}>
             {categoryMetadata?.name || theme.title}
           </h2>
-          <p className="font-titillium text-[16px] font-normal leading-[24px] tracking-[-0.64px] text-white opacity-90">
+          <p className="font-rajdhani text-[16px] font-medium leading-[24px] tracking-[-0.64px] text-white opacity-90">
             {categoryMetadata?.description || theme.description}
           </p>
         </section>
@@ -98,7 +98,7 @@ export default function ClientCategoryDetailLayout({
             onClick={() => setIsBenefitsExpanded(!isBenefitsExpanded)}
             className="flex w-full items-center gap-[10px] px-[24px] py-[20px] text-left hover:bg-gray-50 transition-colors"
           >
-            <span className="flex-1 font-titillium text-[16px] font-semibold text-[#242424]">
+            <span className="flex-1 font-rajdhani text-[16px] font-semibold text-[#242424]">
               Benefits of {categoryMetadata?.name || theme.title}
             </span>
             <motion.div
@@ -120,7 +120,7 @@ export default function ClientCategoryDetailLayout({
                 className="overflow-hidden"
               >
                 <div className="px-[24px] pb-[20px]">
-                  <p className="font-titillium text-[14px] leading-[22px] text-[#4b5563] py-[16px]">
+                  <p className="font-rajdhani text-[14px] leading-[22px] text-[#4b5563] py-[16px]">
                     {categoryMetadata?.benefits || theme.description}
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export default function ClientCategoryDetailLayout({
 
         <div className="sticky top-[81px] z-20 bg-white border-b border-[#f1f5f9]">
           <div className="flex items-center px-[24px] py-[16px]">
-            <h3 className="flex-1 font-titillium text-[16px] font-semibold text-[#242424]">All Products</h3>
+            <h3 className="flex-1 font-rajdhani text-[16px] font-semibold text-[#242424]">All Products</h3>
           </div>
           <FilterBar
             onFilterChange={setActiveFilters}
@@ -163,8 +163,8 @@ export default function ClientCategoryDetailLayout({
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
               </svg>
             </div>
-            <p className="font-titillium text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
-            <p className="font-titillium text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
+            <p className="font-rajdhani text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
+            <p className="font-rajdhani text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
             <button
               onClick={() => window.history.back()}
               className="px-8 py-3 bg-[#242424] text-white rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"

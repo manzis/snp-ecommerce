@@ -29,7 +29,7 @@ const ServiceItem: React.FC<ServiceItemProps> = ({ title, icon, bgColor = "bg-wh
                 className="object-contain"
             />
         </div>
-        <span className={`font-titillium text-[15px] lg:text-[24px] font-[600] leading-[24px] lg:leading-[32px] whitespace-nowrap ${textColor}`}>
+        <span className={`font-rajdhani text-[15px] lg:text-[24px] font-[600] leading-[24px] lg:leading-[32px] whitespace-nowrap ${textColor}`}>
             {title}
         </span>
     </div>

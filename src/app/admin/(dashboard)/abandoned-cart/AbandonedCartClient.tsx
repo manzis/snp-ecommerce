@@ -105,7 +105,7 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
             <div className="bg-[#242424] p-10 rounded-[24px] text-white relative overflow-hidden mx-auto max-w-6xl">
               <div className="relative z-10">
                 <h3 className="text-xl font-semibold font-rubik mb-2 tracking-tight">Recovery Tip</h3>
-                <p className="text-gray-400 text-sm max-w-2xl font-normal leading-relaxed font-rubik tracking-tight">
+                <p className="text-gray-400 text-sm max-w-2xl font-medium leading-relaxed font-rubik tracking-tight">
                   Customers often abandon carts due to unexpected shipping costs or distraction.
                   Consider sending a gentle WhatsApp reminder or a small discount coupon to users listed above to boost your conversion rate.
                 </p>

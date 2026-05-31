@@ -59,12 +59,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           }`}
       >
         <div className="flex items-center gap-[12px]">
-          <h2 className="font-titillium text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
+          <h2 className="font-rajdhani text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
             Payments
           </h2>
           {isConfirmed && !isOpen && !disabled && (
             <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-titillium text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
+              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
                 Ready to Pay
               </span>
             </div>
@@ -92,7 +92,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* ONLINE PAYMENTS GROUP */}
               <div className="flex flex-col gap-[24px]">
-                <span className="font-titillium text-[18px] font-semibold leading-[24px] text-[#242424] tracking-[-0.07px]">
+                <span className="font-rajdhani text-[18px] font-semibold leading-[24px] text-[#242424] tracking-[-0.07px]">
                   Online Payments
                 </span>
                 <div className="flex flex-col gap-[12px]">
@@ -134,7 +134,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
               {/* OTHER PAYMENTS GROUP */}
               <div className="flex flex-col gap-[24px]">
-                <span className="font-titillium text-[18px] font-semibold leading-[24px] text-[#242424] tracking-[-0.72px]">
+                <span className="font-rajdhani text-[18px] font-semibold leading-[24px] text-[#242424] tracking-[-0.72px]">
                   Other Payments
                 </span>
                 <div className="flex flex-col gap-[12px]">

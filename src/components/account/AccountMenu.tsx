@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 const MenuLink = ({ icon: Icon, label, href }: { icon: any, label: string, href: string }) => (
     <Link href={href} className="flex w-full items-center justify-center gap-[8px] px-[16px] py-[14px] border-t border-[rgba(64,64,64,0.07)] first:border-none group">
         <Icon className="h-[22px] w-[22px] shrink-0 text-[#242424]" />
-        <span className="flex-1 font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.03px] text-[#242424]">
+        <span className="flex-1 font-rajdhani text-[16px] font-[600] leading-[24px] tracking-[-0.03px] text-[#242424]">
             {label}
         </span>
         <ChevronRight className="h-[16px] w-[16px] shrink-0 text-[#242424] transition-transform group-hover:translate-x-1" />
@@ -63,12 +63,12 @@ const AccountMenu: React.FC = () => {
                 {isLoggingOut ? (
                     <>
                         <div className="w-4 h-4 border-2 border-[#b02900] border-t-transparent rounded-full animate-spin"></div>
-                        <span className="font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
                             Logging out...
                         </span>
                     </>
                 ) : (
-                    <span className="font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
+                    <span className="font-rajdhani text-[16px] font-[600] leading-[24px] tracking-[-0.2px] text-[#b02900]">
                         Log Out
                     </span>
                 )}

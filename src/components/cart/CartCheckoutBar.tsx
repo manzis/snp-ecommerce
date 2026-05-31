@@ -45,7 +45,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
         setIsNavigating(true);
       }
       if (onCheckout) onCheckout();
-      
+
       if (pathname !== '/checkout') {
         router.push('/checkout');
       }
@@ -64,10 +64,10 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       <div className="flex flex-1 basis-0 h-full items-center bg-transparent px-[24px]">
         <div className="flex items-start gap-[10px]">
           <div className="flex flex-col">
-            <span className="font-titillium text-[13px] text-[#4d4d4d] leading-[19px] line-through">
+            <span className="font-rajdhani text-[13px] text-[#4d4d4d] leading-[19px] line-through">
               {mrpAmount}
             </span>
-            <div className="flex items-center font-custom text-[20px] text-[#242424] leading-[22px]">
+            <div className="flex items-center font-rajdhani font-bold text-[20px] text-[#242424] leading-[22px]">
               <span className="mr-1">Rs.</span>
               {totalAmount.replace(/NPR\s?|Rs\.?\s?/ig, '').split('').map((char, index) => (
                 <div key={index} className="relative overflow-hidden h-[22px] min-w-[11px] flex justify-center">
@@ -86,8 +86,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
               ))}
             </div>
           </div>
-          <button 
-            onClick={onInfoClick} 
+          <button
+            onClick={onInfoClick}
             className="mt-[4px] cursor-pointer hover:bg-gray-100 p-1 -m-1 rounded-full transition-colors outline-none"
           >
             <InfoIcon className="h-[18px] w-[18px] text-[#4d4d4d]" />
@@ -101,19 +101,19 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
           onClick={handleAction}
           disabled={isNavigating || buttonText === 'Processing...'}
           className={`w-full h-[56px] lg:h-[52px] flex items-center justify-center rounded-[10px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' || isNavigating
-            ? 'bg-[#3f9633] text-white' 
+            ? 'bg-[#3f9633] text-white'
             : 'bg-[#ffe900] active:bg-[#f5e000] text-[#1e1e1e]'
-          }`}
+            }`}
         >
           {isNavigating ? (
             <div className="flex items-center gap-2">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span className="font-custom text-[18px] uppercase tracking-[0.2px] text-white">
+              <span className="uppercase font-rajdhani font-bold text-[16px] tracking-[-0.015em] font-[500] leading-[16px] whitespace-nowrap text-white">
                 Preparing...
               </span>
             </div>
           ) : (
-            <span className={`font-custom text-[18px] uppercase tracking-[0.2px] ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
+            <span className={`uppercase font-rajdhani font-bold text-[16px] tracking-[-0.015em] font-[500] leading-[16px] whitespace-nowrap ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
               {buttonText}
             </span>
           )}

@@ -56,8 +56,8 @@ export default async function PayOrderPage({ params }: { params: Promise<{ order
      return (
         <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4">
            <div className="bg-white rounded-[24px] p-8 text-center max-w-sm shadow-sm w-full">
-               <h2 className="font-custom text-2xl text-[#d92d20] mb-2">Order Not Found</h2>
-               <p className="font-titillium text-[#626262]">The link you clicked might be broken or expired.</p>
+ <h2 className="font-rajdhani font-bold text-2xl text-[#d92d20] mb-2">Order Not Found</h2>
+               <p className="font-rajdhani text-[#626262]">The link you clicked might be broken or expired.</p>
            </div>
         </div>
      );

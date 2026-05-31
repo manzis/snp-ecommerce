@@ -58,12 +58,12 @@ const ServiceHighlights: React.FC = () => {
               </div>
 
               {/* 
-                TEXT: 16px Titillium
+                TEXT: 16px Rajdhani
                 - h-[40px] and leading-[20px] match Figma 2-line auto-layout
                 - w-full ensures text centers within the 1/3rd grid
             */}
               <span
-                className="w-full h-[40px] font-titillium text-[16px] font-normal leading-[20px] text-[#242424] text-center whitespace-pre-line overflow-hidden"
+                className="w-full h-[40px] font-rajdhani text-[16px] font-medium leading-[20px] text-[#242424] text-center whitespace-pre-line overflow-hidden"
               >
                 {item.title}
               </span>
@@ -73,7 +73,7 @@ const ServiceHighlights: React.FC = () => {
 
         {/* FRAME 168: Policy Bar */}
         <div className="flex items-center justify-center w-full h-[30px] bg-[#3F9733] rounded-[2px] self-stretch">
-          <p className="font-titillium text-[12px] font-normal leading-[14px] text-white text-center">
+          <p className="font-rajdhani text-[12px] font-medium leading-[14px] text-white text-center">
             Easy Returns , Check Our{' '}
             <Link href="/info#return-policy" className="underline hover:opacity-80 transition-opacity">
               Return Policy

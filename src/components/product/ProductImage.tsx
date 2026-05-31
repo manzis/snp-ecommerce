@@ -162,10 +162,10 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         {stockStatus === 'out_of_stock' && (
           <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none px-[2px]">
             <div className="w-full bg-white/95 backdrop-blur-[4px] py-8 lg:py-12 flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-y border-[#F0F0F0]/80">
-              <h2 className="font-custom text-[24px] lg:text-[36px] font-bold tracking-[-0.02em] uppercase leading-none bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
+ <h2 className="font-rajdhani font-bold text-[24px] lg:text-[36px] font-bold tracking-[-0.02em] uppercase leading-none bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
                 Out of Stock
               </h2>
-              <p className="font-titillium text-[12px] lg:text-[14px] font-medium text-[#797979] mt-3 tracking-wide">
+              <p className="font-rajdhani text-[12px] lg:text-[14px] font-medium text-[#797979] mt-3 tracking-wide">
                 This product is no longer available!
               </p>
             </div>
@@ -176,9 +176,9 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         <div className="absolute left-[0px] bottom-[0px] z-20 flex h-[31px] items-center gap-[10px] bg-[#ffe900] px-[8px] py-[6px] shadow-sm">
           <div className="flex gap-[2px] items-center shrink-0">
             <StarIcon className="w-[13px] h-[13px] text-[#242424]" />
-            <span className="font-titillium text-[14px] font-[600] text-[#242424] ml-1">{rating}</span>
+            <span className="font-rajdhani text-[14px] font-[600] text-[#242424] ml-1">{rating}</span>
             <div className="w-[1px] h-[10px] bg-black mx-2 opacity-20" />
-            <span className="font-titillium text-[14px] font-[600] text-[#797979]">{reviewsCount}</span>
+            <span className="font-rajdhani text-[14px] font-[600] text-[#797979]">{reviewsCount}</span>
           </div>
         </div>
 

@@ -156,7 +156,7 @@ export default function PaymentPageView({ order }: { order: any }) {
    // Success / Pending Review / Failed State
    if (isProcessed) {
       return (
-         <main className={`fixed inset-0 flex flex-col w-full h-full justify-between items-center ${isFailed ? 'bg-[#d92d20]' : 'bg-[#3f9633]'} font-titillium overflow-hidden z-[9999]`}>
+         <main className={`fixed inset-0 flex flex-col w-full h-full justify-between items-center ${isFailed ? 'bg-[#d92d20]' : 'bg-[#3f9633]'} font-rajdhani overflow-hidden z-[9999]`}>
             {/* Background text effect */}
             <motion.div
                initial={{ opacity: 0 }}
@@ -267,11 +267,11 @@ export default function PaymentPageView({ order }: { order: any }) {
    }
 
    return (
-      <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center py-4 px-2 font-titillium">
+      <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center py-4 px-2 font-rajdhani">
          <div className="w-full max-w-[450px] rounded-[24px] overflow-hidden flex flex-col relative bg-transparent">
             {/* Custom header */}
             <div className="flex flex-col items-center bg-[#3f9633] text-white pt-8 pb-[80px] gap-2 rounded-[24px]">
-               <h1 className="text-[28px] font-bold font-custom tracking-wide">Complete Payment</h1>
+ <h1 className="text-[28px] font-bold font-rajdhani font-bold tracking-wide">Complete Payment</h1>
                <div className="flex gap-4">
                   <p className="text-white/90 text-sm font-semibold tracking-wide">Order #{order.shortId}</p>
                   <p className="text-white/90 text-sm font-semibold tracking-wide">

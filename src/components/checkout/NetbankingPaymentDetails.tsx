@@ -22,10 +22,10 @@ const NetbankingPaymentDetails: React.FC = () => {
                 <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-2">
                     <Building2 className="w-5 h-5 text-[#94a3b8]" />
                 </div>
-                <p className="font-titillium text-[13px] font-semibold text-[#64748b]">
+                <p className="font-rajdhani text-[13px] font-semibold text-[#64748b]">
                     Network Maintenance
                 </p>
-                <p className="font-titillium text-[11px] text-[#94a3b8] mt-1">
+                <p className="font-rajdhani text-[11px] text-[#94a3b8] mt-1">
                     Direct bank integrations are currently being optimized.
                 </p>
             </div>
@@ -38,7 +38,7 @@ const NetbankingPaymentDetails: React.FC = () => {
                         placeholder="Search for your bank..."
                         value={search}
                         readOnly
-                        className="w-full h-[48px] bg-white rounded-lg border border-[#e2e8f0] pl-10 pr-4 font-titillium text-sm"
+                        className="w-full h-[48px] bg-white rounded-lg border border-[#e2e8f0] pl-10 pr-4 font-rajdhani text-sm"
                     />
                 </div>
 

@@ -43,7 +43,7 @@ const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
         <div>
             <p className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1">{title}</p>
             <h3 className="text-2xl font-semibold text-[#242424] tracking-tighter">{value}</h3>
-            <p className="text-[10px] text-[#a1a1aa] font-normal mt-1 uppercase tracking-wider">{subValue}</p>
+            <p className="text-[10px] text-[#a1a1aa] font-medium mt-1 uppercase tracking-wider">{subValue}</p>
         </div>
     </motion.div>
 );
@@ -85,7 +85,7 @@ const DashboardCustomerCard = ({
             <div className="flex flex-col w-full h-full relative">
                 <header className={`flex px-[14px] py-[12px] justify-between items-center self-stretch shrink-0 ${colors.bg} relative z-[20] rounded-t-[12px] transition-colors duration-300`}>
                     <div className="flex gap-[8px] items-center shrink-0 relative z-[2]">
-                        <span className={`shrink-0 text-[13px] font-[400] opacity-70 text-[#71717a] uppercase tracking-wider`}>Tier:</span>
+                        <span className={`shrink-0 text-[13px] font-[500] opacity-70 text-[#71717a] uppercase tracking-wider`}>Tier:</span>
                         <span className={`text-[13px] font-semibold uppercase  ${colors.text}`}>
                             {customer.behavior.monthlyConsistency ? 'Constant' : customer.status}
                         </span>
@@ -100,7 +100,7 @@ const DashboardCustomerCard = ({
                 <div className="flex p-[14px] flex-col gap-[16px] items-start self-stretch grow relative z-[1]">
                     <div className="flex items-center justify-between self-stretch shrink-0 relative z-[10]">
                         <div className="flex items-center gap-[6px]">
-                            <h3 className="shrink-0 text-[12px] font-[400] leading-[14px] text-[#71717a] uppercase tracking-wider whitespace-nowrap">
+                            <h3 className="shrink-0 text-[12px] font-[500] leading-[14px] text-[#71717a] uppercase tracking-wider whitespace-nowrap">
                                 Joined On {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </h3>
                             {isNew && (
@@ -134,10 +134,10 @@ const DashboardCustomerCard = ({
                             <h4 className="text-[15px] font-semibold text-[#242424] truncate w-full group-hover:text-blue-600 transition-colors">
                                 {customer.name}
                             </h4>
-                            <span className="text-[11px] text-[#71717a] truncate w-full font-normal tracking-tight">
+                            <span className="text-[11px] text-[#71717a] truncate w-full font-medium tracking-tight">
                                 {customer.email}
                             </span>
-                            <span className="text-[11px] text-[#71717a] truncate w-full font-normal tracking-tight">
+                            <span className="text-[11px] text-[#71717a] truncate w-full font-medium tracking-tight">
                                 {customer.phone}
                             </span>
                         </div>
@@ -349,13 +349,13 @@ export default function CustomersClient() {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[14px] font-semibold text-[#242424] tracking-tight">{c.name}</span>
-                                        <span className="text-[11px] text-[#a1a1aa] font-normal">ID: {c.id.slice(0, 8)}</span>
+                                        <span className="text-[11px] text-[#a1a1aa] font-medium">ID: {c.id.slice(0, 8)}</span>
                                     </div>
                                 </div>
                             </td>
                             <td className="py-5 px-6">
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[13px] font-normal text-[#71717a]">{c.email}</span>
+                                    <span className="text-[13px] font-medium text-[#71717a]">{c.email}</span>
                                     <span className="text-[11px] text-[#a1a1aa]">{c.phone}</span>
                                 </div>
                             </td>
@@ -399,7 +399,7 @@ export default function CustomersClient() {
         if (totalPages <= 1) return null;
         return (
             <div className="flex items-center justify-between px-2 py-6 border-t border-gray-50 mt-4 font-rubik">
-                <p className="text-[12px] font-normal text-[#a1a1aa]">
+                <p className="text-[12px] font-medium text-[#a1a1aa]">
                     Showing <span className="text-[#242424] font-semibold">{(currentPage - 1) * PAGE_SIZE + 1}</span> to <span className="text-[#242424] font-semibold">{Math.min(currentPage * PAGE_SIZE, others.length)}</span> of <span className="text-[#242424] font-semibold">{others.length}</span> customers
                 </p>
                 <div className="flex items-center gap-2">

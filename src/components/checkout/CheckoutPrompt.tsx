@@ -6,7 +6,7 @@ import RedirectIcon from '@/components/icons/SmileyFaceIcon';
  * 
  * DESIGN SPECIFICATIONS:
  * - Brand Colors: #308026 (Green), #164210 (Dark Green), #94ff00 (Lime), #ffe900 (Yellow)
- * - Typography: font-custom (DK Jalebi), font-titillium (Titillium Web)
+ * - Typography: font-rajdhani font-bold (DK Jalebi), font-rajdhani (Rajdhani)
  * - Proportions: Pixel-perfect 410px context for mobile, scalable for desktop max-w-[1280px].
  */
 const CheckoutPrompt: React.FC = () => {
@@ -16,13 +16,13 @@ const CheckoutPrompt: React.FC = () => {
 
                 {/* TEXT CONTENT */}
                 <div className="flex flex-col gap-[16px] items-center lg:items-start">
-                    <p className="w-full text-center font-titillium text-[16px] leading-[24px] text-white lg:text-left">
-                        <span className="font-[400]">You are heading towards the </span>
+                    <p className="w-full text-center font-rajdhani text-[16px] leading-[24px] text-white lg:text-left">
+                        <span className="font-[500]">You are heading towards the </span>
                         <span className="font-[600]">Best Decision!</span>
                     </p>
 
                     <div className="flex flex-col items-center justify-center gap-[14px] lg:items-start">
-                        <h2 className="w-full text-center font-custom text-[24px] font-[400] leading-[32px] tracking-[-0.24px] text-white lg:text-left lg:text-[32px] lg:leading-[40px]">
+ <h2 className="w-full text-center font-rajdhani font-bold text-[24px] font-[500] leading-[32px] tracking-[-0.24px] text-white lg:text-left lg:text-[32px] lg:leading-[40px]">
                             We are excited for <br className="lg:hidden" />
                             <span className="text-[#94ff00]"> your order</span>
                         </h2>
@@ -31,7 +31,7 @@ const CheckoutPrompt: React.FC = () => {
 
                 {/* CTA BUTTON */}
                 <button className="flex h-[34px] w-[162px] items-center justify-center gap-[2px] rounded-[10px_0_10px_10px] bg-[#ffe900] px-[8px] py-[3px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] transition-transform active:scale-95 lg:h-[48px] lg:w-[200px]">
-                    <span className="font-titillium text-[16px] font-[400] leading-[24px] tracking-[-0.64px] text-[#242424] lg:text-[18px]">
+                    <span className="font-rajdhani text-[16px] font-[500] leading-[24px] tracking-[-0.64px] text-[#242424] lg:text-[18px]">
                         Complete your order
                     </span>
                     <div className="h-[18px] w-[18px] shrink-0 lg:h-[20px] lg:w-[20px]">
@@ -42,7 +42,7 @@ const CheckoutPrompt: React.FC = () => {
 
 
             </div>
-            <p className="w-[full] text-center px-[24px] font-titillium  text-[12px]  leading-[24px] text-white lg:text-left mt-[12px]" >
+            <p className="w-[full] text-center px-[24px] font-rajdhani  text-[12px]  leading-[24px] text-white lg:text-left mt-[12px]" >
                 <span className="font-regular italic">We never ask OTP through phone calls or messages. Such activities are supposed to be fraudulent. </span></p>
         </section>
     );

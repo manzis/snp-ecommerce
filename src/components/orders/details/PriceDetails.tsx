@@ -28,15 +28,15 @@ export default function PriceDetails({
 
     return (
         <section id="price-details-section" className="flex w-full flex-col items-start gap-[16px] bg-[#ffffff] p-[24px]">
-            <h2 className="font-titillium text-[18px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
+            <h2 className="font-rajdhani text-[18px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
                 Price Details
             </h2>
             <div className="flex w-full flex-col items-start rounded-[16px] border border-[#f1f5f9] bg-[#ffffff] p-[6px]">
                 <div className="flex w-full flex-col items-start">
                     {/* MRP */}
                     <div className="flex w-full items-center justify-between border-b border-[#f1f5f9] p-[18px_13px]">
-                        <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424]">MRP</span>
-                        <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424] text-right">Rs. {mrp}</span>
+                        <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424]">MRP</span>
+                        <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424] text-right">Rs. {mrp}</span>
                     </div>
 
                     {/* Discounts (Expandable) */}
@@ -46,7 +46,7 @@ export default function PriceDetails({
                             className="flex w-full items-center justify-between p-[18px_13px] transition-colors"
                         >
                             <div className="flex items-center gap-[6px]">
-                                <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424]">Discounts</span>
+                                <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424]">Discounts</span>
                                 <motion.div
                                     animate={{ rotate: isDiscountsExpanded ? 180 : 0 }}
                                     transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -54,7 +54,7 @@ export default function PriceDetails({
                                     <CaretDownIcon className="w-4 h-4 text-[#8a8e91]" />
                                 </motion.div>
                             </div>
-                            <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#308026] text-right">- Rs. {discount}</span>
+                            <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#308026] text-right">- Rs. {discount}</span>
                         </button>
 
                         <AnimatePresence initial={false}>
@@ -68,22 +68,22 @@ export default function PriceDetails({
                                 >
                                     <div className="flex flex-col gap-[12px] px-[24px] pb-[12px] pt-[12px]">
                                         <div className="flex items-center justify-between">
-                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Discount on MRP</span>
-                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">- Rs. {discountOnMrp || discount}</span>
+                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Discount on MRP</span>
+                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">- Rs. {discountOnMrp || discount}</span>
                                         </div>
                                         {bundleDiscount > 0 && (
                                             <div className="flex items-center justify-between">
-                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Bundle Savings</span>
-                                                <span className="font-titillium text-[14px] font-[400] text-[#308026] text-right">- Rs. {bundleDiscount}</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Bundle Savings</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#308026] text-right">- Rs. {bundleDiscount}</span>
                                             </div>
                                         )}
                                         {couponDiscount > 0 && (
                                             <div className="flex items-center justify-between">
                                                 <div className="flex flex-col items-start">
-                                                    <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Coupon Savings</span>
+                                                    <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Coupon Savings</span>
                                                     {couponCode && <span className="text-[10px] text-[#308026] font-bold">Code: {couponCode}</span>}
                                                 </div>
-                                                <span className="font-titillium text-[14px] font-[400] text-[#308026]">- Rs. {couponDiscount}</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#308026]">- Rs. {couponDiscount}</span>
                                             </div>
                                         )}
                                     </div>
@@ -99,7 +99,7 @@ export default function PriceDetails({
                             className="flex w-full items-center justify-between p-[18px_13px] transition-colors"
                         >
                             <div className="flex items-center gap-[6px]">
-                                <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424]">Fees & Taxes</span>
+                                <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424]">Fees & Taxes</span>
                                 <motion.div
                                     animate={{ rotate: isFeesExpanded ? 180 : 0 }}
                                     transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -107,7 +107,7 @@ export default function PriceDetails({
                                     <CaretDownIcon className="w-4 h-4 text-[#8a8e91]" />
                                 </motion.div>
                             </div>
-                            <span className="font-titillium text-[16px] font-[400] leading-[18px] text-[#242424] text-right">+ Rs. {shipping + codFees + taxAmount}</span>
+                            <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424] text-right">+ Rs. {shipping + codFees + taxAmount}</span>
                         </button>
 
                         <AnimatePresence initial={false}>
@@ -121,19 +121,19 @@ export default function PriceDetails({
                                 >
                                     <div className="flex flex-col gap-[12px] px-[24px] pb-[12px] pt-[12px]">
                                         <div className="flex items-center justify-between">
-                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Shipping Fees</span>
-                                            <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Rs. {shipping}</span>
+                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Shipping Fees</span>
+                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Rs. {shipping}</span>
                                         </div>
                                         {codFees > 0 && (
                                             <div className="flex items-center justify-between">
-                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Cash on Delivery Fee</span>
-                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Rs. {codFees}</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Cash on Delivery Fee</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Rs. {codFees}</span>
                                             </div>
                                         )}
                                         {taxAmount > 0 && (
                                             <div className="flex items-center justify-between">
-                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b]">Tax Amount</span>
-                                                <span className="font-titillium text-[14px] font-[400] text-[#64748b] text-right">Inc. in price</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Tax Amount</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b] text-right">Inc. in price</span>
                                             </div>
                                         )}
                                     </div>
@@ -144,8 +144,8 @@ export default function PriceDetails({
 
                     {/* Total Amount */}
                     <div className="flex w-full items-center justify-between p-[18px_13px] h-[54px]">
-                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424]">Total Amount</span>
-                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424]">Rs. {total}</span>
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[18px] text-[#242424]">Total Amount</span>
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[18px] text-[#242424]">Rs. {total}</span>
                     </div>
                 </div>
 
@@ -153,7 +153,7 @@ export default function PriceDetails({
                 <div className="flex w-full flex-col items-start pt-[4px] gap-[10px]">
                     <div className="flex w-full items-center justify-between rounded-[12px] bg-[#eaffcc] p-[18px_16px]">
                         <div className="flex items-center gap-[8px]">
-                            <span className="font-titillium text-[16px] font-[600] leading-[18px] tracking-[-0.64px] text-[#242424]">
+                            <span className="font-rajdhani text-[16px] font-[600] leading-[18px] tracking-[-0.64px] text-[#242424]">
                                 Paid By
                             </span>
                             {/* Payment Status Tag */}
@@ -169,7 +169,7 @@ export default function PriceDetails({
                                 </span>
                             </div>
                         </div>
-                        <span className="font-titillium text-[16px] font-[600] leading-[18px] text-[#242424] capitalize">
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[18px] text-[#242424] capitalize">
                             {method?.replace(/_/g, ' ')}
                         </span>
                     </div>

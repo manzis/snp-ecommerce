@@ -55,12 +55,12 @@ const AdminProductCard: React.FC<AdminProductCardProps> = ({ product, isSelected
       <div className="flex flex-col gap-[4px] px-[12px] py-[12px] pb-[16px]">
         <div className="flex flex-col gap-[2px]">
           {/* Brand Name */}
-          <span className="font-rubik text-[10px] lg:text-[12px] font-normal leading-[14px] text-[#bebebe] uppercase">
+          <span className="font-rubik text-[10px] lg:text-[12px] font-medium leading-[14px] text-[#bebebe] uppercase">
             {product.brands?.name || ''}
           </span>
           
           {/* Product Title */}
-          <h3 className="font-rubik text-[14px] lg:text-[16px] font-normal leading-[18px] tracking-[0.2px] text-[#242424] h-[36px] overflow-hidden line-clamp-2">
+          <h3 className="font-rubik text-[14px] lg:text-[16px] font-medium leading-[18px] tracking-[0.2px] text-[#242424] h-[36px] overflow-hidden line-clamp-2">
             {product.title}
           </h3>
         </div>

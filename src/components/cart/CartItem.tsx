@@ -90,12 +90,12 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="flex flex-1 flex-col gap-[8px] pl-[16px] min-w-0">
           <div className="flex items-start justify-between gap-1 w-full relative">
             <div className="flex flex-col gap-[2px] min-w-0 flex-1">
-              <span className="font-titillium text-[12px] text-[#242424] leading-[18px]">
+              <span className="font-rajdhani text-[12px] text-[#242424] leading-[18px]">
                 {item.brand || 'Store Product'}
               </span>
               {/* Product Name - Single line with ellipsis */}
               <Link href={item.slug ? `/product/${item.slug}` : '#'} className="hover:underline cursor-pointer">
-                <h3 className="font-custom text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
+ <h3 className="font-rajdhani font-bold text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
                   {item.name}
                 </h3>
               </Link>
@@ -107,24 +107,24 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             {item.mrp > (item.price - (item.bundle_discount || 0)) && (
               <div className="flex items-center text-[#308026] mr-[4px]">
                 <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
-                <span className="font-titillium text-[18px] font-semibold tracking-[-1.26px]">
+                <span className="font-rajdhani text-[18px] font-semibold tracking-[-1.26px]">
                   {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0))) / item.mrp) * 100)}%
                 </span>
               </div>
             )}
             {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0)) && (
-              <span className="font-titillium text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
+              <span className="font-rajdhani text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
                 Rs. {item.mrp.toLocaleString()}
               </span>
             )}
-            <span className="font-custom text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
+ <span className="font-rajdhani font-bold text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
               Rs. {Math.round(item.price - (item.bundle_discount || 0)).toLocaleString()}
             </span>
           </div>
 
 
 
-          <div className="flex flex-row gap-[13px] items-center text-[#8a8e91] font-titillium text-[14px] whitespace-nowrap">
+          <div className="flex flex-row gap-[13px] items-center text-[#8a8e91] font-rajdhani text-[14px] whitespace-nowrap">
             {Boolean(item.selected_size || item.selected_flavor) && (
               <span>{[item.selected_size, item.selected_flavor].filter(Boolean).join(', ')}</span>
             )}
@@ -132,7 +132,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
           {/* Quantity Selector */}
           <div className="relative flex w-[79px] items-center justify-center gap-[10px] rounded-[6px] border border-[#f1f5f9]  py-[8px] active:scale-95 transition-all hover:border-[#3F9733]">
-            <span className="font-titillium text-[14px] font-semibold text-[#242424]">Qty: {item.quantity}</span>
+            <span className="font-rajdhani text-[14px] font-semibold text-[#242424]">Qty: {item.quantity}</span>
             <QtyDropDownIcon className="h-[18px] w-[18px] text-[#242424]" />
             <select
               value={item.quantity}
@@ -148,7 +148,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       {/* Delivery Info */}
       <div className="flex items-center gap-[6px] px-[24px] py-[12px]">
         <PackageIcon className="h-[16px] w-[16px] text-[#242424]" />
-        <span className="font-titillium text-[14px] text-[#242424]">
+        <span className="font-rajdhani text-[14px] text-[#242424]">
           {getDeliveryString(item.stock_status)}
         </span>
       </div>
@@ -173,7 +173,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               ${idx !== 2 ? 'border-r border-[#f1f5f9]' : ''}`}
           >
             <action.icon className="h-[18px] w-[18px] text-[#6a6b6e]" />
-            <span className="font-titillium text-[16px] font-semibold text-[#6a6b6e]">
+            <span className="font-rajdhani text-[16px] font-semibold text-[#6a6b6e]">
               {action.label}
             </span>
           </button>

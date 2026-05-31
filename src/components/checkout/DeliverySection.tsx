@@ -134,12 +134,12 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
           }`}
       >
         <div className="flex items-center gap-[12px]">
-          <h1 className="font-titillium text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
+          <h1 className="font-rajdhani text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
             Delivery Details
           </h1>
           {isConfirmed && !isOpen && !disabled && selectedAddressId && deliveryOption && (
             <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-titillium text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px]">
+              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px]">
                 Details Added
               </span>
             </div>
@@ -207,7 +207,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
               <button
                 onClick={handleConfirm}
                 disabled={addresses.length === 0}
-                className={`w-full py-[14px] rounded-[12px] font-titillium text-[16px] font-semibold transition-all active:scale-[0.98] ${addresses.length === 0
+                className={`w-full py-[14px] rounded-[12px] font-rajdhani text-[16px] font-semibold transition-all active:scale-[0.98] ${addresses.length === 0
                   ? 'bg-[#ffe900] text-[#242424] opacity-50 cursor-not-allowed'
                   : 'bg-[#ffe900] active:bg-[#f5e000] text-[#242424]'
                   }`}

@@ -37,7 +37,7 @@ export default function OrderActions({ isCancellable, orderId, onCancelSuccess }
                 <div className="flex h-[16px] w-[16px] shrink-0 items-center justify-center">
                     <HelpIcon className="h-full w-full text-[#242424]" />
                 </div>
-                <span className="font-titillium text-[14px] font-[600] leading-[26px] tracking-[-0.03px] text-[#242424]">
+                <span className="font-rajdhani text-[14px] font-[600] leading-[26px] tracking-[-0.03px] text-[#242424]">
                     Help with order
                 </span>
             </button>
@@ -50,7 +50,7 @@ export default function OrderActions({ isCancellable, orderId, onCancelSuccess }
                     : 'border-[#eaebf0] opacity-60 cursor-not-allowed bg-[#f7faf6]'
               }`}
             >
-                <span className={`font-titillium text-[14px] font-[600] leading-[26px] tracking-[-0.03px] ${isCancellable ? 'text-[#b64040]' : 'text-[#8a8e91]'}`}>
+                <span className={`font-rajdhani text-[14px] font-[600] leading-[26px] tracking-[-0.03px] ${isCancellable ? 'text-[#b64040]' : 'text-[#8a8e91]'}`}>
                     Cancel Order
                 </span>
             </button>

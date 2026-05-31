@@ -38,7 +38,7 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
       >
-        <h2 className="font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
+        <h2 className="font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
           Questions & Answers
         </h2>
         <button
@@ -63,29 +63,29 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
               >
                 {/* QUESTION BOX (Top) */}
                 <div className="flex w-full flex-col gap-[10px] items-start rounded-[12px_0_12px_12px] bg-[#3f9633] p-[12px] shrink-0">
-                  <div className="flex items-start gap-[4px] font-titillium text-[16px] leading-[16px] tracking-[-0.32px] text-white">
+                  <div className="flex items-start gap-[4px] font-rajdhani text-[16px] leading-[16px] tracking-[-0.32px] text-white">
                     <span className="font-semibold">Qn.</span>
-                    <span className="font-normal leading-[19.2px] line-clamp-1">{item.question}</span>
+                    <span className="font-medium leading-[19.2px] line-clamp-1">{item.question}</span>
                   </div>
                 </div>
 
                 {/* ANSWER BOX (Bottom - Fill Space) */}
                 <div className="flex flex-1 w-full flex-col justify-between items-start p-[8px_12px_10px_12px]">
                   {/* Answer Text */}
-                  <div className="font-titillium text-[16px] leading-[22px] tracking-[-0.32px] text-[#242424] line-clamp-3">
+                  <div className="font-rajdhani text-[16px] leading-[22px] tracking-[-0.32px] text-[#242424] line-clamp-3">
                     <span className="font-semibold">Ans. </span>
-                    <span className="font-normal">{item.answer}</span>
+                    <span className="font-medium">{item.answer}</span>
                   </div>
 
                   {/* META INFO (Always at Bottom) */}
                   <div className="flex w-full items-center justify-between pt-2">
-                    <div className="font-titillium text-[11px] leading-[14px] tracking-[-0.22px]">
+                    <div className="font-rajdhani text-[11px] leading-[14px] tracking-[-0.22px]">
                       <span className="text-[#656565]">Answered by : </span>
                       <span className="text-[#242424] font-medium">{item.author}</span>
                     </div>
                     <div className="flex items-center gap-[4px]">
                       <CalendarIcon className="w-[10px] h-[10px] text-[#575757]" />
-                      <span className="font-titillium text-[11px] leading-[10px] tracking-[-0.22px] text-[#575757]">
+                      <span className="font-rajdhani text-[11px] leading-[10px] tracking-[-0.22px] text-[#575757]">
                         {new Date(item.created_at).toISOString().split('T')[0]}
                       </span>
                     </div>

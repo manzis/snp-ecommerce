@@ -55,7 +55,7 @@ export default function BannerCard({
                 <h3 className="h-[20px] self-stretch shrink-0 text-[14px] font-[550] leading-[20px] text-[#242424] whitespace-nowrap overflow-hidden text-ellipsis">
                     {banner.product?.title || 'No Product Linked'}
                 </h3>
-                <p className="self-stretch shrink-0 text-[11px] font-[400] text-[#71717a] font-mono line-clamp-1">
+                <p className="self-stretch shrink-0 text-[11px] font-[500] text-[#71717a] font-mono line-clamp-1">
                     {banner.image_url.split('/').pop()}
                 </p>
             </div>

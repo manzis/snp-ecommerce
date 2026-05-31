@@ -31,17 +31,17 @@ const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
         <section className="mx-auto w-full max-w-[1440px] px-[24px] py-[32px] lg:px-[60px] lg:py-[60px] md:py-[48px] overflow-hidden">
             <div className="mb-[24px] flex items-center justify-between lg:mb-[40px]">
                 <div className="flex flex-col gap-[4px] lg:gap-[8px]">
-                    <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.8px] text-[#242424] md:text-[32px]">
+                    <h2 className="font-rajdhani text-[20px] font-bold text-[#242424] md:text-[32px]">
                         Shop by <span className="text-[#308026]">Brands</span>
                     </h2>
-                    <p className="font-titillium text-[14px] font-[400] text-[#575757] lg:text-[18px]">
+                    <p className="font-rajdhani text-[14px] font-[500] text-[#515151] lg:text-[18px]">
                         Top premium supplement brands all in one place
                     </p>
                 </div>
 
                 <Link
                     href="/brand"
-                    className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
+                    className="font-rajdhani text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
                 >
                     View All
                 </Link>
@@ -74,7 +74,7 @@ const Brands: React.FC<BrandsProps> = ({ brands = [] }) => {
                                         className="object-cover p-0 transition-all duration-300 group-hover:scale-110"
                                     />
                                 </div>
-                                <div className="flex items-center gap-[4px] font-titillium text-[12px] font-semibold text-[#242424] transition-colors duration-300 group-hover:text-[#308026] md:text-[15px] lg:text-[18px]">
+                                <div className="flex items-center gap-[4px] font-rajdhani text-[12px] font-semibold text-[#242424] transition-colors duration-300 group-hover:text-[#308026] md:text-[15px] lg:text-[18px]">
                                     <span>{brand.name}</span>
                                     <RedirectIcon className="h-[12px] w-[12px] text-[#308026] transition-all duration-300 opacity-100 lg:opacity-0 lg:group-hover:translate-x-1 lg:group-hover:opacity-100 md:h-[14px] md:w-[14px]" />
                                 </div>

@@ -39,13 +39,13 @@ const HomeFaqSection: React.FC = () => {
             {/* HEADER */}
             <div className="flex w-full flex-col items-center gap-[12px] text-center">
                 <div className="inline-flex items-center justify-center rounded-[100px] bg-[#f2f9f1] px-[12px] py-[4px] border border-[#e2efe0]">
-                    <span className="font-titillium text-[14px] font-[600] leading-[20px] text-[#308026] uppercase tracking-wider">FAQ</span>
+                    <span className="font-rajdhani text-[14px] font-[600] leading-[20px] text-[#308026] uppercase tracking-wider">FAQ</span>
                 </div>
-                <h2 className="font-titillium text-[32px] font-[600] leading-[36px] tracking-[-0.64px] text-[#242424] lg:text-[44px] lg:leading-[50px]">
+                <h2 className="font-rajdhani text-[32px] font-bold leading-[36px] text-[#242424] lg:text-[44px] lg:leading-[50px]">
                     Have Questions? <br />
                     <span className="text-[#308026]">We have answers.</span>
                 </h2>
-                <p className="max-w-[500px] font-titillium text-[16px] font-[300] leading-[22px] text-[#535353] lg:text-[18px]">
+                <p className="max-w-[500px] font-rajdhani text-[16px] font-[500] leading-[22px] text-[#515151] lg:text-[18px]">
                     Everything you need to know about our products, delivery, and authenticity.
                 </p>
             </div>
@@ -75,7 +75,7 @@ const FaqRow = ({ faq, isOpen, onClick }: { faq: FaqItem; isOpen: boolean; onCli
                 onClick={onClick}
                 className="flex w-full items-center justify-between px-[20px] py-[20px] text-left lg:px-[24px]"
             >
-                <span className={`font-titillium text-[16px] font-[600] leading-[22px] transition-colors lg:text-[18px] ${isOpen ? 'text-[#308026]' : 'text-[#242424]'
+                <span className={`font-rajdhani text-[16px] font-[600] leading-[22px] transition-colors lg:text-[18px] ${isOpen ? 'text-[#308026]' : 'text-[#242424]'
                     }`}>
                     {faq.question}
                 </span>
@@ -89,7 +89,7 @@ const FaqRow = ({ faq, isOpen, onClick }: { faq: FaqItem; isOpen: boolean; onCli
             <div className={`faq-answer ${isOpen ? 'faq-open' : ''}`}>
                 <div className="faq-answer-inner">
                     <div className="px-[20px] pb-[20px] pt-0 lg:px-[24px] lg:pb-[24px]">
-                        <p className="font-titillium text-[15px] font-[400] leading-[24px] text-[#535353] lg:text-[16px]">
+                        <p className="font-rajdhani text-[15px] font-[500] leading-[24px] text-[#515151] lg:text-[16px]">
                             {faq.answer}
                         </p>
                     </div>

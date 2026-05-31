@@ -19,27 +19,27 @@ export default function InfoPage() {
          <div className="max-w-[1200px] mx-auto flex flex-col justify-between items-start gap-[24px]">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-[24px] w-full">
               <div className="flex flex-col">
-                <span className="font-titillium text-[14px] font-semibold text-[#308026] tracking-widest uppercase mb-[8px]">
+                <span className="font-rajdhani text-[14px] font-semibold text-[#308026] tracking-widest uppercase mb-[8px]">
                   Help Center & Policies
                 </span>
-                <h1 className="font-titillium font-bold text-[40px] md:text-[56px] text-[#242424] tracking-[-1px] leading-[1.1]">
+ <h1 className="font-rajdhani font-bold text-[40px] md:text-[56px] text-[#242424] tracking-[-1px] leading-[1.1]">
                   Everything you <br className="hidden md:block" />
                   <span className="text-[#308026]">need to know.</span>
                 </h1>
               </div>
-              <p className="font-titillium text-[16px] md:text-[18px] text-[#535353] max-w-[400px] font-light leading-[26px]">
+              <p className="font-rajdhani text-[16px] md:text-[18px] text-[#535353] max-w-[400px] font-medium leading-[26px]">
                  Discover our policies, shipping details, and what makes Supplyment Nepal your most trusted fitness partner.
               </p>
             </div>
 
             {/* Mobile Quick Links with Underlines */}
             <div className="flex flex-wrap gap-x-[16px] gap-y-[12px] mt-[8px] md:hidden w-full border-t border-[#f1f5f9] pt-[16px]">
-              <a href="#about-us" className="font-titillium text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">About Us</a>
-              <a href="#shipping-policy" className="font-titillium text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Shipping & Delivery</a>
-              <a href="#return-policy" className="font-titillium text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Return Policy</a>
-              <a href="#refund-policy" className="font-titillium text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Refund Policy</a>
-              <a href="#terms-and-conditions" className="font-titillium text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Terms & Conditions</a>
-              <a href="#privacy-policy" className="font-titillium text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Privacy Policy</a>
+              <a href="#about-us" className="font-rajdhani text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">About Us</a>
+              <a href="#shipping-policy" className="font-rajdhani text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Shipping & Delivery</a>
+              <a href="#return-policy" className="font-rajdhani text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Return Policy</a>
+              <a href="#refund-policy" className="font-rajdhani text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Refund Policy</a>
+              <a href="#terms-and-conditions" className="font-rajdhani text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Terms & Conditions</a>
+              <a href="#privacy-policy" className="font-rajdhani text-[14px] font-semibold text-[#308026] underline decoration-1 underline-offset-4 hover:text-[#242424] transition-colors">Privacy Policy</a>
             </div>
          </div>
       </div>
@@ -49,16 +49,16 @@ export default function InfoPage() {
         {/* Sticky Sidebar Navigation - Clean Documentation Style */}
         <aside className="hidden md:block w-[240px] shrink-0 pl-[24px]">
           <nav className="sticky top-[120px] flex flex-col gap-[8px]">
-            <span className="font-titillium text-[13px] font-semibold text-[#979797] uppercase tracking-wider mb-[8px]">
+            <span className="font-rajdhani text-[13px] font-semibold text-[#979797] uppercase tracking-wider mb-[8px]">
               Jump To Section
             </span>
             <div className="flex flex-col gap-[12px] border-l-2 border-[#f1f5f9] pl-[16px]">
-              <a href="#about-us" className="font-titillium text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">About Us</a>
-              <a href="#shipping-policy" className="font-titillium text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Shipping & Delivery</a>
-              <a href="#return-policy" className="font-titillium text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Return Policy</a>
-              <a href="#refund-policy" className="font-titillium text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Refund Policy</a>
-              <a href="#terms-and-conditions" className="font-titillium text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Terms & Conditions</a>
-              <a href="#privacy-policy" className="font-titillium text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Privacy Policy</a>
+              <a href="#about-us" className="font-rajdhani text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">About Us</a>
+              <a href="#shipping-policy" className="font-rajdhani text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Shipping & Delivery</a>
+              <a href="#return-policy" className="font-rajdhani text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Return Policy</a>
+              <a href="#refund-policy" className="font-rajdhani text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Refund Policy</a>
+              <a href="#terms-and-conditions" className="font-rajdhani text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Terms & Conditions</a>
+              <a href="#privacy-policy" className="font-rajdhani text-[15px] font-medium text-[#535353] hover:text-[#308026] transition-colors">Privacy Policy</a>
             </div>
           </nav>
         </aside>
@@ -68,8 +68,8 @@ export default function InfoPage() {
           
           {/* About Us */}
           <section id="about-us" className="scroll-mt-[35vh]">
-            <h2 className="font-titillium font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">About Us</h2>
-            <div className="font-titillium text-[16px] leading-[28px] text-[#535353] font-light space-y-[16px]">
+            <h2 className="font-rajdhani font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">About Us</h2>
+            <div className="font-rajdhani text-[16px] leading-[28px] text-[#535353] font-medium space-y-[16px]">
               <p>
                 Welcome to <strong className="font-semibold text-[#242424]">Supplyment Nepal</strong>, your most trusted destination for authentic dietary supplements, including Whey Protein, Creatine Monohydrate, and comprehensive sports nutrition in Nepal.
               </p>
@@ -83,8 +83,8 @@ export default function InfoPage() {
 
           {/* Shipping Policy */}
           <section id="shipping-policy" className="scroll-mt-[35vh]">
-            <h2 className="font-titillium font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Shipping & Delivery</h2>
-            <div className="font-titillium text-[16px] leading-[28px] text-[#535353] font-light space-y-[24px]">
+            <h2 className="font-rajdhani font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Shipping & Delivery</h2>
+            <div className="font-rajdhani text-[16px] leading-[28px] text-[#535353] font-medium space-y-[24px]">
               <p>
                 At Supplyment Nepal, we are committed to delivering your supplements safely and quickly. We offer both <strong className="font-semibold text-[#242424]">Home Delivery</strong> directly to your doorstep and <strong className="font-semibold text-[#242424]">Pickup</strong> options via our nearest branches.
               </p>
@@ -96,14 +96,14 @@ export default function InfoPage() {
                       <div className="w-[40px] h-[40px] rounded-full bg-[#308026] flex items-center justify-center">
                         <svg className="w-[20px] h-[20px] text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                       </div>
-                      <h3 className="font-titillium font-bold text-[22px] text-[#242424] tracking-[-0.5px] leading-none">
+ <h3 className="font-rajdhani font-bold text-[22px] text-[#242424] tracking-[-0.5px] leading-none">
                         In-Stock
                       </h3>
                     </div>
-                    <p className="mb-[16px] font-titillium text-[15px] leading-[22px] text-[#535353]">
+                    <p className="mb-[16px] font-rajdhani text-[15px] leading-[22px] text-[#535353]">
                       Stored locally in our Kathmandu warehouse and shipped directly from our store.
                     </p>
-                    <ul className="space-y-[12px] font-titillium text-[15px]">
+                    <ul className="space-y-[12px] font-rajdhani text-[15px]">
                       <li className="flex gap-[8px] items-start">
                         <span className="text-[#308026] mt-[2px]">•</span> 
                         <span className="text-[#242424]">Faster delivery in <strong className="font-semibold">1 to 2 days</strong></span>
@@ -121,14 +121,14 @@ export default function InfoPage() {
                       <div className="w-[40px] h-[40px] rounded-full bg-[#242424] flex items-center justify-center">
                         <svg className="w-[20px] h-[20px] text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       </div>
-                      <h3 className="font-titillium font-bold text-[22px] text-[#242424] tracking-[-0.5px] leading-none">
+ <h3 className="font-rajdhani font-bold text-[22px] text-[#242424] tracking-[-0.5px] leading-none">
                         Pre-Order
                       </h3>
                     </div>
-                    <p className="mb-[16px] font-titillium text-[15px] leading-[22px] text-[#535353]">
+                    <p className="mb-[16px] font-rajdhani text-[15px] leading-[22px] text-[#535353]">
                       Shipped internationally on a pre-order basis from our trusted global partners.
                     </p>
-                    <ul className="space-y-[12px] font-titillium text-[15px]">
+                    <ul className="space-y-[12px] font-rajdhani text-[15px]">
                       <li className="flex gap-[8px] items-start">
                         <span className="text-[#242424] mt-[2px]">•</span> 
                         <span className="text-[#242424]">Delivery timeframe of <strong className="font-semibold">4 to 7 days</strong></span>
@@ -142,7 +142,7 @@ export default function InfoPage() {
               </div>
               
               <div className="bg-[#f9fafb] p-[16px] rounded-[8px] border-l-4 border-[#308026]">
-                <p className="font-titillium text-[14px] italic text-[#535353] leading-[22px]">
+                <p className="font-rajdhani text-[14px] italic text-[#535353] leading-[22px]">
                   <strong>Note:</strong> Delivery times may vary slightly based on your exact location outside the Kathmandu valley. Out of stock items will display "Restocking soon, Stay tuned".
                 </p>
               </div>
@@ -153,8 +153,8 @@ export default function InfoPage() {
 
           {/* Return Policy */}
           <section id="return-policy" className="scroll-mt-[35vh]">
-            <h2 className="font-titillium font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Return Policy</h2>
-            <div className="font-titillium text-[16px] leading-[28px] text-[#535353] font-light space-y-[16px]">
+            <h2 className="font-rajdhani font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Return Policy</h2>
+            <div className="font-rajdhani text-[16px] leading-[28px] text-[#535353] font-medium space-y-[16px]">
               <p>
                 We stand behind the quality of every product we sell. If you are not completely satisfied with your purchase, you may request a return within <strong className="font-semibold text-[#242424]">7 days</strong> of delivery.
               </p>
@@ -171,8 +171,8 @@ export default function InfoPage() {
 
           {/* Refund Policy */}
           <section id="refund-policy" className="scroll-mt-[35vh]">
-            <h2 className="font-titillium font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Refund Policy</h2>
-            <div className="font-titillium text-[16px] leading-[28px] text-[#535353] font-light space-y-[16px]">
+            <h2 className="font-rajdhani font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Refund Policy</h2>
+            <div className="font-rajdhani text-[16px] leading-[28px] text-[#535353] font-medium space-y-[16px]">
               <p>
                 Once your return is received and inspected by our team, we will notify you of the approval or rejection of your refund. 
               </p>
@@ -189,8 +189,8 @@ export default function InfoPage() {
 
           {/* Terms and Conditions */}
           <section id="terms-and-conditions" className="scroll-mt-[35vh]">
-            <h2 className="font-titillium font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Terms & Conditions</h2>
-            <div className="font-titillium text-[16px] leading-[28px] text-[#535353] font-light space-y-[16px]">
+            <h2 className="font-rajdhani font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Terms & Conditions</h2>
+            <div className="font-rajdhani text-[16px] leading-[28px] text-[#535353] font-medium space-y-[16px]">
               <p>
                 By accessing and placing an order with Supplyment Nepal, you confirm that you are in agreement with and bound by the terms of service outlined herein. These terms apply to the entire website and any email or other type of communication between you and Supplyment Nepal.
               </p>
@@ -207,8 +207,8 @@ export default function InfoPage() {
 
           {/* Privacy Policy */}
           <section id="privacy-policy" className="scroll-mt-[35vh]">
-            <h2 className="font-titillium font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Privacy Policy</h2>
-            <div className="font-titillium text-[16px] leading-[28px] text-[#535353] font-light space-y-[16px]">
+            <h2 className="font-rajdhani font-semibold text-[28px] md:text-[36px] tracking-[-0.5px] text-[#242424] mb-[16px]">Privacy Policy</h2>
+            <div className="font-rajdhani text-[16px] leading-[28px] text-[#535353] font-medium space-y-[16px]">
               <p>
                 At Supplyment Nepal, we take your privacy seriously. This policy explains how we collect, use, and protect your personal information when you use our website.
               </p>

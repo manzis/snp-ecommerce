@@ -102,15 +102,15 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                     </div>
 
                     <div className="flex flex-col gap-[8px]">
-                      <h2 className="font-titillium font-bold text-[22px] leading-[28px] text-[#242424]">
+ <h2 className="font-rajdhani font-bold text-[22px] leading-[28px] text-[#242424]">
                         You're about to cancel a limited stock product!
                       </h2>
                       {savedAmount > 0 ? (
-                        <p className="font-titillium text-[15px] leading-[22px] text-[#626262]">
+                        <p className="font-rajdhani text-[15px] leading-[22px] text-[#626262]">
                           You have saved <span className="font-bold text-[#308026] tracking-wide">Rs {savedAmount}</span> in this order. You might not get this precise offer next time!
                         </p>
                       ) : (
-                        <p className="font-titillium text-[15px] leading-[22px] text-[#626262]">
+                        <p className="font-rajdhani text-[15px] leading-[22px] text-[#626262]">
                           Are you sure you want to cancel this order? Discarding this action cannot be undone.
                         </p>
                       )}
@@ -120,14 +120,14 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                       <button
                         type="button"
                         onClick={onClose}
-                        className="w-full h-[54px] rounded-[12px] bg-[#ffe900] active:scale-[0.98] transition-transform font-titillium font-bold text-[16px] text-[#242424]"
+ className="w-full h-[54px] rounded-[12px] bg-[#ffe900] active:scale-[0.98] transition-transform font-rajdhani font-bold text-[16px] text-[#242424]"
                       >
                         I want to keep the order
                       </button>
                       <button
                         type="button"
                         onClick={handleNext}
-                        className="w-full h-[54px] rounded-[12px] border border-[#eaebf0] active:scale-[0.98] transition-transform font-titillium font-bold text-[16px] text-[#d92d20]"
+ className="w-full h-[54px] rounded-[12px] border border-[#eaebf0] active:scale-[0.98] transition-transform font-rajdhani font-bold text-[16px] text-[#d92d20]"
                       >
                         Proceed to Cancel
                       </button>
@@ -142,7 +142,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                     transition={{ duration: 0.2 }}
                     className="flex flex-col items-start gap-[20px]"
                   >
-                    <h2 className="font-titillium font-bold text-[20px] leading-[24px] text-[#242424]">
+ <h2 className="font-rajdhani font-bold text-[20px] leading-[24px] text-[#242424]">
                       Reason for cancellation
                     </h2>
 
@@ -156,7 +156,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                           <div className={`flex items-center justify-center w-[20px] h-[20px] rounded-full border-[1.5px] ${selectedReason === reason ? 'border-[#242424]' : 'border-[#d0d5dd]'}`}>
                             {selectedReason === reason && <div className="w-[10px] h-[10px] rounded-full bg-[#242424]" />}
                           </div>
-                          <span className={`font-titillium text-[15px] ${selectedReason === reason ? 'font-[600] text-[#242424]' : 'font-[400] text-[#626262]'}`}>
+                          <span className={`font-rajdhani text-[15px] ${selectedReason === reason ? 'font-[600] text-[#242424]' : 'font-[500] text-[#626262]'}`}>
                             {reason}
                           </span>
                         </label>
@@ -175,7 +175,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                             value={customReason}
                             onChange={(e) => setCustomReason(e.target.value)}
                             placeholder="Please tell us specifically why..."
-                            className="w-full p-[16px] min-h-[100px] border border-[#eaebf0] rounded-[12px] font-titillium text-[15px] outline-none focus:border-[#242424] transition-colors resize-none mb-[8px]"
+                            className="w-full p-[16px] min-h-[100px] border border-[#eaebf0] rounded-[12px] font-rajdhani text-[15px] outline-none focus:border-[#242424] transition-colors resize-none mb-[8px]"
                           />
                         </motion.div>
                       )}
@@ -185,7 +185,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                       type="button"
                       onClick={handleConfirm}
                       disabled={isProcessing || !selectedReason || (selectedReason === 'Other' && !customReason.trim())}
-                      className="w-full h-[54px] mt-[12px] rounded-[12px] bg-[#d92d20] active:scale-[0.98] transition-transform font-titillium font-bold text-[16px] text-white disabled:opacity-50"
+ className="w-full h-[54px] mt-[12px] rounded-[12px] bg-[#d92d20] active:scale-[0.98] transition-transform font-rajdhani font-bold text-[16px] text-white disabled:opacity-50"
                     >
                       {isProcessing ? 'Cancelling Order...' : 'Confirm Cancellation'}
                     </button>
@@ -194,7 +194,7 @@ const CancelOrderModal: React.FC<CancelOrderModalProps> = ({
                         type="button"
                         onClick={() => setStep(1)}
                         disabled={isProcessing}
-                        className="w-full h-[40px] rounded-[12px] font-titillium font-semibold text-[14px] text-[#626262] hover:text-[#242424] transition-colors"
+                        className="w-full h-[40px] rounded-[12px] font-rajdhani font-semibold text-[14px] text-[#626262] hover:text-[#242424] transition-colors"
                       >
                         Back
                       </button>

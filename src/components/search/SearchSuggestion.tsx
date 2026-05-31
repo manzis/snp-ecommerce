@@ -17,7 +17,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({ suggestions, quer
       part.toLowerCase() === highlight.toLowerCase() ? (
         <span key={i} className="font-semibold text-[#242424]">{part}</span>
       ) : (
-        <span key={i} className="font-normal text-[#242424]">{part}</span>
+        <span key={i} className="font-medium text-[#242424]">{part}</span>
       )
     );
   };
@@ -34,7 +34,7 @@ const SearchSuggestions: React.FC<SearchSuggestionsProps> = ({ suggestions, quer
           type="button"
           className="flex w-full cursor-pointer items-center px-[24px] py-[12px] border-t first:border-t-0 border-[#eaebf0] text-left hover:bg-[#fafafa] transition-colors group outline-none"
         >
-          <div className="font-titillium text-[14px] leading-[16px] tracking-[-0.2px] text-[#242424] truncate">
+          <div className="font-rajdhani text-[14px] leading-[16px] tracking-[-0.2px] text-[#242424] truncate">
              {renderHighlightedText(suggestion, query)}
           </div>
           {/* Autocorrect Label */}

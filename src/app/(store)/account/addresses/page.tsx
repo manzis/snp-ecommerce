@@ -92,7 +92,7 @@ const AddressesPage = () => {
                 <div className=" md:p-[48px] w-full relative min-h-[400px]">
                     {loading ? (
                         <div className="flex items-center justify-center h-full min-h-[200px]">
-                            <p className="font-titillium text-[16px] text-[#838383]">Loading addresses...</p>
+                            <p className="font-rajdhani text-[16px] text-[#838383]">Loading addresses...</p>
                         </div>
                     ) : addresses.length > 0 ? (
                         <div className="flex flex-col max-w-[800px] mx-auto gap-[32px]">
@@ -108,7 +108,7 @@ const AddressesPage = () => {
                             {/* Prominent yellow button as requested by user below the address selector */}
                             <button
                                 onClick={handleAddNew}
-                                className="w-full sm:w-[300px] mx-auto h-[52px] bg-[#ffe900] rounded-[12px] font-titillium font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
+ className="w-full sm:w-[300px] mx-auto h-[52px] bg-[#ffe900] rounded-[12px] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -126,14 +126,14 @@ const AddressesPage = () => {
                                 </svg>
                             </div>
                             <div className="flex flex-col gap-[8px]">
-                                <h2 className="font-titillium text-[24px] font-bold text-[#242424]">No Saved Addresses</h2>
-                                <p className="font-titillium text-[16px] text-[#838383] max-w-[400px]">
+                                <h2 className="font-rajdhani text-[24px] font-bold text-[#242424]">No Saved Addresses</h2>
+                                <p className="font-rajdhani text-[16px] text-[#838383] max-w-[400px]">
                                     You haven't saved any addresses yet. Add a new address to make your checkout faster and easier.
                                 </p>
                             </div>
                             <button
                                 onClick={handleAddNew}
-                                className="mt-[8px] px-[32px] h-[52px] bg-[#ffe900] rounded-[12px] font-titillium font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform  flex items-center justify-center gap-[8px]"
+ className="mt-[8px] px-[32px] h-[52px] bg-[#ffe900] rounded-[12px] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>

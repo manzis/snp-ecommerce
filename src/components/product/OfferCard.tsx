@@ -87,7 +87,7 @@ const OffersCard: React.FC = () => {
         {/* Left Side: Icon + Label Group */}
         <div className="flex flex-row items-center gap-[12px]">
           <TicketIcon className="h-[24px] w-[24px] flex-shrink-0" />
-          <span className="font-titillium text-[18px] font-semibold leading-[18px] text-[#242424]">
+          <span className="font-rajdhani text-[18px] font-semibold leading-[18px] text-[#242424]">
             Available Offers For you
           </span>
         </div>
@@ -124,13 +124,13 @@ const OffersCard: React.FC = () => {
                 >
                   {/* COUPON CODE - 8px fixed padding, never squishes */}
                   <div className="flex h-[34px] min-w-[63px] flex-shrink-0 items-center justify-center rounded-[4px] border border-dashed border-[#318126] px-[8px] bg-white/40">
-                    <span className="font-titillium text-[14px] font-semibold leading-[18px] tracking-[0.09em] text-[#242424] uppercase">
+                    <span className="font-rajdhani text-[14px] font-semibold leading-[18px] tracking-[0.09em] text-[#242424] uppercase">
                       {coupon.code}
                     </span>
                   </div>
 
                   {/* COUPON DETAILS - Flex Fill Middle */}
-                  <div className="flex-1 font-titillium text-[13px] font-[400] leading-[15px] text-[#242424] line-clamp-2">
+                  <div className="flex-1 font-rajdhani text-[13px] font-[500] leading-[15px] text-[#242424] line-clamp-2">
                     {coupon.detail}
                   </div>
 
@@ -145,7 +145,7 @@ const OffersCard: React.FC = () => {
                     `}
                     onClick={(e) => handleCopy(e, coupon.code)}
                   >
-                    <span className={`font-titillium text-[13px] font-[400] leading-[16px] tracking-[0.1px] transition-colors duration-200 ${isThisCopied ? 'text-white' : 'text-[#252525]'}`}>
+                    <span className={`font-rajdhani text-[13px] font-[500] leading-[16px] tracking-[0.1px] transition-colors duration-200 ${isThisCopied ? 'text-white' : 'text-[#252525]'}`}>
                       {isThisCopied ? 'Copied' : 'Copy'}
                     </span>
                   </button>
@@ -167,7 +167,7 @@ const OffersCard: React.FC = () => {
           ${isExpanded ? 'hidden h-0 opacity-0' : 'flex h-[36px] opacity-100'}
         `}
       >
-        <span className="font-titillium text-[18px] font-[300] leading-[18px] text-[#242424] ">
+        <span className="font-rajdhani text-[18px] font-[500] leading-[18px] text-[#515151]">
           Apply offers for maximum Savings
         </span>
       </div>

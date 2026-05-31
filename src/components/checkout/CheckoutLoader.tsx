@@ -46,7 +46,7 @@ const CheckoutLoader: React.FC<CheckoutLoaderProps> = ({
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="font-titillium text-[14px] text-[#3f9633] font-semibold tracking-tight whitespace-nowrap block absolute"
+                  className="font-rajdhani text-[14px] text-[#3f9633] font-semibold tracking-tight whitespace-nowrap block absolute"
                 >
                   {message}
                 </motion.span>

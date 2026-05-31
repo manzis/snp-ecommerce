@@ -35,7 +35,7 @@ export default async function CategoriesPage() {
       <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px]">
         {/* Main Categories Section */}
         <section className="flex flex-col gap-[24px] px-[24px] py-[24px]">
-          <h2 className="font-titillium text-[18px] font-semibold leading-[26px] tracking-[-0.72px] text-[#242424]">
+          <h2 className="font-rajdhani text-[18px] font-semibold leading-[26px] tracking-[-0.72px] text-[#242424]">
             Main Categories
           </h2>
 
@@ -56,7 +56,7 @@ export default async function CategoriesPage() {
         {/* Other Categories Section */}
         {otherCategories.length > 0 && (
           <section className="flex flex-col gap-[24px] px-[24px] py-[24px]">
-            <h2 className="font-titillium text-[18px] font-semibold leading-[26px] tracking-[-0.72px] text-[#242424]">
+            <h2 className="font-rajdhani text-[18px] font-semibold leading-[26px] tracking-[-0.72px] text-[#242424]">
               Other Categories
             </h2>
 

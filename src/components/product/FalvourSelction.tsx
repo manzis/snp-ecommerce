@@ -68,8 +68,8 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
       `}} />
 
       {/* Header: Dynamic text based on selection */}
-      <h3 className="whitespace-nowrap text-left font-titillium text-[18px] font-semibold tracking-[-0.36px] text-[#242424]">
-        {selectedId || flavours.length === 0 ? 'Selected Flavour : ' : 'Select Flavour'} <span className="font-normal">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || '')}</span>
+      <h3 className="whitespace-nowrap text-left font-rajdhani text-[18px] font-semibold tracking-[-0.36px] text-[#242424]">
+        {selectedId || flavours.length === 0 ? 'Selected Flavour : ' : 'Select Flavour'} <span className="font-medium text-[#515151]">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || '')}</span>
       </h3>
 
       {/* 
@@ -77,9 +77,9 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
           - pt-[2px] buffer to prevent 'Outside Border' clipping
           - custom-scrollbar for desktop scrolling support
       */}
-      <div 
+      <div
         ref={scrollRef}
-        className="flex w-full flex-nowrap gap-[14px] overflow-x-auto pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
+        className="flex w-full flex-nowrap gap-[14px] overflow-x-auto overflow-y-hidden pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
       >
         {flavours.length === 0 ? (
           <button
@@ -87,7 +87,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
             className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
           >
             <div className="flex h-[38px] flex-row items-center justify-center gap-[10px]">
-              <span className="whitespace-nowrap text-center font-titillium text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
+              <span className="whitespace-nowrap text-center font-rajdhani text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
                 No Flavour
               </span>
             </div>
@@ -124,7 +124,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
             >
               {!item.is_available && (
                 <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center  ">
-                  <span className=" bg-[#EFEFEF] w-full px-[6px] py-[3px] font-titillium text-[10px] font-semibold tracking-[-0.02em] text-[#242424] text-center ">
+                  <span className=" bg-[#EFEFEF] w-full px-[6px] py-[3px] font-rajdhani text-[10px] font-semibold tracking-[-0.02em] text-[#242424] text-center ">
                     Not Available
                   </span>
                 </div>
@@ -151,23 +151,23 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
 
 
               <div className={`
-                relative flex h-[26px] flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
+                relative flex h-[26px] w-full flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
                 ${isSelected
-                  ? 'w-[81px] bg-[#3F9733] rounded-[5px]'
-                  : 'w-[81px] bg-[#EFEFEF] rounded-[3px]'}
+                  ? 'bg-[#3F9733] rounded-[5px]'
+                  : 'bg-[#EFEFEF] rounded-[3px]'}
               `}>
                 <div className={`relative w-full overflow-hidden ${isLong ? 'marquee-mask' : ''}`}>
                   <div className={isLong ? 'animate-marquee-continuous' : 'w-full text-center'}>
                     {/* TEXT: #242424 -> #FFFFFF | tracking: -0.06em */}
                     <span className={`
-                      px-[2px] font-titillium text-[16px] font-semibold leading-[16px] tracking-[-0.06em] transition-colors duration-200
+                      px-[2px] font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.03em] transition-colors duration-200
                       ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
                     `}>
                       {item.flavour_name}
                     </span>
                     {isLong && (
                       <span className={`
-                        pr-10 font-titillium text-[16px] font-semibold leading-[16px] tracking-[-0.06em]
+                        pr-10 font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.03em]
                         ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
                       `}>
                         {item.flavour_name}
@@ -181,7 +181,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
         })}
       </div>
       {flavorError && (
-        <span data-error="true" className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
+        <span data-error="true" className="text-[#FF3333] font-rajdhani text-[14px] font-semibold mt-[-8px]">
           Please select a flavour
         </span>
       )}

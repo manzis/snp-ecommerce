@@ -55,10 +55,10 @@ const Availability: React.FC<AvailabilityProps> = ({ stockStatus }) => {
 
           <div className="flex flex-grow flex-row items-start justify-between gap-[12px]">
             <div className="flex flex-col justify-center items-start gap-[2px] ">
-              <h3 className="whitespace-nowrap font-titillium text-[20px] font-bold leading-[24px] tracking-[-0.10px] text-white">
+              <h3 className="whitespace-nowrap font-rajdhani text-[20px] font-bold leading-[24px] tracking-[-0.10px] text-white">
                 Availability : <span className="font-semibold">{getStatusText()}</span>
               </h3>
-              <p className="whitespace-nowrap font-titillium text-[12px] font-normal leading-[14px] text-white">
+              <p className="whitespace-nowrap font-rajdhani text-[12px] font-medium leading-[14px] text-white">
                 {getSubText()}
               </p>
             </div>
@@ -78,7 +78,7 @@ const Availability: React.FC<AvailabilityProps> = ({ stockStatus }) => {
           <div className="relative  w-[16px] flex-shrink-0">
             <EyeIcon className="h-full w-full text-[#000000]" />
           </div>
-          <p className="whitespace-nowrap font-titillium text-[14px] font-normal leading-[16px] text-[#121212]">
+          <p className="whitespace-nowrap font-rajdhani text-[14px] font-medium leading-[16px] text-[#121212]">
             92 People viewing this item now, <span className="font-semibold">Selling Fast!</span>
           </p>
         </div>

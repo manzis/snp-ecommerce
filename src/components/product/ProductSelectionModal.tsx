@@ -122,7 +122,7 @@ export default function ProductSelectionModal({
 
           {/* Modal Container */}
           <div
-            className="relative w-full max-w-[500px] bg-white rounded-t-[24px] lg:rounded-[24px] h-[85vh] lg:h-[700px] flex flex-col overflow-hidden font-titillium animate-slide-up"
+            className="relative w-full max-w-[500px] bg-white rounded-t-[24px] lg:rounded-[24px] h-[85vh] lg:h-[700px] flex flex-col overflow-hidden font-rajdhani animate-slide-up"
           >
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-20">

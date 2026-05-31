@@ -27,7 +27,7 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
       }`}>
       {/* HEADER */}
       <div className="p-[12px_16px] bg-[#fafbfb] border-b border-[#f1f5f9]">
-        <span className="font-titillium text-[18px] font-semibold text-[#242424]">Choose Delivery Options</span>
+        <span className="font-rajdhani text-[18px] font-semibold text-[#242424]">Choose Delivery Options</span>
       </div>
 
       {/* METHODS LIST */}
@@ -48,14 +48,14 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
 
             <div className="flex flex-col flex-1 min-w-0">
               <div className="flex justify-between items-center">
-                <span className="font-titillium text-[16px] font-semibold text-[#242424]">
+                <span className="font-rajdhani text-[16px] font-semibold text-[#242424]">
                   {opt.title}
                 </span>
-                <span className="font-titillium text-[14px] font-semibold text-[#575757] tracking-[1.5px] whitespace-nowrap">
+                <span className="font-rajdhani text-[14px] font-semibold text-[#575757] tracking-[1.5px] whitespace-nowrap">
                   {opt.price}
                 </span>
               </div>
-              <span className="font-titillium text-[14px] text-[#68727d] leading-[20px]">
+              <span className="font-rajdhani text-[14px] text-[#68727d] leading-[20px]">
                 {opt.desc}
               </span>
             </div>
@@ -65,7 +65,7 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
 
       {/* SHIPPING FOOTNOTE - Removed border-top */}
       <div className="px-[16px] py-[12px] /50">
-        <p className="font-titillium text-[13px] leading-[18px] text-[#838383]">
+        <p className="font-rajdhani text-[13px] leading-[18px] text-[#838383]">
           Shipping Free for orders above NPR 5000, Only applied to items not on offer & no coupons applied !!
         </p>
       </div>

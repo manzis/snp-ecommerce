@@ -170,7 +170,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                     className="flex items-center justify-center gap-[4px] px-[10px] py-[4px] bg-white border border-[#e2e8f0] rounded-[100px] active:scale-95 transition-transform disabled:opacity-50"
                 >
                     <EditIcon className="w-[15px] h-[15px] text-[#242424]" />
-                    <span className="font-titillium text-[16px] font-[600] leading-[26px] tracking-[-0.03px] text-[#242424]">
+                    <span className="font-rajdhani text-[16px] font-[600] leading-[26px] tracking-[-0.03px] text-[#242424]">
                         {isUploading ? "Uploading..." : "Edit picture"}
                     </span>
                 </button>
@@ -178,54 +178,54 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
 
             {/* NAME FIELD */}
             <div className="flex flex-col gap-[8px] px-[24px] pt-[12px] lg:px-0">
-                <span className="font-titillium text-[14px] font-[600] leading-[20px] text-[#252525]">Name</span>
+                <span className="font-rajdhani text-[14px] font-[600] leading-[20px] text-[#252525]">Name</span>
                 <div className={`flex h-[48px] items-center gap-[8px] px-[12px] py-[12px] border ${errors.name ? 'border-red-500' : 'border-[#eaebf0]'} rounded-[12px] overflow-hidden focus-within:border-[1.5px] focus-within:border-[#3f9633]`}>
                     <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="flex-1 font-titillium text-[16px] font-[400] text-[#242424] outline-none"
+                        className="flex-1 font-rajdhani text-[16px] font-[500] text-[#242424] outline-none"
                     />
                 </div>
-                {errors.name && <span className="font-titillium text-[13px] font-[400] leading-[18px] text-red-500">{errors.name}</span>}
+                {errors.name && <span className="font-rajdhani text-[13px] font-[500] leading-[18px] text-red-500">{errors.name}</span>}
             </div>
 
             {/* EMAIL FIELD (READ ONLY) */}
             <div className="flex flex-col gap-[8px] px-[24px] pt-[24px] lg:px-0 opacity-70">
-                <span className="font-titillium text-[14px] font-[600] leading-[20px] text-[#252525]">Email Address</span>
+                <span className="font-rajdhani text-[14px] font-[600] leading-[20px] text-[#252525]">Email Address</span>
                 <div className="flex h-[48px] items-center gap-[8px] p-[12px_6px_12px_12px] border border-[#eaebf0] rounded-[12px] overflow-hidden bg-gray-50">
-                    <input type="email" disabled value={initialData.email || ''} className="flex-1 font-titillium text-[16px] font-[400] text-[#242424] bg-transparent outline-none cursor-not-allowed" />
+                    <input type="email" disabled value={initialData.email || ''} className="flex-1 font-rajdhani text-[16px] font-[500] text-[#242424] bg-transparent outline-none cursor-not-allowed" />
                     <button type="button" className="flex w-[86px] h-[34px] items-center justify-center bg-[#eaffcc] rounded-[6px] active:scale-95 transition-all">
-                        <span className="font-titillium text-[12px] font-[600] leading-[22px] text-[#3f9633]">Verified</span>
+                        <span className="font-rajdhani text-[12px] font-[600] leading-[22px] text-[#3f9633]">Verified</span>
                     </button>
                 </div>
             </div>
 
             {/* CONTACT DETAILS */}
             <div className="flex flex-col gap-[8px] px-[24px] pt-[24px] lg:px-0">
-                <span className="font-titillium text-[14px] font-[600] leading-[20px] text-[#252525]">Contact Details</span>
+                <span className="font-rajdhani text-[14px] font-[600] leading-[20px] text-[#252525]">Contact Details</span>
                 <div className={`flex h-[48px] items-center gap-[8px] px-[12px] py-[12px] border ${errors.contact ? 'border-red-500' : 'border-[#eaebf0]'} rounded-[12px] overflow-hidden focus-within:border-[1.5px] focus-within:border-[#3f9633]`}>
                     <input
                         type="text"
                         value={formData.contact}
                         onChange={handleContactChange}
-                        className="flex-1 font-titillium text-[16px] font-semibold text-[#242424] outline-none"
+                        className="flex-1 font-rajdhani text-[16px] font-semibold text-[#242424] outline-none"
                     />
                     <UserIcon className="w-[20px] h-[20px] text-[#68727d]" />
                 </div>
-                {errors.contact && <span className="font-titillium text-[13px] font-[400] leading-[18px] text-red-500">{errors.contact}</span>}
+                {errors.contact && <span className="font-rajdhani text-[13px] font-[500] leading-[18px] text-red-500">{errors.contact}</span>}
             </div>
 
             {/* PROFESSION & DOB GROUP */}
             <div className="flex gap-[12px] px-[24px] pt-[24px] lg:px-0">
                 {/* PROFESSION DROPDOWN */}
                 <div className="relative flex flex-1 flex-col gap-[8px]">
-                    <span className="font-titillium text-[14px] font-[600] leading-[20px] text-[#252525]">Profession</span>
+                    <span className="font-rajdhani text-[14px] font-[600] leading-[20px] text-[#252525]">Profession</span>
                     <div
                         onClick={() => setIsProfOpen(!isProfOpen)}
                         className={`flex h-[48px] items-center justify-between px-[16px] py-[12px] border ${errors.profession ? 'border-red-500' : 'border-[#eaebf0]'} rounded-[12px] cursor-pointer bg-white transition-all ${isProfOpen ? 'border-[1.5px] border-[#3f9633]' : ''}`}
                     >
-                        <span className={`font-titillium text-[16px] font-[400] truncate ${formData.profession ? 'text-[#252525]' : 'text-[#68727d]'}`}>
+                        <span className={`font-rajdhani text-[16px] font-[500] truncate ${formData.profession ? 'text-[#252525]' : 'text-[#68727d]'}`}>
                             {formData.profession || "Select"}
                         </span>
                         <motion.div animate={{ rotate: isProfOpen ? 180 : 0 }}>
@@ -243,7 +243,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                                     <li
                                         key={p}
                                         onClick={() => { setFormData({ ...formData, profession: p }); setIsProfOpen(false); setErrors({ ...errors, profession: '' }); }}
-                                        className="px-[16px] py-[12px] font-titillium text-[14px] text-[#252525] hover:bg-[#f7faf6] cursor-pointer"
+                                        className="px-[16px] py-[12px] font-rajdhani text-[14px] text-[#252525] hover:bg-[#f7faf6] cursor-pointer"
                                     >
                                         {p}
                                     </li>
@@ -251,17 +251,17 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                             </motion.ul>
                         )}
                     </AnimatePresence>
-                    {errors.profession && <span className="font-titillium text-[13px] text-red-500">{errors.profession}</span>}
+                    {errors.profession && <span className="font-rajdhani text-[13px] text-red-500">{errors.profession}</span>}
                 </div>
 
                 {/* DATE OF BIRTH */}
                 <div className="flex flex-1 flex-col gap-[8px]">
-                    <span className="font-titillium text-[14px] font-[600] leading-[20px] text-[#252525]">Date of Birth</span>
+                    <span className="font-rajdhani text-[14px] font-[600] leading-[20px] text-[#252525]">Date of Birth</span>
                     <div
                         onClick={() => dateInputRef.current?.showPicker()}
                         className={`flex h-[48px] items-center justify-between px-[16px] py-[12px] border ${errors.dob ? 'border-red-500' : 'border-[#eaebf0]'} rounded-[12px] cursor-pointer bg-white focus-within:border-[1.5px] focus-within:border-[#3f9633]`}
                     >
-                        <span className={`font-titillium text-[16px] font-[400] ${formData.dob ? 'text-[#252525]' : 'text-[#68727d]'}`}>
+                        <span className={`font-rajdhani text-[16px] font-[500] ${formData.dob ? 'text-[#252525]' : 'text-[#68727d]'}`}>
                             {formData.dob || "Select"}
                         </span>
                         <CalendarIcon className="w-[20px] h-[20px] text-[#242424]" />
@@ -272,7 +272,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                             onChange={(e) => { setFormData({ ...formData, dob: e.target.value }); setErrors({ ...errors, dob: '' }); }}
                         />
                     </div>
-                    {errors.dob && <span className="font-titillium text-[13px] text-red-500">{errors.dob}</span>}
+                    {errors.dob && <span className="font-rajdhani text-[13px] text-red-500">{errors.dob}</span>}
                 </div>
             </div>
 
@@ -287,7 +287,7 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({ initialData }) => {
                         'bg-[#ffe900] text-[#242424]'
                     } ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
                 >
-                    <span className="font-titillium text-[16px] font-[600] leading-[24px] tracking-[-0.2px]">
+                    <span className="font-rajdhani text-[16px] font-[600] leading-[24px] tracking-[-0.2px]">
                         {isSaving ? 'Saving...' : 
                          saveStatus === 'success' ? 'Saved Successfully!' : 
                          saveStatus === 'error' ? 'Error Saving' : 

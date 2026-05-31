@@ -86,7 +86,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                         className="group flex w-full cursor-pointer items-center gap-[12px] rounded-[12px] border border-[#f1f5f9] bg-[#fafafa] px-[16px] py-[12px] transition-all hover:border-[#308026] hover:bg-white md:py-[16px]"
                     >
                         <SearchIcon className="h-[20px] w-[20px] text-[#838383] transition-colors group-hover:text-[#308026]" />
-                        <span className="font-titillium text-[15px] text-[#838383] md:text-[16px]">
+                        <span className="font-rajdhani text-[15px] text-[#838383] md:text-[16px]">
                             Search for products, brands or categories...
                         </span>
                     </div>
@@ -100,7 +100,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                 onClick={() => setIsBrandsOpen(!isBrandsOpen)}
                                 className="flex cursor-pointer items-center justify-between py-[12px] transition-colors hover:opacity-80"
                             >
-                                <h3 className="font-titillium text-[16px] font-semibold text-[#242424]">Filter by Brands</h3>
+                                <h3 className="font-rajdhani text-[16px] font-semibold text-[#242424]">Filter by Brands</h3>
                                 <div className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] bg-white transition-all">
                                     <DropDownIcon className={`h-[16px] w-[16px] text-[#242424] transition-transform duration-300 ${isBrandsOpen ? 'rotate-180' : ''}`} />
                                 </div>
@@ -113,7 +113,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                                 <button
                                                     key={`brand-filter-${brand}`}
                                                     onClick={() => updateUrl(1, brand, selectedCategory)}
-                                                    className={`shrink-0 rounded-full border px-[16px] py-[6px] font-titillium text-[14px] transition-all ${selectedBrand === brand
+                                                    className={`shrink-0 rounded-full border px-[16px] py-[6px] font-rajdhani text-[14px] transition-all ${selectedBrand === brand
                                                         ? 'border-[#308026] bg-[#308026] text-white'
                                                         : 'border-[#f1f5f9] bg-white text-[#575757] hover:border-[#308026] hover:text-[#308026]'
                                                         }`}
@@ -134,7 +134,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
                                 className="flex cursor-pointer items-center justify-between py-[12px] transition-colors hover:opacity-80"
                             >
-                                <h3 className="font-titillium text-[16px] font-semibold text-[#242424]">Filter by Categories</h3>
+                                <h3 className="font-rajdhani text-[16px] font-semibold text-[#242424]">Filter by Categories</h3>
                                 <div className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px] bg-white transition-all">
                                     <DropDownIcon className={`h-[16px] w-[16px] text-[#242424] transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
                                 </div>
@@ -147,7 +147,7 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                                                 <button
                                                     key={`category-filter-${cat}`}
                                                     onClick={() => updateUrl(1, selectedBrand, cat)}
-                                                    className={`shrink-0 rounded-full border px-[16px] py-[6px] font-titillium text-[14px] transition-all ${selectedCategory === cat
+                                                    className={`shrink-0 rounded-full border px-[16px] py-[6px] font-rajdhani text-[14px] transition-all ${selectedCategory === cat
                                                         ? 'border-[#308026] bg-[#308026] text-white'
                                                         : 'border-[#f1f5f9] bg-white text-[#575757] hover:border-[#308026] hover:text-[#308026]'
                                                         }`}
@@ -183,10 +183,10 @@ const ClientProductsLayout: React.FC<ClientProductsLayoutProps> = ({
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center py-[100px]">
-                            <p className="font-titillium text-[18px] text-[#838383]">No products found matching your selection.</p>
+                            <p className="font-rajdhani text-[18px] text-[#838383]">No products found matching your selection.</p>
                             <button
                                 onClick={() => updateUrl(1, 'All Brands', 'All Categories')}
-                                className="mt-[16px] font-titillium text-[16px] font-semibold text-[#308026] underline underline-offset-4"
+                                className="mt-[16px] font-rajdhani text-[16px] font-semibold text-[#308026] underline underline-offset-4"
                             >
                                 Reset Filters
                             </button>

@@ -46,7 +46,7 @@ export default function ClientBrandList({ brands }: ClientBrandListProps) {
       <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px]">
         {/* POPULAR BRANDS */}
         <section className="flex flex-col gap-[24px] lg:mt-[24px] px-[24px] py-[24px] bg-[#f6faf6] border-b border-[#f1f5f9]">
-          <h2 className="font-titillium text-[18px] font-semibold leading-[26px] tracking-[-0.4px] text-[#242424]">
+          <h2 className="font-rajdhani text-[18px] font-semibold leading-[26px] tracking-[-0.4px] text-[#242424]">
             Popular Brands
           </h2>
           <div className="no-scrollbar flex w-full gap-[12px] overflow-x-auto pb-[4px]">
@@ -59,7 +59,7 @@ export default function ClientBrandList({ brands }: ClientBrandListProps) {
 
         {/* ALL BRANDS */}
         <section className="flex flex-col gap-[24px] px-[24px] py-[24px]">
-          <h2 className="font-titillium text-[18px] font-semibold leading-[26px] tracking-[-0.4px] text-[#242424]">
+          <h2 className="font-rajdhani text-[18px] font-semibold leading-[26px] tracking-[-0.4px] text-[#242424]">
             All Brands
           </h2>
 

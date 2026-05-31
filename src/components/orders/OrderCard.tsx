@@ -130,17 +130,17 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                         <PackageIcon className={`w-[24px] h-[24px] ${config.iconColor}`} />
                     </div>
                     <div className="flex flex-col items-start justify-start flex-1 gap-[1px]">
-                        <span className={`font-titillium text-[18px] font-[700] leading-[24px] tracking-[-0.2px] whitespace-nowrap ${config.color}`}>
+                        <span className={`font-rajdhani text-[18px] font-[700] leading-[24px] tracking-[-0.2px] whitespace-nowrap ${config.color}`}>
                             {config.text}
                         </span>
-                        <span className="font-titillium text-[12px] font-[400] leading-[16px] text-[#242424]">
+                        <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#242424]">
                             {order.dateText}
                         </span>
                     </div>
                     {/* Hide Track Order if Cancelled/Failed/Delivered */}
                     {isActiveGroup && (
                         <Link href={`/account/orders/${order.id}`} className="flex h-[32px]  items-center justify-center gap-[10px] rounded-[8px] border border-[#f1f5f9] px-[8px] py-[12px] transition-all bg-[#FAFBFC] hover:bg-gray-50 active:scale-95">
-                            <span className="font-titillium text-[14px] font-[600] leading-[24px] tracking-[-0.2px] text-[#242424] whitespace-nowrap">
+                            <span className="font-rajdhani text-[14px] font-[600] leading-[24px] tracking-[-0.2px] text-[#242424] whitespace-nowrap">
                                 Track Order
                             </span>
                         </Link>
@@ -158,7 +158,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                         </div>
                         {order.extraItemsCount > 0 && (
                             <div className="absolute bottom-[4px] right-[4px] z-10 flex h-[22px] w-[22px] flex-col items-center justify-center rounded-[4px] border border-[#f1f5f9] bg-[#f2f9f1] ">
-                                <span className="font-titillium text-[12px] font-[600] text-[#308026]">
+                                <span className="font-rajdhani text-[12px] font-[600] text-[#308026]">
                                     +{order.extraItemsCount}
                                 </span>
                             </div>
@@ -169,16 +169,16 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                     <div className="flex flex-1 flex-col w-[200px] lg:w-auto items-start pl-[16px] overflow-hidden">
                         <div className="flex flex-col items-start w-full pb-[2px]">
                             <div className="flex flex-col items-start gap-[2px] w-full pb-[4px]">
-                                <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[#242424] whitespace-nowrap">
+                                <span className="font-rajdhani text-[12px] font-[500] leading-[18px] text-[#242424] whitespace-nowrap">
                                     {order.brand}
                                 </span>
                                 <div className="flex flex-col items-start gap-[6px] w-full">
-                                    <span className="font-titillium text-[16px] font-[600] leading-[22px]  text-[#242424] truncate w-full group-hover:text-[#3f9633] transition-colors">
+                                    <span className="font-rajdhani text-[16px] font-[600] leading-[22px]  text-[#242424] truncate w-full group-hover:text-[#3f9633] transition-colors">
                                         {order.title}
                                     </span>
                                     {order.extraItemsCount > 0 && (
                                         <div className="flex items-center justify-center gap-[10px] rounded-[6px] bg-[#f8f8f8] px-[6px]">
-                                            <span className="font-titillium text-[12px] font-[600] leading-[22px] tracking-[0.2px] text-[rgba(36,36,36,0.6)] whitespace-nowrap">
+                                            <span className="font-rajdhani text-[12px] font-[600] leading-[22px] tracking-[0.2px] text-[rgba(36,36,36,0.6)] whitespace-nowrap">
                                                 +{order.extraItemsCount} More Items
                                             </span>
                                         </div>
@@ -188,10 +188,10 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                         </div>
                         {/* VARIANTS */}
                         <div className="flex items-center gap-[12px]">
-                            <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91] whitespace-nowrap">
+                            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91] whitespace-nowrap">
                                 Size : {order.size}
                             </span>
-                            <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#8a8e91] whitespace-nowrap">
+                            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91] whitespace-nowrap">
                                 Flavour : {order.flavour}
                             </span>
                         </div>
@@ -218,7 +218,7 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                                     </div>
                                 ))}
                             </div>
-                            <div className="font-titillium text-[13px] font-[400] leading-[18px]">
+                            <div className="font-rajdhani text-[13px] font-[500] leading-[18px]">
                                 <span className="text-[rgba(36,36,36,0.8)]">Rate and Review your order to </span>
                                 <span className="text-[#308026] font-[600]">win offers!</span>
                             </div>
@@ -240,25 +240,25 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                                     disabled={!order.isCancellable}
                                     className={`flex h-[32px] items-center justify-center gap-[4px] rounded-[8px] border border-[#f1f5f9] px-[12px] transition-all ${order.isCancellable ? 'active:scale-95 hover:bg-red-50 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
                                 >
-                                    <span className={`font-titillium text-[14px] font-[600] leading-[26px] tracking-[-0.03px] whitespace-nowrap ${order.isCancellable ? 'text-[#d92d20]' : 'text-[#854a4a]'}`}>
+                                    <span className={`font-rajdhani text-[14px] font-[600] leading-[26px] tracking-[-0.03px] whitespace-nowrap ${order.isCancellable ? 'text-[#d92d20]' : 'text-[#854a4a]'}`}>
                                         Cancel Order
                                     </span>
                                 </button>
                             )}
                             <Link href="/contact" className="flex h-[32px] items-center justify-center gap-[6px] rounded-[8px] border border-[#f1f5f9] px-[12px] transition-all hover:bg-gray-50 active:scale-95">
                                 <HelpIcon className="w-[16px] h-[16px] text-[#242424]" />
-                                <span className="font-titillium text-[14px] font-[600] leading-[26px] tracking-[-0.03px] text-[#242424] whitespace-nowrap">
+                                <span className="font-rajdhani text-[14px] font-[600] leading-[26px] tracking-[-0.03px] text-[#242424] whitespace-nowrap">
                                     {isDelivered ? "Help with order !" : "Help"}
                                 </span>
                             </Link>
                         </div>
-                        <span className="font-titillium text-[14px] font-[400] leading-[30px] tracking-[0.4px] text-[#8a8e91] whitespace-nowrap">
+                        <span className="font-rajdhani text-[14px] font-[500] leading-[30px] tracking-[0.4px] text-[#8a8e91] whitespace-nowrap">
                             ID: #{order.shortId}
                         </span>
                     </div>
 
 
-                    <span className="font-titillium text-[12px] font-[400] leading-[18px] text-[rgba(36,36,36,0.8)]">
+                    <span className="font-rajdhani text-[12px] font-[500] leading-[18px] text-[rgba(36,36,36,0.8)]">
                         {isFailedOrCancelled
                             ? order.cancellationReason && order.status === 'CANCELLED'
                                 ? `Cancellation Reason: ${order.cancellationReason}`

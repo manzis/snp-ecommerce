@@ -43,7 +43,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
   return (
     <section className="flex flex-col gap-[18px] w-full max-w-[700px] lg:max-w-none ">
       {/* SECTION HEADER */}
-      <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.4px] text-[#242424] leading-[18px]">
+      <h2 className="font-rajdhani text-[20px] font-semibold tracking-[-0.4px] text-[#242424] leading-[18px]">
         Delivery Details
       </h2>
 
@@ -69,10 +69,10 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
             <div className="flex items-center gap-[6px]">
               <HomeIcon className="w-[16px] h-[16px] text-[#242424]" />
               <div className="flex items-center gap-[6px]">
-                <span className="font-titillium text-[16px] font-semibold leading-[16px] tracking-[-0.02em] text-[#242424]">
+                <span className="font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.02em] text-[#242424]">
                   Home Delivery
                 </span>
-                <span className="font-titillium text-[16px] font-[300] leading-[16px] tracking-[-0.02em] text-[#242424]">
+                <span className="font-rajdhani text-[16px] font-[500] leading-[16px] tracking-[-0.02em] text-[#515151]">
                   Kathmandu, Nepal
                 </span>
               </div>
@@ -97,8 +97,8 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
                     </div>
                   </div>
                   <div className="flex flex-col justify-start items-start">
-                    <span className="font-titillium text-[13px] font-semibold leading-[16px] tracking-[-0.02em]">Home Delivery (Default)</span>
-                    <span className="font-titillium text-[12px] font-[300] leading-[18px] tracking-[-0.02em]">Kathmandu, Nepal..</span>
+                    <span className="font-rajdhani text-[13px] font-semibold leading-[16px] tracking-[-0.02em] text-[#242424]">Home Delivery (Default)</span>
+                    <span className="font-rajdhani text-[12px] font-[500] leading-[18px] tracking-[-0.02em] text-[#515151]">Kathmandu, Nepal..</span>
                   </div>
                 </div>
 
@@ -112,8 +112,8 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
                     </div>
                   </div>
                   <div className="flex flex-col justify-start items-start">
-                    <span className="font-titillium text-[13px] font-semibold leading-[16px] tracking-[-0.02em]">Pickup</span>
-                    <span className="font-titillium text-[12px] font-[300] leading-[18px] tracking-[-0.02em]">Via Nearest Branch</span>
+                    <span className="font-rajdhani text-[13px] font-semibold leading-[16px] tracking-[-0.02em] text-[#242424]">Pickup</span>
+                    <span className="font-rajdhani text-[12px] font-[500] leading-[18px] tracking-[-0.02em] text-[#515151]">Via Nearest Branch</span>
                   </div>
                 </div>
 
@@ -126,7 +126,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         {/* Delivery Date Row */}
         <div className="flex items-center gap-[6px] self-stretch rounded-[6px] bg-gray-50 px-[12px] py-[14px]">
           <VanIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0" />
-          <span className="font-titillium text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
+          <span className="font-rajdhani text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
             {getDeliveryText()}
           </span>
         </div>
@@ -135,15 +135,15 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         <div className="relative flex items-start gap-[6px] self-stretch rounded-[6px] bg-gray-50 px-[12px] py-[14px]">
           <StoreIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0 mt-[1px]" />
           <div className="flex flex-col items-start justify-center gap-[4px]">
-            <span className="font-titillium text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
+            <span className="font-rajdhani text-[16px] font-semibold tracking-[-0.32px] text-[#242424] leading-[16px]">
               Fullfilled By {seller?.name || 'Official Store'}
             </span>
-            <span className="font-titillium text-[12px] font-light text-[#242424] opacity-70 leading-[16px]">
+            <span className="font-rajdhani text-[12px] font-medium text-[#242424] opacity-70 leading-[16px]">
               {seller?.is_verified ? 'Authenticity Granted | Genuine Seller' : 'Platform Verified Seller'}
             </span>
             <Link
               href="/seller"
-              className="absolute right-[12px] bottom-[14px] mt-[4px] font-titillium text-[12px] font-normal underline text-[#242424] decoration-1 underline-offset-2"
+              className="absolute right-[12px] bottom-[14px] mt-[4px] font-rajdhani text-[12px] font-medium underline text-[#242424] decoration-1 underline-offset-2"
             >
               Know More
             </Link>

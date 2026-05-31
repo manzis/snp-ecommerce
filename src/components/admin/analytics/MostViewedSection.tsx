@@ -63,14 +63,14 @@ export const MostViewedSection = ({ topViewed, totalViews, onViewAll }: MostView
               <h3 className="self-stretch text-[13px] font-[600] leading-[18px] text-[#242424] truncate group-hover:text-blue-600 transition-colors">
                 {item.name || item.title}
               </h3>
-              <p className="text-[9px] font-[400] text-[#a1a1aa] uppercase tracking-wider">
+              <p className="text-[9px] font-[500] text-[#a1a1aa] uppercase tracking-wider">
                 {Math.round((item.view_count / (totalViews || 1)) * 100)}% reach
               </p>
             </div>
           </motion.div>
         ))}
         {topViewed.length === 0 && (
-          <div className="w-full py-12 text-center text-gray-400 font-normal italic bg-gray-50 rounded-[24px] border border-dashed border-gray-200">
+          <div className="w-full py-12 text-center text-gray-400 font-medium italic bg-gray-50 rounded-[24px] border border-dashed border-gray-200">
             No trending product data available.
           </div>
         )}

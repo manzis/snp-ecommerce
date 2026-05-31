@@ -134,15 +134,15 @@ export default function CustomerDetailsModal({
                             </span>
                         </div>
                         <div className="flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-4 mt-2">
-                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
+                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-medium">
                                 <Mail className="w-3.5 h-3.5" />
                                 <span>{customer.email}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
+                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-medium">
                                 <Phone className="w-3.5 h-3.5" />
                                 <span>{customer.phone}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
+                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-medium">
                                 <Calendar className="w-3.5 h-3.5" />
                                 <span>Joined {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             </div>
@@ -181,7 +181,7 @@ export default function CustomerDetailsModal({
                                         <div>
                                             <p className="text-[13px] font-semibold text-[#242424]">Order #{order.shortId || order.id.slice(0, 8)}</p>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-[10px] font-normal text-[#a1a1aa] uppercase tracking-wider">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                                <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-wider">{new Date(order.createdAt).toLocaleDateString()}</span>
                                                 <span className="text-[10px] font-semibold text-[#242424] uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">{order.status}</span>
                                             </div>
                                         </div>
@@ -223,7 +223,7 @@ export default function CustomerDetailsModal({
                                                     {order.status}
                                                 </span>
                                             </div>
-                                            <span className="text-[10px] text-[#a1a1aa] font-normal uppercase">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                            <span className="text-[10px] text-[#a1a1aa] font-medium uppercase">{new Date(order.createdAt).toLocaleDateString()}</span>
                                         </div>
                                         <div className="text-right flex flex-col items-end">
                                             <span className="text-[13px] font-semibold text-[#242424]">रु {order.totalAmount?.toLocaleString()}</span>

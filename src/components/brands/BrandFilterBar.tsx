@@ -32,7 +32,7 @@ const BrandFilterBar: React.FC<BrandFilterBarProps> = ({ onCategoryChange, selec
   return (
     <div className="flex flex-col w-full bg-white">
       <div className="flex items-center justify-between px-[24px] py-[24px] border-t border-[#f1f5f9]">
-        <span className="font-titillium text-[16px] font-semibold leading-[26px] tracking-[-0.64px] text-[#242424]">
+        <span className="font-rajdhani text-[16px] font-semibold leading-[26px] tracking-[-0.64px] text-[#242424]">
           All Products
         </span>
         
@@ -41,7 +41,7 @@ const BrandFilterBar: React.FC<BrandFilterBarProps> = ({ onCategoryChange, selec
             onClick={() => setIsOpen(!isOpen)}
             className="flex w-[155px] items-center justify-center gap-[8px] rounded-[6px] border border-[#eaebf0] px-[8px] py-[8px] transition-all active:scale-95"
           >
-            <span className="font-titillium text-[16px] font-normal leading-[26px] tracking-[-0.64px] text-[#979797] truncate">
+            <span className="font-rajdhani text-[16px] font-medium leading-[26px] tracking-[-0.64px] text-[#979797] truncate">
               {selectedCategory ? selectedCategory.toUpperCase() : 'Sort By Category'}
             </span>
             <div className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -60,7 +60,7 @@ const BrandFilterBar: React.FC<BrandFilterBarProps> = ({ onCategoryChange, selec
                   <div className={`flex h-[16px] w-[16px] items-center justify-center rounded-[4px] border ${selectedCategory === cat.value ? 'bg-[#3F9733] border-[#3F9733]' : 'border-[#d0d5dd]'}`}>
                     {selectedCategory === cat.value && <TickIcon className="w-[8px] h-[8px] text-white" />}
                   </div>
-                  <span className="font-titillium text-[14px] text-[#242424]">{cat.label}</span>
+                  <span className="font-rajdhani text-[14px] text-[#242424]">{cat.label}</span>
                 </div>
               ))}
             </div>

@@ -28,8 +28,8 @@ export const MetricCard = ({ title, value, subtext, icon: Icon, trend }: MetricC
         </span>
       )}
     </div>
-    <h3 className="text-sm font-normal text-[#71717a] mb-1">{title}</h3>
+    <h3 className="text-sm font-medium text-[#71717a] mb-1">{title}</h3>
     <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">{value}</p>
-    <p className="text-xs text-[#a1a1aa] mt-2 font-normal">{subtext}</p>
+    <p className="text-xs text-[#a1a1aa] mt-2 font-medium">{subtext}</p>
   </motion.div>
 );

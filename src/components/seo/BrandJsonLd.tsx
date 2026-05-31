@@ -65,7 +65,7 @@ export default function BrandJsonLd({
         '@type': 'ListItem',
         position: 2,
         name: 'Brands',
-        item: `${SITE_URL}/brands`,
+        item: `${SITE_URL}/brand`,
       },
       {
         '@type': 'ListItem',

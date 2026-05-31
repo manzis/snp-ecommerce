@@ -7,10 +7,11 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        titillium: ["var(--font-titillium)", "sans-serif"],
+        rajdhani: ["var(--font-rajdhani)", "sans-serif"],
         inter: ["var(--font-inter)", "sans-serif"],
         interTight: ["var(--font-inter-tight)", "sans-serif"],
         rubik: ["var(--font-rubik)", "sans-serif"],
+        barlow: ["var(--font-barlow)", "sans-serif"],
       },
       keyframes: {
         marquee: {

@@ -54,14 +54,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {/* RATING BADGE (TOP LEFT) */}
             <div className="absolute left-[11px] top-[11px] z-[10] flex items-center justify-center gap-[2px] overflow-hidden rounded-[6px] bg-[#ffe900] px-[8px] py-[6px]">
                 <StarIcon className="h-[10px] w-[10px] text-[#242424]" />
-                <span className="font-titillium text-[10px] font-semibold leading-[10px] text-[#242424]">
+                <span className="font-rajdhani text-[10px] font-semibold leading-[10px] text-[#242424]">
                     {rating}
                 </span>
             </div>
 
             {/* DISCOUNT BADGE (TOP RIGHT) */}
             <div className="absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[6px] py-[2px]">
-                <span className="font-custom text-[10px] font-normal leading-[14px] text-[#242424]">
+ <span className="font-rajdhani font-bold text-[10px] leading-[14px] text-[#242424]">
                     save {discountPercentage}%
                 </span>
             </div>
@@ -80,7 +80,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {finalStockStatus === 'out_of_stock' && (
                     <div className="absolute inset-0 z-[11] flex items-center justify-center p-2">
                         <div className="w-full bg-red-600/95 py-2 flex items-center justify-center shadow-xl transform -rotate-1">
-                            <span className="font-custom text-[11px] font-bold tracking-[0.2em] text-white uppercase drop-shadow-sm">
+ <span className="font-rajdhani font-bold text-[11px] font-bold tracking-[0.2em] text-white uppercase drop-shadow-sm">
                                 Out of Stock
                             </span>
                         </div>
@@ -90,16 +90,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
             {/* PRODUCT DETAILS BLOCK */}
             <div className="flex w-full flex-shrink-0 flex-col items-start gap-[8px] rounded-[12px] bg-[#f7faf6] px-[16px] pb-[16px] pt-[8px] transition-colors group-hover:bg-[#f2f9f1]">
-                <div className="flex flex-col items-start justify-end gap-[4px] self-stretch pb-[2px]">
-                    <div className="flex flex-col items-start gap-[2px] self-stretch pb-[4px]">
-                        <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#818B73] uppercase">
+                <div className="flex flex-col items-start justify-end gap-[2px] self-stretch pb-[2px]">
+                    <div className="flex flex-col items-start gap-[2px] self-stretch pb-[0px]">
+                        <span className="font-rajdhani text-[10px] font-medium leading-[14px] text-[#818B73] uppercase">
                             {brand}
                         </span>
-                        <div className="h-[16px] self-stretch overflow-hidden truncate font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c]">
+ <div className="h-[20px] self-stretch overflow-hidden truncate font-rajdhani font-bold text-[13px] leading-[20px] tracking-[0.2px] text-[#485d2c]">
                             {title}
                         </div>
                         {benefit && (
-                            <span className="font-titillium text-[11px] font-medium leading-[14px] text-[#5ca452] truncate w-full mt-[2px]">
+                            <span className="font-rajdhani text-[11px] font-medium leading-[14px] text-[#5ca452] truncate w-full mb-[2px]">
                                 ✓ {benefit}
                             </span>
                         )}
@@ -108,10 +108,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     {/* PRICING ROW */}
                     <div className="flex items-start gap-[6px] self-stretch">
                         <div className="flex flex-1 shrink-0 items-center gap-[6px]">
-                            <span className="font-titillium text-[16px] font-normal leading-[22px] tracking-[-1.12px] text-[#979797] line-through">
+                            <span className="font-rajdhani text-[16px] font-medium leading-[22px] tracking-[-1.12px] text-[#979797] line-through">
                                 Rs. {originalPrice}
                             </span>
-                            <span className="bg-[linear-gradient(68.09deg,#308026,#32d71d)] bg-clip-text font-custom text-[16px] font-normal leading-[22px] text-transparent">
+ <span className="bg-[linear-gradient(68.09deg,#308026,#32d71d)] bg-clip-text font-rajdhani font-bold text-[16px] leading-[22px] text-transparent">
                                 Rs. {discountedPrice}
                             </span>
                         </div>

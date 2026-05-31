@@ -459,8 +459,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                             </div>
                         </div>
                         <div className="flex flex-col text-left">
-                            <span className="font-custom text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
-                            <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercase tracking-wider">Powered By Bright Nepcare Pvt. Ltd.</span>
+ <span className="uppercase font-rajdhani font-bold text-[18px] leading-[24px] text-[#e8ffe5] [text-shadow:0_1px_2px_rgba(16,24,40,0.04)]">Supplyment Nepal</span>
+                            <span className="text-[10px] font-medium leading-[12px] text-[#b1e7aa] uppercaser">Powered By Bright Nepcare Pvt. Ltd.</span>
                         </div>
                     </div>
                     <button onClick={isPage ? () => window.location.href = '/' : closeLogin} className="lg:hidden flex w-[44px] h-[44px] items-center justify-center bg-[#edffe7] rounded-[12px]">
@@ -468,7 +468,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                     </button>
                 </div>
                 <div className="hidden lg:flex flex-col gap-[12px] text-left">
-                    <h2 className="font-custom text-[32px] text-white leading-tight">Your journey to peak <br /> fitness starts here.</h2>
+ <h2 className="font-rajdhani font-bold text-[32px] text-white leading-tight">Your journey to peak <br /> fitness starts here.</h2>
                     <p className="text-[#b1e7aa] text-[16px]">Access exclusive deals and track your fitness essentials.</p>
                 </div>
             </section>
@@ -485,7 +485,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                             className="flex flex-col gap-[30px]"
                         >
                             <header className="flex flex-col gap-[10px] text-left">
-                                <h1 className="text-[24px] font-[700] leading-[36px] tracking-[-0.1px] bg-[linear-gradient(46.44deg,#242424,#7d857b)] bg-clip-text text-transparent">Login to get Started</h1>
+                                <h1 className="text-[24px] font-[700] leading-[36px] bg-[linear-gradient(46.44deg,#242424,#7d857b)] bg-clip-text text-transparent">Login to get Started</h1>
                             </header>
                             <div className="flex flex-col gap-[14px]">
                                 <div className="flex flex-col gap-[16px]">
@@ -495,7 +495,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                     </div>
                                     {error && (
                                         <div className="flex items-center gap-[8px] mt-[-10px]">
-                                            <span className="text-red-500 text-[12px] font-titillium">{error}</span>
+                                            <span className="text-red-500 text-[12px] font-rajdhani">{error}</span>
                                             {emailSuggestion && (
                                                 <button
                                                     type="button"
@@ -524,7 +524,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-[16px] items-center">
-                                <span className="text-[12px] font-[600] text-[#7b838d] tracking-widest">OR LOGIN WITH</span>
+                                <span className="text-[12px] font-[600] text-[#7b838d]st">OR LOGIN WITH</span>
                                 <div className="flex gap-[12px] w-full max-w-[320px] justify-center">
                                     <button disabled={isSending} onClick={handleGoogleLogin} className="flex h-[48px] w-full items-center justify-center gap-[10px] rounded-[12px] border border-[#f1f5f9] bg-white transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-70">
                                         <GoogleIcon className="w-[18px] h-[18px]" />
@@ -570,7 +570,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                 </div>
 
                                 <div className="flex items-start gap-[10px] mt-[10px]">
-                                    <h1 className="text-[24px]  font-[700]  leading-[36px] tracking-[-0.1px] bg-[linear-gradient(46.44deg,#242424,#7d857b)] bg-clip-text text-transparent">
+                                    <h1 className="text-[24px]  font-[700]  leading-[36px] bg-[linear-gradient(46.44deg,#242424,#7d857b)] bg-clip-text text-transparent">
                                         Verify OTP
                                     </h1>
                                 </div>
@@ -617,7 +617,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                                     >
                                         {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : "Resend Code"}
                                     </button>
-                                    {statusMsg && <span className="text-[#308026] text-[12px] font-titillium animate-pulse">{statusMsg}</span>}
+                                    {statusMsg && <span className="text-[#308026] text-[12px] font-rajdhani animate-pulse">{statusMsg}</span>}
                                 </div>
                             </div>
                         </motion.div>
@@ -633,7 +633,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
                 <div className="hidden lg:block">
                     <FloatingNav alwaysScrolled={true} />
                 </div>
-                <main className="flex items-start lg:items-center justify-center font-titillium mb-[36px]  min-h-screen ">{Content}</main>
+                <main className="flex items-start lg:items-center justify-center font-rajdhani mb-[36px]  min-h-screen ">{Content}</main>
                 <CartSidebar />
             </>
         );

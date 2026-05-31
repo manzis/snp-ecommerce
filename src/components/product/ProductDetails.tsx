@@ -47,7 +47,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   return (
     <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none px-[24px]">
       {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
-      <h2 className="h-[18px] font-titillium text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
+      <h2 className="h-[18px] font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
         Product Details
       </h2>
 
@@ -68,7 +68,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     : 'bg-[#fafbfc] border-[#eaebf0]'}
                 `}
               >
-                <span className={`font-titillium text-[14px] font-semibold leading-[24px] tracking-[0.1px] whitespace-nowrap transition-colors duration-300
+                <span className={`font-rajdhani text-[14px] font-semibold leading-[24px] tracking-[0.1px] whitespace-nowrap transition-colors duration-300
                   ${activeTab === tab.id ? 'text-white' : 'text-[#252525]'}
                 `}>
                   {tab.label}
@@ -82,10 +82,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         <div className="relative w-full ">
 
           {activeTab === 'description' && (
-            <div className="w-full font-titillium text-[16px] font-normal leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
               {info?.description ? (
                 <div 
-                  className="font-titillium text-[16px] leading-[24px] text-[#242424] prose-sm max-w-none [&_*]:!font-titillium [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1"
+                  className="font-rajdhani text-[16px] leading-[24px] text-[#242424] prose-sm max-w-none [&_*]:!font-rajdhani [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1"
                   dangerouslySetInnerHTML={{ __html: info.description }} 
                 />
               ) : (
@@ -126,7 +126,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                         <span className="font-inter text-[14px] font-semibold leading-[20px] text-[#242424] tracking-[0.1px]">
                           {key}
                         </span>
-                        <span className="font-inter text-[16px] font-normal leading-[20px] text-[#242424]">
+                        <span className="font-inter text-[16px] font-medium leading-[20px] text-[#242424]">
                           {String(val)}
                         </span>
                       </div>
@@ -169,7 +169,7 @@ const DetailItem = ({ label, value, border = true }: { label: string; value: str
     <span className="font-inter text-[14px] font-semibold leading-[20px] text-[#242424] tracking-[0.1px] whitespace-nowrap">
       {label}
     </span>
-    <span className="font-inter text-[16px] font-normal leading-[20px] text-[#242424] line-clamp-2">
+    <span className="font-inter text-[16px] font-medium leading-[20px] text-[#242424] line-clamp-2">
       {value}
     </span>
   </div>

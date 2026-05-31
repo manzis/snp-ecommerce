@@ -28,7 +28,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
       {addresses.length > 0 ? (
         <div className="w-full max-w-full min-w-0 flex flex-col gap-[20px]">
           <div className="flex justify-between items-center">
-            <span className="font-titillium text-[18px] font-semibold leading-[22px] text-[#242424]">
+            <span className="font-rajdhani text-[18px] font-semibold leading-[22px] text-[#242424]">
               Your saved addresses:
             </span>
             <button
@@ -39,7 +39,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              <span className="font-titillium text-[14px] font-semibold text-[#308026]">Add New</span>
+              <span className="font-rajdhani text-[14px] font-semibold text-[#308026]">Add New</span>
             </button>
           </div>
 
@@ -52,10 +52,10 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                   }`}
               >
                 <div className="flex flex-col gap-[4px] min-w-0 flex-1">
-                  <p className="font-titillium text-[18px] text-[#242424] truncate">
+                  <p className="font-rajdhani text-[18px] text-[#242424] truncate">
                     <span className="font-semibold">Delivery To :</span> {addr.first_name} {addr.last_name}
                   </p>
-                  <div className="flex flex-col text-[#838383] font-titillium min-w-0">
+                  <div className="flex flex-col text-[#838383] font-rajdhani min-w-0">
                     <p className="text-[15px] truncate">
                       {addr.address_line_1}, {addr.street}, {addr.area ? `${addr.area}, ` : ''}{addr.city} - {addr.pincode}
                     </p>
@@ -67,7 +67,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
 
                 {selectedId === addr.id && (
                   <div className="absolute -top-[10px] left-[18px] flex items-center justify-center bg-white px-[10px] py-[4px] border border-black rounded-[24px] z-10">
-                    <span className="font-titillium text-[12px] font-semibold leading-[14px] text-[#242424] tracking-[0.1px] whitespace-nowrap">
+                    <span className="font-rajdhani text-[12px] font-semibold leading-[14px] text-[#242424] tracking-[0.1px] whitespace-nowrap">
                       Selected
                     </span>
                   </div>
@@ -77,12 +77,12 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                   onClick={(e) => { e.stopPropagation(); onEdit(addr.id!); }}
                   className="ml-[12px] flex items-center justify-center p-[4px_18px] border border-[#eaebf0] rounded-[8px] bg-white  active:scale-95 transition-transform shrink-0"
                 >
-                  <span className="font-titillium text-[13px] font-semibold text-[#6a6c6e]">Edit</span>
+                  <span className="font-rajdhani text-[13px] font-semibold text-[#6a6c6e]">Edit</span>
                 </button>
 
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(addr.id!); }}
-                  className="absolute bottom-[12px] right-[16px] font-titillium text-[11px] font-semibold text-[#d92d20] hover:underline active:scale-95 transition-transform"
+                  className="absolute bottom-[12px] right-[16px] font-rajdhani text-[11px] font-semibold text-[#d92d20] hover:underline active:scale-95 transition-transform"
                 >
                   Remove
                 </button>
@@ -94,7 +94,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
         /* Empty State with Add New */
         <div className="flex justify-between items-end w-full pt-[8px] gap-[24px]">
           <div className="flex flex-col gap-[16px] flex-grow">
-            <p className="font-titillium text-[14px] text-[#838383] leading-[22px]">
+            <p className="font-rajdhani text-[14px] text-[#838383] leading-[22px]">
               No Saved addresses Found, Try Adding a New address !
             </p>
           </div>
@@ -102,7 +102,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
             onClick={onAddNew}
             className="shrink-0 flex items-center gap-[6px] p-[8px_12px] rounded-[8px] bg-[#242424] active:scale-95 transition-all"
           >
-            <span className="font-titillium text-[14px] font-semibold text-white">Add new</span>
+            <span className="font-rajdhani text-[14px] font-semibold text-white">Add new</span>
             <PlusIcon className="w-[16px] h-[16px] text-white rotate-180" />
           </button>
         </div>

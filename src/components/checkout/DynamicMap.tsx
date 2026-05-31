@@ -67,7 +67,7 @@ const MapSearchControl: React.FC<{ onLocationSelect: (lat: number, lng: number, 
               className="px-[16px] py-[12px] border-b border-[#eaebf0] cursor-pointer hover:bg-[#fafbfb] active:bg-[#f1f5f9] transition-colors last:border-b-0"
               onClick={() => handleSelect(res.lat, res.lon, res.display_name)}
             >
-              <p className="font-titillium text-[13px] text-[#242424] line-clamp-2 leading-[18px]">
+              <p className="font-rajdhani text-[13px] text-[#242424] line-clamp-2 leading-[18px]">
                 {res.display_name}
               </p>
             </div>
@@ -81,7 +81,7 @@ const MapSearchControl: React.FC<{ onLocationSelect: (lat: number, lng: number, 
           placeholder="Search location..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full h-[52px] px-[16px] rounded-[12px] bg-white border border-[#ffffff] font-titillium text-[16px] outline-none focus:border-[#242424] focus:border-[1.5px] transition-colors"
+          className="w-full h-[52px] px-[16px] rounded-[12px] bg-white border border-[#ffffff] font-rajdhani text-[16px] outline-none focus:border-[#242424] focus:border-[1.5px] transition-colors"
         />
         {query && (
           <button
@@ -183,8 +183,8 @@ const DynamicMap: React.FC<DynamicMapProps> = ({ defaultLat, defaultLng, onLocat
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-titillium font-bold text-[14px] text-[#242424]">Selected Place</span>
-            <span className="font-titillium text-[13px] text-[#838383] leading-[18px] line-clamp-2">{displayAddress}</span>
+ <span className="font-rajdhani font-bold text-[14px] text-[#242424]">Selected Place</span>
+            <span className="font-rajdhani text-[13px] text-[#838383] leading-[18px] line-clamp-2">{displayAddress}</span>
           </div>
         </div>
 

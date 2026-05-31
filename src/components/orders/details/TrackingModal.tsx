@@ -452,7 +452,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
 
                     {/* Header */}
                     <div className="flex w-full items-center justify-start py-[16px]">
-                        <h2 className="font-titillium text-[20px] font-[700] leading-[18px] text-[#242424]">
+                        <h2 className="font-rajdhani text-[20px] font-[700] leading-[18px] text-[#242424]">
                             Tracking Details
                         </h2>
                     </div>
@@ -461,19 +461,19 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                     <div className="flex w-full flex-col rounded-[12px] bg-[#FCFFF3] border border-[#EDF0E4] pt-[16px] pb-[8px]">
                         <div className="flex w-full items-center">
                             <div className="flex flex-1 flex-col items-start gap-[4px] border-r border-[#e2e8f0] px-[16px]">
-                                <span className="font-titillium text-[14px] font-[400] leading-[18px] text-[#242424]">
+                                <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#242424]">
                                     Delivery Partner
                                 </span>
-                                <span className="font-titillium text-[14px] font-[600] leading-[18px] text-[#242424]">
+                                <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424]">
                                     {carrierName || 'Unknown'}
                                 </span>
                             </div>
                             <div className="flex flex-1 flex-col items-start gap-[4px] px-[20px]">
-                                <span className="w-full font-titillium text-[14px] font-[400] leading-[18px] text-[#242424]">
+                                <span className="w-full font-rajdhani text-[14px] font-[500] leading-[18px] text-[#242424]">
                                     Tracking Details
                                 </span>
                                 <div className="flex items-center gap-[4px]">
-                                    <span className="font-titillium text-[14px] font-[600] leading-[18px] text-[#242424] max-w-[130px] truncate">
+                                    <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424] max-w-[130px] truncate">
                                         {trackingNumber || 'Unassigned'}
                                     </span>
                                     <div className="h-[16px] w-[16px] shrink-0">
@@ -484,7 +484,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                         </div>
                         {/* Note Section Integrated */}
                         <div className="w-full px-[16px] mt-[12px] pt-[8px] border-t border-[#e2e8f0]/50">
-                            <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#626262]">
+                            <p className="font-rajdhani text-[11px] font-[500] leading-[15px] text-[#626262]">
                                 <span className="font-[600]">Note:</span> Career details are only available once the product has been shipped or Dispatch from the warehouse !
                             </p>
                         </div>
@@ -493,17 +493,17 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                     {/* Expected Delivery Section */}
                     {showExpectedDelivery && (
                         <div className="flex w-full flex-col rounded-[12px] bg-[#F2F9F1] p-[16px] gap-[4px] relative overflow-hidden">
-                            <span className="font-titillium text-[11px] font-[600] text-[#308026] uppercase tracking-[0.5px] leading-none">
+                            <span className="font-rajdhani text-[11px] font-[600] text-[#308026] uppercase tracking-[0.5px] leading-none">
                                 {deliveryTitle}
                             </span>
                             <div className="flex items-center justify-between mt-[2px]">
-                                <span className="font-titillium text-[16px] font-[700] text-[#242424] leading-none">
+                                <span className="font-rajdhani text-[16px] font-[700] text-[#242424] leading-none">
                                     {deliveryValue}
                                 </span>
                                 {normalizedCurrentStatus !== 'DELIVERED' && normalizedCurrentStatus !== 'CANCELLED' && (
                                     <Link
                                         href="/info#shipping-policy"
-                                        className="font-titillium text-[12px] font-[600] text-[#308026] underline hover:text-[#242424] transition-colors"
+                                        className="font-rajdhani text-[12px] font-[600] text-[#308026] underline hover:text-[#242424] transition-colors"
                                     >
                                         Know why?
                                     </Link>
@@ -515,7 +515,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                     {/* Detailed Timeline Area */}
                     <div className="flex w-full flex-col flex-1 p-[24px_24px_20px] overflow-y-auto scrollbar-hide">
                         {statusUpdates.length === 0 ? (
-                            <div className="w-full text-center py-4 font-titillium text-[14px] text-[#626262]">
+                            <div className="w-full text-center py-4 font-rajdhani text-[14px] text-[#626262]">
                                 No tracking updates available yet.
                             </div>
                         ) : (
@@ -568,11 +568,11 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                                 />
 
                                                 <div className="flex items-center gap-[8px]">
-                                                    <span className={`font-titillium text-[15px] font-[700] tracking-[0.2px] leading-[1] ${group.isActive ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
+                                                    <span className={`font-rajdhani text-[15px] font-[700] tracking-[0.2px] leading-[1] ${group.isActive ? 'text-[#242424]' : 'text-[#8a8e91]'}`}>
                                                         {group.label}
                                                     </span>
                                                     {group.isActive && (
-                                                        <span className="font-titillium text-[11px] font-[600] text-[#8a8e91]">
+                                                        <span className="font-rajdhani text-[11px] font-[600] text-[#8a8e91]">
                                                             {(() => {
                                                                 if (group.id === 'DELIVERY' && currentStatus === 'CANCELLED') {
                                                                     return '';
@@ -634,13 +634,13 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                                                         />
 
                                                                         <div className="flex flex-col items-start gap-[2px]">
-                                                                            <span className={`font-titillium text-[12px] font-[700] tracking-[0.2px] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>
+                                                                            <span className={`font-rajdhani text-[12px] font-[700] tracking-[0.2px] ${log.isActive ? 'text-[#4a4a4a]' : 'text-[#8a8e91]'}`}>
                                                                                 {log.id === 'virtual-DELAYED' || (log.data.status || '').toUpperCase() === 'DELAYED' || (log.data.status || '').toUpperCase() === 'SHIPMENT_DELAYED' ? (group.id === 'SHIPPED' ? 'Shipment Delayed' : 'Order Delayed') : log.status.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}
                                                                             </span>
-                                                                            <p className="font-titillium text-[11px] font-[400] leading-[15px] text-[#575757]">
+                                                                            <p className="font-rajdhani text-[11px] font-[500] leading-[15px] text-[#575757]">
                                                                                 {log.data.message}
                                                                             </p>
-                                                                            <span className="font-titillium text-[10px] font-[400] text-[#8a8e91] opacity-70">
+                                                                            <span className="font-rajdhani text-[10px] font-[500] text-[#8a8e91] opacity-70">
                                                                                 {new Date(log.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, {new Date(log.data.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                                                 {log.data.location ? ` • ${log.data.location}` : ''}
                                                                             </span>
@@ -664,7 +664,7 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                         <div className="mt-[2px] shrink-0 md:mt-0">
                             <InfoIcon className="h-[16px] w-[16px] text-white" />
                         </div>
-                        <span className="flex-1 font-titillium text-[13px] font-[400] leading-[18px] text-[#ffffff]">
+                        <span className="flex-1 font-rajdhani text-[13px] font-[500] leading-[18px] text-[#ffffff]">
                             This is the same tracking information our customer support can access
                         </span>
                     </div>

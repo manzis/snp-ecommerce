@@ -35,10 +35,10 @@ const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false, deals =
             {/* Shimmer keyframe moved to globals.css — limited to 3 iterations for CPU savings */}
 
             <header className={`flex flex-col items-center lg:items-center gap-[16px] px-[24px] lg:px-0 ${isHeroWidget ? 'mb-[20px] ' : 'mb-[28px] text-center lg:items-center'}`}>
-                <h2 className={` font-custom text-[#308026] ${isHeroWidget ? 'text-[24px]  leading-[28px]' : 'text-[24px] leading-[30px] lg:text-[42px] lg:leading-[48px]'}`}>
+ <h2 className={` font-rajdhani font-bold text-[#308026] ${isHeroWidget ? 'text-[24px] leading-[28px]' : 'text-[24px] leading-[30px] lg:text-[42px] lg:leading-[48px]'}`}>
                     Today’s Best Deal
                 </h2>
-                <p className={`font-titillium font-[300] text-[#575757] ${isHeroWidget ? 'text-[14px]  leading-[18px]' : 'text-[16px] leading-[22px] lg:text-[18px]'}`}>
+                <p className={`font-rajdhani font-[500] text-[#515151] ${isHeroWidget ? 'text-[14px]  leading-[18px]' : 'text-[16px] leading-[22px] lg:text-[18px]'}`}>
                     Never miss the opportunity to buy best
                 </p>
             </header>
@@ -54,14 +54,14 @@ const TodaysDeals: React.FC<TodaysDealsProps> = ({ isHeroWidget = false, deals =
                         {/* THE SHINE ELEMENT */}
                         <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-r from-transparent via-white/30 to-transparent w-full h-full animate-shimmer-custom" />
 
-                        <span className="relative z-10 font-titillium text-[12px] font-[400] uppercase tracking-[0.05em] opacity-90 lg:text-[14px]">
+                        <span className="relative z-10 font-rajdhani text-[12px] font-[500] uppercase tracking-[0.05em] opacity-90 lg:text-[14px]">
                             up to
                         </span>
                         <div className="relative z-10 flex flex-col items-start">
-                            <span className="font-custom text-[24px] leading-tight lg:text-[28px]">
+ <span className="font-rajdhani font-bold text-[24px] leading-tight lg:text-[28px]">
                                 20%
                             </span>
-                            <span className="font-custom text-[24px] leading-tight lg:text-[22px]">
+ <span className="font-rajdhani font-bold text-[24px] leading-tight lg:text-[22px]">
                                 OFF
                             </span>
                         </div>
@@ -98,7 +98,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
         >
             {/* DISCOUNT BADGE */}
             <div className={`absolute top-[10px] z-10 flex h-[21px] w-[54px] items-center justify-center rounded-[6px] bg-[#94ff00] px-[6px] py-[2px] ${isWide ? 'right-[12px]' : 'right-[8px]'}`}>
-                <span className="font-custom text-[10px] font-normal leading-[14px] text-[#242424]">save {deal.discount}%</span>
+ <span className="font-rajdhani font-bold text-[10px] leading-[14px] text-[#242424]">save {deal.discount}%</span>
             </div>
 
             {/* IMAGE CONTAINER */}
@@ -116,17 +116,17 @@ const DealCard: React.FC<DealCardProps> = ({ deal, className, isWide }) => {
             {/* INFO BLOCK */}
             <div className={`flex flex-col justify-center rounded-[12px] bg-[#f7faf6] px-[16px] ${isWide ? 'flex-1 h-full py-[12px]' : 'w-full shrink-0 pb-[16px] pt-[8px]'}`}>
                 <div className="flex flex-col gap-[2px]">
-                    <span className="font-titillium text-[10px] font-normal leading-[14px] text-[#bebebe]">{deal.brand}</span>
-                    <h3 className="line-clamp-2 font-custom text-[12px] font-normal leading-[16px] tracking-[0.2px] text-[#485d2c] lg:text-[16px] lg:leading-[20px]">{deal.title}</h3>
+                    <span className="font-rajdhani text-[10px] font-medium leading-[14px] text-[#bebebe]">{deal.brand}</span>
+ <h3 className="line-clamp-2 font-rajdhani font-bold text-[12px] leading-[16px] tracking-[0.2px] text-[#485d2c] lg:text-[16px] lg:leading-[20px]">{deal.title}</h3>
                 </div>
                 <div className="flex items-center gap-[6px] lg:gap-[10px]">
               {/* Original Price - Strikethrough */}
-              <span className="font-titillium text-[16px] lg:text-[18px] font-normal leading-[22px] text-[#979797] line-through tracking-[-1.12px]">
+              <span className="font-rajdhani text-[16px] lg:text-[18px] font-medium leading-[22px] text-[#979797] line-through tracking-[-1.12px]">
                 Rs. {deal.originalPrice}
               </span>
               
               {/* Discounted Price - Custom Font + Brand Green Gradient */}
-              <span className="font-custom text-[17px] lg:text-[20px] font-normal leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
+ <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
                 Rs. {deal.discountedPrice}
               </span>
             </div>

@@ -56,14 +56,14 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
           </div>
 
           {/* Label */}
-          <span className="font-titillium text-[16px] font-semibold leading-[24px] tracking-[-0.07px] text-[#242424]">
+          <span className="font-rajdhani text-[16px] font-semibold leading-[24px] tracking-[-0.07px] text-[#242424]">
             {label}
           </span>
 
           {/* Popular Tag */}
           {isPopular && (
             <div className="flex h-[18px] px-[6px] justify-center items-center bg-[#3f9633] rounded-[6px] ml-[2px]">
-              <span className="font-titillium text-[10px] font-normal leading-[6px] text-white tracking-[0.2px] uppercase">
+              <span className="font-rajdhani text-[10px] font-medium leading-[6px] text-white tracking-[0.2px] uppercase">
                 POPULAR
               </span>
             </div>

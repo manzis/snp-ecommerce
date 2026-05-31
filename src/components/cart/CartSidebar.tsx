@@ -163,8 +163,8 @@ export default function CartSidebar() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100 shrink-0">
               <div>
-                <h2 className="text-xl font-bold text-[#242424] font-titillium">My Cart</h2>
-                <p className="text-sm text-[#71717a] font-titillium">{items.length} Items</p>
+                <h2 className="text-xl font-bold text-[#242424] font-rajdhani">My Cart</h2>
+                <p className="text-sm text-[#71717a] font-rajdhani">{items.length} Items</p>
               </div>
               <button
                 onClick={() => setCartOpen(false)}
@@ -207,10 +207,10 @@ export default function CartSidebar() {
                         className="object-contain"
                       />
                     </div>
-                    <h2 className="font-custom text-xl text-[#242424] text-center leading-tight">
+ <h2 className="font-rajdhani font-bold text-xl text-[#242424] text-center leading-tight">
                       Your Cart is Empty
                     </h2>
-                    <p className="font-titillium text-sm text-[#8a8e91] text-center mt-[-8px]">
+                    <p className="font-rajdhani text-sm text-[#8a8e91] text-center mt-[-8px]">
                       Stack up your daily dose of fitness now!
                     </p>
                     <button
@@ -218,7 +218,7 @@ export default function CartSidebar() {
                         setCartOpen(false);
                         router.push('/products');
                       }}
-                      className="mt-3 flex h-12 items-center justify-center rounded-2xl bg-[#3F9733] hover:bg-[#347d2a] px-8 font-titillium text-base font-semibold text-white transition-all active:scale-[0.98]"
+                      className="mt-3 flex h-12 items-center justify-center rounded-2xl bg-[#3F9733] hover:bg-[#347d2a] px-8 font-rajdhani text-base font-semibold text-white transition-all active:scale-[0.98]"
                     >
                       Shop Now
                     </button>
@@ -267,7 +267,7 @@ export default function CartSidebar() {
                   className="fixed bottom-0 left-0 right-0 lg:left-auto lg:right-0 z-[130] flex flex-col w-full lg:w-[450px] bg-white rounded-t-[24px] max-h-[90vh] lg:max-h-screen lg:rounded-none overflow-hidden"
                 >
                   <div className="flex justify-between items-center p-6 border-b border-gray-100">
-                    <h2 className="font-titillium text-xl font-bold text-[#242424]">Select Delivery Address</h2>
+                    <h2 className="font-rajdhani text-xl font-bold text-[#242424]">Select Delivery Address</h2>
                     <button onClick={() => setIsSelectionModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-full">
                       <X className="w-5 h-5" />
                     </button>

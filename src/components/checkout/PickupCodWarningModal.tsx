@@ -58,10 +58,10 @@ const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
             </div>
           </div>
 
-          <h2 className="mb-[8px] font-titillium text-[20px] font-bold leading-[28px] tracking-[-0.5px] text-[#242424]">
+          <h2 className="mb-[8px] font-rajdhani text-[20px] font-bold leading-[28px] tracking-[-0.5px] text-[#242424]">
             {mode === 'pickup-warning' ? 'Action Required' : 'Confirm Cash on Delivery'}
           </h2>
-          <p className="mb-[24px] font-titillium text-[14px] leading-[20px] text-[#575757]">
+          <p className="mb-[24px] font-rajdhani text-[14px] leading-[20px] text-[#575757]">
             {mode === 'pickup-warning'
               ? (
                 <>
@@ -80,13 +80,13 @@ const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
               <>
                 <button
                   onClick={onSwitchToHomeDelivery}
-                  className="flex w-full items-center justify-center rounded-[10px] bg-[#ffe900] py-[12px] font-titillium text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#f5e000]"
+                  className="flex w-full items-center justify-center rounded-[10px] bg-[#ffe900] py-[12px] font-rajdhani text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#f5e000]"
                 >
                   Switch to Home delivery
                 </button>
                 <button
                   onClick={onPayOnline}
-                  className="flex w-full items-center justify-center rounded-[10px] bg-[#f1f5f9] py-[12px] font-titillium text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#e2e8f0]"
+                  className="flex w-full items-center justify-center rounded-[10px] bg-[#f1f5f9] py-[12px] font-rajdhani text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#e2e8f0]"
                 >
                   Pay online
                 </button>
@@ -95,13 +95,13 @@ const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
               <>
                 <button
                   onClick={onConfirmOrder}
-                  className="flex w-full items-center justify-center rounded-[10px] bg-[#ffe900] py-[12px] font-titillium text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#f5e000]"
+                  className="flex w-full items-center justify-center rounded-[10px] bg-[#ffe900] py-[12px] font-rajdhani text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#f5e000]"
                 >
                   Confirm Order
                 </button>
                 <button
                   onClick={onPayOnline}
-                  className="flex w-full items-center justify-center rounded-[10px] bg-[#f1f5f9] py-[12px] font-titillium text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#e2e8f0]"
+                  className="flex w-full items-center justify-center rounded-[10px] bg-[#f1f5f9] py-[12px] font-rajdhani text-[15px] font-bold text-[#242424] transition-all active:scale-[0.98] hover:bg-[#e2e8f0]"
                 >
                   Pay online instead
                 </button>

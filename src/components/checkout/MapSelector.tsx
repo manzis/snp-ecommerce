@@ -9,7 +9,7 @@ import type { DynamicMapProps } from './DynamicMap';
 // Dynamic import for the actual map wrapper to avoid "window is not defined" Server-Side Rendering errors in Next.js
 const DynamicMap = dynamic<DynamicMapProps>(() => import('./DynamicMap'), {
   ssr: false,
-  loading: () => <div className="w-full h-full min-h-[300px] bg-[#f1f5f9] animate-pulse flex items-center justify-center text-[#838383] font-titillium rounded-[16px]">Loading Map...</div>,
+  loading: () => <div className="w-full h-full min-h-[300px] bg-[#f1f5f9] animate-pulse flex items-center justify-center text-[#838383] font-rajdhani rounded-[16px]">Loading Map...</div>,
 });
 
 interface MapSelectorProps {

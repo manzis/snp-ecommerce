@@ -88,7 +88,7 @@ const MediaLightbox: React.FC<MediaLightboxProps> = ({
     >
       {/* HEADER AREA */}
       <div className="absolute top-0 left-0 right-0 flex h-[100px] items-start justify-between px-[32px] pt-[32px] z-50 pointer-events-none">
-        <span className="font-titillium text-[14px] font-semibold text-white tracking-[1px] opacity-70">
+        <span className="font-rajdhani text-[14px] font-semibold text-white tracking-[1px] opacity-70">
           {media.length > 1 ? `${currentIndex + 1} / ${media.length}` : ''}
         </span>
 

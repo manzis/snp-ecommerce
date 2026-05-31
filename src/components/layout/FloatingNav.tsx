@@ -91,7 +91,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                                         : 'bg-white hover:bg-[#f8fafc]'
                                 }`}
                             >
-                                <span className={`font-titillium text-[12px] font-semibold tracking-[0.2px] uppercase md:text-[13px] leading-[18px] transition-colors duration-300 will-change-[color] ${
+                                <span className={`font-rajdhani text-[12px] font-semibold tracking-[0.2px] uppercase md:text-[13px] leading-[18px] transition-colors duration-300 will-change-[color] ${
                                     isScrolled 
                                         ? 'text-white' 
                                         : 'text-[#242424]'
@@ -133,7 +133,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                                                 ? 'border-white bg-[#242424]' 
                                                 : 'border-[#242424] bg-white'
                                         }`}>
-                                            <span className={`font-titillium text-[10px] font-normal leading-none md:text-[13px] transition-colors duration-300 will-change-[color] ${
+                                            <span className={`font-rajdhani text-[10px] font-medium leading-none md:text-[13px] transition-colors duration-300 will-change-[color] ${
                                                 isScrolled 
                                                     ? 'text-white' 
                                                     : 'text-[#242424]'
@@ -154,7 +154,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                                 ? 'rounded-[10px] bg-[#d6ff9c] lg:rounded-none lg:w-full lg:max-w-none' 
                                 : 'bg-transparent'
                         }`}>
-                            <span className={`font-titillium text-[14px] font-[400] leading-[18px] md:text-[15px] md:font-medium transition-colors duration-300 will-change-[color] ${
+                            <span className={`font-rajdhani text-[14px] font-[500] leading-[18px] md:text-[15px] md:font-medium transition-colors duration-300 will-change-[color] ${
                                 isScrolled 
                                     ? 'text-[#252525]' 
                                     : 'text-white'

@@ -56,7 +56,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
     };
 
     return (
-        <section className="flex flex-col w-full max-w-[410px] mx-auto pt-[36px] pb-[0px] gap-[30px] items-start bg-[#ffffff] rounded-t-[32px] sm:rounded-[32px]  relative font-['Titillium_Web',sans-serif]">
+        <section className="flex flex-col w-full max-w-[410px] mx-auto pt-[36px] pb-[0px] gap-[30px] items-start bg-[#ffffff] rounded-t-[32px] sm:rounded-[32px]  relative font-['Rajdhani',sans-serif]">
 
             {/* --- FORM SECTION --- */}
             <form
@@ -65,10 +65,10 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
             >
                 {/* Header */}
                 <header className="flex flex-col w-full px-[24px] gap-[10px] items-start shrink-0 relative z-[1]">
-                    <h2 className="text-[24px] font-[700] leading-[36.5px] tracking-[-0.1px] bg-clip-text text-transparent bg-[linear-gradient(46.44deg,#242424,#7d857b)] whitespace-nowrap">
+                    <h2 className="text-[24px] font-[700] leading-[36.5px] bg-clip-text text-transparent bg-[linear-gradient(46.44deg,#242424,#7d857b)] whitespace-nowrap">
                         Track My Order
                     </h2>
-                    <p className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] text-left">
+                    <p className="w-full text-[14px] font-[500] leading-[22px] text-[#68727d] text-left">
                         Enter the necessary details to track your order below
                     </p>
                 </header>
@@ -102,7 +102,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                                     required
                                 />
                             </div>
-                            {error && <span className="text-red-500 text-[12px] font-titillium mt-[2px]">{error}</span>}
+                            {error && <span className="text-red-500 text-[12px] font-rajdhani mt-[2px]">{error}</span>}
 
                         </div>
                     </div>
@@ -114,11 +114,11 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                             disabled={isPending}
                             className="flex w-full py-[12px] gap-[10px] justify-center items-center bg-[#ffe900] hover:bg-[#ebd700] rounded-[12px] transition-colors duration-[200ms] ease-in-out relative z-[11] disabled:opacity-60"
                         >
-                            <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                            <span className="text-[16px] font-[600] leading-[24px] text-[#242424] whitespace-nowrap">
                                 {isPending ? 'Searching...' : 'Track Order'}
                             </span>
                         </button>
-                        <span className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] text-left">
+                        <span className="w-full text-[14px] font-[500] leading-[22px] text-[#68727d] text-left">
                             Note : Find your Order ID in the confirmation email or My Orders page.
                         </span>
                     </div>
@@ -129,7 +129,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
             {/* --- RATING SECTION --- */}
             <div className="flex flex-col w-full py-[20px] gap-[10px] justify-center items-center bg-[#ffffff] relative z-[14] sm:rounded-b-[32px]">
                 <div className="flex flex-col w-full px-[24px] gap-[16px] justify-center items-start shrink-0 relative z-[15]">
-                    <h3 className="text-[18px] font-[600] leading-[22px] text-[#242424] tracking-[0.2px] whitespace-nowrap">
+                    <h3 className="text-[18px] font-[600] leading-[22px] text-[#242424] whitespace-nowrap">
                         Rate your Experience
                     </h3>
 
@@ -147,7 +147,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
                                 >
                                     <LikeIcon isFilled={isLiked} className="w-full h-full" />
                                 </motion.div>
-                                <span className={`text-[16px] font-[400] leading-[18px] tracking-[-0.64px] whitespace-nowrap transition-colors duration-300 ${isLiked ? 'text-white' : 'text-[#242424]'}`}>
+                                <span className={`text-[16px] font-[500] leading-[18px] whitespace-nowrap transition-colors duration-300 ${isLiked ? 'text-white' : 'text-[#242424]'}`}>
                                     {isLiked ? 'Glad you found it helpful!' : 'Did you find this page Helpful?'}
                                 </span>
                             </div>

@@ -197,14 +197,14 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
               // NORMAL FORM VIEW
               <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] overflow-y-auto w-full lg:pt-[32px]">
                 <div className="flex justify-between items-center">
-                  <h2 className="font-titillium text-[20px] font-bold text-[#242424]">
+                  <h2 className="font-rajdhani text-[20px] font-bold text-[#242424]">
                     {mode === 'add' ? 'Add New Address' : 'Edit Address'}
                   </h2>
                   {mode === 'edit' && (
                     <button
                       disabled={isDeleting}
                       onClick={handleDelete}
-                      className="font-titillium font-semibold text-[13px] text-[#d92d20] bg-[#fff0f0] px-[8px] py-[4px] rounded-[6px] hover:underline active:scale-95 transition-transform lg:mr-[36px]"
+                      className="font-rajdhani font-semibold text-[13px] text-[#d92d20] bg-[#fff0f0] px-[8px] py-[4px] rounded-[6px] hover:underline active:scale-95 transition-transform lg:mr-[36px]"
                     >
                       {isDeleting ? "Removing..." : "Remove address"}
                     </button>
@@ -217,54 +217,54 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                   className="flex items-center justify-center gap-[8px] w-full py-[12px] rounded-[10px] bg-[#eaffcc] border border-[#d6fa9e] text-[#308026] transition-transform active:scale-95"
                 >
                   <LocationIcon />
-                  <span className="font-titillium font-bold text-[15px]">Choose exact location on map</span>
+ <span className="font-rajdhani font-bold text-[15px]">Choose exact location on map</span>
                 </button>
 
                 {/* FORM FIELDS */}
                 <div className="flex flex-col gap-[12px]">
                   <div className="flex gap-[12px]">
                     <div className="flex flex-col flex-1">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">First Name*</label>
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">First Name*</label>
                       <motion.input
                         animate={errors.first_name ? { x: [-5, 5, -5, 5, 0] } : {}}
                         transition={{ duration: 0.4 }}
                         type="text" placeholder="John" value={formData.first_name || ''}
                         onChange={(e) => { setFormData({ ...formData, first_name: e.target.value }); setErrors(prev => ({ ...prev, first_name: '' })); }}
-                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.first_name ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.first_name ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
                       />
-                      {errors.first_name && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.first_name}</span>}
+                      {errors.first_name && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.first_name}</span>}
                     </div>
                     <div className="flex flex-col flex-1">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Last Name*</label>
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Last Name*</label>
                       <motion.input
                         animate={errors.last_name ? { x: [-5, 5, -5, 5, 0] } : {}}
                         transition={{ duration: 0.4 }}
                         type="text" placeholder="Doe" value={formData.last_name || ''}
                         onChange={(e) => { setFormData({ ...formData, last_name: e.target.value }); setErrors(prev => ({ ...prev, last_name: '' })); }}
-                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.last_name ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.last_name ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
                       />
-                      {errors.last_name && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.last_name}</span>}
+                      {errors.last_name && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.last_name}</span>}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-[12px]">
                     <div className="flex flex-col">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Email*</label>
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Email*</label>
                       <motion.input
                         animate={errors.email ? { x: [-5, 5, -5, 5, 0] } : {}}
                         transition={{ duration: 0.4 }}
                         type="email" placeholder="john@example.com" value={formData.email || ''}
                         onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setErrors(prev => ({ ...prev, email: '' })); }}
-                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.email ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.email ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
                       />
-                      {errors.email && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.email}</span>}
+                      {errors.email && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.email}</span>}
                     </div>
                     <div className="flex flex-col">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Phone*</label>
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Phone*</label>
                       <motion.div
                         animate={errors.phone ? { x: [-5, 5, -5, 5, 0] } : {}}
                         transition={{ duration: 0.4 }}
-                        className={`flex items-center w-full h-[50px] border outline-none transition-colors rounded-[8px] font-titillium overflow-hidden ${errors.phone ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus-within:border-[#242424] focus-within:border-[1.5px]'}`}
+                        className={`flex items-center w-full h-[50px] border outline-none transition-colors rounded-[8px] font-rajdhani overflow-hidden ${errors.phone ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus-within:border-[#242424] focus-within:border-[1.5px]'}`}
                       >
                         <div className="h-full px-[12px] flex items-center justify-center bg-[#f7f8f9] border-r border-[#eaebf0] text-[#838383] font-medium text-[14px]">
                           +977
@@ -275,47 +275,47 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                           className="flex-1 h-full px-[12px] outline-none"
                         />
                       </motion.div>
-                      {errors.phone && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.phone}</span>}
+                      {errors.phone && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.phone}</span>}
                     </div>
                   </div>
 
                   <div className="flex flex-col">
-                    <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Address Line 1*</label>
+                    <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Address Line 1*</label>
                     <motion.input
                       animate={errors.address_line_1 ? { x: [-5, 5, -5, 5, 0] } : {}}
                       transition={{ duration: 0.4 }}
                       type="text" placeholder="Apartment, suite, unit etc." value={formData.address_line_1 || ''}
                       onChange={(e) => { setFormData({ ...formData, address_line_1: e.target.value }); setErrors(prev => ({ ...prev, address_line_1: '' })); }}
-                      className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.address_line_1 ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                      className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.address_line_1 ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
                     />
-                    {errors.address_line_1 && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.address_line_1}</span>}
+                    {errors.address_line_1 && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.address_line_1}</span>}
                   </div>
 
 
 
                   <div className="flex flex-col">
-                    <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Area / Landmark (Optional)</label>
-                    <input type="text" placeholder="Near Times Square" value={formData.area || ''} onChange={(e) => setFormData({ ...formData, area: e.target.value })} className="w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]" />
+                    <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Area / Landmark (Optional)</label>
+                    <input type="text" placeholder="Near Times Square" value={formData.area || ''} onChange={(e) => setFormData({ ...formData, area: e.target.value })} className="w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]" />
                   </div>
 
                   <div className="flex gap-[12px]">
                     <div className="flex flex-col flex-[2]">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">City*</label>
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">City*</label>
                       <motion.input
                         animate={errors.city ? { x: [-5, 5, -5, 5, 0] } : {}}
                         transition={{ duration: 0.4 }}
                         type="text" placeholder="Kathmandu" value={formData.city || ''}
                         onChange={(e) => { setFormData({ ...formData, city: e.target.value }); setErrors(prev => ({ ...prev, city: '' })); }}
-                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium ${errors.city ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.city ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
                       />
-                      {errors.city && <span className="text-[#d92d20] text-[11px] font-titillium mt-[2px] ml-[4px]">{errors.city}</span>}
+                      {errors.city && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.city}</span>}
                     </div>
                     <div className="flex flex-col flex-1">
-                      <label className="text-[12px] font-titillium font-medium text-[#838383] mb-[4px] ml-[4px]">Pincode (Optional)</label>
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Pincode (Optional)</label>
                       <input
                         type="text" placeholder="44600" value={formData.pincode || ''}
                         onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                        className="w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-titillium border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]"
+                        className="w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]"
                       />
                     </div>
                   </div>
@@ -323,13 +323,13 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
 
                 {/* ADDRESS TYPE */}
                 <div className="flex flex-col gap-[8px] mt-[8px]">
-                  <span className="font-titillium font-semibold text-[#242424] text-[13px]">Save address as</span>
+                  <span className="font-rajdhani font-semibold text-[#242424] text-[13px]">Save address as</span>
                   <div className="flex gap-[8px]">
                     {['Home', 'Work', 'Other'].map((type) => (
                       <button
                         key={type}
                         onClick={() => setFormData({ ...formData, type: type as any })}
-                        className={`px-[16px] py-[6px] border rounded-[6px] font-titillium text-[13px] font-medium transition-colors ${formData.type === type ? 'border-[#308026] bg-[#308026] text-white shadow-sm' : 'border-[#eaebf0] text-[#838383] bg-white hover:bg-[#fafbfb]'
+                        className={`px-[16px] py-[6px] border rounded-[6px] font-rajdhani text-[13px] font-medium transition-colors ${formData.type === type ? 'border-[#308026] bg-[#308026] text-white shadow-sm' : 'border-[#eaebf0] text-[#838383] bg-white hover:bg-[#fafbfb]'
                           }`}
                       >
                         {type}
@@ -341,7 +341,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                 <div className="mt-[16px] flex gap-[12px] sticky bottom-0 bg-white pt-[8px]">
                   <button
                     disabled={isSaving || isDeleting}
-                    className="flex-1 h-[52px] bg-[#ffe900] active:scale-[0.98] transition-transform rounded-[12px] font-titillium font-bold text-[16px] disabled:opacity-50"
+ className="flex-1 h-[52px] bg-[#ffe900] active:scale-[0.98] transition-transform rounded-[12px] font-rajdhani font-bold text-[16px] disabled:opacity-50"
                     onClick={handleSave}
                   >
                     {isSaving ? "Saving..." : "Save Address"}
@@ -352,8 +352,8 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
               // FULLSCREEN MAP VIEW
               <div className="flex flex-col w-full h-full px-[24px] pb-[32px] lg:pt-[32px]">
                 <div className="flex flex-col mb-[16px] min-h-[48px]">
-                  <h2 className="font-titillium text-[20px] font-bold text-[#242424]">Select Location</h2>
-                  <p className="font-titillium text-[14px] text-[#838383]">Tap anywhere on the map to drop a pin.</p>
+                  <h2 className="font-rajdhani text-[20px] font-bold text-[#242424]">Select Location</h2>
+                  <p className="font-rajdhani text-[14px] text-[#838383]">Tap anywhere on the map to drop a pin.</p>
                 </div>
 
                 <div className="flex-1 w-full min-h-0 mb-[16px] z-[1]">
@@ -370,14 +370,14 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                 <div className="flex gap-[12px] shrink-0 mt-auto">
                   <button
                     onClick={() => setIsMapFullscreen(false)}
-                    className="flex-1 h-[52px] rounded-[12px] border border-[#eaebf0] font-titillium font-bold text-[16px] text-[#242424] active:scale-95 transition-transform"
+ className="flex-1 h-[52px] rounded-[12px] border border-[#eaebf0] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-95 transition-transform"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleConfirmLocation}
                     disabled={isGeocoding}
-                    className="flex-[2] h-[52px] rounded-[12px] bg-[#242424] text-white font-titillium font-bold text-[16px] active:scale-95 transition-transform disabled:opacity-70"
+ className="flex-[2] h-[52px] rounded-[12px] bg-[#242424] text-white font-rajdhani font-bold text-[16px] active:scale-95 transition-transform disabled:opacity-70"
                   >
                     {isGeocoding ? "Locating..." : "Confirm Location"}
                   </button>

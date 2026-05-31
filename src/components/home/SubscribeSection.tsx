@@ -17,10 +17,10 @@ const SubscribeSection: React.FC = () => {
 
                 {/* TEXT CONTENT */}
                 <div className="relative z-10 flex flex-col gap-[12px] lg:gap-[16px]">
-                    <h2 className="max-w-[294px] font-custom text-[22px] font-[400] leading-[32px] text-white lg:max-w-[500px] lg:text-[36px] lg:leading-[44px]">
+ <h2 className="max-w-[294px] font-rajdhani font-bold text-[22px] font-[500] leading-[32px] text-white lg:max-w-[500px] lg:text-[36px] lg:leading-[44px]">
                         Stay Home and get your daily needs from our shop !
                     </h2>
-                    <p className="max-w-[281px] font-titillium text-[16px] font-[400] leading-[20px] tracking-[-0.06px] text-white lg:max-w-none lg:text-[18px]">
+                    <p className="max-w-[281px] font-rajdhani text-[16px] font-[500] leading-[20px] tracking-[-0.06px] text-white lg:max-w-none lg:text-[18px]">
                         Subscribe to our news letter today !
                     </p>
                 </div>
@@ -36,7 +36,7 @@ const SubscribeSection: React.FC = () => {
                             type="email"
                             placeholder="Enter your email"
                             required
-                            className="h-full w-full bg-transparent px-[16px] font-titillium text-[15px] font-[400] text-[#242424] outline-none placeholder:text-[#979797]"
+                            className="h-full w-full bg-transparent px-[16px] font-rajdhani text-[15px] font-[500] text-[#242424] outline-none placeholder:text-[#979797]"
                         />
                     </div>
 
@@ -45,7 +45,7 @@ const SubscribeSection: React.FC = () => {
                         type="submit"
                         className="flex h-[60px] w-[115px] shrink-0 items-center justify-center gap-[8px] rounded-[100px] bg-[#ffe900] px-[16px] transition-transform duration-200 hover:brightness-105 active:scale-95"
                     >
-                        <span className="font-titillium text-[14px] font-[600] leading-[24px] text-black">
+                        <span className="font-rajdhani text-[14px] font-[600] leading-[24px] text-black">
                             Subscribe
                         </span>
                         <div className="h-[16px] w-[16px] shrink-0">

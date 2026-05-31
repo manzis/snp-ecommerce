@@ -175,15 +175,15 @@ export default function CartPage() {
                     className="object-contain"
                   />
                 </div>
-                <h2 className="font-custom text-[22px] text-[#242424] text-center leading-tight">
+ <h2 className="font-rajdhani font-bold text-[22px] text-[#242424] text-center leading-tight">
                   Your Cart is Empty
                 </h2>
-                <p className="font-titillium text-[16px] text-[#8a8e91] text-center mt-[-8px]">
+                <p className="font-rajdhani text-[16px] text-[#8a8e91] text-center mt-[-8px]">
                   Stack up your daily dose of fitness now!
                 </p>
                 <button
                   onClick={() => router.push('/products')}
-                  className="mt-[12px] flex h-[48px] items-center justify-center rounded-[16px] bg-[#3F9733] hover:bg-[#347d2a] px-[32px] font-titillium text-[16px] font-semibold text-white transition-all active:scale-[0.98] outline-none shadow-sm"
+                  className="mt-[12px] flex h-[48px] items-center justify-center rounded-[16px] bg-[#3F9733] hover:bg-[#347d2a] px-[32px] font-rajdhani text-[16px] font-semibold text-white transition-all active:scale-[0.98] outline-none shadow-sm"
                 >
                   Shop Now
                 </button>
@@ -257,7 +257,7 @@ export default function CartPage() {
                 <button onClick={() => setIsSelectionModalOpen(false)} className="w-[40px] h-[5px] bg-[#eaebf0] rounded-full" />
               </div>
               <div className="px-[24px] pb-[32px] overflow-y-auto">
-                <h2 className="font-titillium text-[20px] font-bold text-[#242424] mb-[24px]">Select Delivery Address</h2>
+                <h2 className="font-rajdhani text-[20px] font-bold text-[#242424] mb-[24px]">Select Delivery Address</h2>
                 <AddressSelector
                   addresses={addresses}
                   selectedId={selectedAddressId}

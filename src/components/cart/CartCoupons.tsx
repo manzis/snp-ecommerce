@@ -58,7 +58,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
       </AnimatePresence>
 
       <div className="flex items-center px-[12px]">
-        <h2 className="font-titillium text-[18px] font-semibold tracking-[-0.72px] text-[#242424]">
+        <h2 className="font-rajdhani text-[18px] font-semibold tracking-[-0.72px] text-[#242424]">
           Coupons and Discounts
         </h2>
       </div>
@@ -95,7 +95,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
                 value={inputValue}
                 onChange={(e) => { setInputValue(e.target.value); if (errorMessage) setErrorMessage(null); }}
                 disabled={isApplied}
-                className={`w-full bg-transparent font-titillium text-[16px] outline-none transition-all ${isApplied
+                className={`w-full bg-transparent font-rajdhani text-[16px] outline-none transition-all ${isApplied
                   ? 'font-bold uppercase tracking-[1.2px] text-[#308026]'
                   : errorMessage ? 'text-[#e11717]' : 'text-[#242424]'
                   }`}
@@ -129,7 +129,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
               }}
 
               disabled={isApplied || isValidating}
-              className={`font-titillium text-[14px] font-semibold tracking-[-0.2px] transition-colors active:scale-95 ${isApplied ? 'text-[#3F9733]' : errorMessage ? 'text-[#e11717]' : 'text-[#308026]'
+              className={`font-rajdhani text-[14px] font-semibold tracking-[-0.2px] transition-colors active:scale-95 ${isApplied ? 'text-[#3F9733]' : errorMessage ? 'text-[#e11717]' : 'text-[#308026]'
                 }`}
             >
               <AnimatePresence mode="wait">
@@ -172,7 +172,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-1 px-1 font-titillium text-[12px] font-medium text-[#e11717]"
+                className="mt-1 px-1 font-rajdhani text-[12px] font-medium text-[#e11717]"
               >
                 {errorMessage}
               </motion.p>
@@ -193,7 +193,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
             >
               <div className="flex items-center gap-[6px]">
                 <CouponAppliedIcon className="h-[15px] w-[15px] text-[#3F9733]" />
-                <p className="font-titillium text-[16px] text-[#242424]">
+                <p className="font-rajdhani text-[16px] text-[#242424]">
                   Rs {lastDiscount || currentDiscount} Saved with <span className="font-semibold uppercase tracking-[0.5px]">“{coupon?.code}”</span>
                 </p>
               </div>
@@ -203,7 +203,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
                   onApply(0, '');
                   setLastDiscount(0);
                 }}
-                className="font-titillium text-[13px] text-[#8b8e92] underline underline-offset-2 hover:text-[#242424] transition-colors"
+                className="font-rajdhani text-[13px] text-[#8b8e92] underline underline-offset-2 hover:text-[#242424] transition-colors"
               >
                 Remove
               </button>

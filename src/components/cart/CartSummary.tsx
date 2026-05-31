@@ -35,8 +35,8 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
       <div className="flex flex-col border-t border-[#f1f5f9]">
         {/* MRP */}
         <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
-          <span className="font-titillium text-[16px] text-[#242424]">MRP</span>
-          <span className="font-titillium text-[16px] text-[#242424] text-right">
+          <span className="font-rajdhani text-[16px] text-[#242424]">MRP</span>
+          <span className="font-rajdhani text-[16px] text-[#242424] text-right">
             Rs. {totalMRP.toLocaleString()}
           </span>
         </div>
@@ -48,7 +48,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
         >
           <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
             <div className="flex items-center gap-[4px]">
-              <span className="font-titillium text-[16px] text-[#242424]">Discounts</span>
+              <span className="font-rajdhani text-[16px] text-[#242424]">Discounts</span>
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
@@ -57,7 +57,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                 <DropDownIcon className="h-[16px] w-[16px] text-[#242424]" />
               </motion.div>
             </div>
-            <span className="font-titillium text-[16px] text-[#242424] text-right">
+            <span className="font-rajdhani text-[16px] text-[#242424] text-right">
               - Rs. {totalDiscount.toLocaleString()}
             </span>
           </div>
@@ -74,16 +74,16 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
               >
                 <div className="flex flex-col px-[24px] py-[16px] gap-[12px]">
                   <div className="flex justify-between items-center">
-                    <span className="font-titillium text-[15px] text-[#242424] opacity-60">Discount on MRP</span>
-                    <span className="font-titillium text-[15px] font-medium text-[#308026]">
+                    <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Discount on MRP</span>
+                    <span className="font-rajdhani text-[15px] font-medium text-[#308026]">
                       - Rs. {itemDiscount.toLocaleString()}
                     </span>
                   </div>
 
                   {bundleDiscount > 0 && (
                     <div className="flex justify-between items-center">
-                      <span className="font-titillium text-[15px] text-[#242424] opacity-60">Bundle Discount</span>
-                      <span className="font-titillium text-[15px] font-medium text-[#308026]">
+                      <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Bundle Discount</span>
+                      <span className="font-rajdhani text-[15px] font-medium text-[#308026]">
                         - Rs. {bundleDiscount.toLocaleString()}
                       </span>
                     </div>
@@ -92,20 +92,20 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                   {couponDiscount > 0 && (
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-[6px]">
-                        <span className="font-titillium text-[15px] text-[#242424] opacity-60">Coupon Discount</span>
+                        <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Coupon Discount</span>
                         <span className="px-[6px] py-[1px] bg-[#e8f3e4] text-[#308026] text-[10px] font-bold rounded-sm uppercase tracking-wider">
                           {coupon?.code}
                         </span>
                       </div>
-                      <span className="font-titillium text-[15px] font-medium text-[#308026]">
+                      <span className="font-rajdhani text-[15px] font-medium text-[#308026]">
                         - Rs. {couponDiscount.toLocaleString()}
                       </span>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center">
-                    <span className="font-titillium text-[15px] text-[#242424] opacity-60">Delivery Charges</span>
-                    <span className="font-titillium text-[15px] font-medium text-[#308026]">FREE</span>
+                    <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Delivery Charges</span>
+                    <span className="font-rajdhani text-[15px] font-medium text-[#308026]">FREE</span>
                   </div>
                 </div>
               </motion.div>
@@ -114,8 +114,8 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
           {/* Subtotal Banner */}
           <div className="flex justify-between items-center px-[24px] py-[18px]">
-            <span className="font-titillium text-[16px] font-semibold text-[#242424]"> Sub Total Amount</span>
-            <span className="font-titillium text-[18px] font-bold text-[#242424]">
+            <span className="font-rajdhani text-[16px] font-semibold text-[#242424]"> Sub Total Amount</span>
+            <span className="font-rajdhani text-[18px] font-bold text-[#242424]">
               Rs. {finalPrice.toLocaleString()}
             </span>
           </div>
@@ -125,7 +125,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
       {/* SAVINGS HIGHLIGHT */}
       <div className="px-[24px] pb-[16px]">
         <div className="flex items-center justify-center rounded-[12px] bg-[#eaffcc] py-[14px]">
-          <span className="font-titillium text-[16px] tracking-[-0.64px] text-[#242424]">
+          <span className="font-rajdhani text-[16px] tracking-[-0.64px] text-[#242424]">
             You will save Rs. {totalDiscount.toLocaleString()} on this order
           </span>
         </div>
@@ -133,7 +133,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
       {/* FOOTER NOTE */}
       <div className="px-[24px] pb-[16px]">
-        <p className="font-titillium text-[14px] text-[#8b8e92] leading-[20px] tracking-[-0.56px]">
+        <p className="font-rajdhani text-[14px] text-[#8b8e92] leading-[20px] tracking-[-0.56px]">
           Note:     Additional Charges such as shipping Fees are calculated at Checkout
         </p>
       </div>

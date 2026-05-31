@@ -75,7 +75,7 @@ const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrde
 
               {/* Absolute Positioned Label */}
               <div className="absolute top-[-7px] left-[8px] flex h-[14px] items-center justify-center bg-white px-[4px] z-10">
-                <span className="font-titillium text-[10px] font-normal leading-[14px] tracking-[-0.2px] text-[#444444] whitespace-nowrap">
+                <span className="font-rajdhani text-[10px] font-medium leading-[14px] tracking-[-0.2px] text-[#444444] whitespace-nowrap">
                   {wallet.label}
                 </span>
               </div>
@@ -95,7 +95,7 @@ const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrde
       {/* Footer & Action Button */}
       <div className="flex w-full flex-col gap-[15px] items-start">
         <div className="flex w-full min-w-0 justify-center items-center px-[2px]">
-          <span className="flex-1 font-titillium text-[14px] font-normal leading-[20px] text-[#535353] text-left">
+          <span className="flex-1 font-rajdhani text-[14px] font-medium leading-[20px] text-[#535353] text-left">
             Faster checkout with available wallets
           </span>
         </div>
@@ -108,7 +108,7 @@ const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrde
           type="button"
           className="flex w-full h-[48px] items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all active:scale-[0.98] outline-none "
         >
-          <span className="font-titillium text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+          <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
             Pay Via {WALLETS.find(w => w.id === selectedWallet)?.name}
           </span>
         </button>

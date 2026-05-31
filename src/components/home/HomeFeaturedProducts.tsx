@@ -22,12 +22,12 @@ export default function HomeFeaturedProducts({ products, limit = 10 }: HomeFeatu
     <section className="mx-auto w-full max-w-[1440px] py-[32px] lg:px-[48px] lg:py-[48px] md:py-[64px] bg-white transition-colors duration-300">
       {/* HEADER ROW */}
       <div className="mb-[24px] flex items-center justify-between px-[24px] md:mb-[40px] md:px-0">
-        <h2 className="font-titillium text-[20px] font-semibold tracking-[-0.8px] text-[#242424] md:text-[32px]">
+        <h2 className="font-rajdhani text-[20px] font-bold text-[#242424] md:text-[32px]">
           Featured Products
         </h2>
         <Link
           href="/products"
-          className="font-titillium text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
+          className="font-rajdhani text-[14px] font-medium text-[#308026] underline underline-offset-4 md:text-[18px]"
         >
           View All
         </Link>

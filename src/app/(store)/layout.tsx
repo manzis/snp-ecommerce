@@ -5,7 +5,7 @@ import { ToastProvider } from '@/components/ui/ToastProvider';
 import { AuthModalProvider } from '@/context/AuthModalContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
-import { titillium, inter, customFont } from "@/lib/fonts";
+import { rajdhani, inter, customFont, barlow } from "@/lib/fonts";
 import ConditionalLayoutElements from "@/components/layout/ConditionalLayoutElements";
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
@@ -77,7 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${titillium.variable} ${inter.variable} ${customFont.variable} antialiased`}
+      className={`${rajdhani.variable} ${inter.variable} ${customFont.variable} ${barlow.variable} antialiased`}
     >
       <head>
         <meta name="facebook-domain-verification" content="7ishqpnop66zzwgrcpe0m7l77iqkbc" />
@@ -147,7 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         ></script>
       </head>
-      <body className="bg-white font-titillium min-h-screen flex flex-col overflow-x-hidden">
+      <body className="bg-white font-rajdhani font-medium min-h-screen flex flex-col overflow-x-hidden">
         <NextTopLoader 
           color="#308026" 
           initialPosition={0.08} 

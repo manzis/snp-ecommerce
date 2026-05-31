@@ -37,11 +37,11 @@ export default function Error({
           )}
         </div>
 
-        <h1 className="font-titillium text-2xl font-bold text-[#1E293B] mb-3">
+        <h1 className="font-rajdhani text-2xl font-bold text-[#1E293B] mb-3">
           {isTimeout ? 'Connection Timeout' : 'Oops! Something went wrong'}
         </h1>
         
-        <p className="font-titillium text-[#64748B] mb-8 leading-relaxed">
+        <p className="font-rajdhani text-[#64748B] mb-8 leading-relaxed">
           {isTimeout 
             ? "We couldn't reach our servers. Please check your internet connection and try again."
             : "An unexpected error occurred. Our team has been notified."}
@@ -51,7 +51,7 @@ export default function Error({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => reset()}
-          className="flex items-center justify-center gap-2 w-full max-w-[200px] h-[52px] bg-[#318126] text-white font-titillium font-semibold rounded-full shadow-lg shadow-[#318126]/20 transition-all hover:bg-[#286a1f]"
+          className="flex items-center justify-center gap-2 w-full max-w-[200px] h-[52px] bg-[#318126] text-white font-rajdhani font-semibold rounded-full shadow-lg shadow-[#318126]/20 transition-all hover:bg-[#286a1f]"
         >
           <RefreshCw className="w-4 h-4" />
           Try Again
@@ -59,7 +59,7 @@ export default function Error({
         
         <button 
           onClick={() => window.location.reload()}
-          className="mt-6 text-sm font-titillium text-[#94A3B8] hover:text-[#318126] transition-colors"
+          className="mt-6 text-sm font-rajdhani text-[#94A3B8] hover:text-[#318126] transition-colors"
         >
           Force Reload Page
         </button>

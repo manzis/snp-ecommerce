@@ -128,7 +128,7 @@ function SuccessContent() {
   const paymentMethod = order?.payment_method === 'cod' ? "Cash on Delivery" : order?.payment_method === 'qr' ? "QR Payment" : order?.payment_method;
 
   return (
-    <main className="fixed inset-0 flex flex-col w-full h-full justify-between items-center bg-[#3f9633] font-['Titillium_Web',sans-serif] overflow-hidden z-[9999]">
+    <main className="fixed inset-0 flex flex-col w-full h-full justify-between items-center bg-[#3f9633] font-['Rajdhani',sans-serif] overflow-hidden z-[9999]">
 
       {/* Animated Background Text Effect */}
       <motion.div
@@ -154,7 +154,7 @@ function SuccessContent() {
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-[14px] font-[400] leading-[24px] text-[#ffffff] tracking-[-0.2px] text-center whitespace-nowrap"
+          className="text-[14px] font-[500] leading-[24px] text-[#ffffff] tracking-[-0.2px] text-center whitespace-nowrap"
         >
           Redirecting you in {countdown} {countdown === 1 ? 'second' : 'seconds'}
         </motion.p>
@@ -237,7 +237,7 @@ function SuccessContent() {
               )}
 
               <div className="flex flex-col items-start self-stretch relative">
-                <div className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] whitespace-nowrap">
+                <div className="w-full text-[14px] font-[500] leading-[22px] text-[#68727d] whitespace-nowrap">
                   {hasMounted && dateStr ? dateStr : <div className="w-[120px] h-[16px] bg-gray-100 animate-pulse rounded-md mt-[4px]" />}
                 </div>
                 <div className="w-full text-[14px] font-[600] leading-[22px] text-[#575757] whitespace-nowrap">

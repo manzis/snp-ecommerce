@@ -1,10 +1,10 @@
-import { Titillium_Web, Inter, Inter_Tight, Rubik } from "next/font/google";
+import { Rajdhani, Inter, Inter_Tight, Rubik, Barlow } from "next/font/google";
 import localFont from "next/font/local";
 
-export const titillium = Titillium_Web({
+export const rajdhani = Rajdhani({
   subsets: ["latin"],
-  weight: ["300", "400", "600", "700", "900"],
-  variable: "--font-titillium",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-rajdhani",
   display: "swap",
 });
 
@@ -23,6 +23,13 @@ export const interTight = Inter_Tight({
 export const rubik = Rubik({
     subsets: ["latin"],
     variable: "--font-rubik",
+    display: "swap",
+});
+
+export const barlow = Barlow({
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700", "800", "900"],
+    variable: "--font-barlow",
     display: "swap",
 });
 

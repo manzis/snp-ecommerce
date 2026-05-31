@@ -102,7 +102,7 @@ const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery, ini
             onFocus={() => setShowSuggestions(true)}
             onKeyDown={(e) => e.key === 'Enter' && handleAction(inputValue)}
             placeholder="Ex: Whey Protein Atom"
-            className="w-full bg-transparent font-titillium text-[18px] font-normal tracking-[-0.72px] outline-none text-[#242424] placeholder:text-[#bebebe]"
+            className="w-full bg-transparent font-rajdhani text-[18px] font-medium tracking-[-0.72px] outline-none text-[#242424] placeholder:text-[#bebebe]"
             style={{
               background: 'linear-gradient(48.47deg, #bebebe, #020202)',
               WebkitBackgroundClip: 'text',
@@ -116,7 +116,7 @@ const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery, ini
           )}
         </div>
         <button onClick={() => handleAction(inputValue)} type="button" className="flex h-full w-[67px] items-center justify-center bg-[#242424] rounded-[2px] active:opacity-90">
-          <span className="font-titillium text-[12px] font-semibold tracking-[-0.48px] text-white">Search</span>
+          <span className="font-rajdhani text-[12px] font-semibold tracking-[-0.48px] text-white">Search</span>
         </button>
       </div>
 

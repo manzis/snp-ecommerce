@@ -105,22 +105,22 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
                 animate={{ height: 'auto', opacity: 1 }}
                 className="w-full flex flex-col items-center py-[16px] gap-[3px]"
               >
-                <span className="font-titillium text-[12px] uppercase tracking-[2px] text-[#838383] font-semibold">
+                <span className="font-rajdhani text-[12px] uppercase tracking-[2px] text-[#838383] font-semibold">
                   Session expires in
                 </span>
-                <span className="font-custom text-[24px] text-[#308026] leading-none mt-1">
+ <span className="font-rajdhani font-bold text-[24px] text-[#308026] leading-none mt-1">
                   {formatTime(timeLeft)}
                 </span>
                 {totalAmount && (
                   <div className="mt-[6px] flex items-center justify-center gap-[6px] px-[12px] py-[4px] bg-[#308026] rounded-[6px]">
-                    <span className="font-titillium text-[13px] text-white/90">Amount to pay:</span>
-                    <span className="font-titillium text-[15px] font-bold text-white">{totalAmount}</span>
+                    <span className="font-rajdhani text-[13px] text-white/90">Amount to pay:</span>
+                    <span className="font-rajdhani text-[15px] font-bold text-white">{totalAmount}</span>
                   </div>
                 )}
               </motion.div>
             ) : (
               <div className="w-full flex flex-col items-center py-[14px]">
-                <span className="font-titillium text-[13px] text-[#838383] font-medium">
+                <span className="font-rajdhani text-[13px] text-[#838383] font-medium">
                   QR Code valid for 15 minutes
                 </span>
               </div>
@@ -147,7 +147,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
               onClick={() => setIsRevealed(true)}
               className="absolute z-10 flex items-center gap-[10px] p-[16px_20px] rounded-[12px] bg-[#308026] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform hover:bg-[#2a7022]"
             >
-              <span className="font-titillium text-[14px] font-semibold text-white">Show QR</span>
+              <span className="font-rajdhani text-[14px] font-semibold text-white">Show QR</span>
               <EyeIcon className="w-[18px] h-[18px] text-white" />
             </button>
           )}
@@ -161,7 +161,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
                 onClick={handleDownloadQR}
                 className="absolute top-[10px] right-[12px] z-10 flex items-center gap-[10px] p-[6px_12px] border border-[#eaebf0] bg-white opacity-[80%] rounded-[100px]  shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-95 transition-transform"
               >
-                <span className="font-titillium text-[14px] font-semibold text-[#6a6c6e]">Save</span>
+                <span className="font-rajdhani text-[14px] font-semibold text-[#6a6c6e]">Save</span>
                 <UploadIcon className="w-[18px] h-[18px] text-[#6a6c6e] rotate-180" />
               </motion.button>
             )}
@@ -182,11 +182,11 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
         >
           <div className="flex items-center gap-[10px] overflow-hidden">
             <UploadIcon className="w-[18px] h-[18px] text-[#68727d] rotate-180" />
-            <span className="font-titillium text-[15px] text-[#242424] truncate max-w-[200px]">
+            <span className="font-rajdhani text-[15px] text-[#242424] truncate max-w-[200px]">
               {selectedFile ? selectedFile.name : 'Upload Payment Receipt'}
             </span>
           </div>
-          <span className="font-titillium text-[13px] font-semibold text-[#308026]">
+          <span className="font-rajdhani text-[13px] font-semibold text-[#308026]">
             {selectedFile ? 'Change' : 'Browse'}
           </span>
         </button>
@@ -198,7 +198,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
           accept="image/*,.pdf"
         />
         <div className="flex justify-between items-center px-1">
-          <p className="font-titillium text-[13px] text-[#838383]">
+          <p className="font-rajdhani text-[13px] text-[#838383]">
             Upload a statement receipt (PNG, JPG or PDF)
           </p>
           {((hasError || !!error) && !selectedFile) && (
@@ -215,7 +215,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
             placeholder="Remarks Eg: Shopping Payment"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            className="w-full font-titillium text-[16px] text-[#242424] outline-none bg-transparent"
+            className="w-full font-rajdhani text-[16px] text-[#242424] outline-none bg-transparent"
           />
         </div>
       </div>
@@ -228,7 +228,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
             type="button"
             className="flex w-full h-[52px] items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all active:scale-[0.98] outline-none  "
           >
-            <span className="font-titillium text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
+            <span className="font-rajdhani text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
               Verify payment via QR
             </span>
           </button>
@@ -238,7 +238,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
               <motion.span
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-[#e11717] font-titillium text-[12px] text-center font-medium"
+                className="text-[#e11717] font-rajdhani text-[12px] text-center font-medium"
               >
                 {error}
               </motion.span>
@@ -246,7 +246,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
           </AnimatePresence>
         </div>
 
-        <p className="font-titillium text-[13px] leading-[20px] text-[#838383] text-center px-4">
+        <p className="font-rajdhani text-[13px] leading-[20px] text-[#838383] text-center px-4">
           Verifying the QR payment will take 30 to 1 hour, we will update you once it is confirmed.
         </p>
       </div>

@@ -42,7 +42,7 @@ const ProductHeader = ({
   }
 
   return (
-    <section className="flex w-full flex-col items-start font-titillium px-[24px]">
+    <section className="flex w-full flex-col items-start font-rajdhani px-[24px]">
       <div className="relative flex w-full max-w-[362px] lg:max-w-none flex-col items-start gap-[10px] lg:h-auto">
 
         {/* Brand Row: Logo + Name + Redirect */}
@@ -64,13 +64,13 @@ const ProductHeader = ({
             </div>
           ) : (
             <div className="flex shrink-0 w-[18px] h-[18px] rounded-[3px] border border-[#E8E8E8] bg-[#F0F0F0] items-center justify-center">
-              <span className="font-titillium text-[11px] font-bold text-[#888] uppercase">
+              <span className="font-rajdhani text-[11px] font-bold text-[#888] uppercase">
                 {brand.name.charAt(0)}
               </span>
             </div>
           )}
           {/* Brand Name */}
-          <span className="font-titillium text-[15px] font-semibold leading-[18px] text-[#555] tracking-[-0.04em] uppercase group-hover:text-[#242424] transition-colors duration-150">
+          <span className="font-rajdhani text-[15px] font-semibold leading-[18px] text-[#555] tracking-[-0.04em] uppercase group-hover:text-[#242424] transition-colors duration-150">
             {brand.name}
           </span>
           {/* Redirect Arrow */}
@@ -80,7 +80,7 @@ const ProductHeader = ({
         {/* Title */}
         <div className="relative flex w-full flex-col items-start gap-[6px] shrink-0 lg:h-auto">
           <div className="relative flex w-full items-center lg:h-auto">
-            <h1 className="font-custom text-[22px] lg:text-[26px] font-normal leading-[30px] lg:leading-[36px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent">
+ <h1 className="uppercase font-rajdhani font-bold text-[22px] lg:text-[26px] leading-[30px] lg:leading-[36px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent">
               {title}
             </h1>
           </div>
@@ -90,18 +90,18 @@ const ProductHeader = ({
         <div className="relative flex flex-col items-start justify-center gap-[5px] shrink-0 lg:h-auto">
           <div className="relative flex items-center gap-[10px]">
             <div className="flex h-[22px] w-[63px] items-center justify-center bg-[#95FF00] rounded-[6px] px-[6px] py-[4px]">
-              <span className="font-custom text-[12px] font-normal leading-[14px] text-[#242424] whitespace-nowrap">
+ <span className="font-rajdhani font-bold text-[12px] leading-[14px] text-[#242424] whitespace-nowrap">
                 save {displayPercentage}
               </span>
             </div>
-            <span className="h-[30px] font-titillium text-[28px] font-normal leading-[30px] text-[#979797] tracking-[-0.07em] line-through whitespace-nowrap">
+            <span className="h-[30px] font-rajdhani text-[28px] font-medium leading-[30px] text-[#979797] tracking-[-0.07em] line-through whitespace-nowrap">
               {displayOriginal}
             </span>
-            <span className="h-[30px] font-custom text-[28px] lg:text-[32px] font-normal leading-[30px] lg:leading-[32px] bg-[linear-gradient(87.93deg,#318126_10.71%,#33D81D_124.28%)] bg-clip-text text-transparent whitespace-nowrap">
+ <span className="h-[30px] font-rajdhani font-bold text-[28px] lg:text-[32px] leading-[30px] lg:leading-[32px] bg-[linear-gradient(87.93deg,#318126_10.71%,#33D81D_124.28%)] bg-clip-text text-transparent whitespace-nowrap">
               {displayDiscounted}
             </span>
           </div>
-          <span className="h-[10px] font-titillium text-[12px] font-[300] leading-[10px] text-[#606060] whitespace-nowrap">
+          <span className="h-[10px] font-rajdhani text-[12px] font-[500] leading-[10px] text-[#606060] whitespace-nowrap">
             *inclusive of all taxes
           </span>
         </div>

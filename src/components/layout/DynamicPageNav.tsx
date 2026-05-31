@@ -54,14 +54,14 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
 
         {/* Title Section */}
         <div className="flex flex-grow items-center overflow-hidden">
-          <h1 className="truncate font-titillium text-[20px] font-semibold leading-[26px] tracking-[-0.88px] text-[#242424]">
+          <h1 className="truncate font-rajdhani text-[20px] font-semibold leading-[26px] tracking-[-0.5px] text-[#242424]">
             {title}
           </h1>
         </div>
 
         {/* Subtitle / Meta Info */}
         {subtitle && (
-          <span className="shrink-0 font-titillium text-[14px] font-normal leading-[20px] tracking-[-0.64px] text-[#838383]">
+          <span className="shrink-0 font-rajdhani text-[14px] font-medium leading-[20px] tracking-[-0.64px] text-[#838383]">
             {subtitle}
           </span>
         )}

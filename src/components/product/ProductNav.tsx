@@ -70,7 +70,7 @@ export default function ProductNav() {
         <div className="flex px-[12px] py-[10px] gap-[4px] items-center self-stretch shrink-0 flex-nowrap relative z-[4]">
           <SearchIcon className="w-[22px] h-[22px] shrink-0 relative z-[5] text-[#BEBEBE]" />
           <span
-            className="font-titillium text-[20px] font-[400] tracking-[-0.8px] bg-[linear-gradient(48.47deg,#bebebe,#020202)] bg-clip-text text-transparent whitespace-nowrap relative z-[6]"
+            className="font-rajdhani text-[20px] font-[500] tracking-[-0.8px] bg-[linear-gradient(48.47deg,#bebebe,#020202)] bg-clip-text text-transparent whitespace-nowrap relative z-[6]"
           >
             Search products
           </span>
@@ -99,7 +99,7 @@ export default function ProductNav() {
             <CartIcon className="w-[21.75px] h-[19.5px] shrink-0 relative z-[9] text-[#242424]" />
             {cartCount > 0 && (
               <div className="absolute -right-[10px] -top-[8px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] border-white bg-[#242424] px-[5px] py-[2px] z-[10]">
-                <span className="font-titillium text-[10px] font-normal leading-none text-white">
+                <span className="font-rajdhani text-[10px] font-medium leading-none text-white">
                   {cartCount}
                 </span>
               </div>

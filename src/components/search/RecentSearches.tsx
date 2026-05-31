@@ -14,12 +14,12 @@ const RecentSearches: React.FC<RecentSearchesProps> = ({ items, onSearch, onClea
   return (
     <section className="flex flex-col gap-[12px] px-[24px] py-[20px]">
       <div className="flex items-center justify-between">
-        <h3 className="font-titillium text-[16px] font-semibold text-[#242424]">
+        <h3 className="font-rajdhani text-[16px] font-semibold text-[#242424]">
           Recent Searches
         </h3>
         <button 
           onClick={onClear}
-          className="font-titillium text-[12px] text-[#656565] underline underline-offset-2"
+          className="font-rajdhani text-[12px] text-[#656565] underline underline-offset-2"
         >
           Clear All
         </button>
@@ -31,7 +31,7 @@ const RecentSearches: React.FC<RecentSearchesProps> = ({ items, onSearch, onClea
           <button
             key={`${item}-${index}`}
             onClick={() => onSearch(item)}
-            className="rounded-[4px] bg-[#f5f5f5] px-[12px] py-[6px] font-titillium text-[14px] text-[#656565] active:bg-[#e8e8e8] whitespace-nowrap transition-colors border border-transparent hover:border-[#e8e8e8]"
+            className="rounded-[4px] bg-[#f5f5f5] px-[12px] py-[6px] font-rajdhani text-[14px] text-[#656565] active:bg-[#e8e8e8] whitespace-nowrap transition-colors border border-transparent hover:border-[#e8e8e8]"
           >
             {item}
           </button>

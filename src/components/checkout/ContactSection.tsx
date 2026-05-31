@@ -106,12 +106,12 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
           }`}
       >
         <div className="flex items-center gap-[12px]">
-          <h3 className="font-titillium text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
+          <h3 className="font-rajdhani text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
             Contact Details
           </h3>
           {isConfirmed && !isOpen && inputValue.trim() !== '' && (
             <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-titillium text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
+              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
                 All set up
               </span>
             </div>
@@ -146,14 +146,14 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                 >
                   <div className="flex flex-grow items-center gap-[8px]">
                     {/^\d{10}$/.test(inputValue) && (
-                      <span className="font-titillium text-[18px] text-[#242424] font-medium">+977</span>
+                      <span className="font-rajdhani text-[18px] text-[#242424] font-medium">+977</span>
                     )}
                     <input
                       type="text"
                       placeholder="Email or Mobile Phone No"
                       value={inputValue}
                       onChange={handleInputChange}
-                      className="w-full font-titillium text-[18px] text-[#242424] bg-transparent placeholder:text-[#68727d] outline-none"
+                      className="w-full font-rajdhani text-[18px] text-[#242424] bg-transparent placeholder:text-[#68727d] outline-none"
                     />
                   </div>
                   <ContactIcon className="w-[20px] h-[20px] text-[#68727d]" />
@@ -164,12 +164,12 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                     <motion.p
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="font-titillium text-[13px] font-medium text-[#e11717]"
+                      className="font-rajdhani text-[13px] font-medium text-[#e11717]"
                     >
                       {errorMsg}
                     </motion.p>
                   ) : (
-                    <p className="font-titillium text-[14px] leading-[22px] text-[#68727d]">
+                    <p className="font-rajdhani text-[14px] leading-[22px] text-[#68727d]">
                       Order Details and confirmation will be shared to this email address.
                     </p>
                   )}
@@ -184,7 +184,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                   }`}>
                   {isMarketing && <CheckIcon className="w-[10px] h-[10px] text-white" />}
                 </div>
-                <span className="font-titillium text-[16px] leading-[22px] text-[#4d4d4d]">
+                <span className="font-rajdhani text-[16px] leading-[22px] text-[#4d4d4d]">
                   Email me with news and offers
                 </span>
               </div>
@@ -193,7 +193,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                 onClick={validateAndConfirm}
                 className="flex w-full h-[48px] justify-center items-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] active:scale-[0.98] transition-all"
               >
-                <span className="font-titillium text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px]">
+                <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px]">
                   Confirm Details
                 </span>
               </button>

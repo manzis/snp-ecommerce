@@ -49,8 +49,8 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
           - tracking-[-0.02em]: Exact Figma Token
           - leading-[18px]: Matching box height for 1:1 verticality
       */}
-      <h3 className="h-[18px] whitespace-nowrap text-left font-titillium text-[18px] font-semibold tracking-[-0.02em] text-[#242424] leading-[18px]">
-        {selectedSize ? `Selected Size: ` : 'Select Size'} <span className="font-normal">{sizes.length === 0 ? 'One Size' : (selectedSize || '')}</span>
+      <h3 className="h-[18px] whitespace-nowrap text-left font-rajdhani text-[18px] font-semibold tracking-[-0.02em] text-[#242424] leading-[18px]">
+        {selectedSize ? `Selected Size: ` : 'Select Size'} <span className="font-medium text-[#515151]">{sizes.length === 0 ? 'One Size' : (selectedSize || '')}</span>
       </h3>
 
       {/* 
@@ -59,7 +59,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
       */}
       <div 
         ref={scrollRef}
-        className="flex w-full h-[52px] flex-nowrap gap-[12px] overflow-x-auto pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
+        className="flex w-full flex-nowrap gap-[12px] overflow-x-auto overflow-y-hidden pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
       >
         {sizes.length === 0 ? (
           <button
@@ -67,7 +67,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
             className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
           >
             <div className="flex h-[38px] flex-row items-center justify-center p-[10px] gap-[10px]">
-              <span className="whitespace-nowrap text-center font-titillium text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
+              <span className="whitespace-nowrap text-center font-rajdhani text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
                 One Size
               </span>
             </div>
@@ -112,7 +112,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
               <div className="flex h-[38px] min-w-[66px] flex-row items-center justify-center p-[10px] gap-[10px]">
                 <span
                   className={`
-                    whitespace-nowrap text-center font-titillium text-[18px] font-semibold leading-[18px] tracking-[-0.02em] transition-colors duration-200
+                    whitespace-nowrap text-center font-rajdhani text-[18px] font-semibold leading-[18px] tracking-[-0.02em] transition-colors duration-200
                     ${isActive ? 'text-[#FFFFFF]' : 'text-[#000000]'}
                   `}
                 >
@@ -124,7 +124,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
         })}
       </div>
       {sizeError && (
-        <span data-error="true" className="text-[#FF3333] font-titillium text-[14px] font-semibold mt-[-8px]">
+        <span data-error="true" className="text-[#FF3333] font-rajdhani text-[14px] font-semibold mt-[-8px]">
           Please select a size
         </span>
       )}

@@ -56,10 +56,10 @@ export default function ContactPage() {
                             <span className="flex justify-center text-[14px] font-[600] leading-[18px] text-[#ffffff] whitespace-nowrap uppercase tracking-wider">
                                 GET IN TOUCH
                             </span>
-                            <h1 className="flex justify-center text-[30px] font-custom lg:text-[42px] font-[400] leading-[40px] lg:leading-[50px] text-[#ffffff] text-center font-['DK_Jalebi',sans-serif]">
+ <h1 className="flex justify-center text-[30px] font-rajdhani font-bold lg:text-[42px] font-[500] leading-[40px] lg:leading-[50px] text-[#ffffff] text-center font-['DK_Jalebi',sans-serif]">
                                 We’d Love to hear<br />From You
                             </h1>
-                            <p className="flex justify-center text-[14px] lg:text-[16px] font-[400] leading-[20px] lg:leading-[24px] text-[#ddffd8] text-center max-w-[400px]">
+                            <p className="flex justify-center text-[14px] lg:text-[16px] font-[500] leading-[20px] lg:leading-[24px] text-[#ddffd8] text-center max-w-[400px]">
                                 Have a questions about delivery, supplements or orders do let us know to assist you best
                             </p>
                         </div>
@@ -112,7 +112,7 @@ export default function ContactPage() {
                                             onChange={handleChange}
                                             placeholder="Ram prasad"
                                             required
-                                            className="flex w-full px-[12px] py-[16px] items-center self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[400] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms]"
+                                            className="flex w-full px-[12px] py-[16px] items-center self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[500] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms]"
                                         />
                                     </div>
 
@@ -129,7 +129,7 @@ export default function ContactPage() {
                                             onChange={handleChange}
                                             placeholder="yourmail@mail.com"
                                             required
-                                            className="flex w-full px-[12px] py-[16px] items-center self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[400] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms]"
+                                            className="flex w-full px-[12px] py-[16px] items-center self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[500] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms]"
                                         />
                                     </div>
 
@@ -145,7 +145,7 @@ export default function ContactPage() {
                                             onChange={handleChange}
                                             placeholder="How can we help?"
                                             required
-                                            className="flex w-full h-[158px] px-[12px] py-[16px] items-start self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[400] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms] resize-none"
+                                            className="flex w-full h-[158px] px-[12px] py-[16px] items-start self-stretch rounded-[12px] border-[1px] border-[#eaebf0] text-[16px] font-[500] leading-[22px] text-[#242424] placeholder-[#68727d] focus:outline-none focus:border-[#3f9633] transition-colors duration-[200ms] resize-none"
                                         />
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@ export default function ContactPage() {
                                             )}
                                         </span>
                                     </button>
-                                    <p className="w-full text-[14px] font-[400] leading-[22px] text-[#68727d] text-center lg:text-left">
+                                    <p className="w-full text-[14px] font-[500] leading-[22px] text-[#68727d] text-center lg:text-left">
                                         We will get back your message as soon as possible
                                     </p>
                                 </div>
@@ -194,7 +194,7 @@ export default function ContactPage() {
                                         <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
                                             Chat to sales
                                         </h3>
-                                        <p className="text-[12px] font-[300] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
+                                        <p className="text-[12px] font-[500] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
                                             Speak to our friendly team
                                         </p>
                                         <a href="mailto:sales@supplymentnepal.com" className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] hover:text-[#3f9633] transition-colors duration-[150ms] whitespace-nowrap mt-[4px]">
@@ -214,7 +214,7 @@ export default function ContactPage() {
                                         <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
                                             Call Us
                                         </h3>
-                                        <p className="text-[12px] font-[300] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
+                                        <p className="text-[12px] font-[500] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
                                             Mon to Fri From 10am to 5pm
                                         </p>
                                         <a href="tel:+9779767609390" className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] hover:text-[#3f9633] transition-colors duration-[150ms] whitespace-nowrap mt-[4px]">

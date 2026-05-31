@@ -37,7 +37,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, count, image, slug, 
 
       {/* Top Badge: Product Count */}
       <div className="absolute right-[6px] top-[6px] flex h-[28px] w-[80px] items-center justify-center rounded-[4px] bg-white z-10">
-        <span className="font-titillium text-[10px] font-semibold tracking-[0.4px] text-[#242424] uppercase">
+        <span className="font-rajdhani text-[10px] font-semibold tracking-[0.4px] text-[#242424] uppercase">
           {count} Products
         </span>
       </div>
@@ -51,7 +51,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ title, count, image, slug, 
         }}
       >
         <span 
-          className="font-titillium text-[14px] font-bold tracking-[0.56px] uppercase leading-[12px]"
+          className="font-rajdhani text-[14px] font-bold tracking-[0.56px] uppercase leading-[12px]"
           style={{ color: colors.text }}
         >
           {title}
