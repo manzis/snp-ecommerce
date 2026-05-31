@@ -73,7 +73,7 @@ function mapExpoUpdate(update: ExpoUpdate): { status: string; message: string; l
   if (code === 'SH012' || desc.includes('fail') || desc.includes('return') || desc.includes('cancel')) {
     return {
       status: 'failed',
-      message: `Delivery attempt failed. Please contact support or carrier.`,
+      message: `Delivery attempt failed. Our team will contact you shortly to coordinate a rescheduled delivery.`,
       location: loc
     };
   }

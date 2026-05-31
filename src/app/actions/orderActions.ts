@@ -22,7 +22,7 @@ export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
   const carrier = (order.carrier_name || '').toLowerCase().replace(/\s+/g, '');
   if (!carrier.includes('expoexpress')) return;
 
-  const TERMINAL_STATUSES = ['delivered', 'cancelled', 'failed', 'returned'];
+  const TERMINAL_STATUSES = ['delivered', 'cancelled', 'returned'];
   const dbStatus = (order.status || '').toLowerCase();
   if (TERMINAL_STATUSES.includes(dbStatus)) return;
 
@@ -36,7 +36,12 @@ export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
 
   // newUpdates is sorted oldest to newest
   for (const nu of newUpdates) {
-    const hasUpdate = statusUpdates.some((up: any) => up.message === nu.message);
+    // Allow the same message (e.g. "Out for delivery.") if it happens on a different day (retry)
+    const hasUpdate = statusUpdates.some((up: any) => {
+      if (up.message !== nu.message) return false;
+      if (!up.date || !nu.date) return true; // Fallback to strict dedupe if date is missing
+      return up.date.split(' ')[0] === nu.date.split(' ')[0];
+    });
     
     if (!hasUpdate) {
       statusUpdates.push(nu);
@@ -83,6 +88,7 @@ export async function checkAndPersistDelayedStatus(order: any, supabase: any) {
   if (!order || !order.id) return;
 
   const dbStatus = (order.status || '').toLowerCase();
+  // We keep 'failed' here so the delay script ignores it (reschedules are manual)
   const TERMINAL_STATUSES = ['delivered', 'cancelled', 'failed', 'returned'];
   if (TERMINAL_STATUSES.includes(dbStatus)) {
     return;
