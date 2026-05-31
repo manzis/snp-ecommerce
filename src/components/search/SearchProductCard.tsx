@@ -47,7 +47,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         {product.stock_status === 'out_of_stock' && (
           <div className="absolute inset-0 z-[15] flex items-center justify-center p-4 pointer-events-none">
             <div className="w-full bg-red-600/95 py-2 lg:py-3 flex items-center justify-center shadow-2xl transform -rotate-1 border-y border-red-400/30">
- <span className="font-rajdhani font-bold text-[10px] lg:text-[14px] font-bold tracking-[0.25em] text-white uppercase drop-shadow-md">
+              <span className="font-rajdhani font-bold text-[10px] lg:text-[14px] font-bold tracking-[0.25em] text-white uppercase drop-shadow-md">
                 Out of Stock
               </span>
             </div>
@@ -56,7 +56,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
         {/* Save Badge - Decorative Custom Font */}
         <div className="absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[8px] py-[4px] lg:px-[10px]">
- <span className="font-rajdhani font-bold text-[10px] lg:text-[13px] leading-[14px] text-[#242424]">
+          <span className="font-rajdhani uppercase font-bold text-[10px] lg:text-[13px] leading-[14px] text-[#242424]">
             save {product.discount_percentage}%
           </span>
         </div>
@@ -92,7 +92,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           </span>
 
           {/* Discounted Price - Custom Font + Brand Green Gradient */}
- <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
+          <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
             Rs. {product.discounted_price}
           </span>
         </div>
