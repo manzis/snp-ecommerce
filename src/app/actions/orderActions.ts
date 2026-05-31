@@ -11,6 +11,7 @@ import {
   sendOrderCancelledEmail,
   sendDeliveryFailedEmail,
   sendAdminOrderReceivedEmail,
+  sendAdminOrderCancelledEmail,
   sendCustomerPaymentConfirmedEmail,
 } from '@/services/emailService';
 import { getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
@@ -392,10 +393,11 @@ export async function cancelOrderAction(orderId: string, reason: string) {
     revalidatePath('/account/orders');
     revalidatePath(`/account/orders/${orderId}`);
 
-    // Await cancellation email (Production fix)
-    await sendOrderCancelledEmail(orderId, reason).catch(err =>
-      console.error('[Email] Cancellation email failed:', err)
-    );
+    // Await cancellation emails (Production fix)
+    await Promise.allSettled([
+      sendOrderCancelledEmail(orderId, reason),
+      sendAdminOrderCancelledEmail(orderId, reason)
+    ]).catch(err => console.error('[Email] Cancellation emails failed:', err));
 
     return { success: true };
   } catch (error: any) {

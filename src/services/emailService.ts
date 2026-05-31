@@ -12,6 +12,7 @@ import {
   orderCancelledTemplate,
   deliveryFailedTemplate,
   adminOrderReceivedTemplate,
+  adminOrderCancelledTemplate,
   contactFormEmailTemplate,
   paymentAttemptTemplate,
   paymentAcknowledgeTemplate,
@@ -184,6 +185,15 @@ export async function sendOrderCancelledEmail(orderId: string, reason?: string):
   data.cancellationReason = reason;
   const html = orderCancelledTemplate(data);
   return await sendEmail(data.customerEmail, `Order Cancelled — #${data.shortId}`, html);
+}
+
+export async function sendAdminOrderCancelledEmail(orderId: string, reason?: string): Promise<boolean> {
+  const data = await fetchOrderEmailData(orderId);
+  if (!data) return false;
+
+  data.cancellationReason = reason;
+  const html = adminOrderCancelledTemplate(data);
+  return await sendEmail(ADMIN_EMAIL, `Order Cancelled — #${data.shortId}`, html);
 }
 
 export async function sendDeliveryFailedEmail(orderId: string, failureMessage?: string): Promise<boolean> {

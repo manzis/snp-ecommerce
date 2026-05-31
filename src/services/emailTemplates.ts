@@ -478,6 +478,62 @@ export function adminOrderReceivedTemplate(data: OrderEmailData): string {
   return adminBaseLayout(content, `New order #${data.shortId} received — ${STORE_NAME} Admin`);
 }
 
+export function adminOrderCancelledTemplate(data: OrderEmailData): string {
+  const dateStr = new Date().toLocaleString('en-US', { 
+    timeZone: 'Asia/Kathmandu',
+    month: 'short', day: 'numeric', year: 'numeric', 
+    hour: '2-digit', minute: '2-digit' 
+  });
+  
+  const content = `
+    <tr>
+      <td style="background:#dc2626;padding:40px 30px;text-align:left;">
+        <h1 style="margin:0 0 10px;font-size:28px;font-weight:900;color:#ffffff;text-transform:uppercase;letter-spacing:-1px;">Order Cancelled</h1>
+        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.9);font-weight:500;">Order #${data.shortId} has been cancelled by the customer.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:25px 30px;border-bottom:1px solid #f3f4f6;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td>
+              <p style="margin:0 0 5px;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Cancellation Details</p>
+              <p style="margin:0;font-size:14px;color:#000000;font-weight:700;">Reason: ${data.cancellationReason || 'User requested cancellation'}</p>
+              <p style="margin:5px 0 0;font-size:12px;color:#6b7280;">At: ${dateStr}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:30px 30px 10px;">
+        <p style="margin:0 0 15px;font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Customer Details</p>
+        <div style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;">
+          <p style="margin:0 0 5px;font-size:15px;font-weight:700;color:#000000;">${data.customerName}</p>
+          <p style="margin:0 0 5px;font-size:13px;color:#6b7280;">${data.customerEmail}</p>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:20px 30px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;padding:20px;border:1px solid #f3f4f6;">
+          <tr>
+            <td style="padding:15px 0 0;font-size:16px;font-weight:700;color:#000000;text-transform:uppercase;">Order Total</td>
+            <td align="right" style="padding:15px 0 0;font-size:20px;font-weight:900;color:#000000;">NPR ${data.totalAmount.toLocaleString()}</td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:10px 30px 40px;" align="center">
+        <a href="${process.env.STORE_URL || 'https://www.brightsupplements.store'}/admin/orders" style="display:block;background:#000000;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;padding:18px;text-transform:uppercase;letter-spacing:1px;">View Order In Dashboard</a>
+      </td>
+    </tr>
+  `;
+
+  return adminBaseLayout(content, `Order #${data.shortId} cancelled — ${STORE_NAME} Admin`);
+}
+
 export function deliveryFailedTemplate(data: OrderEmailData): string {
   const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
