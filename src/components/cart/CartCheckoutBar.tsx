@@ -67,16 +67,16 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
             <span className="font-rajdhani text-[13px] text-[#4d4d4d] leading-[19px] line-through">
               {mrpAmount}
             </span>
-            <div className="flex items-center font-rajdhani font-bold text-[20px] text-[#242424] leading-[22px]">
+            <div className="flex items-center font-rajdhani font-bold text-[22px] text-[#242424] leading-[24px]">
               <span className="mr-1">Rs.</span>
               {totalAmount.replace(/NPR\s?|Rs\.?\s?/ig, '').split('').map((char, index) => (
-                <div key={index} className="relative overflow-hidden h-[22px] min-w-[11px] flex justify-center">
+                <div key={index} className="relative overflow-hidden h-[24px] min-w-[12px] flex justify-center">
                   <AnimatePresence mode="popLayout">
                     <motion.span
                       key={char + index}
-                      initial={{ y: 22, opacity: 0 }}
+                      initial={{ y: 24, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -22, opacity: 0 }}
+                      exit={{ y: -24, opacity: 0 }}
                       transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
                     >
                       {char}
@@ -108,12 +108,12 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
           {isNavigating ? (
             <div className="flex items-center gap-2">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span className="uppercase font-rajdhani font-bold text-[16px] tracking-[-0.015em] font-[500] leading-[16px] whitespace-nowrap text-white">
+              <span className="uppercase font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] whitespace-nowrap text-white">
                 Preparing...
               </span>
             </div>
           ) : (
-            <span className={`uppercase font-rajdhani font-bold text-[16px] tracking-[-0.015em] font-[500] leading-[16px] whitespace-nowrap ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
+            <span className={`uppercase font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] whitespace-nowrap ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
               {buttonText}
             </span>
           )}
