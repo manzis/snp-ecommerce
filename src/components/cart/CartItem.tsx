@@ -95,7 +95,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               </span>
               {/* Product Name - Single line with ellipsis */}
               <Link href={item.slug ? `/product/${item.slug}` : '#'} className="hover:underline cursor-pointer">
- <h3 className="font-rajdhani font-bold text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
+                <h3 className="font-rajdhani font-bold text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
                   {item.name}
                 </h3>
               </Link>
@@ -107,17 +107,17 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             {item.mrp > (item.price - (item.bundle_discount || 0)) && (
               <div className="flex items-center text-[#308026] mr-[4px]">
                 <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
-                <span className="font-rajdhani text-[18px] font-semibold tracking-[-1.26px]">
+                <span className="font-rajdhani text-[18px] font-semibold tracking-[-0.5px]">
                   {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0))) / item.mrp) * 100)}%
                 </span>
               </div>
             )}
             {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0)) && (
-              <span className="font-rajdhani text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-1.26px]">
+              <span className="font-rajdhani text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-0.8px]">
                 Rs. {item.mrp.toLocaleString()}
               </span>
             )}
- <span className="font-rajdhani font-bold text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
+            <span className="font-rajdhani font-bold text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
               Rs. {Math.round(item.price - (item.bundle_discount || 0)).toLocaleString()}
             </span>
           </div>

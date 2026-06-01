@@ -128,12 +128,12 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                                 <div className="relative h-[22px] w-[22px] md:h-[28px] md:w-[28px] lg:h-[22px] lg:w-[22px]">
                                     <CartIcon className={`h-full w-full transition-colors duration-300 will-change-[color] ${isScrolled ? 'text-[#242424]' : 'text-[#ffffff]'}`} />
                                     {cartCount > 0 && (
-                                        <div className={`absolute -right-[12px] -top-[12px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] px-[5px] py-[2px] md:-right-[14px] md:-top-[14px] md:h-[22px] md:min-w-[22px] transition-[background-color,border-color] duration-300 ease-in-out will-change-[background-color,border-color] ${
+                                        <div className={`absolute -right-[12px] -top-[12px] flex h-[18px] min-w-[18px] items-center justify-center rounded-[6px] border-[1.5px] px-[4px] md:-right-[14px] md:-top-[14px] md:h-[22px] md:min-w-[22px] transition-[background-color,border-color] duration-300 ease-in-out will-change-[background-color,border-color] ${
                                             isScrolled 
                                                 ? 'border-white bg-[#242424]' 
                                                 : 'border-[#242424] bg-white'
                                         }`}>
-                                            <span className={`font-rajdhani text-[10px] font-medium leading-none md:text-[13px] transition-colors duration-300 will-change-[color] ${
+                                            <span className={`font-rajdhani text-[11px] font-bold leading-none md:text-[13px] pt-[1px] text-center transition-colors duration-300 will-change-[color] ${
                                                 isScrolled 
                                                     ? 'text-white' 
                                                     : 'text-[#242424]'

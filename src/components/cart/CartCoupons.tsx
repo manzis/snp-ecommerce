@@ -58,7 +58,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
       </AnimatePresence>
 
       <div className="flex items-center px-[12px]">
-        <h2 className="font-rajdhani text-[18px] font-semibold tracking-[-0.72px] text-[#242424]">
+        <h2 className="font-rajdhani text-[18px] font-semibold tracking-[-0.4px] text-[#242424]">
           Coupons and Discounts
         </h2>
       </div>

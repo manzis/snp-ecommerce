@@ -32,7 +32,7 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
     <section className="flex flex-col w-full bg-white border-t border-[#f1f5f9] px-[24px] py-[24px] relative">
       <div className="flex items-center justify-between">
         <div className="flex flex-col flex-1 min-w-0">
-          <div className="font-rajdhani text-[16px] leading-[24px] tracking-[-0.64px] text-[#242424]">
+          <div className="font-rajdhani text-[16px] leading-[24px] tracking-[-0.3px] text-[#242424]">
             <span className="font-semibold">Delivery to : </span>
             {isLoading ? (
               <span className="text-[#8a8e91] animate-pulse">Checking status...</span>

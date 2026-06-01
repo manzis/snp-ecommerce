@@ -133,8 +133,8 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
       {/* FOOTER NOTE */}
       <div className="px-[24px] pb-[16px]">
-        <p className="font-rajdhani text-[14px] text-[#8b8e92] leading-[20px] tracking-[-0.56px]">
-          Note:     Additional Charges such as shipping Fees are calculated at Checkout
+        <p className="font-rajdhani text-[14px] text-[#8b8e92] leading-[20px] tracking-[-0.4px]">
+          Note: Additional Charges such as shipping Fees are calculated at Checkout
         </p>
       </div>
     </section>
