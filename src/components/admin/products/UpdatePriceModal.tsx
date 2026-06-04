@@ -190,16 +190,30 @@ export default function UpdatePriceModal({
                                             <div key={index} className="border border-gray-200 rounded-[6px] overflow-hidden flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-200 bg-white group">
                                                 <div className="flex-1 p-5 min-w-0">
                                                     <p className="text-[11px] text-[#a1a1aa] font-medium tracking-tight truncate mb-1.5 uppercase-none">Variant Combination</p>
-                                                    <div className="flex items-center gap-2">
-                                                        {variant.size?.size_label && variant.size.size_label !== 'Default' && (
-                                                            <span className="px-2 py-0.5 border border-gray-200 text-[#242424] text-[10px] font-medium rounded-[4px]">
-                                                                {variant.size.size_label}
-                                                            </span>
+                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                                        {variant.size && variant.size.size_label !== 'Default' && (
+                                                            <input
+                                                                type="text"
+                                                                value={variant.size.size_label || ''}
+                                                                onChange={(e) => {
+                                                                    const updated = [...variants];
+                                                                    updated[index] = { ...updated[index], size: { ...updated[index].size, size_label: e.target.value } as any };
+                                                                    setVariants(updated);
+                                                                }}
+                                                                className="px-2 py-1 w-[100px] border border-gray-200 text-[#242424] text-[12px] font-medium rounded-[4px] outline-none focus:border-black transition-all"
+                                                            />
                                                         )}
-                                                        {variant.flavour?.flavour_name && variant.flavour.flavour_name !== 'Default' && (
-                                                            <span className="px-2 py-0.5 border border-gray-100 text-[#71717a] text-[10px] font-medium bg-gray-50/50 rounded-[4px]">
-                                                                {variant.flavour.flavour_name}
-                                                            </span>
+                                                        {variant.flavour && variant.flavour.flavour_name !== 'Default' && (
+                                                            <input
+                                                                type="text"
+                                                                value={variant.flavour.flavour_name || ''}
+                                                                onChange={(e) => {
+                                                                    const updated = [...variants];
+                                                                    updated[index] = { ...updated[index], flavour: { ...updated[index].flavour, flavour_name: e.target.value } as any };
+                                                                    setVariants(updated);
+                                                                }}
+                                                                className="px-2 py-1 w-[120px] border border-gray-100 text-[#71717a] text-[12px] font-medium bg-gray-50/50 rounded-[4px] outline-none focus:border-black focus:bg-white transition-all"
+                                                            />
                                                         )}
                                                     </div>
                                                 </div>

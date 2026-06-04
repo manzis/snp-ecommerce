@@ -76,24 +76,38 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     const selectedSizeObj = sizes.find(s => s.size_label === selectedSize);
     if (!selectedSizeObj) return flavours;
 
-    // Scan variants mapped uniquely to this exact Size 
-    // And that are structurally set as "available"
+    // Scan variants mapped uniquely to this exact Size
+    // Do NOT filter out unavailable variants, so we can show them as disabled
     const validVariantRows = product.product_variants.filter(
-      v => v.size_id === selectedSizeObj.id && v.is_available !== false
+      v => v.size_id === selectedSizeObj.id
     );
 
     const validFlavourIds = validVariantRows.map(v => v.flavour_id);
 
     // Limit down main flavours only to those represented in validVariantRows
-    return flavours.filter(f => validFlavourIds.includes(f.id));
+    // and explicitly set is_available based on the variant status
+    return flavours
+      .filter(f => validFlavourIds.includes(f.id))
+      .map(f => {
+        const variant = validVariantRows.find(v => v.flavour_id === f.id);
+        return {
+          ...f,
+          is_available: variant ? variant.is_available : f.is_available
+        };
+      });
   }, [product.product_variants, flavours, sizes, selectedSize]);
 
   useEffect(() => {
-    // If the currently selected flavour ceases to exist in the filtered map (e.g user switched size dropping flavour pool)
+    // If the currently selected flavour ceases to exist or becomes unavailable
     if (selectedFlavorId && filteredFlavours.length > 0) {
-      const isStillValid = filteredFlavours.some(f => f.id === selectedFlavorId);
+      const isStillValid = filteredFlavours.some(f => f.id === selectedFlavorId && f.is_available !== false);
       if (!isStillValid) {
-        setFlavorId(filteredFlavours[0].id); // Auto-force nearest valid item
+        const firstAvailable = filteredFlavours.find(f => f.is_available !== false);
+        if (firstAvailable) {
+          setFlavorId(firstAvailable.id); // Auto-force nearest valid available item
+        } else {
+          setFlavorId(null);
+        }
       }
     } else if (filteredFlavours.length === 0 && selectedFlavorId !== null) {
       setFlavorId(null); // Size mapping dictates 'No Flavour'

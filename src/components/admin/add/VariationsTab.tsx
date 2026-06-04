@@ -192,10 +192,15 @@ export default function VariationsTab({ formData, setFormData, errors }: any) {
                                 <div key={index} className={`relative flex flex-col gap-6 p-6 bg-white border rounded-2xl transition-all ${!isPriceValid ? 'border-red-500 bg-red-50/5' : 'border-gray-100'}`}>
                                     {/* Action Header: Saved Status & Remove Button */}
                                     <div className="absolute top-4 right-4 flex items-center gap-3">
-                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-green-50 rounded-lg">
-                                            <SaveIcon className="w-3 h-3 text-green-600" />
-                                            <span className="text-[10px] text-green-700 font-medium uppercase tracking-wider">Saved</span>
-                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => updateVariant(index, 'is_available', v.is_available === false ? true : false)}
+                                            className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-colors group ${v.is_available === false ? 'bg-orange-50 text-orange-600 hover:bg-orange-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
+                                        >
+                                            <span className="text-[10px] font-medium uppercase tracking-wider">
+                                                {v.is_available === false ? 'Mark as Available' : 'Mark as Unavailable'}
+                                            </span>
+                                        </button>
                                         <button 
                                             onClick={() => removeVariant(index)}
                                             className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors group"
@@ -215,9 +220,27 @@ export default function VariationsTab({ formData, setFormData, errors }: any) {
                                                     className="h-full w-full"
                                                 />
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-[14px] font-medium text-[#242424]">{v.size_label || 'Base Size'}</span>
-                                                <span className="text-[12px] font-regular text-[#71717a]">{v.flavour_name || 'Original Flavor'}</span>
+                                            <div className="flex flex-col gap-2 w-full max-w-[200px]">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[10px] text-[#71717a] font-regular px-1 uppercase tracking-wider">Size</span>
+                                                    <input
+                                                        type="text"
+                                                        value={v.size_label || ''}
+                                                        onChange={(e) => updateVariant(index, 'size_label', e.target.value)}
+                                                        placeholder="Base Size"
+                                                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-[13px] font-medium text-[#242424] focus:border-black outline-none transition-all placeholder:text-zinc-400 placeholder:font-regular"
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[10px] text-[#71717a] font-regular px-1 uppercase tracking-wider">Flavour</span>
+                                                    <input
+                                                        type="text"
+                                                        value={v.flavour_name || ''}
+                                                        onChange={(e) => updateVariant(index, 'flavour_name', e.target.value)}
+                                                        placeholder="Original Flavor"
+                                                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-[12px] font-regular text-[#71717a] focus:border-black outline-none transition-all placeholder:text-zinc-400"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">

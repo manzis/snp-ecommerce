@@ -141,20 +141,18 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     setIsPaymentModalOpen(true);
   };
 
-  const handleCancelOrder = async (order: any) => {
-    if (confirm(`Are you sure you want to CANCEL order #${order.shortId}? This will notify the customer.`)) {
-      try {
-        const res = await updateOrderStatusAdminAction(order.id, 'cancelled', 'Order cancelled by administrator.');
-        if (res.success) {
-          showAdminToast(`Order #${order.shortId} cancelled successfully.`, 'success');
-          loadOrders(currentPage);
-          setIsDetailsModalOpen(false);
-        } else {
-          showAdminToast(res.message || 'Failed to cancel order.', 'error');
-        }
-      } catch (error) {
-        showAdminToast('An error occurred while cancelling order.', 'error');
+  const handleCancelOrder = async (order: any, reason: string) => {
+    try {
+      const res = await updateOrderStatusAdminAction(order.id, 'cancelled', reason);
+      if (res.success) {
+        showAdminToast(`Order #${order.shortId} cancelled successfully.`, 'success');
+        loadOrders(currentPage);
+        setIsDetailsModalOpen(false);
+      } else {
+        showAdminToast(res.message || 'Failed to cancel order.', 'error');
       }
+    } catch (error) {
+      showAdminToast('An error occurred while cancelling order.', 'error');
     }
   };
 

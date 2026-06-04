@@ -108,6 +108,16 @@ export async function updateProductVariantPricesAction(productId: string, varian
     const adminClient = getSupabaseAdmin();
     const finalClient = adminClient || supabase;
 
+    // Update size and flavour names if provided
+    for (const v of variants) {
+      if (v.size_id && v.size?.size_label) {
+        await finalClient.from('product_sizes').update({ size_label: v.size.size_label }).eq('id', v.size_id);
+      }
+      if (v.flavour_id && v.flavour?.flavour_name) {
+        await finalClient.from('product_flavours').update({ flavour_name: v.flavour.flavour_name }).eq('id', v.flavour_id);
+      }
+    }
+
     const { error } = await finalClient
       .from('product_variants')
       .upsert(variantsToUpsert, { onConflict: 'product_id,size_id,flavour_id' });
@@ -672,16 +682,14 @@ export async function updateProductDeepAction(id: string, productData: any) {
     const productId = id;
 
     // 4. Sequential Deletion of existing relations to maintain clean state
+    // ONLY delete info, qa, review mappings here. Variants, sizes, flavours will be upserted.
     await Promise.all([
-      finalClient.from('product_variants').delete().eq('product_id', productId),
       finalClient.from('product_info').delete().eq('product_id', productId),
       finalClient.from('product_qa').delete().eq('product_id', productId),
       finalClient.from('product_review_mapping').delete().eq('product_id', productId), // Clear mappings
-      finalClient.from('product_sizes').delete().eq('product_id', productId),
-      finalClient.from('product_flavours').delete().eq('product_id', productId),
     ]);
 
-    // 5. Resolve and Insert Variants (same logic as create)
+    // 5. Resolve and Insert/Update Variants
     const variantsToProcess = (product_variants && product_variants.length > 0) 
       ? product_variants 
       : [{
@@ -694,66 +702,96 @@ export async function updateProductDeepAction(id: string, productData: any) {
         }];
 
     if (variantsToProcess.length > 0) {
-      const uniqueFlavours = Array.from(new Set(variantsToProcess.map((v: any) => v.flavour_name || v.flavour?.flavour_name))).filter(Boolean) as string[];
-      const uniqueSizes = Array.from(new Set(variantsToProcess.map((v: any) => v.size_label || v.size?.size_label))).filter(Boolean) as string[];
-
-      const flavourMap: Record<string, string> = {};
-      if (uniqueFlavours.length > 0) {
-        const flavourData = uniqueFlavours.map(name => {
-          const firstVariantWithImage = variantsToProcess.find((v: any) => (v.flavour_name === name || v.flavour?.flavour_name === name) && (v.image_url || v.flavour?.image_url));
-          return {
-            product_id: productId,
-            flavour_name: name,
-            image_url: firstVariantWithImage?.image_url || firstVariantWithImage?.flavour?.image_url || '',
-            is_available: true
-          };
-        });
-        const { data: insertedFlavours, error: fError } = await finalClient
-          .from('product_flavours')
-          .insert(flavourData)
-          .select();
-        if (fError) throw new Error(`Flavor Error: ${fError.message}`);
-        insertedFlavours?.forEach(f => { flavourMap[f.flavour_name] = f.id; });
-      }
-
+      // Upsert Sizes
       const sizeMap: Record<string, string> = {};
+      const uniqueSizes = Array.from(new Set(variantsToProcess.map((v: any) => v.size_label || v.size?.size_label))).filter(Boolean) as string[];
       if (uniqueSizes.length > 0) {
-        const sizeData = uniqueSizes.map(label => {
-          const firstVariantWithImage = variantsToProcess.find((v: any) => (v.size_label === label || v.size?.size_label === label) && (v.image_url || v.size?.image_url));
-          return {
-            product_id: productId,
-            size_label: label,
-            image_url: firstVariantWithImage?.image_url || firstVariantWithImage?.size?.image_url || null,
-            is_available: true
-          };
-        });
-        const { data: insertedSizes, error: sError } = await finalClient
-          .from('product_sizes')
-          .insert(sizeData)
-          .select();
-        if (sError) throw new Error(`Size Error: ${sError.message}`);
-        insertedSizes?.forEach(s => { sizeMap[s.size_label] = s.id; });
+        for (const label of uniqueSizes) {
+           const variantWithSize = variantsToProcess.find((v:any) => (v.size_label === label || v.size?.size_label === label));
+           const sId = variantWithSize.size_id;
+           const sImage = variantWithSize.image_url || variantWithSize.size?.image_url || null;
+           
+           if (sId) {
+              await finalClient.from('product_sizes').update({ size_label: label, image_url: sImage }).eq('id', sId);
+              sizeMap[label] = sId;
+           } else {
+              const { data } = await finalClient.from('product_sizes').insert({ product_id: productId, size_label: label, image_url: sImage, is_available: true }).select('id').single();
+              if (data) sizeMap[label] = data.id;
+           }
+        }
       }
 
-      const variantsToInsert = variantsToProcess.map((v: any) => {
+      // Upsert Flavours
+      const flavourMap: Record<string, string> = {};
+      const uniqueFlavours = Array.from(new Set(variantsToProcess.map((v: any) => v.flavour_name || v.flavour?.flavour_name))).filter(Boolean) as string[];
+      if (uniqueFlavours.length > 0) {
+        for (const name of uniqueFlavours) {
+           const variantWithFlavour = variantsToProcess.find((v:any) => (v.flavour_name === name || v.flavour?.flavour_name === name));
+           const fId = variantWithFlavour.flavour_id;
+           const fImage = variantWithFlavour.image_url || variantWithFlavour.flavour?.image_url || '';
+           
+           if (fId) {
+              await finalClient.from('product_flavours').update({ flavour_name: name, image_url: fImage }).eq('id', fId);
+              flavourMap[name] = fId;
+           } else {
+              const { data } = await finalClient.from('product_flavours').insert({ product_id: productId, flavour_name: name, image_url: fImage, is_available: true }).select('id').single();
+              if (data) flavourMap[name] = data.id;
+           }
+        }
+      }
+
+      // Upsert Variants
+      const activeVariantIds: string[] = [];
+      for (const v of variantsToProcess) {
           const sLabel = v.size_label || v.size?.size_label;
           const fName = v.flavour_name || v.flavour?.flavour_name;
-          return {
-            product_id: productId,
-            size_id: sLabel ? sizeMap[sLabel] : null,
-            flavour_id: fName ? flavourMap[fName] : null,
-            original_price: v.original_price,
-            discounted_price: v.discounted_price,
-            stock_count: v.stock_count || 0,
-            is_available: v.is_available ?? true
-          };
-      });
+          const sId = sLabel ? sizeMap[sLabel] : null;
+          const fId = fName ? flavourMap[fName] : null;
+          
+          if (v.id) {
+             await finalClient.from('product_variants').update({
+                size_id: sId,
+                flavour_id: fId,
+                original_price: v.original_price,
+                discounted_price: v.discounted_price,
+                stock_count: v.stock_count || 0,
+                is_available: v.is_available ?? true
+             }).eq('id', v.id);
+             activeVariantIds.push(v.id);
+          } else {
+             const { data } = await finalClient.from('product_variants').insert({
+                product_id: productId,
+                size_id: sId,
+                flavour_id: fId,
+                original_price: v.original_price,
+                discounted_price: v.discounted_price,
+                stock_count: v.stock_count || 0,
+                is_available: v.is_available ?? true
+             }).select('id').single();
+             if (data) activeVariantIds.push(data.id);
+          }
+      }
 
-      const { error: variantError } = await finalClient
-        .from('product_variants')
-        .insert(variantsToInsert);
-      
-      if (variantError) throw new Error(`Variant Error: ${variantError.message}`);
+      // Cleanup removed Variants, Flavours, Sizes
+      if (activeVariantIds.length > 0) {
+         await finalClient.from('product_variants').delete().eq('product_id', productId).not('id', 'in', `(${activeVariantIds.join(',')})`);
+      } else {
+         await finalClient.from('product_variants').delete().eq('product_id', productId);
+      }
+
+      const currentSizeIds = Object.values(sizeMap);
+      if (currentSizeIds.length > 0) {
+         await finalClient.from('product_sizes').delete().eq('product_id', productId).not('id', 'in', `(${currentSizeIds.join(',')})`);
+      } else {
+         await finalClient.from('product_sizes').delete().eq('product_id', productId);
+      }
+
+      const currentFlavourIds = Object.values(flavourMap);
+      if (currentFlavourIds.length > 0) {
+         await finalClient.from('product_flavours').delete().eq('product_id', productId).not('id', 'in', `(${currentFlavourIds.join(',')})`);
+      } else {
+         await finalClient.from('product_flavours').delete().eq('product_id', productId);
+      }
     }
 
     // 6. Insert Product Info

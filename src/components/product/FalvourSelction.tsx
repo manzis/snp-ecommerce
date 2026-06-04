@@ -123,10 +123,12 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
               `}
             >
               {!item.is_available && (
-                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center  ">
-                  <span className=" bg-[#EFEFEF] w-full px-[6px] py-[3px] font-rajdhani text-[10px] font-semibold tracking-[-0.02em] text-[#242424] text-center ">
-                    Not Available
-                  </span>
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/20 rounded-[6px] pointer-events-none">
+                  <div className="w-full bg-[#FAFAFA]/90 border-y border-gray-200 py-[4px] shadow-sm">
+                    <span className="block font-rajdhani text-[10px] font-bold tracking-[0.05em] text-red-400 text-center uppercase">
+                      Unavailable
+                    </span>
+                  </div>
                 </div>
               )}
               {/* 
