@@ -126,8 +126,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     isActive={selectedId === 'wallets'}
                     onSelect={onSelect}
                     error="This payment method is currently unavailable"
+                    badge="Rs 25 Off"
                   >
-                    <WalletPaymentDetails onPlaceOrder={() => onPlaceOrder()} />
+                    <WalletPaymentDetails 
+                      onPlaceOrder={() => onPlaceOrder()} 
+                      totalAmount={totalAmount}
+                    />
                   </PaymentOption>
                 </div>
               </div>
@@ -144,6 +148,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     icon={<QRIcon />}
                     isActive={selectedId === 'qr'}
                     onSelect={onSelect}
+                    badge="Rs 25 Off"
                   >
                     <QrPaymentDetails
                       initialFile={initialQrData?.file}
@@ -176,6 +181,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       }
                       isActive={selectedId === 'cod'}
                       onSelect={onSelect}
+                      badge="+ Rs 23 Fee"
+                      badgeType="fee"
                     >
                       <CodPaymentDetails handlingFee={23} onPlaceOrder={onPlaceOrder} />
                     </PaymentOption>

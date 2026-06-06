@@ -43,6 +43,7 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMessage, setProcessingMessage] = useState("Processing your order...");
   const [isValidating, setIsValidating] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   const contactData = useCheckoutStore((state) => state.contactData);
   const setContactData = useCheckoutStore((state) => state.setContactData);
@@ -111,6 +112,7 @@ export default function CheckoutPage() {
 
   const handleApplyCoupon = async (code: string) => {
     setIsValidating(true);
+    setCouponError(null);
     const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const result = await validateCoupon(code, subtotal, items);
     setIsValidating(false);
@@ -118,12 +120,13 @@ export default function CheckoutPage() {
     if (result.isValid && result.coupon) {
       applyCoupon(result.coupon);
     } else {
-      alert(result.message || "Invalid Coupon Code");
+      setCouponError(result.message || "Invalid Coupon Code");
     }
   };
 
   const handleRemoveCoupon = () => {
     removeCoupon();
+    setCouponError(null);
   };
 
   const handleToggle = (step: 'contact' | 'delivery' | 'payments') => {
@@ -411,6 +414,8 @@ export default function CheckoutPage() {
               codCharge={codCharge}
               onApplyCoupon={handleApplyCoupon}
               onRemoveCoupon={handleRemoveCoupon}
+              isValidating={isValidating}
+              couponError={couponError}
             />
 
             <div className="flex flex-col border-b border-[#f1f5f9]">
@@ -460,7 +465,7 @@ export default function CheckoutPage() {
                   initialQrData={{ file: qrData.qrFile, remarks: qrData.qrRemarks }}
                   hasQrError={selectedPaymentId === 'qr' && !!paymentError}
                   externalError={paymentError}
-                  totalAmount={`Rs. ${finalTotal.toLocaleString()}`}
+                  totalAmount={`Rs. ${(finalTotal - 25).toLocaleString()}`}
                 />
               </div>
             </div>

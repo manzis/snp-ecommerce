@@ -19,8 +19,12 @@ export const AuthModalProvider = ({ children }: { children: React.ReactNode }) =
     const [isOpen, setIsOpen] = useState(false);
     const onSuccessRef = useRef<(() => void) | null>(null);
 
-    const openLogin = useCallback((onSuccess?: () => void) => {
-        onSuccessRef.current = onSuccess || null;
+    const openLogin = useCallback((onSuccess?: (() => void) | any) => {
+        if (typeof onSuccess === 'function') {
+            onSuccessRef.current = onSuccess;
+        } else {
+            onSuccessRef.current = null;
+        }
         setIsOpen(true);
     }, []);
 

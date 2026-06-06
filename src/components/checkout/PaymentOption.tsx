@@ -13,6 +13,8 @@ interface PaymentOptionProps {
   onSelect: (id: string) => void;
   children?: React.ReactNode;
   error?: string;
+  badge?: string;
+  badgeType?: 'discount' | 'fee';
 }
 
 const PaymentOption: React.FC<PaymentOptionProps> = ({
@@ -23,7 +25,9 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
   isActive,
   onSelect,
   children,
-  error
+  error,
+  badge,
+  badgeType = 'discount'
 }) => {
   // GRADIENT TOKENS (Preserved exactly)
   const activeGradient = 'linear-gradient(30deg, #FCFFFA 40%, #eaffcc 100%)';
@@ -34,8 +38,34 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
       layout
       initial={false}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      className="relative w-full"
+      className="relative w-full mt-[8px]" // Added mt-8 to give space for the badge to overflow
     >
+      {/* Custom Badge (e.g. Rs 25 Off or Rs 23 Fee) positioned at top edge */}
+      {badge && (
+        <div className={`absolute -top-[10px] right-[48px] flex h-[20px] px-[8px] justify-center items-center rounded-[6px] z-10 pointer-events-none overflow-hidden ${
+          badgeType === 'discount' 
+            ? 'bg-[#3f9633] text-white' 
+            : 'bg-[#ffe900] border border-[#ebd700] text-[#242424]'
+        }`}>
+          <motion.div
+            className="absolute top-0 bottom-0 w-[50%] skew-x-[-20deg]"
+            style={{
+              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.7), transparent)',
+            }}
+            initial={{ left: '-100%' }}
+            animate={{ left: '250%' }}
+            transition={{
+              duration: 3,
+              ease: "linear",
+              repeat: Infinity,
+            }}
+          />
+          <span className="font-rajdhani text-[11px] font-[700] leading-[11px] tracking-[0.2px] uppercase relative z-10">
+            {badge}
+          </span>
+        </div>
+      )}
+      
       <motion.button
         layout="position"
         onClick={() => onSelect(id)}
@@ -61,13 +91,14 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
           </span>
 
           {/* Popular Tag */}
-          {isPopular && (
+          {isPopular && !badge && (
             <div className="flex h-[18px] px-[6px] justify-center items-center bg-[#3f9633] rounded-[6px] ml-[2px]">
               <span className="font-rajdhani text-[10px] font-medium leading-[6px] text-white tracking-[0.2px] uppercase">
                 POPULAR
               </span>
             </div>
           )}
+
         </div>
         
         {/* Chevron Icon */}

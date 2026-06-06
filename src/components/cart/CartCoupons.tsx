@@ -134,14 +134,15 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
             >
               <AnimatePresence mode="wait">
                 {isValidating ? (
-                  <motion.span
+                  <motion.div
                     key="loading"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="flex justify-center items-center py-1"
                   >
-                    ...
-                  </motion.span>
+                    <div className="w-[18px] h-[18px] border-[2px] border-[#308026]/30 border-t-[#308026] rounded-full animate-spin" />
+                  </motion.div>
                 ) : isApplied ? (
                   <motion.span
                     key="applied"

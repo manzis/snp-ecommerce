@@ -23,6 +23,7 @@ export interface Coupon {
   created_at: string;
   products?: { id: string, title: string } | null;
   is_public?: boolean;
+  is_one_time?: boolean;
 }
 
 interface CouponActionMenuProps {

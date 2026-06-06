@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 
 interface WalletPaymentDetailsProps {
   onPlaceOrder: (wallet: string) => void;
+  totalAmount?: string;
 }
 
 const WALLETS = [
@@ -29,7 +30,7 @@ const WALLETS = [
   }
 ];
 
-const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrder }) => {
+const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrder, totalAmount }) => {
   const [selectedWallet, setSelectedWallet] = useState('esewa');
 
   const handleWalletSelect = (id: string) => {
@@ -109,7 +110,7 @@ const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrde
           className="flex w-full h-[48px] items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all active:scale-[0.98] outline-none "
         >
           <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-            Pay Via {WALLETS.find(w => w.id === selectedWallet)?.name}
+            Pay Via {WALLETS.find(w => w.id === selectedWallet)?.name} {totalAmount ? `(${totalAmount})` : ''}
           </span>
         </button>
       </div>

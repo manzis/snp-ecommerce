@@ -17,6 +17,8 @@ interface CheckoutPriceHeaderProps {
   bundleDiscount?: number;
   onApplyCoupon: (code: string) => void;
   onRemoveCoupon: () => void;
+  isValidating?: boolean;
+  couponError?: string | null;
 }
 export interface CheckoutPriceHeaderHandle {
   expandAndScroll: () => void;
@@ -32,7 +34,9 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
   codCharge = 0,
   bundleDiscount,
   onApplyCoupon,
-  onRemoveCoupon
+  onRemoveCoupon,
+  isValidating = false,
+  couponError = null
 }, ref) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [couponInput, setCouponInput] = useState(couponCode);
@@ -174,29 +178,51 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
               </div>
             </>
           ) : (
-            <div
-              className="relative flex items-center justify-between rounded-[12px] border-[1px] border-transparent p-[12px] transition-all duration-300"
-              style={{
-                background: `linear-gradient(257.95deg, #fafff3, #ffffff) padding-box, 
-                               linear-gradient(30deg, #3F9733 10%, #8aaf85 30%, #E8F3E4 80%, #E8F3E4 100%) border-box`
-              }}
-            >
-              <div className="flex items-center gap-[8px] flex-1">
-                <DiscountIcon className="w-[22px] h-[22px] text-[#308026]" />
-                <input
-                  type="text"
-                  placeholder="Enter Coupon Code"
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                  className="w-full bg-transparent font-rajdhani text-[16px] text-[#242424] outline-none placeholder:text-[#] "
-                />
-              </div>
-              <button
-                onClick={handleApply}
-                className="font-rajdhani text-[14px] font-semibold text-[#3F9733] pl-[12px] hover:text-[#347d2a] transition-all active:scale-95"
+            <div className="flex flex-col gap-[8px]">
+              <div
+                className={`relative flex items-center justify-between rounded-[12px] border-[1px] p-[12px] transition-all duration-300 ${couponError ? 'border-[#e11717]' : 'border-transparent'}`}
+                style={{
+                  background: couponError
+                    ? '#fff5f5'
+                    : `linear-gradient(257.95deg, #fafff3, #ffffff) padding-box, 
+                                 linear-gradient(30deg, #3F9733 10%, #8aaf85 30%, #E8F3E4 80%, #E8F3E4 100%) border-box`
+                }}
               >
-                Apply
-              </button>
+                <div className="flex items-center gap-[8px] flex-1">
+                  <DiscountIcon className={`w-[22px] h-[22px] ${couponError ? 'text-[#e11717]' : 'text-[#308026]'}`} />
+                  <input
+                    type="text"
+                    placeholder="Enter Coupon Code"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    disabled={isValidating}
+                    className={`w-full bg-transparent font-rajdhani text-[16px] outline-none placeholder:text-[#8b8e92] ${couponError ? 'text-[#e11717]' : 'text-[#242424]'}`}
+                  />
+                </div>
+                <button
+                  onClick={handleApply}
+                  disabled={isValidating || !couponInput.trim()}
+                  className={`font-rajdhani text-[14px] font-semibold pl-[12px] transition-all active:scale-95 flex items-center justify-center min-w-[50px] ${couponError ? 'text-[#e11717]' : 'text-[#3F9733] hover:text-[#347d2a]'}`}
+                >
+                  {isValidating ? (
+                    <div className="w-[18px] h-[18px] border-[2px] border-current/30 border-t-current rounded-full animate-spin" />
+                  ) : (
+                    "Apply"
+                  )}
+                </button>
+              </div>
+              <AnimatePresence>
+                {couponError && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="px-1 font-rajdhani text-[12px] font-medium text-[#e11717]"
+                  >
+                    {couponError}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>

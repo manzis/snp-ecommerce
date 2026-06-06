@@ -13,6 +13,7 @@ export interface Coupon {
   is_active: boolean;
   expires_at?: string;
   is_public?: boolean;
+  is_one_time?: boolean;
 }
 
 export interface ValidationResult {
@@ -45,6 +46,27 @@ export async function validateCoupon(
   }
 
   const typedCoupon = coupon as Coupon;
+
+  // 1.5 Check One Time Usage
+  if (typedCoupon.is_one_time) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { isValid: false, discountAmount: 0, message: "Login required to use this coupon" };
+    }
+    
+    const { data: previousOrders } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('coupon_code', trimmedCode)
+      .neq('status', 'cancelled')
+      .neq('status', 'failed')
+      .limit(1);
+
+    if (previousOrders && previousOrders.length > 0) {
+      return { isValid: false, discountAmount: 0, message: "You have already used this coupon !" };
+    }
+  }
 
   // 2. Check Expiration
   if (typedCoupon.expires_at && new Date(typedCoupon.expires_at) < new Date()) {

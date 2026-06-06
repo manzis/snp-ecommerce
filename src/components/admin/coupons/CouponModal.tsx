@@ -32,7 +32,8 @@ export default function CouponModal({
         is_active: true,
         expires_at: null,
         max_discount: null,
-        is_public: true
+        is_public: true,
+        is_one_time: false
     });
 
     const [products, setProducts] = useState<Partial<Product>[]>([]);
@@ -62,7 +63,8 @@ export default function CouponModal({
                 is_active: coupon.is_active,
                 expires_at: coupon.expires_at ? new Date(coupon.expires_at).toISOString().split('T')[0] : null,
                 max_discount: coupon.max_discount,
-                is_public: coupon.is_public !== false // defaults to true if undefined
+                is_public: coupon.is_public !== false, // defaults to true if undefined
+                is_one_time: coupon.is_one_time || false
             });
         } else {
             setFormData({
@@ -75,7 +77,8 @@ export default function CouponModal({
                 is_active: true,
                 expires_at: null,
                 max_discount: null,
-                is_public: true
+                is_public: true,
+                is_one_time: false
             });
         }
     }, [coupon, isOpen]);
@@ -258,6 +261,25 @@ export default function CouponModal({
                                 Hide from the storefront product pages.
                             </span>
                         </div>
+                    </div>
+                </div>
+
+                {/* One Time Use Toggle */}
+                <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <input
+                        type="checkbox"
+                        id="is_one_time"
+                        checked={formData.is_one_time}
+                        onChange={(e) => setFormData({ ...formData, is_one_time: e.target.checked })}
+                        className="w-5 h-5 rounded outline-none border-gray-300 text-[#242424] focus:ring-[#242424]"
+                    />
+                    <div className="flex flex-col">
+                        <label htmlFor="is_one_time" className="text-[14px] font-medium text-[#242424] cursor-pointer">
+                            One-Time Use Per User
+                        </label>
+                        <span className="text-[12px] text-[#71717a]">
+                            If enabled, each user can only use this coupon once.
+                        </span>
                     </div>
                 </div>
             </div>

@@ -59,6 +59,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
         }
     }, [identifier, step]);
 
+    // Ensure state is correctly recovered after SSR hydration or page reload
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedStep = localStorage.getItem('auth_step') as 'login' | 'otp';
+            if (savedStep && savedStep === 'otp') {
+                setStep('otp');
+            }
+            const savedIdentifier = localStorage.getItem('auth_identifier');
+            if (savedIdentifier) {
+                setIdentifier(savedIdentifier);
+            }
+        }
+    }, []);
+
     // Initialize cooldown timer on mount
     React.useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -172,6 +186,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             }
             return;
         }
+        
+        setIsSending(true);
         setError(null);
         setEmailSuggestion(null);
         // Validate type before switching UI
@@ -226,9 +242,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             showToast("OTP sent to your email!", "success");
         } catch (err: any) {
             console.error("OTP Send Failed:", err?.message || err);
-            setStep('login');
-            setError(err?.message || "Failed to send OTP. Please try again.");
-            showToast(err?.message || "Failed to send OTP. Please try again.", "error");
+            
+            // If it's a rate limit error, the OTP was likely already sent (e.g. double click),
+            // so we shouldn't force them back to the login screen.
+            const errorMsg = (err?.message || "").toLowerCase();
+            const isRateLimit = errorMsg.includes("security purposes") || 
+                                errorMsg.includes("60 seconds") || 
+                                errorMsg.includes("rate limit");
+                                
+            if (!isRateLimit) {
+                setStep('login');
+                setError(err?.message || "Failed to send OTP. Please try again.");
+            }
+            
+            showToast(err?.message || "Failed to send OTP. Please try again.", isRateLimit ? "success" : "error");
         } finally {
             setIsSending(false);
         }
