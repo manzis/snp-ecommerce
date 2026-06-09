@@ -69,6 +69,22 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     useProductSelectionStore.getState().reset();
   }, [product.id]);
 
+  const mappedSizes = React.useMemo(() => {
+    if (!product.product_variants || product.product_variants.length === 0) return sizes;
+
+    return sizes.map(s => {
+      const variantsForSize = product.product_variants!.filter(v => v.size_id === s.id);
+      if (variantsForSize.length === 0) return s;
+
+      // A size is available if at least one of its variants is available
+      const isAvailable = variantsForSize.some(v => v.is_available !== false);
+      return {
+        ...s,
+        is_available: isAvailable
+      };
+    });
+  }, [product.product_variants, sizes]);
+
   const filteredFlavours = React.useMemo(() => {
     if (!product.product_variants || product.product_variants.length === 0) return flavours;
     if (!selectedSize) return flavours; // Without a size, we leave flavours purely available
@@ -280,7 +296,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
   return (
     <section className="relative flex w-full lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0 px-[24px]">
       <FlavourSelection flavours={filteredFlavours} />
-      <SizeSelection sizes={sizes} />
+      <SizeSelection sizes={mappedSizes} />
       {/* Inline CTA (Mobile + Desktop) */}
       <div id="inline-cta-container" className="flex w-full flex-row gap-[12px] lg:gap-[16px] mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
         <button

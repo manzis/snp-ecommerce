@@ -81,7 +81,7 @@ export default function ClientCategoryDetailLayout({
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen mx-auto w-full max-w-[1440px] bg-white mt-[80px] pb-[60px]">
+    <div className="min-h-screen mx-auto w-full max-w-[1440px] bg-white mt-[65px] pb-[60px]">
 
       <main className="mx-auto w-full max-w-[410px] lg:px-[48px] lg:max-w-[1440px]">
         <section className="px-[24px] py-[24px]" style={{ background: theme.gradient }}>
@@ -129,7 +129,7 @@ export default function ClientCategoryDetailLayout({
           </AnimatePresence>
         </div>
 
-        <div className="sticky top-[81px] z-20 bg-white border-b border-[#f1f5f9]">
+        <div className="sticky top-[65px] z-20 bg-white border-b border-[#f1f5f9]">
           <div className="flex items-center px-[24px] py-[16px]">
             <h3 className="flex-1 font-rajdhani text-[16px] font-semibold text-[#242424]">All Products</h3>
           </div>

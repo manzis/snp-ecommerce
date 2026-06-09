@@ -99,7 +99,7 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
             >
               {!sizeObj.is_available && (
                 <div className="absolute z-10 inset-0 flex items-center justify-center bg-[#FAFAFA]/60 overflow-hidden rounded-[6px]">
-                  <svg className="absolute w-full h-full text-[#C0C0C0]" preserveAspectRatio="none">
+                  <svg className="absolute w-full h-full text-[#D4D4D4]" preserveAspectRatio="none">
                     <line x1="0" y1="100%" x2="100%" y2="0" stroke="currentColor" strokeWidth="1.5" />
                   </svg>
                 </div>
