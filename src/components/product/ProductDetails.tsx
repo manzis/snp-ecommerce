@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import MediaLightbox from '@/components/ui/MediaLightBox';
 import type { Product } from '@/services/productService';
@@ -20,6 +20,39 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const isInitialMount = useRef(true);
+
+  // Auto-scroll to top of section when tab changes
+  useEffect(() => {
+    if (!mounted) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    // We do this immediately (no setTimeout) and with 'auto' (instant) behavior.
+    // This prevents the browser from aggressively adjusting scroll when the height 
+    // dramatically changes (e.g. from a very long description to short ingredients),
+    // which leaves the user stranded at the bottom of the page.
+    const section = document.getElementById('product-details-section');
+    if (section) {
+      const sectionTop = section.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: sectionTop - 66,
+        behavior: 'auto'
+      });
+    }
+  }, [activeTab, mounted]);
+
+  const handleTabClick = (tabId: TabID, e: React.MouseEvent<HTMLButtonElement>) => {
+    setActiveTab(tabId);
+    e.currentTarget.scrollIntoView({
+      behavior: 'smooth',
+      inline: 'center',
+      block: 'nearest'
+    });
+  };
 
   const info = Array.isArray(product.product_info) ? product.product_info[0] : product.product_info;
   const otherDetails = info?.other_details || {};
@@ -42,25 +75,73 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     { id: 'other', label: 'Other Details', width: 'w-[152px]' },
   ];
 
+  const touchStartRef = useRef<number | null>(null);
+  const touchEndRef = useRef<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEndRef.current = null;
+    touchStartRef.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndRef.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+    const distance = touchStartRef.current - touchEndRef.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe || isRightSwipe) {
+      const currentIndex = tabs.findIndex(t => t.id === activeTab);
+      if (isLeftSwipe && currentIndex < tabs.length - 1) {
+        const nextTab = tabs[currentIndex + 1];
+        setActiveTab(nextTab.id);
+        setTimeout(() => {
+          document.getElementById(`tab-btn-${nextTab.id}`)?.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest'
+          });
+        }, 50);
+      }
+      if (isRightSwipe && currentIndex > 0) {
+        const prevTab = tabs[currentIndex - 1];
+        setActiveTab(prevTab.id);
+        setTimeout(() => {
+          document.getElementById(`tab-btn-${prevTab.id}`)?.scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest'
+          });
+        }, 50);
+      }
+    }
+  };
+
   if (!mounted) return <div className="w-full h-[500px]" />;
 
   return (
-    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none px-[24px]">
-      {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
-      <h2 className="h-[18px] font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
-        Product Details
-      </h2>
-
-      <div className="flex w-full flex-col gap-[16px] self-stretch">
+    <section id="product-details-section" className="scroll-mt-[66px] main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start lg:mx-0 lg:max-w-none px-[24px]">
+      
+      {/* STICKY HEADER */}
+      <div className="sticky top-[66px] z-40 flex w-[calc(100%+48px)] lg:w-full flex-col bg-white pt-4 pb-4 -ml-[24px] px-[24px] lg:ml-0 lg:px-0 lg:pt-0 gap-[24px] shadow-[0_4px_6px_-6px_rgba(0,0,0,0.1)]">
+        {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
+        <h2 className="h-[18px] font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
+          Product Details
+        </h2>
 
         {/* TABS NAVIGATION: 610px width scrollable row on mobile */}
         <nav className="flex w-full flex-col items-start gap-[10px] overflow-x-auto no-scrollbar">
-          <div className="flex w-[610px] lg:w-full flex-nowrap lg:flex-wrap gap-[16px] shrink-0">
+          <div className="flex w-[610px] lg:w-full flex-nowrap lg:flex-wrap gap-[16px] shrink-0 pb-[2px]">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
+                id={`tab-btn-${tab.id}`}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={(e) => handleTabClick(tab.id, e)}
                 className={`
                   flex ${tab.width} lg:flex-1 lg:min-w-[140px] h-[40px] px-[12px] py-[8px] justify-center items-center rounded-[6px] border transition-all duration-300 shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] outline-none
                   ${activeTab === tab.id
@@ -77,9 +158,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             ))}
           </div>
         </nav>
+      </div>
+
+      <div className="flex w-full flex-col gap-[16px] self-stretch mt-1">
 
         {/* CONTENT AREA: Smoothest animation transitions */}
-        <div className="relative w-full ">
+        <div 
+          className="relative w-full"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
 
           {activeTab === 'description' && (
             <div className="w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">

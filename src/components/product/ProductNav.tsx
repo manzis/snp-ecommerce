@@ -70,7 +70,7 @@ export default function ProductNav() {
         <div className="flex px-[12px] py-[10px] gap-[6px] items-center self-stretch shrink-0 flex-nowrap relative z-[4]">
           <SearchIcon className="w-[22px] h-[22px] shrink-0 relative z-[5] text-[#BEBEBE]" />
           <span
-            className="inline-block pt-[2px] font-rajdhani text-[20px] leading-none font-[500] tracking-[-0.8px] bg-[linear-gradient(48.47deg,#bebebe,#020202)] bg-clip-text text-transparent whitespace-nowrap relative z-[6]"
+            className="inline-block pt-[2px] font-rajdhani text-[20px] leading-none font-[500] tracking-[-0.8px] text-[#797979] whitespace-nowrap relative z-[6]"
           >
             Search products
           </span>

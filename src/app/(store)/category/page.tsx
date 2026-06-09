@@ -28,7 +28,7 @@ export default async function CategoriesPage() {
   };
 
   return (
-    <div className="min-h-screen mx-auto w-full max-w-[1280px] bg-white mt-[80px] pb-[60px]">
+    <div className="min-h-screen mx-auto w-full max-w-[1280px] bg-white mt-[65px] pb-[60px]">
       {/* Reusable Dynamic Nav */}
       <DynamicPageNav title="Categories" subtitle={`${totalCount} Total`} />
 
@@ -41,8 +41,8 @@ export default async function CategoriesPage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-[12px]">
             {mainCategories.map((cat, idx) => (
-              <CategoryCard 
-                key={cat.id} 
+              <CategoryCard
+                key={cat.id}
                 title={cat.name}
                 count={cat.product_count || 0}
                 slug={cat.slug}

@@ -40,7 +40,7 @@ export default function ClientBrandList({ brands }: ClientBrandListProps) {
   };
 
   return (
-    <div className="min-h-screen mx-auto w-full bg-white mt-[80px] pb-[60px]">
+    <div className="min-h-screen mx-auto w-full bg-white mt-[65px] pb-[60px]">
       <DynamicPageNav title="Brands" subtitle={`${POPULAR_BRANDS.length + ALL_BRANDS_DATA.length} Brands`} />
 
       <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px]">

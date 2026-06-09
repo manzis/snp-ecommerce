@@ -23,10 +23,10 @@ export default function ContactPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        
+
         try {
             const result = await submitContactFormAction(formData);
-            
+
             if (result.success) {
                 showToast(result.message, 'success');
                 setFormData({ fullName: "", email: "", message: "" });
@@ -46,7 +46,7 @@ export default function ContactPage() {
             <DynamicPageNav title="Contact Us" />
 
             {/* Main Content Wrapper */}
-            <main className="flex flex-col w-full max-w-[410px] lg:max-w-[1200px] mx-auto gap-[12px] relative pt-[81px] pb-[40px] bg-[#F7FAF6]">
+            <main className="flex flex-col w-full max-w-[410px] lg:max-w-[1200px] mx-auto gap-[12px] relative pt-[65px] pb-[40px] bg-[#F7FAF6]">
 
                 {/* --- HERO SECTION --- */}
                 <section className="flex flex-col  pb-[12px] items-start self-stretch relative z-[1]">
@@ -56,7 +56,7 @@ export default function ContactPage() {
                             <span className="flex justify-center text-[14px] font-[600] leading-[18px] text-[#ffffff] whitespace-nowrap uppercase tracking-wider">
                                 GET IN TOUCH
                             </span>
- <h1 className="flex justify-center text-[30px] font-rajdhani font-bold lg:text-[42px] font-[500] leading-[40px] lg:leading-[50px] text-[#ffffff] text-center font-['DK_Jalebi',sans-serif]">
+                            <h1 className="flex justify-center text-[30px] font-rajdhani font-bold lg:text-[42px] font-[500] leading-[40px] lg:leading-[50px] text-[#ffffff] text-center font-['DK_Jalebi',sans-serif]">
                                 We’d Love to hear<br />From You
                             </h1>
                             <p className="flex justify-center text-[14px] lg:text-[16px] font-[500] leading-[20px] lg:leading-[24px] text-[#ddffd8] text-center max-w-[400px]">

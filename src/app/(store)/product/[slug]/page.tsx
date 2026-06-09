@@ -52,12 +52,12 @@ export const dynamicParams = true;
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  
+
   // Parallelize ONLY the essential SEO data to unblock the page shell
   const [product, gSeo, dbOverride] = await Promise.all([
     fetchProductSEO(slug),
     getSeoGlobal(),
-    getSeoProductBySlug(slug), 
+    getSeoProductBySlug(slug),
   ]);
 
   if (!product) return { title: 'Product Not Found | Supplyment Nepal' };
@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       images: [
         {
           url: ogImage,
-          width: 1000, 
+          width: 1000,
           height: 1000,
           alt: title,
         }
@@ -181,27 +181,29 @@ async function ProductContent({ slug }: { slug: string }) {
         stockStatusOverride={(dbOverride as any)?.rich_snippet_data?.stock_status}
         ratingOverride={(dbOverride as any)?.rich_snippet_data?.rating_value ? Number((dbOverride as any).rich_snippet_data.rating_value) : undefined}
       />
-      <header className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none w-full bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#F5F5F5] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)]">
+      <header className="fixed top-0 left-0 right-0 z-50 flex flex-col items-center pointer-events-none w-full bg-[#FFFFFF]/90 backdrop-blur-md border-b border-black/5">
         <div className="pointer-events-auto relative w-full max-w-[410px] md:max-w-[1440px] mx-auto">
           <ProductNav />
-          <div className="px-0">
-            <Breadcrumbs path={breadcrumbPath} />
-          </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[140px] pb-[32px] px-0 animate-page-enter">
+      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[80px] pb-[32px] px-0 animate-page-enter">
+        <div className="w-full">
+          <Breadcrumbs path={breadcrumbPath} />
+        </div>
         <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
           {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS */}
           <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">
-            <ProductImage
-              images={product.images || []}
-              rating={product.rating}
-              reviewsCount={product.reviews_count}
-              productName={product.name}
-              stockStatus={product.stock_status}
-              flavours={product.product_flavours || []}
-            />
+            <div className="flex flex-col gap-y-[4px] lg:gap-y-[6px]">
+              <ProductImage
+                images={product.images || []}
+                rating={product.rating}
+                reviewsCount={product.reviews_count}
+                productName={product.name}
+                stockStatus={product.stock_status}
+                flavours={product.product_flavours || []}
+              />
+            </div>
             {product.highlights && product.highlights.length > 0 && (
               <div className="hidden lg:block">
                 <ProductHighlights highlights={product.highlights} />
@@ -314,8 +316,8 @@ export default function ProductPage({ params }: ProductPageProps) {
 }
 
 async function ProductContentWrapper({ params }: ProductPageProps) {
-    const { slug } = await params;
-    return <ProductContent slug={slug} />;
+  const { slug } = await params;
+  return <ProductContent slug={slug} />;
 }
 
 

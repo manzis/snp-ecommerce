@@ -8,7 +8,6 @@ import StarIcon from '@/components/icons/GreenStar';
 import ShareIcon from '@/components/icons/Share';
 import WishlistIcon from '@/components/icons/Wishlisht';
 import MediaLightbox, { LightboxMedia } from '@/components/ui/MediaLightBox';
-
 import { useProductSelectionStore } from '@/store/productSelectionStore';
 
 type ProductImageProps = {
@@ -31,10 +30,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   // ZUSTAND STORE
   const { activeVariantImage } = useProductSelectionStore();
 
-  const startX = useRef<number>(0);
-  const startY = useRef<number>(0);
-  const startTime = useRef<number>(0);
-  const isDragging = useRef<boolean>(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -77,45 +73,22 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
     }
   };
 
-  const navigate = useCallback((direction: 'next' | 'prev') => {
-    if (isTransitioning) return;
-    if (direction === 'next' && activeIndex < displayImages.length - 1) {
-      setIsTransitioning(true);
-      setActiveIndex((prev) => prev + 1);
-    } else if (direction === 'prev' && activeIndex > 0) {
-      setIsTransitioning(true);
-      setActiveIndex((prev) => prev - 1);
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollLeft = e.currentTarget.scrollLeft;
+    const width = e.currentTarget.clientWidth;
+    const newIndex = Math.round(scrollLeft / width);
+    if (newIndex !== activeIndex) {
+      setActiveIndex(newIndex);
     }
-  }, [activeIndex, displayImages.length, isTransitioning]);
-
-  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
-    isDragging.current = true;
-    startTime.current = Date.now();
-    const touch = 'touches' in e ? e.touches[0] : e as React.MouseEvent;
-    startX.current = touch.clientX;
-    startY.current = touch.clientY;
   };
 
-  const handleEnd = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-
-    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : (e as React.MouseEvent).clientX;
-    const clientY = 'changedTouches' in e ? e.changedTouches[0].clientY : (e as React.MouseEvent).clientY;
-
-    const diffX = startX.current - clientX;
-    const diffY = startY.current - clientY;
-    const elapsedTime = Date.now() - startTime.current;
-
-    // 1. Navigation logic (Horizontal Swipes)
-    if (Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
-      if (diffX > 0) navigate('next');
-      else navigate('prev');
-    }
-    // 2. Lightbox logic (Intentional Taps Only)
-    // Criteria: Fast click (< 250ms) AND minimal movement on BOTH axes (< 10px)
-    else if (elapsedTime < 250 && Math.abs(diffX) < 10 && Math.abs(diffY) < 10) {
-      setIsLightboxOpen(true);
+  const scrollToSlide = (idx: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        left: idx * scrollRef.current.clientWidth,
+        behavior: 'smooth'
+      });
+      setActiveIndex(idx);
     }
   };
 
@@ -131,20 +104,15 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
            - Mobile: h-[318px] (Exact Token)
            - Desktop: lg:h-[560px] (Increased for Premium Layout)
         */
-        className="relative h-[360px] lg:h-[560px] w-full overflow-hidden bg-white cursor-grab active:cursor-grabbing border border-[#F5F5F5]"
-        onMouseDown={handleStart}
-        onMouseUp={handleEnd}
-        onMouseLeave={handleEnd}
-        onTouchStart={handleStart}
-        onTouchEnd={handleEnd}
+        className="relative h-[360px] lg:h-[560px] w-full overflow-hidden bg-white border border-[#F5F5F5]"
       >
         <div
-          className={`flex h-full w-full transition-transform duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none ${stockStatus === 'out_of_stock' ? 'opacity-50 grayscale-[0.3]' : ''}`}
-          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
-          onTransitionEnd={() => setIsTransitioning(false)}
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className={`flex h-full w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${stockStatus === 'out_of_stock' ? 'opacity-50 grayscale-[0.3]' : ''}`}
         >
           {displayImages.map((img, idx) => (
-            <div key={`${img}-${idx}`} className="relative h-full w-full shrink-0">
+            <div key={`${img}-${idx}`} className="relative h-full w-full shrink-0 snap-center cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
               <Image
                 src={optimizeImage(img, 1000)}
                 alt={`${productName} view ${idx + 1}`}
@@ -227,7 +195,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
             type="button"
             aria-label={`Go to slide ${idx + 1}`}
             onPointerUp={(e) => e.currentTarget.blur()}
-            onClick={() => !isTransitioning && setActiveIndex(idx)}
+            onClick={() => scrollToSlide(idx)}
             className={`h-full flex-1 transition-colors duration-400 ${idx === activeIndex ? 'bg-[#242424]' : 'bg-transparent'
               } md:hover:bg-[#242424]/10`}
           />

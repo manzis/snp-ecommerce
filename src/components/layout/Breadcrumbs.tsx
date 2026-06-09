@@ -20,7 +20,7 @@ export default function Breadcrumbs({ path }: { path: BreadcrumbItem[] }) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="flex w-full lg:px-[60px] mx-auto min-w-0 px-[24px] pb-[16px] pt-[6px] items-center shrink-0 flex-wrap bg-white md:bg-transparent  "
+      className="flex w-full lg:px-[60px] mx-auto min-w-0 px-[24px] pb-[16px] pt-[6px] items-center shrink-0 flex-wrap bg-white md:bg-transparent"
     >
       <ol className="flex items-center gap-[2px] flex-wrap">
         {path.map((item, index) => {
@@ -35,16 +35,16 @@ export default function Breadcrumbs({ path }: { path: BreadcrumbItem[] }) {
                 <>
                   <Link
                     href={item.href}
-                    className="h-[14px] shrink-0 font-['Rajdhani',sans-serif] text-[12px] font-[500] leading-[14px] text-[#838383] whitespace-nowrap"
+                    className="h-[12px] shrink-0 font-['Rajdhani',sans-serif] text-[11px] font-[500] leading-[12px] text-[#838383] whitespace-nowrap"
                   >
                     {item.name}
                   </Link>
-                  <ChevronRightIcon className="w-[12px] h-[12px] shrink-0 text-[#838383]" aria-hidden="true" />
+                  <ChevronRightIcon className="w-[10px] h-[10px] shrink-0 text-[#838383]" aria-hidden="true" />
                 </>
               ) : (
                 <span
                   aria-current="page"
-                  className="h-[14px] shrink-0 font-['Rajdhani',sans-serif] text-[12px] font-[500] leading-[14px] text-[#242424] whitespace-nowrap"
+                  className="h-[12px] shrink-0 font-['Rajdhani',sans-serif] text-[11px] font-[500] leading-[12px] text-[#242424] whitespace-nowrap"
                 >
                   {displayName}
                 </span>

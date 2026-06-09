@@ -126,7 +126,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     }
 
     if (!isValid) {
-      document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
       return; // <-- Block cart addition
     }
 
@@ -172,7 +174,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       if (sizes.length > 0 && !selectedSize) { setSizeError(true); isValid = false; }
       if (filteredFlavours.length > 0 && !selectedFlavorId) { setFlavorError(true); isValid = false; }
       if (!isValid) {
-        document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50);
         return;
       }
       const { currentPrice, originalPrice } = useProductSelectionStore.getState();
@@ -232,7 +236,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     if (sizes.length > 0 && !selectedSize) { setSizeError(true); isValid = false; }
     if (filteredFlavours.length > 0 && !selectedFlavorId) { setFlavorError(true); isValid = false; }
     if (!isValid) {
-      document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        document.querySelector('[data-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
       return;
     }
     const { currentPrice, originalPrice } = useProductSelectionStore.getState();
@@ -275,13 +281,13 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     <section className="relative flex w-full lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0 px-[24px]">
       <FlavourSelection flavours={filteredFlavours} />
       <SizeSelection sizes={sizes} />
-      {/* Desktop Only CTA */}
-      <div className="hidden lg:flex w-full flex-row gap-[16px] mt-[-10px]">
+      {/* Inline CTA (Mobile + Desktop) */}
+      <div id="inline-cta-container" className="flex w-full flex-row gap-[12px] lg:gap-[16px] mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
         <button
           type="button"
           onClick={handleAddToCart}
           disabled={product.stock_status === 'out_of_stock'}
-          className={`flex-1 h-[60px] rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[18px] font-semibold transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
+          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
         >
           {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
         </button>
@@ -289,7 +295,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
           type="button"
           onClick={handleDesktopBuyNow}
           disabled={product.stock_status === 'out_of_stock'}
-          className={`flex-1 h-[60px] rounded-[12px] font-rajdhani text-[18px] font-semibold transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
+          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
         >
           {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
         </button>

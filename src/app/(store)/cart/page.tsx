@@ -81,7 +81,7 @@ export default function CartPage() {
   }, [items]);
 
   const couponDiscount = getCouponDiscount();
-  
+
   // Final total should be exactly what's shown in CartSummary
   const finalTotal = useMemo(() => {
     return Math.round(subtotal - bundleDiscount - couponDiscount);
@@ -134,11 +134,11 @@ export default function CartPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#f7faf6] pt-[81px] ${items.length > 0 ? 'mb-[80px]' : ''}`}>
+    <div className={`min-h-screen bg-[#f7faf6] pt-[65px] lg:pt-[120px] ${items.length > 0 ? 'mb-[80px]' : ''}`}>
       {/* STICKY NAV */}
-      <DynamicPageNav 
-        title="My Cart" 
-        subtitle={`${items.length} Items`} 
+      <DynamicPageNav
+        title="My Cart"
+        subtitle={`${items.length} Items`}
       />
 
       <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
@@ -175,7 +175,7 @@ export default function CartPage() {
                     className="object-contain"
                   />
                 </div>
- <h2 className="font-rajdhani font-bold text-[22px] text-[#242424] text-center leading-tight">
+                <h2 className="font-rajdhani font-bold text-[22px] text-[#242424] text-center leading-tight">
                   Your Cart is Empty
                 </h2>
                 <p className="font-rajdhani text-[16px] text-[#8a8e91] text-center mt-[-8px]">

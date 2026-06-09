@@ -147,7 +147,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         ></script>
       </head>
-      <body className="bg-white font-rajdhani font-medium min-h-screen flex flex-col overflow-x-hidden">
+      <body className="bg-white font-rajdhani font-medium min-h-screen flex flex-col overflow-x-clip">
         <NextTopLoader 
           color="#308026" 
           initialPosition={0.08} 

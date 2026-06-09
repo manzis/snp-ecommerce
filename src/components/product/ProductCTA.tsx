@@ -9,7 +9,7 @@ import { useCartStore } from '@/store/cartStore';
  */
 const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, isPreview?: boolean }) => {
   const [isInCart, setIsInCart] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
   const isOutOfStock = stockStatus === 'out_of_stock';
 
@@ -25,24 +25,33 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
       if (!active) return;
       const scrollY = window.scrollY;
 
-      // Zero-reflow safety guard: if user is at the top of the page,
-      // they are absolutely not at the bottom, bypassing hydration height race conditions.
+      // If user is at the top of the page, hide the bottom CTA
       if (scrollY < 100) {
-        setIsVisible(true);
+        setIsVisible(false);
         return;
       }
 
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
+      const inlineCta = document.getElementById('inline-cta-container');
+      if (inlineCta) {
+        const rect = inlineCta.getBoundingClientRect();
+        // Show fixed CTA only if the inline CTA has scrolled completely out of view at the top
+        const hasScrolledPast = rect.bottom < 0;
+        
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
 
-      // If the document is not scrollable yet or height is not hydrated, keep CTA visible
-      if (documentHeight <= windowHeight) {
-        setIsVisible(true);
-        return;
+        setIsVisible(hasScrolledPast && !isAtBottom);
+      } else {
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        if (documentHeight <= windowHeight) {
+          setIsVisible(false); // Hide on load if no scrolling needed
+          return;
+        }
+        const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
+        setIsVisible(!isAtBottom);
       }
-
-      const isAtBottom = (scrollY + windowHeight) >= (documentHeight - 150);
-      setIsVisible(!isAtBottom);
     };
 
     // Delay attaching the scroll listener by 150ms.
@@ -55,8 +64,8 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
       }
     }, 150);
 
-    // Guarantee the bottom CTA is visible immediately when entering the page
-    setIsVisible(true);
+    // Guarantee the bottom CTA is hidden initially until user scrolls down
+    setIsVisible(false);
 
     return () => {
       active = false;

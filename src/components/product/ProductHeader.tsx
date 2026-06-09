@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useProductSelectionStore } from '@/store/productSelectionStore';
@@ -28,6 +28,7 @@ const ProductHeader = ({
   discountPercentage: propsPercentage
 }: ProductHeaderProps) => {
   const { currentPrice, originalPrice } = useProductSelectionStore();
+  const [isTitleExpanded, setIsTitleExpanded] = useState(false);
 
   const cleanPrice = (val: string | number) => String(val).replace(/NPR\s?/g, '').replace(/Rs\.?\s?/ig, '').trim();
 
@@ -80,7 +81,11 @@ const ProductHeader = ({
         {/* Title */}
         <div className="relative flex w-full flex-col items-start gap-[6px] shrink-0 lg:h-auto">
           <div className="relative flex w-full items-center lg:h-auto">
-            <h1 className="uppercase font-rajdhani font-bold text-[22px] lg:text-[26px] leading-[30px] lg:leading-[34px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent">
+            <h1 
+              onClick={() => setIsTitleExpanded(!isTitleExpanded)}
+              title={isTitleExpanded ? "Click to collapse" : "Click to expand"}
+              className={`uppercase font-rajdhani font-bold text-[22px] lg:text-[26px] leading-[30px] lg:leading-[34px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent cursor-pointer transition-all duration-200 ${isTitleExpanded ? '' : 'line-clamp-2'}`}
+            >
               {title}
             </h1>
           </div>
