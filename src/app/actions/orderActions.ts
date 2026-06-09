@@ -1007,3 +1007,53 @@ export async function syncExternalOrderTrackingAction(orderId: string) {
     return { success: false };
   }
 }
+
+/**
+ * Server action to manually trigger external sync for multiple orders
+ * Used to automatically sync tracking data when admin views orders list
+ */
+export async function syncMultipleExternalOrdersTrackingAction(orderIds: string[]) {
+  if (!orderIds || orderIds.length === 0) return { success: true, updatedCount: 0 };
+
+  try {
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return { success: false, message: 'Server configuration error' };
+
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select(`
+        id, total_amount, mrp_amount, status, payment_method, created_at,
+        status_updates, carrier_name, tracking_number,
+        shipping_address, contact_details,
+        order_items (
+          id, quantity, price, mrp, selected_size, selected_flavor,
+          products (name, images, stock_status, brands (name))
+        )
+      `)
+      .in('id', orderIds);
+
+    if (error || !orders) return { success: false, message: 'Failed to fetch orders' };
+
+    let updatedCount = 0;
+
+    // Process sequentially or in parallel depending on courier API limits
+    // For Expo Express, doing it sequentially to be safe
+    for (const order of orders) {
+      const originalStatus = order.status;
+      const originalLogsCount = order.status_updates?.length || 0;
+
+      await checkAndPersistDelayedStatus(order, supabase);
+      await checkAndSyncExpoExpressStatus(order, supabase);
+
+      const newLogsCount = order.status_updates?.length || 0;
+      if (order.status !== originalStatus || newLogsCount !== originalLogsCount) {
+        updatedCount++;
+      }
+    }
+
+    return { success: true, updatedCount };
+  } catch (err) {
+    console.error('syncMultipleExternalOrdersTrackingAction Error:', err);
+    return { success: false, message: 'An error occurred during sync' };
+  }
+}

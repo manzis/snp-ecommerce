@@ -47,7 +47,7 @@
   "crons": [
     {
       "path": "/api/cron/sync-tracking",
-      "schedule": "15 6 * * 0-5"
+      "schedule": "15 7 * * *"
     }
   ]
 }

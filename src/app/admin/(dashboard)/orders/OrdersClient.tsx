@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useOrderNotifications } from '@/hooks/useOrderNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction } from '@/app/actions/orderActions';
+import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction, syncMultipleExternalOrdersTrackingAction } from '@/app/actions/orderActions';
 import { OrderProps } from '@/components/orders/OrderCard';
 import { AdminOrderList } from '@/components/admin/AdminOrderList';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
@@ -113,6 +113,36 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     }
     loadOrders(currentPage, searchQuery, statusFilter, hideCancelled);
   }, [currentPage, searchQuery, statusFilter, hideCancelled]);
+
+  // Auto-sync external tracking for visible active orders
+  const syncedPageRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (orders.length === 0 || isLoading) return;
+    if (syncedPageRef.current === currentPage) return;
+
+    const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery'];
+    const activeIds = orders
+      .filter(o => activeTransitStatuses.includes(o.status.toLowerCase()) && o.trackingNumber)
+      .map(o => o.id);
+
+    if (activeIds.length > 0) {
+      syncedPageRef.current = currentPage;
+      syncMultipleExternalOrdersTrackingAction(activeIds)
+        .then((res) => {
+          if (res?.updatedCount && res.updatedCount > 0) {
+            // Silently refresh the list without triggering isLoading=true and hiding the current list
+            fetchAllOrdersAdminAction(currentPage, PAGE_SIZE, { search: searchQuery, status: statusFilter, hideCancelled })
+              .then((result) => {
+                if (result && result.success) {
+                  setOrders(result.orders || []);
+                  setTotalCount(result.totalCount || 0);
+                }
+              });
+          }
+        })
+        .catch(err => console.error("Auto-sync failed:", err));
+    }
+  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled]);
 
   // Deep Link Logic
   useEffect(() => {
