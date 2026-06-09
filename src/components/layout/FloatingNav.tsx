@@ -62,7 +62,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                 <div 
                     className={`mx-auto flex w-full max-w-[384px] flex-col items-center overflow-hidden rounded-[16px] border p-[6px] md:max-w-[1100px] md:p-[10px] lg:max-w-none lg:w-full lg:rounded-none lg:p-0 transform-gpu transition-[background-color,border-color] duration-200 ease-out will-change-[background-color,border-color] ${
                         isScrolled 
-                            ? 'border-[#f1f5f9] bg-white lg:border-none lg:border-b lg:border-[#f1f5f9]' 
+                            ? 'border-[#f1f5f9] bg-gradient-to-br from-white via-white to-[#f5ffeb] lg:border-none lg:border-b lg:border-[#f1f5f9]' 
                             : 'border-transparent bg-transparent lg:border-none'
                     }`}
                 >
@@ -148,7 +148,8 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
                     </div>
 
                     {/* CONDITIONALLY RENDERED PROMO BANNER */}
-                    {showBanner && (
+                    {/* Hidden for now */}
+                    {false && showBanner && (
                         <div className={`flex w-full items-center justify-center py-[8px] md:py-[10px] transition-[background-color,border-radius] duration-300 ease-in-out will-change-[background-color] ${
                             isScrolled 
                                 ? 'rounded-[10px] bg-[#d6ff9c] lg:rounded-none lg:w-full lg:max-w-none' 

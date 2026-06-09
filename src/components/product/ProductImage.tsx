@@ -109,10 +109,10 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className={`flex h-full w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${stockStatus === 'out_of_stock' ? 'opacity-50 grayscale-[0.3]' : ''}`}
+          className={`flex h-full w-full gap-[1px] overflow-x-auto overflow-y-hidden snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${stockStatus === 'out_of_stock' ? 'opacity-50 grayscale-[0.3]' : ''}`}
         >
           {displayImages.map((img, idx) => (
-            <div key={`${img}-${idx}`} className="relative h-full w-full shrink-0 snap-center cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
+            <div key={`${img}-${idx}`} className="relative h-full w-full flex-[0_0_100%] snap-start snap-always cursor-pointer" onClick={() => setIsLightboxOpen(true)}>
               <Image
                 src={optimizeImage(img, 1000)}
                 alt={`${productName} view ${idx + 1}`}
