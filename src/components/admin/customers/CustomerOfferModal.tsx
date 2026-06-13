@@ -54,9 +54,10 @@ export default function CustomerOfferModal({
 
     if (!customer) return null;
 
-    const filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ).slice(0, 3);
+    const filteredProducts = products.filter(p => {
+        const searchStr = `${p.name || ''} ${p.title || ''} ${p.brand_name || ''} ${p.brands?.name || ''}`.toLowerCase();
+        return searchStr.includes(searchTerm.toLowerCase());
+    });
 
     const activeCoupons = coupons.filter(c => c.is_active);
 
@@ -166,7 +167,7 @@ export default function CustomerOfferModal({
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2 mt-2">
+                    <div className="grid grid-cols-1 gap-2 mt-2 max-h-[300px] overflow-y-auto pr-1">
                         {loading && products.length === 0 ? (
                             <div className="h-20 bg-gray-50 rounded-xl animate-pulse" />
                         ) : filteredProducts.map((p) => (

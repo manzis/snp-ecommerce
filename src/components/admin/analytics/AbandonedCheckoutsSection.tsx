@@ -8,9 +8,10 @@ interface AbandonedCheckoutsSectionProps {
   data: {
     abandonedOrders: any[];
   };
+  onCustomerClick?: (user: any) => void;
 }
 
-export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionProps) => {
+export const AbandonedCheckoutsSection = ({ data, onCustomerClick }: AbandonedCheckoutsSectionProps) => {
   const { abandonedOrders } = data;
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -66,7 +67,10 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
 
               <div className="p-[16px] flex flex-col md:flex-row gap-6">
                 {/* Left: Customer Info Block */}
-                <div className="md:w-[40%] flex flex-col gap-4 border-b md:border-b-0 md:border-r border-gray-50 pb-4 md:pb-0 md:pr-6">
+                <div 
+                  className="md:w-[40%] flex flex-col gap-4 border-b md:border-b-0 md:border-r border-gray-50 pb-4 md:pb-0 md:pr-6 cursor-pointer group/customer"
+                  onClick={() => onCustomerClick?.({ ...order.customer, id: order.user_id })}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0 overflow-hidden">
                       {order.customer.avatar ? (
@@ -78,7 +82,7 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-[14px] font-semibold text-[#242424] truncate leading-tight mb-0.5">{order.customer.name}</h3>
+                      <h3 className="text-[14px] font-semibold text-[#242424] group-hover/customer:text-[#3f9633] transition-colors truncate leading-tight mb-0.5">{order.customer.name}</h3>
                       <p className="text-[10px] text-[#a1a1aa] font-medium uppercase tracking-wider">Contact Details</p>
                     </div>
                   </div>
@@ -117,7 +121,10 @@ export const AbandonedCheckoutsSection = ({ data }: AbandonedCheckoutsSectionPro
                       <p className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest mb-1">Total Recovery</p>
                       <p className="text-[18px] font-semibold text-[#242424]">Rs. {order.total_amount}</p>
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#242424] text-white text-[11px] font-semibold rounded-lg hover:bg-black transition-all shadow-sm active:scale-95">
+                    <button 
+                      onClick={() => onCustomerClick?.({ ...order.customer, id: order.user_id })}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#242424] text-white text-[11px] font-semibold rounded-lg hover:bg-[#3f9633] transition-all shadow-sm active:scale-95"
+                    >
                       Recover Order
                       <ExternalLink className="w-3.5 h-3.5" />
                     </button>

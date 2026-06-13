@@ -34,6 +34,7 @@ export interface DashboardData {
     recentOrders: RecentOrder[];
     revenueChart: { revenue?: number; date?: string; [key: string]: unknown }[];
     recentlyViewed: any[];
+    recentViewsTable: any[];
 }
 
 export async function getDashboardDataAction(): Promise<{ success: boolean; data?: DashboardData; message?: string }> {
@@ -43,12 +44,13 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
             end: new Date().toISOString().split('T')[0]
         };
 
-        const [financeResult, analyticsResult, ordersResult, productStatsResult, recentlyViewed] = await Promise.all([
+        const [financeResult, analyticsResult, ordersResult, productStatsResult, recentlyViewed, recentViewsTable] = await Promise.all([
             fetchFinanceDashboardDataAction(dateRange.start, dateRange.end),
             getAnalyticsDataAction(),
             fetchAllOrdersAdminAction(1, 10),
             getProductStatsAction(),
-            analyticsService.getRecentlyViewedProducts(10)
+            analyticsService.getRecentlyViewedProducts(10),
+            analyticsService.getRecentProductViewsTable(10)
         ]);
 
         if (!financeResult.success || !financeResult.data) {
@@ -74,7 +76,8 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
                 },
                 recentOrders: ordersResult.success ? (ordersResult.orders || []) : [],
                 revenueChart: financeResult.data.timeSeries || [],
-                recentlyViewed: recentlyViewed || []
+                recentlyViewed: recentlyViewed || [],
+                recentViewsTable: recentViewsTable || []
             }
         };
     } catch (error: unknown) {

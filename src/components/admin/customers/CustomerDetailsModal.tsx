@@ -46,6 +46,27 @@ export default function CustomerDetailsModal({
     const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
     const { showAdminToast } = useAdminToast();
 
+    const formatRelativeDate = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const now = new Date();
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+
+        const isToday = date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
+
+        const timeString = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+        if (isToday) {
+            return `Today, ${timeString}`;
+        } else if (isYesterday) {
+            return `Yesterday, ${timeString}`;
+        } else {
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+    };
+
     useEffect(() => {
         if (isOpen && customer) {
             loadCustomerDetails();
@@ -271,7 +292,14 @@ export default function CustomerDetailsModal({
                                             <p className="text-[11px] font-semibold text-[#242424] truncate">{product.name}</p>
                                             <p className="text-[9px] text-[#a1a1aa] font-semibold uppercase tracking-tight">{product.brands?.name || 'SNP'}</p>
                                         </div>
-                                        <ExternalLink className="w-3 h-3 text-gray-300 group-hover:text-[#242424] transition-colors" />
+                                        <div className="text-right shrink-0 flex flex-col items-end justify-center gap-1">
+                                            {product.viewed_at && (
+                                                <span className="text-[9px] text-[#a1a1aa] font-medium uppercase tracking-wider">
+                                                    {formatRelativeDate(product.viewed_at)}
+                                                </span>
+                                            )}
+                                            <ExternalLink className="w-3 h-3 text-gray-300 group-hover:text-[#242424] transition-colors" />
+                                        </div>
                                     </div>
                                 ))
                             ) : (
@@ -303,6 +331,13 @@ export default function CustomerDetailsModal({
                                                 <span className="text-[9px] font-semibold text-[#242424] bg-white border border-gray-100 px-1.5 py-0.5 rounded">Qty: {item.quantity}</span>
                                                 <span className="text-[10px] font-semibold text-[#242424]">रु {item.product?.discounted_price?.toLocaleString()}</span>
                                             </div>
+                                        </div>
+                                        <div className="text-right shrink-0 flex flex-col items-end justify-center">
+                                            {(item.updated_at || item.created_at) && (
+                                                <span className="text-[9px] text-[#a1a1aa] font-medium uppercase tracking-wider">
+                                                    {formatRelativeDate(item.updated_at || item.created_at)}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 ))

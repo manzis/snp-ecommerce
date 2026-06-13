@@ -8,6 +8,8 @@ import AnalyticsFilters from '@/components/admin/analytics/AnalyticsFilters';
 import { ShoppingCart, RefreshCcw } from 'lucide-react';
 import { getAbandonedCartDataAction } from '@/app/actions/marketingActions';
 import { useAdminUI } from '@/context/AdminUIContext';
+import CustomerDetailsModal from '@/components/admin/customers/CustomerDetailsModal';
+import { CustomerData } from '@/app/actions/customerActions';
 
 interface AbandonedCartClientProps {
   initialData?: any;
@@ -18,8 +20,22 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(!initialData);
   const [datePreset, setDatePreset] = useState('30d');
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerData | null>(null);
 
   const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+
+  const handleCustomerClick = (user: any) => {
+    setSelectedCustomer({
+      id: user.id || user.user_id || '',
+      name: user.name || 'Anonymous User',
+      email: user.email || '',
+      phone: user.phone || '',
+      avatar: user.avatar || '',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      behavior: { totalOrders: 0, totalSpent: 0, lastActive: '', avgOrderValue: 0, isVIP: false, monthlyConsistency: false }
+    });
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -90,7 +106,7 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
                 <span className="text-[10px] font-bold text-[#a1a1aa] uppercase tracking-[0.15em]">Live Data</span>
               </div>
 
-              <ActiveCartsSection data={data} />
+              <ActiveCartsSection data={data} onCustomerClick={handleCustomerClick} />
             </div>
 
             {/* Abandoned Checkouts Section */}
@@ -98,7 +114,7 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
               <div className="flex items-center justify-between px-2">
                 <h2 className="text-[20px] font-semibold text-[#242424] font-rubik tracking-tight">Abandoned Checkouts</h2>
               </div>
-              <AbandonedCheckoutsSection data={data} />
+              <AbandonedCheckoutsSection data={data} onCustomerClick={handleCustomerClick} />
             </div>
 
             {/* Marketing Tip */}
@@ -115,6 +131,12 @@ export default function AbandonedCartClient({ initialData }: AbandonedCartClient
           </div>
         )}
       </main>
+
+      <CustomerDetailsModal
+        isOpen={!!selectedCustomer}
+        onClose={() => setSelectedCustomer(null)}
+        customer={selectedCustomer}
+      />
     </div>
   );
 }

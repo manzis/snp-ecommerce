@@ -113,6 +113,79 @@ export const analyticsService = {
   }),
 
   /**
+   * Fetches raw recent product views with user details for tabular display
+   */
+  getRecentProductViewsTable: cache(async (limit = 10) => {
+    const admin = getSupabaseAdmin();
+    const supabase = admin || await createClient();
+
+    const { data: rawData, error } = await supabase
+      .from('product_views')
+      .select(`
+        id,
+        product_id,
+        user_id,
+        viewed_at,
+        products(title, name, images)
+      `)
+      .order('viewed_at', { ascending: false })
+      .limit(limit);
+
+    if (error || !rawData) {
+      console.error('Error fetching recent product views table:', error);
+      return [];
+    }
+
+    // Fetch user profiles for these views
+    const userIds = Array.from(new Set(rawData.map(v => v.user_id).filter(id => id)));
+    let profilesMap = new Map();
+
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds);
+      profilesMap = new Map(profiles?.map(p => [p.id, p]));
+
+      // Fetch auth metadata for Google avatars if admin client is available
+      if (admin) {
+        try {
+          const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
+          authUsers.forEach(au => {
+            if (userIds.includes(au.id)) {
+              const existing = profilesMap.get(au.id);
+              const authAvatar = au.user_metadata?.avatar_url || au.user_metadata?.picture;
+              profilesMap.set(au.id, {
+                ...(existing || {}),
+                id: au.id,
+                full_name: existing?.full_name || au.user_metadata?.full_name || au.email?.split('@')[0],
+                avatar_url: existing?.avatar_url || authAvatar || ''
+              });
+            }
+          });
+        } catch (e) {
+          console.error('Failed to fetch auth users for views metadata:', e);
+        }
+      }
+    }
+
+    return rawData.map((view: any) => {
+      const product = view.products as any;
+      const profile = profilesMap.get(view.user_id);
+      return {
+        id: view.id,
+        product_id: view.product_id,
+        product_name: product?.title || product?.name || 'Unknown Product',
+        thumbnail: product?.images?.[0] || '/images/protein.webp',
+        viewed_at: view.viewed_at,
+        user_id: view.user_id,
+        customer_name: profile?.full_name || 'Anonymous User',
+        customer_avatar: profile?.avatar_url || ''
+      };
+    });
+  }),
+
+  /**
    * Fetches top selling products based on order items
    */
   getTopSellingProducts: cache(async (limit = 5) => {

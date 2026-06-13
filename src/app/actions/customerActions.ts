@@ -320,7 +320,7 @@ export async function fetchDetailedCustomerDataAction(customerId: string) {
             data: {
                 orders,
                 activeOrders,
-                views: views.map(v => v.product).filter(Boolean),
+                views: views.filter(v => v.product).map(v => ({ ...v.product, viewed_at: v.viewed_at })),
                 cartItems,
                 metrics: {
                     successBuyRate: Math.round(successBuyRate),

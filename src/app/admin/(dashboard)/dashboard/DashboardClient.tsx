@@ -15,7 +15,9 @@ import {
     Package,
     PackageCheck,
     PackageX,
-    BarChart3
+    BarChart3,
+    Eye,
+    User
 } from 'lucide-react';
 import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import { DashboardData, getDashboardDataAction } from '@/app/actions/dashboardActions';
@@ -387,6 +389,70 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                             <RecentlyViewedSection
                                 recentlyViewed={data.recentlyViewed}
                             />
+                        )}
+
+                        {/* Recent Views Table */}
+                        {data?.recentViewsTable && data.recentViewsTable.length > 0 && (
+                            <div className="grid grid-cols-1">
+                                <div className="bg-white rounded-[12px] border border-gray-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.02)] overflow-hidden">
+                                    <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between bg-white">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-gray-50 rounded-lg border border-gray-100">
+                                                <Eye className="w-4 h-4 text-[#242424]" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-base text-[#242424]">Recent Product Views</h3>
+                                                <p className="text-xs text-[#71717a] font-normal mt-0.5">Latest customer browsing activity</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="overflow-x-auto scrollbar-hide">
+                                        <table className="w-full text-left border-collapse min-w-[600px]">
+                                            <thead>
+                                                <tr className="bg-gray-50/50 text-[#71717a] text-xs font-semibold border-b border-gray-100">
+                                                    <th className="px-6 py-4">Product</th>
+                                                    <th className="px-6 py-4">Customer</th>
+                                                    <th className="px-6 py-4 text-right">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-50">
+                                                {data.recentViewsTable.map((view: any) => (
+                                                    <tr key={view.id} className="group hover:bg-gray-50/80 transition-colors">
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-lg border border-gray-100 bg-white overflow-hidden shrink-0">
+                                                                    <img src={view.thumbnail || '/images/protein.webp'} alt="" className="w-full h-full object-cover" />
+                                                                </div>
+                                                                <span className="hidden md:block text-sm font-semibold text-[#242424] truncate max-w-[200px]">{view.product_name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-2">
+                                                                {view.customer_avatar ? (
+                                                                    <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
+                                                                        <img src={view.customer_avatar} alt="" className="w-full h-full object-cover" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                                                        <User className="w-3 h-3 text-gray-400" />
+                                                                    </div>
+                                                                )}
+                                                                <span className="text-sm font-semibold text-[#242424]">{view.customer_name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <span className="text-xs text-[#71717a] font-normal">
+                                                                {new Date(view.viewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         )}
 
                         {/* Recent Orders Table */}

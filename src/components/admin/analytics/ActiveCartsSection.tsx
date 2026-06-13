@@ -9,9 +9,10 @@ interface ActiveCartsSectionProps {
   data: {
     productsInCarts: any[];
   };
+  onCustomerClick?: (user: any) => void;
 }
 
-export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
+export const ActiveCartsSection = ({ data, onCustomerClick }: ActiveCartsSectionProps) => {
   const { productsInCarts } = data;
   const [selectedProduct, setSelectedProduct] = React.useState<any>(null);
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -84,7 +85,11 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
                 
                 <div className="p-[8px] space-y-1">
                   {product.users.slice(0, 1).map((user: any, j: number) => (
-                    <div key={j} className="flex items-center gap-2 p-1.5 rounded-md hover:bg-gray-50 transition-colors">
+                    <div 
+                      key={j} 
+                      onClick={() => onCustomerClick?.(user)}
+                      className="flex items-center gap-2 p-1.5 rounded-md hover:bg-gray-50 transition-colors cursor-pointer group"
+                    >
                       <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100 shrink-0 overflow-hidden">
                         {user.avatar ? (
                           <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
@@ -170,7 +175,14 @@ export const ActiveCartsSection = ({ data }: ActiveCartsSectionProps) => {
       >
         <div className="space-y-2">
           {selectedProduct?.users.map((user: any, j: number) => (
-            <div key={j} className="flex items-center gap-3 p-3 bg-gray-50/80 rounded-xl border border-transparent hover:border-gray-200 transition-all group">
+            <div 
+              key={j} 
+              onClick={() => {
+                onCustomerClick?.(user);
+                setSelectedProduct(null); // Optional: close the active cart modal
+              }}
+              className="flex items-center gap-3 p-3 bg-gray-50/80 rounded-xl border border-transparent hover:border-gray-200 transition-all group cursor-pointer"
+            >
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border border-gray-100 shadow-sm shrink-0">
                 <User className="w-4 h-4 text-[#71717a]" />
               </div>

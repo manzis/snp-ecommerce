@@ -633,7 +633,7 @@ export default function OrderDetailsModal({
                                                             <p className="text-[11px] text-zinc-400 mt-1">Payment proof is in PDF format</p>
                                                         </div>
                                                         <a
-                                                            href={order.payment_screenshot_url}
+                                                            href={order.payment_screenshot_url.includes('cloudinary.com') ? order.payment_screenshot_url.replace(/\.pdf$/i, '.jpg') : order.payment_screenshot_url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="px-6 py-2.5 bg-[#242424] text-white text-[12px] font-bold rounded-xl hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
