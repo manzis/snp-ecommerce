@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductBannersProps {
   banners?: (string | undefined)[];
@@ -11,13 +10,13 @@ interface ProductBannersProps {
 }
 
 /**
- * Premium Banner Carousel with GPU acceleration and defensive data resolution.
- * Optimized for both desktop and mobile with distinct interaction patterns.
+ * Premium Banner Carousel with native CSS hardware acceleration.
+ * Optimized for both desktop and mobile with zero JS hydration overhead.
  */
 const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBanners = [] }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   
   // High-performance normalization of banner data from multiple source patterns
@@ -25,17 +24,14 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
     const list: any[] = [];
     const seenIds = new Set();
 
-    // 1. Process Modern Linked Banners (via product_banners relation)
+    // 1. Process Modern Linked Banners
     (linkedBanners || []).forEach(item => {
-      // Handle both wrapping {banner: ...} and flat banner objects
       const banner = item?.banner || item; 
       if (!banner?.image_url || banner.is_active === false) return;
       
       if (!seenIds.has(banner.id)) {
         seenIds.add(banner.id);
         
-        // Elite defensive resolution for target product slug
-        // Checks all possible aliased join names suggested by database hints
         const bTargets = banner.products || banner.target_product || banner.product;
         const targetData = Array.isArray(bTargets) ? bTargets[0] : bTargets;
         const slug = targetData?.slug || banner.product_slug;
@@ -51,7 +47,7 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
       }
     });
 
-    // 2. Process Legacy Banners (as visual fallback only)
+    // 2. Process Legacy Banners
     (banners || []).filter(Boolean).forEach((url, idx) => {
       const id = `legacy-${idx}`;
       if (!seenIds.has(id)) {
@@ -71,21 +67,45 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
 
   const total = normalizedBanners.length;
 
+  const scrollToSlide = useCallback((index: number) => {
+    if (!scrollRef.current) return;
+    const width = scrollRef.current.clientWidth;
+    scrollRef.current.scrollTo({
+      left: width * index,
+      behavior: 'smooth'
+    });
+    setActiveIndex(index);
+  }, []);
+
   // Optimized Autoplay Logic
   useEffect(() => {
     if (total <= 1 || isHovered) return;
     const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % total);
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % total;
+        scrollToSlide(next);
+        return next;
+      });
     }, 6000); 
     return () => clearInterval(interval);
-  }, [total, isHovered]);
+  }, [total, isHovered, scrollToSlide]);
 
-  const paginate = useCallback((newDirection: number) => {
-    setCurrentIndex(prev => (prev + newDirection + total) % total);
-  }, [total]);
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollLeft = e.currentTarget.scrollLeft;
+    const width = e.currentTarget.clientWidth;
+    const newIndex = Math.round(scrollLeft / width);
+    if (newIndex !== activeIndex) {
+      setActiveIndex(newIndex);
+    }
+  };
+
+  const paginate = useCallback((direction: number) => {
+    const next = (activeIndex + direction + total) % total;
+    scrollToSlide(next);
+  }, [activeIndex, total, scrollToSlide]);
 
   const handleBannerClick = (banner: any) => {
-    if (isDragging || !banner.link) return;
+    if (!banner.link) return;
     router.push(banner.link);
   };
 
@@ -94,93 +114,69 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
   return (
     <section 
       id="storefront-premium-banner"
-      className="relative w-full overflow-hidden bg-white border-y border-gray-100 group/section select-none"
+      className="relative w-full overflow-hidden bg-zinc-950 border-y border-gray-100 group/section select-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-[530px] md:h-[650px] lg:h-[720px] w-full bg-zinc-950 overflow-hidden">
-        <AnimatePresence initial={false} mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, scale: 1.02 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ 
-                duration: 0.7,
-                ease: [0.16, 1, 0.3, 1]
-            }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.05}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={(_, { offset }) => {
-                setTimeout(() => setIsDragging(false), 50);
-                if (offset.x < -70) paginate(1);
-                else if (offset.x > 70) paginate(-1);
-            }}
-            onTap={() => handleBannerClick(normalizedBanners[currentIndex])}
-            className={`absolute inset-0 w-full h-full z-10 will-change-transform ${normalizedBanners[currentIndex].link ? 'cursor-pointer' : 'cursor-default'}`}
-          >
-            <div className="w-full h-full relative pointer-events-none">
-               <Image 
-                    src={normalizedBanners[currentIndex].image_url} 
-                    alt={normalizedBanners[currentIndex].title}
+        
+        {/* Native CSS Snap Container */}
+        <div 
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex h-full w-full gap-[0px] overflow-x-auto overflow-y-hidden snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          {normalizedBanners.map((banner, idx) => (
+            <div 
+              key={banner.id}
+              className={`relative h-full w-full flex-[0_0_100%] snap-start snap-always will-change-transform ${banner.link ? 'cursor-pointer' : 'cursor-default'}`}
+              onClick={() => handleBannerClick(banner)}
+            >
+                <Image 
+                    src={banner.image_url} 
+                    alt={banner.title}
                     fill 
                     className="object-cover object-center transition-transform duration-[2000ms]"
                     sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1920px"
-                    priority={false}
-                    loading="lazy"
-                    fetchPriority="auto"
+                    priority={idx === 0}
+                    loading={idx === 0 ? undefined : "lazy"}
+                    {...(idx === 0 ? { fetchPriority: "high" } : {})}
                 />
                 
                 {/* Visual Depth Overlay */}
-                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-80" />
-                <div className="absolute inset-0 bg-black/5" />
+                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-80 pointer-events-none" />
+                <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
                 {/* Click Hint Overlay */}
-                {normalizedBanners[currentIndex].link && (
-                 <div className="absolute inset-0 flex items-center justify-center">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: isHovered && !isDragging ? 1 : 0, y: isHovered && !isDragging ? 0 : 10 }}
-                        className="px-8 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white text-sm font-semibold tracking-wide shadow-2xl"
+                {banner.link && (
+                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div 
+                        className={`px-8 py-2.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white text-sm font-semibold tracking-wide shadow-2xl transition-all duration-300 transform ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
                     >
                         EXPLORE NOW
-                    </motion.div>
+                    </div>
                  </div>
                 )}
             </div>
-          </motion.div>
-        </AnimatePresence>
+          ))}
+        </div>
 
         {/* Cinematic Progress Indicators */}
         {total > 1 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-black/20 backdrop-blur-xl border border-white/5">
                 {normalizedBanners.map((_, idx) => (
-                    <motion.button
+                    <button
                         key={idx}
-                        onClick={(e) => { e.stopPropagation(); setCurrentIndex(idx); }}
-                        initial={false}
-                        animate={{ 
-                            width: currentIndex === idx ? 32 : 8,
-                            opacity: currentIndex === idx ? 1 : 0.4
-                        }}
-                        transition={{ 
-                            duration: 0.5, 
-                            ease: [0.32, 0.72, 0, 1] 
-                        }}
-                        className="relative h-1.5 rounded-full bg-white/40 overflow-hidden group/bar outline-none"
+                        onClick={(e) => { e.stopPropagation(); scrollToSlide(idx); }}
+                        className={`relative h-1.5 rounded-full overflow-hidden outline-none transition-all duration-500 ease-out ${activeIndex === idx ? 'w-8 bg-white/40' : 'w-2 bg-white/40 opacity-40 hover:bg-white/60'}`}
                     >
-                        {currentIndex === idx && (
-                             <motion.div 
+                        {activeIndex === idx && (
+                             <div 
                                 className="absolute inset-0 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
-                                initial={{ width: 0 }}
-                                animate={{ width: '100%' }}
-                                transition={{ duration: isHovered ? 0 : 6, ease: "linear" }}
+                                style={{ width: isHovered ? '100%' : '100%', transition: 'width 6s linear' }}
                              />
                         )}
-                        <div className="absolute inset-0 bg-transparent group-hover/bar:bg-white/20 transition-colors" />
-                    </motion.button>
+                    </button>
                 ))}
             </div>
         )}

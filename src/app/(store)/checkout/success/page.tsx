@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import CheckConfirmicon from "@/components/icons/CheckTickIcon";
+import AnimatedSuccessIcon from "@/components/icons/AnimatedSuccessIcon";
 import { fetchOrderDetails } from "@/services/orderService";
 
 // --- TYPES ---
@@ -17,54 +17,7 @@ export interface OrderConfirmationProps {
   redirectSeconds?: number;
 }
 
-// --- MEMOIZED COMPONENTS ---
-const MemoizedCheckConfirmicon = React.memo(CheckConfirmicon);
-
-function ConfettiDoodles({ hasMounted }: { hasMounted: boolean }) {
-  if (!hasMounted) return null;
-
-  const lineCount = 20;
-  const colors = ['#ffffff', '#8BFF84', '#ffe900', '#ffffff'];
-
-  return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      {Array.from({ length: lineCount }).map((_, i) => {
-        const angle = (i * 360) / lineCount + (Math.random() * 20 - 10);
-        const color = colors[i % colors.length];
-        const delay = 0.6 + (Math.random() * 0.1);
-        const distance = 160 + Math.random() * 60;
-        const duration = 1.0 + Math.random() * 0.5;
-
-        return (
-          <motion.div
-            key={i}
-            initial={{ scale: 0, opacity: 0, x: 0, y: 0, rotate: angle }}
-            animate={{
-              scale: [0, 1.2, 0.4],
-              opacity: [0, 1, 1, 0],
-              x: Math.cos((angle * Math.PI) / 180) * distance,
-              y: Math.sin((angle * Math.PI) / 180) * distance + (distance * 0.2),
-              rotate: angle + 90
-            }}
-            transition={{
-              duration: duration,
-              delay: delay,
-              ease: [0.23, 1, 0.32, 1]
-            }}
-            style={{
-              width: `${15 + Math.random() * 15}px`,
-              height: '4px',
-              backgroundColor: color,
-              borderRadius: '20px',
-              position: 'absolute',
-              transformOrigin: 'center',
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
+// Old ConfettiDoodles removed to improve iOS performance
 
 function SuccessContent() {
   const router = useRouter();
@@ -163,21 +116,10 @@ function SuccessContent() {
       {/* --- MIDDLE SECTION --- */}
       <section className="flex flex-1 w-full max-w-[410px] items-start justify-center relative z-[10] pt-[20px] pb-[60px]">
         <div className="relative">
-          <ConfettiDoodles hasMounted={hasMounted} />
           {hasMounted && (
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 20,
-                delay: 0.5
-              }}
-              className="flex items-center justify-center w-[140px] h-[140px]"
-            >
-              <MemoizedCheckConfirmicon className="w-full h-full text-white" />
-            </motion.div>
+            <div className="flex items-center justify-center w-[200px] h-[200px]">
+              <AnimatedSuccessIcon />
+            </div>
           )}
         </div>
       </section>

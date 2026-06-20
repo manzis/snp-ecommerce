@@ -121,8 +121,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     }
   };
 
-  if (!mounted) return <div className="w-full h-[500px]" />;
-
   return (
     <section id="product-details-section" className="scroll-mt-[66px] main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start lg:mx-0 lg:max-w-none px-[24px]">
       
