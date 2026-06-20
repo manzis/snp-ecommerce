@@ -103,9 +103,6 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
               disabled={!item.is_available}
               onClick={() => {
                 setSelectedId(item.id);
-                if (item.image_url) {
-                  setActiveVariantImage(item.image_url);
-                }
               }}
               /* 
                  FRAME 8: MAIN CARD

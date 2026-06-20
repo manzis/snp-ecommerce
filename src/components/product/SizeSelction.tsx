@@ -82,9 +82,6 @@ const SizeSelection: React.FC<SizeSelectionProps> = ({ sizes }) => {
               disabled={!sizeObj.is_available}
               onClick={() => {
                 setSelectedSize(sizeObj.size_label);
-                if (sizeObj.image_url) {
-                  setActiveVariantImage(sizeObj.image_url);
-                }
               }}
               /* 
               */

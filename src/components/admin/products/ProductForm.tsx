@@ -113,7 +113,7 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
                 const normalizedVariants = initialData.product_variants?.map((v: any) => {
                     const sizeLabel = v.size?.size_label || v.product_sizes?.size_label || v.size_label;
                     const flavourName = v.flavour?.flavour_name || v.product_flavours?.flavour_name || v.flavour_name;
-                    const imageUrl = v.flavour?.image_url || v.product_flavours?.image_url || v.image_url;
+                    const imageUrl = v.image_url || v.flavour?.image_url || v.product_flavours?.image_url;
                     return {
                         ...v,
                         size_label: sizeLabel,

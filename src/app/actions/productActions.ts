@@ -101,7 +101,8 @@ export async function updateProductVariantPricesAction(productId: string, varian
       original_price: v.original_price,
       discounted_price: v.discounted_price,
       stock_count: v.stock_count ?? 0,
-      is_available: v.is_available ?? true
+      is_available: v.is_available ?? true,
+      image_url: v.image_url || null
     }));
 
     // 3. Upsert into database (Priority: adminClient, Fallback: sessionClient)
@@ -307,7 +308,8 @@ export async function createProductAction(productData: any) {
         original_price: v.original_price,
         discounted_price: v.discounted_price,
         stock_count: v.stock_count || 0,
-        is_available: v.is_available ?? true
+        is_available: v.is_available ?? true,
+        image_url: v.image_url || null
       }));
 
       const { error: variantError } = await finalClient
@@ -566,7 +568,7 @@ export async function duplicateProductAction(id: string) {
         discounted_price: v.discounted_price,
         stock_count: v.stock_count,
         is_available: v.is_available,
-        image_url: original.product_flavours?.find((f: any) => f.id === v.flavour_id)?.image_url
+        image_url: v.image_url || original.product_flavours?.find((f: any) => f.id === v.flavour_id)?.image_url || null
       })),
       product_info: original.product_info?.[0] || original.product_info || {},
       qa: original.product_qa?.map((q: any) => ({
@@ -755,7 +757,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
                 original_price: v.original_price,
                 discounted_price: v.discounted_price,
                 stock_count: v.stock_count || 0,
-                is_available: v.is_available ?? true
+                is_available: v.is_available ?? true,
+                image_url: v.image_url || null
              }).eq('id', v.id);
              activeVariantIds.push(v.id);
           } else {
@@ -766,7 +769,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
                 original_price: v.original_price,
                 discounted_price: v.discounted_price,
                 stock_count: v.stock_count || 0,
-                is_available: v.is_available ?? true
+                is_available: v.is_available ?? true,
+                image_url: v.image_url || null
              }).select('id').single();
              if (data) activeVariantIds.push(data.id);
           }

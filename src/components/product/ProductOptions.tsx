@@ -34,11 +34,12 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
     setSizeError,
     setFlavorError,
     setFlavorId,
-    setPrice
+    setPrice,
+    setActiveVariantImage
   } = useProductSelectionStore();
   const { addItem } = useCartStore();
 
-  // Handle Dynamic Variant Pricing
+  // Handle Dynamic Variant Pricing and Image
   useEffect(() => {
     if (!product.product_variants || product.product_variants.length === 0) {
       // Set base project price
@@ -57,13 +58,26 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
 
     if (matchingVariant) {
       setPrice(matchingVariant.discounted_price, matchingVariant.original_price);
+      
+      // Try to find the most specific image for this selection
+      const variantImage = matchingVariant.image_url;
+      const flavorImage = product.product_flavours?.find(f => f.id === matchingVariant.flavour_id)?.image_url;
+      const sizeImage = product.product_sizes?.find(s => s.id === matchingVariant.size_id)?.image_url;
+      
+      if (variantImage) {
+        setActiveVariantImage(variantImage);
+      } else if (flavorImage) {
+        setActiveVariantImage(flavorImage);
+      } else if (sizeImage) {
+        setActiveVariantImage(sizeImage);
+      }
     } else {
       // Use standard product prices if no specific variant combo is selected/found
       const discount = parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10);
       const original = parseInt((product.original_price || '0').replace(/\D/g, ''), 10);
       setPrice(discount, original);
     }
-  }, [selectedSize, selectedFlavorId, product, setPrice]);
+  }, [selectedSize, selectedFlavorId, product, setPrice, setActiveVariantImage]);
 
   useEffect(() => {
     useProductSelectionStore.getState().reset();
@@ -108,7 +122,8 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         const variant = validVariantRows.find(v => v.flavour_id === f.id);
         return {
           ...f,
-          is_available: variant ? variant.is_available : f.is_available
+          is_available: variant ? variant.is_available : f.is_available,
+          ...(variant?.image_url ? { image_url: variant.image_url } : {})
         };
       });
   }, [product.product_variants, flavours, sizes, selectedSize]);
