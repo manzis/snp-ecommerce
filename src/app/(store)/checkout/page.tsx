@@ -390,7 +390,7 @@ export default function CheckoutPage() {
     <>
       <CheckoutLoader isLoading={isProcessing} message={processingMessage} />
 
-      <div className={`min-h-screen bg-[#f7faf6] pt-[81px] pb-[80px] transition-all duration-500 ${isProcessing ? 'blur-[4px] pointer-events-none grayscale-[0.2]' : ''}`}>
+      <div className={`min-h-screen bg-[#f7faf6] pt-[65px] pb-[80px] transition-all duration-500 ${isProcessing ? 'blur-[4px] pointer-events-none grayscale-[0.2]' : ''}`}>
         <DynamicPageNav title="Checkout" onBack={handleBackAttempt} />
 
         <CheckoutCancelModal

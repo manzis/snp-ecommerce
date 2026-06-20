@@ -7,9 +7,10 @@ import { useProductSelectionStore } from '@/store/productSelectionStore';
 
 interface FlavourSelectionProps {
   flavours: ProductFlavour[];
+  baseImage?: string;
 }
 
-const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
+const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage }) => {
   const { selectedFlavorId: selectedId, setFlavorId: setSelectedId, setActiveVariantImage, flavorError } = useProductSelectionStore();
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
@@ -138,7 +139,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours }) => {
               `}>
                 <div className={`relative w-full flex-grow transition-all duration-200 ease-in ${isSelected ? 'h-[67px]' : 'h-[63px]'}`}>
                   <Image
-                    src={(item.image_url || '/images/protein.webp').trim()}
+                    src={(item.image_url || baseImage || '/images/protein.webp').trim()}
                     alt={item.flavour_name || 'flavour'}
                     fill
                     className="object-contain"

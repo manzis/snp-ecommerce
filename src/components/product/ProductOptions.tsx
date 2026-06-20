@@ -60,7 +60,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       setPrice(matchingVariant.discounted_price, matchingVariant.original_price);
       
       // Try to find the most specific image for this selection
-      const flavorImage = product.product_flavours?.find(f => f.id === matchingVariant.flavour_id)?.image_url;
+      const flavorImage = (matchingVariant as any).image_url || product.product_flavours?.find(f => f.id === matchingVariant.flavour_id)?.image_url;
       const sizeImage = product.product_sizes?.find(s => s.id === matchingVariant.size_id)?.image_url;
       
       if (flavorImage) {
@@ -119,7 +119,8 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         const variant = validVariantRows.find(v => v.flavour_id === f.id);
         return {
           ...f,
-          is_available: variant ? variant.is_available : f.is_available
+          is_available: variant ? variant.is_available : f.is_available,
+          image_url: (variant as any)?.image_url || f.image_url
         };
       });
   }, [product.product_variants, flavours, sizes, selectedSize]);
@@ -306,7 +307,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
 
   return (
     <section className="relative flex w-full lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0 px-[24px]">
-      <FlavourSelection flavours={filteredFlavours} />
+      <FlavourSelection flavours={filteredFlavours} baseImage={product.images?.[0]} />
       <SizeSelection sizes={mappedSizes} />
       {/* Inline CTA (Mobile + Desktop) */}
       <div id="inline-cta-container" className="flex w-full flex-row gap-[12px] lg:gap-[16px] mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
