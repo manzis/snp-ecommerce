@@ -235,7 +235,6 @@ body {
   }
 
   .hero-bg-image-filter {
-    filter: blur(2px);
     transform: scale(1.03) translateZ(0);
     object-fit: cover;
     object-position: left center;

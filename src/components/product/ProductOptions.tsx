@@ -60,13 +60,10 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       setPrice(matchingVariant.discounted_price, matchingVariant.original_price);
       
       // Try to find the most specific image for this selection
-      const variantImage = matchingVariant.image_url;
       const flavorImage = product.product_flavours?.find(f => f.id === matchingVariant.flavour_id)?.image_url;
       const sizeImage = product.product_sizes?.find(s => s.id === matchingVariant.size_id)?.image_url;
       
-      if (variantImage) {
-        setActiveVariantImage(variantImage);
-      } else if (flavorImage) {
+      if (flavorImage) {
         setActiveVariantImage(flavorImage);
       } else if (sizeImage) {
         setActiveVariantImage(sizeImage);
@@ -122,8 +119,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         const variant = validVariantRows.find(v => v.flavour_id === f.id);
         return {
           ...f,
-          is_available: variant ? variant.is_available : f.is_available,
-          ...(variant?.image_url ? { image_url: variant.image_url } : {})
+          is_available: variant ? variant.is_available : f.is_available
         };
       });
   }, [product.product_variants, flavours, sizes, selectedSize]);

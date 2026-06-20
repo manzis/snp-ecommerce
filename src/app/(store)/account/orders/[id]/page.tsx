@@ -26,7 +26,7 @@ export default function OrderDetailsPage() {
             try {
                 // Sync external tracking (Expo Express) in the background before fetching
                 await syncExternalOrderTrackingAction(orderId);
-                
+
                 const data = await fetchOrderDetails(orderId);
                 if (data) {
                     setOrderData(data);
@@ -79,7 +79,7 @@ export default function OrderDetailsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f7faf6] pb-[40px] pt-[81px]">
+        <div className="min-h-screen bg-[#f7faf6] pb-[40px] pt-[65px]">
             {/* Dynamic Navbar */}
             <DynamicPageNav title="Order Details" />
 
@@ -99,10 +99,10 @@ export default function OrderDetailsPage() {
 
                             <div className="flex flex-col gap-[16px] p-[16px_24px_24px_24px]">
                                 <OtherShipmentItems items={orderData?.order_items} total={orderData?.total_amount} />
-                                <OrderActions 
-                                    isCancellable={order.isCancellable} 
-                                    orderId={order.id} 
-                                    onCancelSuccess={handleCancelSuccess} 
+                                <OrderActions
+                                    isCancellable={order.isCancellable}
+                                    orderId={order.id}
+                                    onCancelSuccess={handleCancelSuccess}
                                 />
                             </div>
                         </section>
@@ -115,11 +115,11 @@ export default function OrderDetailsPage() {
 
                     {/* Right Column (Details Sidebar) */}
                     <aside className="flex flex-col gap-[16px] lg:col-span-5 xl:col-span-4 lg:sticky lg:top-[100px]">
-                        <DeliveryDetails 
-                            address={orderData?.shipping_address} 
-                            contact={orderData?.contact_details} 
+                        <DeliveryDetails
+                            address={orderData?.shipping_address}
+                            contact={orderData?.contact_details}
                         />
-                        <PriceDetails 
+                        <PriceDetails
                             total={orderData?.total_amount}
                             mrp={orderData?.mrp_amount}
                             discount={orderData?.discount_amount}
@@ -144,4 +144,4 @@ export default function OrderDetailsPage() {
             </main>
         </div>
     );
-}
+}

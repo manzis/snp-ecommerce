@@ -4,7 +4,6 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import HomeHero from '@/components/home/HomeHero';
 import HomeCategories from '@/components/home/HomeCategory';
-import TodaysDeals from '@/components/home/TodaysDeals';
 
 // Dynamic imports for below-the-fold / heavy sections
 const ProductGridSection = dynamic(() => import('@/components/home/ProductGridSection'));
@@ -118,11 +117,7 @@ async function HomeDeferredSections() {
 
   const bestSellingProducts = productsGrouped['best_selling'] || [];
   const popularProducts = productsGrouped['popular_products'] || [];
-  const newArrivalsProducts = (productsGrouped['new_arrivals'] || []).sort((a, b) => {
-    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-    return dateB - dateA;
-  });
+  const newArrivalsProducts = productsGrouped['new_arrivals'] || [];
 
   const mapToGrid = (products: Product[]) => products.map(p => {
     let benefit = '';

@@ -11,7 +11,7 @@ import Pagination from '@/components/search/Pagination';
 const ORDERS_PER_PAGE = 10;
 
 interface ClientOrdersLayoutProps {
-  initialOrders: OrderProps[];
+    initialOrders: OrderProps[];
 }
 
 export default function ClientOrdersLayout({ initialOrders }: ClientOrdersLayoutProps) {
@@ -42,7 +42,7 @@ export default function ClientOrdersLayout({ initialOrders }: ClientOrdersLayout
     }, [filteredOrders, currentPage]);
 
     return (
-        <div className="min-h-screen bg-[#f7faf6] pt-[81px] pb-[40px]">
+        <div className="min-h-screen bg-[#f7faf6] pt-[65px] pb-[40px]">
             <DynamicPageNav title="My Orders" />
 
             <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px] px-0 lg:px-[24px]">
