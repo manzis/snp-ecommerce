@@ -7,7 +7,7 @@ export interface Banner {
     target_product_id: string | null;
     is_active: boolean;
     is_published: boolean;
-    display_type: 'home' | 'product';
+    display_type: 'home' | 'product' | 'both';
     display_order?: number;
     created_at: string;
     updated_at: string;
@@ -39,6 +39,7 @@ export async function fetchActiveBanners(client = supabase): Promise<Banner[]> {
             products!banners_target_product_id_fkey(id, name, title, slug)
         `)
         .eq('is_active', true)
+        .in('display_type', ['home', 'both'])
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 

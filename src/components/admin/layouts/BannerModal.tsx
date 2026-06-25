@@ -210,20 +210,27 @@ export default function BannerModal({
                 {/* Banner Placement Type */}
                 <div className="flex flex-col gap-3">
                     <label className="text-[14px] font-medium text-[#242424]">Banner Placement</label>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <button
                             onClick={() => setFormData({ ...formData, display_type: 'home' })}
                             className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.display_type === 'home' ? 'border-[#242424] bg-gray-50' : 'border-gray-100 bg-white hover:border-gray-200'}`}
                         >
                             <span className="text-[14px] font-medium">Homepage Sale</span>
-                            <span className="text-[11px] text-[#71717a]">Appears on general store feed</span>
+                            <span className="text-[11px] text-[#71717a] text-center">Appears on general store feed</span>
                         </button>
                         <button
                             onClick={() => setFormData({ ...formData, display_type: 'product' })}
                             className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.display_type === 'product' ? 'border-[#242424] bg-gray-50' : 'border-gray-100 bg-white hover:border-gray-200'}`}
                         >
                             <span className="text-[14px] font-medium">Product Page</span>
-                            <span className="text-[11px] text-[#71717a]">Specific to detail pages</span>
+                            <span className="text-[11px] text-[#71717a] text-center">Specific to detail pages</span>
+                        </button>
+                        <button
+                            onClick={() => setFormData({ ...formData, display_type: 'both' })}
+                            className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.display_type === 'both' ? 'border-[#242424] bg-gray-50' : 'border-gray-100 bg-white hover:border-gray-200'}`}
+                        >
+                            <span className="text-[14px] font-medium">Both</span>
+                            <span className="text-[11px] text-[#71717a] text-center">Appears everywhere</span>
                         </button>
                     </div>
                 </div>

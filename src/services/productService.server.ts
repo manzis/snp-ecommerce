@@ -128,6 +128,8 @@ export const fetchHomepageFullData = cache(unstable_cache(
           .from('banners')
           .select('*, products!banners_target_product_id_fkey(id, name, title, slug)')
           .eq('is_active', true)
+          .in('display_type', ['home', 'both'])
+          .order('display_order', { ascending: true })
           .order('created_at', { ascending: false });
         
         return (data as any[] || []).map(b => ({
