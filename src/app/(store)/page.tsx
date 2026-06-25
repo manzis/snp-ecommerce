@@ -163,6 +163,12 @@ async function HomeDeferredSections() {
         <Brands brands={mappedBrands} />
       </div>
 
+      {activeBanners.length > 0 && (
+        <div className="w-full">
+          <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
+        </div>
+      )}
+
       {popularProducts.length > 0 && (
         <div className="w-full">
           <ProductGridSection
@@ -175,12 +181,6 @@ async function HomeDeferredSections() {
       <div className="w-full">
         <FeatureBanners />
       </div>
-
-      {activeBanners.length > 0 && (
-        <div className="w-full">
-          <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
-        </div>
-      )}
 
       <div className="w-full">
         <TestimonialSection testimonials={
