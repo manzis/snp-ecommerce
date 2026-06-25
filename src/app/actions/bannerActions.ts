@@ -64,3 +64,15 @@ export async function linkBannersToProductAction(productId: string, bannerIds: s
     }
     return { success };
 }
+
+export async function updateBannerOrderAction(orderedIds: string[]) {
+    const supabase = await createClient();
+    const res = await bannerService.updateBannerOrder(orderedIds, supabase);
+    if (res.success) {
+        revalidatePath('/admin/layouts');
+        revalidatePath('/', 'page');
+        revalidateTag('banners', 'max');
+        revalidateTag('homepage', 'max');
+    }
+    return res;
+}

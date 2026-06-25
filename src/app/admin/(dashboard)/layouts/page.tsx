@@ -8,7 +8,7 @@ import { TableSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import BannerModal from '@/components/admin/layouts/BannerModal';
 import { BannerGrid } from '@/components/admin/layouts/BannerCard';
 import { Banner } from '@/services/bannerService';
-import { fetchBannersAction, createBannerAction, updateBannerAction, deleteBannerAction } from '@/app/actions/bannerActions';
+import { fetchBannersAction, createBannerAction, updateBannerAction, deleteBannerAction, updateBannerOrderAction } from '@/app/actions/bannerActions';
 import PlusIcon from '@/components/icons/PlusIcon';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
@@ -125,6 +125,19 @@ export default function LayoutsPage() {
     setIsSavingBanner(false);
   };
 
+  const handleReorderBanners = async (newBanners: Banner[]) => {
+    setBanners(newBanners); // Optimistic UI update
+    const orderedIds = newBanners.map(b => b.id);
+    const res = await updateBannerOrderAction(orderedIds);
+    if (res.success) {
+      showAdminToast('Banner order updated.', 'success');
+    } else {
+      showAdminToast('Failed to update banner order.', 'error');
+      // Revert if failed
+      loadAllData();
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
       {/* DynamicAdminNav is now in Layout */}
@@ -157,6 +170,7 @@ export default function LayoutsPage() {
                   banners={banners} 
                   onEdit={handleEditBanner}
                   onDelete={handleDeleteBanner}
+                  onReorder={handleReorderBanners}
                 />
             )}
           </section>

@@ -8,6 +8,7 @@ export interface Banner {
     is_active: boolean;
     is_published: boolean;
     display_type: 'home' | 'product';
+    display_order?: number;
     created_at: string;
     updated_at: string;
     product?: Partial<Product>;
@@ -17,6 +18,7 @@ export async function fetchBanners(client = supabase): Promise<Banner[]> {
     const { data, error } = await client
         .from('banners')
         .select('*, products!banners_target_product_id_fkey(id, name, title, slug)')
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -37,6 +39,7 @@ export async function fetchActiveBanners(client = supabase): Promise<Banner[]> {
             products!banners_target_product_id_fkey(id, name, title, slug)
         `)
         .eq('is_active', true)
+        .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -115,4 +118,22 @@ export async function linkBannersToProduct(productId: string, bannerIds: string[
         .insert(assignments);
 
     return !insertError;
+}
+
+export async function updateBannerOrder(orderedIds: string[], client = supabase): Promise<{ success: boolean; message?: string }> {
+    // Supabase JS does not have bulk updates, so we iterate.
+    // It's generally fine for a few banners.
+    for (let i = 0; i < orderedIds.length; i++) {
+        const id = orderedIds[i];
+        const { error } = await client
+            .from('banners')
+            .update({ display_order: i })
+            .eq('id', id);
+
+        if (error) {
+            console.error('[bannerService] Error updating banner order:', error);
+            return { success: false, message: error.message };
+        }
+    }
+    return { success: true };
 }
