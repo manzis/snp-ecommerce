@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import * as bannerService from '@/services/bannerService';
 import { createClient } from '@/lib/supabase/server';
 
@@ -22,6 +22,9 @@ export async function createBannerAction(banner: Partial<bannerService.Banner>) 
     if (res.success) {
         revalidatePath('/admin/layouts');
         revalidatePath('/product/[slug]', 'page');
+        revalidatePath('/', 'page');
+        revalidateTag('banners');
+        revalidateTag('homepage');
     }
     return res;
 }
@@ -32,6 +35,9 @@ export async function updateBannerAction(id: string, updates: Partial<bannerServ
     if (res.success) {
         revalidatePath('/admin/layouts');
         revalidatePath('/product/[slug]', 'page');
+        revalidatePath('/', 'page');
+        revalidateTag('banners');
+        revalidateTag('homepage');
     }
     return res;
 }
@@ -42,6 +48,9 @@ export async function deleteBannerAction(id: string) {
     if (res.success) {
         revalidatePath('/admin/layouts');
         revalidatePath('/product/[slug]', 'page');
+        revalidatePath('/', 'page');
+        revalidateTag('banners');
+        revalidateTag('homepage');
     }
     return res;
 }

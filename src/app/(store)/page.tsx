@@ -178,7 +178,7 @@ async function HomeDeferredSections() {
 
       {activeBanners.length > 0 && (
         <div className="w-full">
-          <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
+          <ProductBanners linkedBanners={[{ banner: activeBanners[0] }]} />
         </div>
       )}
 
@@ -214,6 +214,12 @@ async function HomeDeferredSections() {
         </div>
       )}
 
+      {activeBanners.length > 1 && (
+        <div className="w-full">
+          <ProductBanners linkedBanners={[{ banner: activeBanners[1] }]} />
+        </div>
+      )}
+
       <div className="w-full">
         <ServicesMarquee />
       </div>
@@ -222,9 +228,9 @@ async function HomeDeferredSections() {
         <SubscribeSection />
       </div>
 
-      {activeBanners.length > 1 && (
+      {activeBanners.length > 2 && (
         <div className="w-full">
-          <ProductBanners linkedBanners={activeBanners.slice(1).map(b => ({ banner: b }))} />
+          <ProductBanners linkedBanners={[{ banner: activeBanners[2] }]} />
         </div>
       )}
 
