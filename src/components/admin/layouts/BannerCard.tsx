@@ -64,7 +64,6 @@ export default function BannerCard({
 }
 
 import { useState } from "react";
-import GripVerticalIcon from "@/components/icons/GripVerticalIcon";
 
 export function BannerGrid({
     banners,
