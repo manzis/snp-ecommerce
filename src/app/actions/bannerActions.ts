@@ -23,8 +23,8 @@ export async function createBannerAction(banner: Partial<bannerService.Banner>) 
         revalidatePath('/admin/layouts');
         revalidatePath('/product/[slug]', 'page');
         revalidatePath('/', 'page');
-        revalidateTag('banners');
-        revalidateTag('homepage');
+        revalidateTag('banners', 'max');
+        revalidateTag('homepage', 'max');
     }
     return res;
 }
@@ -36,8 +36,8 @@ export async function updateBannerAction(id: string, updates: Partial<bannerServ
         revalidatePath('/admin/layouts');
         revalidatePath('/product/[slug]', 'page');
         revalidatePath('/', 'page');
-        revalidateTag('banners');
-        revalidateTag('homepage');
+        revalidateTag('banners', 'max');
+        revalidateTag('homepage', 'max');
     }
     return res;
 }
@@ -49,8 +49,8 @@ export async function deleteBannerAction(id: string) {
         revalidatePath('/admin/layouts');
         revalidatePath('/product/[slug]', 'page');
         revalidatePath('/', 'page');
-        revalidateTag('banners');
-        revalidateTag('homepage');
+        revalidateTag('banners', 'max');
+        revalidateTag('homepage', 'max');
     }
     return res;
 }
