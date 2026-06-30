@@ -67,6 +67,8 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         setActiveVariantImage(flavorImage);
       } else if (sizeImage) {
         setActiveVariantImage(sizeImage);
+      } else {
+        setActiveVariantImage(null);
       }
     } else {
       // Use standard product prices if no specific variant combo is selected/found

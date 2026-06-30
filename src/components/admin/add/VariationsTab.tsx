@@ -79,7 +79,24 @@ export default function VariationsTab({ formData, setFormData, errors }: any) {
 
     const updateVariant = (index: number, field: string, value: any) => {
         const updated = [...formData.product_variants];
-        updated[index] = { ...updated[index], [field]: value };
+        
+        if (field === 'image_url') {
+            const oldUrl = updated[index].image_url;
+            updated[index] = { ...updated[index], [field]: value };
+            
+            // If the old image URL is being replaced/removed, it gets deleted from Cloudinary.
+            // We must update any other variants that were sharing this exact old URL to prevent dead links.
+            if (oldUrl && oldUrl.trim() !== '') {
+                for (let i = 0; i < updated.length; i++) {
+                    if (i !== index && updated[i].image_url === oldUrl) {
+                        updated[i] = { ...updated[i], image_url: value };
+                    }
+                }
+            }
+        } else {
+            updated[index] = { ...updated[index], [field]: value };
+        }
+        
         setFormData({ ...formData, product_variants: updated });
     };
 

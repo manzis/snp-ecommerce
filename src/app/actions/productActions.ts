@@ -101,8 +101,7 @@ export async function updateProductVariantPricesAction(productId: string, varian
       original_price: v.original_price,
       discounted_price: v.discounted_price,
       stock_count: v.stock_count ?? 0,
-      is_available: v.is_available ?? true,
-      image_url: v.image_url || null
+      is_available: v.is_available ?? true
     }));
 
     // 3. Upsert into database (Priority: adminClient, Fallback: sessionClient)
@@ -308,8 +307,7 @@ export async function createProductAction(productData: any) {
         original_price: v.original_price,
         discounted_price: v.discounted_price,
         stock_count: v.stock_count || 0,
-        is_available: v.is_available ?? true,
-        image_url: v.image_url || null
+        is_available: v.is_available ?? true
       }));
 
       const { error: variantError } = await finalClient
@@ -448,7 +446,7 @@ export async function deleteProductAction(id: string) {
       .select(`
         *,
         product_info (ingredients_image),
-        product_variants (image_url),
+        product_variants (*),
         product_flavours (image_url),
         product_sizes (image_url)
       `)
@@ -483,7 +481,6 @@ export async function deleteProductAction(id: string) {
       };
 
       processRelational(product.product_info, 'ingredients_image');
-      processRelational(product.product_variants, 'image_url');
       processRelational(product.product_flavours, 'image_url');
       processRelational(product.product_sizes, 'image_url');
       const publicIds = urls
@@ -567,8 +564,7 @@ export async function duplicateProductAction(id: string) {
         original_price: v.original_price,
         discounted_price: v.discounted_price,
         stock_count: v.stock_count,
-        is_available: v.is_available,
-        image_url: v.image_url || original.product_flavours?.find((f: any) => f.id === v.flavour_id)?.image_url || null
+        is_available: v.is_available
       })),
       product_info: original.product_info?.[0] || original.product_info || {},
       qa: original.product_qa?.map((q: any) => ({
@@ -710,8 +706,9 @@ export async function updateProductDeepAction(id: string, productData: any) {
       if (uniqueSizes.length > 0) {
         for (const label of uniqueSizes) {
            const variantWithSize = variantsToProcess.find((v:any) => (v.size_label === label || v.size?.size_label === label));
-           const sId = variantWithSize.size_id;
-           const sImage = variantWithSize.image_url || variantWithSize.size?.image_url || null;
+           const variantWithNewImage = variantsToProcess.find((v:any) => (v.size_label === label || v.size?.size_label === label) && v.image_url && v.image_url.trim() !== '');
+           const sId = variantWithSize?.size_id;
+           const sImage = variantWithNewImage ? variantWithNewImage.image_url : (variantWithSize?.size?.image_url || null);
            
            if (sId) {
               await finalClient.from('product_sizes').update({ size_label: label, image_url: sImage }).eq('id', sId);
@@ -729,8 +726,9 @@ export async function updateProductDeepAction(id: string, productData: any) {
       if (uniqueFlavours.length > 0) {
         for (const name of uniqueFlavours) {
            const variantWithFlavour = variantsToProcess.find((v:any) => (v.flavour_name === name || v.flavour?.flavour_name === name));
-           const fId = variantWithFlavour.flavour_id;
-           const fImage = variantWithFlavour.image_url || variantWithFlavour.flavour?.image_url || '';
+           const variantWithNewImage = variantsToProcess.find((v:any) => (v.flavour_name === name || v.flavour?.flavour_name === name) && v.image_url && v.image_url.trim() !== '');
+           const fId = variantWithFlavour?.flavour_id;
+           const fImage = variantWithNewImage ? variantWithNewImage.image_url : (variantWithFlavour?.flavour?.image_url || null);
            
            if (fId) {
               await finalClient.from('product_flavours').update({ flavour_name: name, image_url: fImage }).eq('id', fId);
@@ -757,8 +755,7 @@ export async function updateProductDeepAction(id: string, productData: any) {
                 original_price: v.original_price,
                 discounted_price: v.discounted_price,
                 stock_count: v.stock_count || 0,
-                is_available: v.is_available ?? true,
-                image_url: v.image_url || null
+                is_available: v.is_available ?? true
              }).eq('id', v.id);
              activeVariantIds.push(v.id);
           } else {
@@ -769,8 +766,7 @@ export async function updateProductDeepAction(id: string, productData: any) {
                 original_price: v.original_price,
                 discounted_price: v.discounted_price,
                 stock_count: v.stock_count || 0,
-                is_available: v.is_available ?? true,
-                image_url: v.image_url || null
+                is_available: v.is_available ?? true
              }).select('id').single();
              if (data) activeVariantIds.push(data.id);
           }
