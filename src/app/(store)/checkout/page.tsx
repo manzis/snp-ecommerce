@@ -400,8 +400,8 @@ export default function CheckoutPage() {
           isProcessing={isAbandoning}
         />
 
-        <main className="mx-auto w-full lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
-          <div className="flex-1 flex flex-col gap-[12px]">
+        <main className="mx-auto w-full md:max-w-[640px] lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
+          <div className="flex-1 min-w-0 flex flex-col gap-[12px]">
             <CheckoutPriceHeader
               ref={priceHeaderRef}
               totalAmount={`NPR ${finalTotal.toLocaleString()}`}
