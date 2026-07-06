@@ -329,18 +329,24 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
         const cleanImages = formData.images.filter((img: string) => img && img.trim() !== '');
         const { temp_sizes, temp_flavours, ...dataToSave } = { ...formData, images: cleanImages };
 
-        const res = await onSave(dataToSave);
-        setIsSaving(false);
-        if (res.success) {
-            isDiscarding.current = true;
-            setShowFinalizeModal(false);
-            if (mode === 'create' && storageKey) {
-                localStorage.removeItem(storageKey);
+        try {
+            const res = await onSave(dataToSave);
+            setIsSaving(false);
+            if (res.success) {
+                isDiscarding.current = true;
+                setShowFinalizeModal(false);
+                if (mode === 'create' && storageKey) {
+                    localStorage.removeItem(storageKey);
+                }
+                showAdminToast(mode === 'edit' ? 'Product updated successfully.' : 'Product created successfully.', 'success');
+                router.push('/admin/products');
+            } else {
+                showAdminToast(`Error: ${res.message}`, 'error');
             }
-            showAdminToast(mode === 'edit' ? 'Product updated successfully.' : 'Product created successfully.', 'success');
-            router.push('/admin/products');
-        } else {
-            showAdminToast(`Error: ${res.message}`, 'error');
+        } catch (error: any) {
+            console.error('Submit Error:', error);
+            setIsSaving(false);
+            showAdminToast(`Failed to save product due to an unexpected error.`, 'error');
         }
     };
 

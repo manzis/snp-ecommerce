@@ -51,15 +51,15 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                 className={`relative w-full max-w-full min-w-0 flex justify-between items-start p-[16px] rounded-[12px] border transition-all cursor-pointer ${selectedId === addr.id ? 'border-[1.5px] border-[#242424] bg-[#fafbfb]' : 'border-[#eaebf0]'
                   }`}
               >
-                <div className="flex flex-col gap-[4px] min-w-0 flex-1">
-                  <p className="font-rajdhani text-[18px] text-[#242424] truncate">
+                <div className="flex flex-col gap-[4px] min-w-0 flex-1 max-w-[calc(100%-80px)]">
+                  <p className="font-rajdhani text-[18px] text-[#242424] truncate w-full block">
                     <span className="font-semibold">Delivery To :</span> {addr.first_name} {addr.last_name}
                   </p>
-                  <div className="flex flex-col text-[#838383] font-rajdhani min-w-0">
-                    <p className="text-[15px] truncate">
+                  <div className="flex flex-col text-[#838383] font-rajdhani min-w-0 w-full block">
+                    <p className="text-[15px] truncate w-full block">
                       {addr.address_line_1}, {addr.street}, {addr.area ? `${addr.area}, ` : ''}{addr.city} - {addr.pincode}
                     </p>
-                    <p className="text-[14px] truncate">
+                    <p className="text-[14px] truncate w-full block">
                       {addr.email} <span className="mx-1 text-[#eaebf0]">|</span> {addr.phone}
                     </p>
                   </div>
