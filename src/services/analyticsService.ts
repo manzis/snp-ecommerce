@@ -2,6 +2,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { cache } from 'react';
 
+const getAdminIds = async (supabase: any) => {
+  const { data } = await supabase.from('profiles').select('id').eq('role', 'admin');
+  return data?.map((p: any) => p.id) || [];
+};
+
 export const analyticsService = {
   /**
    * Fetches top performing metrics for the dashboard
@@ -75,11 +80,19 @@ export const analyticsService = {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
 
-    const { data: rawData, error } = await supabase
+    const adminIds = await getAdminIds(supabase);
+
+    let query = supabase
       .from('product_views')
-      .select('product_id, viewed_at, products(title, name, images)')
+      .select('product_id, viewed_at, user_id, products(title, name, images)')
       .order('viewed_at', { ascending: false })
       .limit(500); // Fetch a good sample size
+
+    if (adminIds.length > 0) {
+      query = query.not('user_id', 'in', `(${adminIds.join(',')})`);
+    }
+
+    const { data: rawData, error } = await query;
 
     if (error || !rawData) {
       console.error('Error fetching recently viewed:', error);
@@ -119,7 +132,9 @@ export const analyticsService = {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
 
-    const { data: rawData, error } = await supabase
+    const adminIds = await getAdminIds(supabase);
+
+    let query = supabase
       .from('product_views')
       .select(`
         id,
@@ -130,6 +145,12 @@ export const analyticsService = {
       `)
       .order('viewed_at', { ascending: false })
       .limit(limit);
+
+    if (adminIds.length > 0) {
+      query = query.not('user_id', 'in', `(${adminIds.join(',')})`);
+    }
+
+    const { data: rawData, error } = await query;
 
     if (error || !rawData) {
       console.error('Error fetching recent product views table:', error);
@@ -337,11 +358,19 @@ export const analyticsService = {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
 
+    const adminIds = await getAdminIds(supabase);
+
     // 1. Get abandoned checkouts
-    const { data: abandoned, error } = await supabase
+    let query = supabase
       .from('abandoned_checkouts')
       .select('*')
       .order('abandoned_at', { ascending: false });
+
+    if (adminIds.length > 0) {
+      query = query.not('user_id', 'in', `(${adminIds.join(',')})`);
+    }
+
+    const { data: abandoned, error } = await query;
 
     if (error) {
       console.error('Error fetching abandoned checkouts:', error);

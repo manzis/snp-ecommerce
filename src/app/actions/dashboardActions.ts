@@ -50,7 +50,7 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
             fetchAllOrdersAdminAction(1, 10),
             getProductStatsAction(),
             analyticsService.getRecentlyViewedProducts(10),
-            analyticsService.getRecentProductViewsTable(10)
+            analyticsService.getRecentProductViewsTable(50)
         ]);
 
         if (!financeResult.success || !financeResult.data) {

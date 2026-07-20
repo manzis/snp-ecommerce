@@ -26,6 +26,7 @@ import { useAdminUI } from '@/context/AdminUIContext';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import Link from 'next/link';
 import { RecentlyViewedSection } from '@/components/admin/analytics/RecentlyViewedSection';
+import { RecentViewsModal } from '@/components/admin/analytics/RecentViewsModal';
 
 
 
@@ -34,6 +35,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
     const [isLoading, setIsLoading] = useState(!initialData);
     const [data, setData] = useState<DashboardData | null>(initialData || null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [showAllViews, setShowAllViews] = useState(false);
 
     const { showAdminToast } = useAdminToast();
     const { setPrimaryAction, setOverrideTitle } = useAdminUI();
@@ -388,6 +390,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                         {data?.recentlyViewed && data.recentlyViewed.length > 0 && (
                             <RecentlyViewedSection
                                 recentlyViewed={data.recentlyViewed}
+                                onViewAll={() => setShowAllViews(true)}
                             />
                         )}
 
@@ -405,6 +408,13 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <p className="text-xs text-[#71717a] font-normal mt-0.5">Latest customer browsing activity</p>
                                             </div>
                                         </div>
+                                        <button 
+                                            onClick={() => setShowAllViews(true)}
+                                            className="text-xs font-semibold text-[#242424] bg-gray-50 hover:bg-gray-100 border border-gray-100 px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 focus:outline-none"
+                                        >
+                                            View All
+                                            <ArrowUpRight className="w-3 h-3" />
+                                        </button>
                                     </div>
 
                                     <div className="overflow-x-auto scrollbar-hide">
@@ -417,7 +427,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50">
-                                                {data.recentViewsTable.map((view: any) => (
+                                                {data.recentViewsTable.slice(0, 10).map((view: any) => (
                                                     <tr key={view.id} className="group hover:bg-gray-50/80 transition-colors">
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center gap-3">
@@ -535,6 +545,12 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                     </>
                 )}
             </div>
+            
+            <RecentViewsModal 
+                isOpen={showAllViews} 
+                onClose={() => setShowAllViews(false)} 
+                views={data?.recentViewsTable || []} 
+            />
         </div>
     );
 }
