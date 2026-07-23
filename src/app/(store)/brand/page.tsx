@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchBrands } from '@/services/productService';
+import { fetchBrands } from '@/services/productService.server';
 import ClientBrandList from './ClientBrandList';
 
 export default async function BrandsPage() {

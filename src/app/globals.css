@@ -149,7 +149,6 @@ body {
   /* Touch scrolling momentum — smooth inertial scrolling on iOS/mobile */
   html {
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
   }
 
   /* GPU-accelerated scroll containers */

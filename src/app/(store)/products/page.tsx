@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { fetchProducts, fetchCategories, fetchBrands } from '@/services/productService';
+import { fetchProducts, fetchCategories, fetchBrands } from '@/services/productService.server';
 import ClientProductsLayout from './ClientProductsLayout';
 import type { Metadata } from 'next';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';

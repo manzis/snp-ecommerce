@@ -2,7 +2,7 @@ import React from 'react';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import CategoryCard from '@/components/categories/CategoryCard';
 
-import { fetchCategories, Category } from '@/services/productService';
+import { fetchCategories, Category } from '@/services/productService.server';
 
 import { CATEGORY_THEMES } from '@/lib/CategoryThemes';
 

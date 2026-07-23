@@ -58,6 +58,12 @@ export const fetchCategoryBySlug = cache(unstable_cache(
   { revalidate: 604800, tags: ['categories'] }
 ));
 
+export const fetchCategories = cache(unstable_cache(
+  async (includeCounts: boolean = true) => baseService.fetchCategories(includeCounts),
+  ['categories-list'],
+  { revalidate: 604800, tags: ['categories'] }
+));
+
 export const fetchBrandBySlug = cache(unstable_cache(
   async (slug: string) => baseService.fetchBrandBySlug(slug),
   ['brand-by-slug'],
