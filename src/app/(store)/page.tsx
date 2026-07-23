@@ -4,7 +4,6 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import HomeHero from '@/components/home/HomeHero';
 import HomeCategories from '@/components/home/HomeCategory';
-import SmoothScrollEnabler from '@/components/home/SmoothScrollEnabler';
 
 // Dynamic imports for below-the-fold / heavy sections
 const ProductGridSection = dynamic(() => import('@/components/home/ProductGridSection'));
@@ -79,7 +78,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-white w-full">
-      <SmoothScrollEnabler />
       {/* === ABOVE THE FOLD — Stream shell instantly, load deals in background === */}
       <Suspense fallback={<HomeHero deals={[]} />}>
         <HeroWithDeals />
