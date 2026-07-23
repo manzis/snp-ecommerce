@@ -163,10 +163,10 @@ const DashboardCustomerCard = ({
     );
 };
 
-export default function CustomersClient() {
+export default function CustomersClient({ initialData }: { initialData?: { customers: CustomerData[]; stats: CustomerStats } | null }) {
     const [isMounted, setIsMounted] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState<{ customers: CustomerData[]; stats: CustomerStats } | null>(null);
+    const [isLoading, setIsLoading] = useState(!initialData);
+    const [data, setData] = useState<{ customers: CustomerData[]; stats: CustomerStats } | null>(initialData || null);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
@@ -200,15 +200,25 @@ export default function CustomersClient() {
 
         // 1. Load seen IDs from localStorage
         const stored = localStorage.getItem('snp_admin_seen_customers');
+        let currentSeen: string[] = [];
         if (stored) {
             try {
-                setSeenIds(JSON.parse(stored));
+                currentSeen = JSON.parse(stored);
+                setSeenIds(currentSeen);
             } catch (e) {
                 console.error('Failed to parse seen customers');
             }
         }
 
-        loadData();
+        if (!initialData) {
+            loadData();
+        } else {
+             // 2. If data is already loaded via SSR, mark these current IDs as "seen" for the NEXT visit
+             const allIds = initialData.customers.map(c => c.id);
+             const updatedSeen = Array.from(new Set([...currentSeen, ...allIds]));
+             localStorage.setItem('snp_admin_seen_customers', JSON.stringify(updatedSeen));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const loadData = async () => {
