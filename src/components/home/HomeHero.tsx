@@ -99,9 +99,9 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.04) 0%, rgba(16, 185, 129, 0) 70%)' }} />
             <div className="absolute bottom-0 right-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 100% 100%, rgba(148, 255, 0, 0.03) 0%, rgba(148, 255, 0, 0) 70%)' }} />
 
-            {/* Ambient Radiant Gradient Spotlight Blobs */}
-            <div className="absolute top-[-100px] right-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(148, 255, 0, 0.04) 0%, rgba(148, 255, 0, 0) 70%)' }} />
-            <div className="absolute bottom-[-100px] left-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px]" style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%)' }} />
+            {/* Ambient Radiant Gradient Spotlight Blobs - Hardware Accelerated */}
+            <div className="absolute top-[-100px] right-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px] transform-gpu will-change-transform" style={{ background: 'radial-gradient(circle, rgba(148, 255, 0, 0.04) 0%, rgba(148, 255, 0, 0) 70%)' }} />
+            <div className="absolute bottom-[-100px] left-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px] transform-gpu will-change-transform" style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%)' }} />
 
             {/* MOBILE & TABLET LAYOUT: 1:1 exact matching herosection.html coordinates */}
             <div className="relative w-[410px] h-[764px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
@@ -109,7 +109,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 <div className="absolute top-[185px] left-[24px] flex w-[340px] h-auto p-[24px_20px] flex-col gap-[16px] justify-center items-start shrink-0 flex-nowrap z-[1]">
                     {/* Soft Dark Oval Gradient Background */}
                     <div
-                        className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px]"
+                        className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px] transform-gpu will-change-transform"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
                     <h1 className={`w-full shrink-0 ${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] relative text-left z-[2] uppercase`}>
@@ -194,7 +194,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                 <div className="relative flex flex-col gap-[28px] items-center max-w-[850px] shrink-0 lg:-mt-[40px] px-[40px] py-[30px] rounded-full text-center">
                     {/* Soft Dark Oval Gradient Background */}
                     <div
-                        className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px]"
+                        className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px] transform-gpu will-change-transform"
                         style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)' }}
                     />
                     <h1 className={`${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] uppercase text-center relative z-[1] text-white`}>

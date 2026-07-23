@@ -75,8 +75,27 @@ export async function generateMetadata(): Promise<Metadata> {
 // ISR: Cache handled by unstable_cache in services (604800s TTL + on-demand revalidateTag).
 // No route-level revalidate timer needed — eliminates unnecessary periodic ISR writes.
 
-export default async function HomePage() {
-  // Keep above-the-fold work minimal for faster first paint.
+export default function HomePage() {
+  return (
+    <div className="relative min-h-screen bg-white w-full">
+      {/* === ABOVE THE FOLD — Stream shell instantly, load deals in background === */}
+      <Suspense fallback={<HomeHero deals={[]} />}>
+        <HeroWithDeals />
+      </Suspense>
+
+      <main className="flex flex-col items-center  lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
+        <HomeCategories />
+
+        {/* Stream heavy sections after critical content is visible. */}
+        <Suspense fallback={<HomeDeferredSectionsFallback />}>
+          <HomeDeferredSections />
+        </Suspense>
+      </main>
+    </div>
+  );
+}
+
+async function HeroWithDeals() {
   const todaysDealsProducts = await fetchHomepageProducts('todays_deals');
 
   // Map Todays Deals
@@ -90,21 +109,7 @@ export default async function HomePage() {
     image: p.images?.[0] || '/images/protein.webp'
   }));
 
-  return (
-    <div className="relative min-h-screen bg-white w-full">
-      {/* === ABOVE THE FOLD — Render eagerly (covers full width & height) === */}
-      <HomeHero deals={deals.length > 0 ? deals : []} />
-
-      <main className="flex flex-col items-center  lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
-        <HomeCategories />
-
-        {/* Stream heavy sections after critical content is visible. */}
-        <Suspense fallback={<HomeDeferredSectionsFallback />}>
-          <HomeDeferredSections />
-        </Suspense>
-      </main>
-    </div>
-  );
+  return <HomeHero deals={deals.length > 0 ? deals : []} />;
 }
 
 async function HomeDeferredSections() {
