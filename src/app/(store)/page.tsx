@@ -234,7 +234,7 @@ async function HomeDeferredSections() {
 
       <section className="w-full px-[24px] py-[40px] text-center max-w-[800px] mx-auto opacity-70">
         <p className="font-rajdhani text-[14px] leading-[22px] text-[#535353]">
-          Supplyment Nepal is your most trusted destination for authentic dietary supplements, including Whey Protein, Creatine Monohydrate, and sports nutrition in Nepal. We stock world-class brands like MuscleBlaze and Naturaltein to ensure you get 100% genuine products with fast nationwide delivery.
+          Supplyment Nepal is your most trusted destination for authentic dietary supplements, including Whey Protein, Creatine Monohydrate, and sports nutrition in Nepal. We stock world-class brands like MuscleBlaze and Naturaltein to ensure you get 100% genuine products with fast nationwide delivery. Create a personal account to track your orders, save your favorite products, and experience faster checkout.
         </p>
       </section>
     </>
