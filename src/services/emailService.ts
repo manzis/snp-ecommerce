@@ -119,6 +119,7 @@ async function fetchOrderEmailData(orderId: string): Promise<OrderEmailData | nu
   return {
     orderId: order.id,
     shortId: order.id.split('-')[0].toUpperCase(),
+    status: order.status,
     customerName,
     customerEmail,
     items,
@@ -231,9 +232,15 @@ export async function sendCustomerPaymentConfirmedEmail(orderId: string): Promis
   const data = await fetchOrderEmailData(orderId);
   if (!data) return false;
 
+  const normalizedStatus = (data.status || '').toLowerCase();
+  if (['delivered', 'returned', 'cancelled', 'failed'].includes(normalizedStatus)) {
+    console.log(`[EmailService] Order ${orderId} is in '${data.status}' status. Skipping payment confirmation email.`);
+    return false;
+  }
+
   const html = customerPaymentConfirmedTemplate({ 
     ...data, 
-    statusMessage: data.statusMessage || 'Processing' 
+    statusMessage: data.statusMessage || data.status || 'Processing' 
   });
   return await sendEmail(data.customerEmail, `Payment Received for Order #${data.shortId} — ${STORE_NAME}`, html);
 }

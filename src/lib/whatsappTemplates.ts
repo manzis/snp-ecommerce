@@ -196,6 +196,26 @@ function inTransitMessage(order: OrderProps): string {
   ].join('\n');
 }
 
+function shipmentArrivedMessage(order: OrderProps): string {
+  const name = getFirstName(order);
+  const trackUrl = getTrackingUrl(order);
+
+  return [
+    `🏢 *SHIPMENT ARRIVED AT HUB* — Order *#${order.shortId}*`,
+    ``,
+    `Hi ${name}! Great news — your shipment has arrived at our delivery hub and will be dispatched for delivery soon!`,
+    ``,
+    `📋 *Items:*`,
+    formatOrderItems(order),
+    ``,
+    `🔗 *Track live:*`,
+    trackUrl,
+    ``,
+    `We'll notify you as soon as it is out for delivery!`,
+    `— *${STORE_NAME}* 📦`,
+  ].join('\n');
+}
+
 function outForDeliveryMessage(order: OrderProps): string {
   const name = getFirstName(order);
   const phone = resolveOrderPhone(order);
@@ -271,8 +291,9 @@ export function getWhatsAppMessage(order: OrderProps, status?: string): string {
     case 'SHIPPED':
       return shippedMessage(order);
     case 'IN_TRANSIT':
-    case 'SHIPMENT_ARRIVED':
       return inTransitMessage(order);
+    case 'SHIPMENT_ARRIVED':
+      return shipmentArrivedMessage(order);
     case 'OUT_FOR_DELIVERY':
       return outForDeliveryMessage(order);
     case 'DELIVERED':
@@ -297,6 +318,9 @@ export function getWhatsAppButtonLabel(status: string): string {
     case 'OUT_FOR_DELIVERY': return 'Send Delivery Alert';
     case 'DELIVERED': return 'Send Delivered Message';
     case 'CANCELLED': return 'Send Cancellation Notice';
+    case 'RETURNED': return 'Send Return Notice';
+    case 'FAILED': return 'Send Delivery Failed Alert';
+    case 'RESCHEDULED': return 'Send Rescheduled Update';
     default: return 'Send WhatsApp Update';
   }
 }

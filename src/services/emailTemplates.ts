@@ -6,6 +6,7 @@
 interface OrderEmailData {
   orderId: string;
   shortId: string;
+  status?: string;
   customerName: string;
   customerEmail: string;
   items: {
@@ -714,6 +715,18 @@ export function paymentAcknowledgeTemplate(data: OrderEmailData & { screenshotUr
 export function customerPaymentConfirmedTemplate(data: OrderEmailData): string {
   const dateStr = new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Kathmandu', month: 'short', day: 'numeric', year: 'numeric' });
   
+  const status = (data.status || 'processing').toLowerCase();
+  const displayStatus = (data.statusMessage || data.status || 'processing').replace(/_/g, ' ').toUpperCase();
+  
+  let statusDescription = `Thank you for your business! Your order is now being prioritized in our fulfillment queue. You will receive another update as soon as it's shipped.`;
+  if (status === 'shipped' || status === 'in_transit' || status === 'shipment_arrived') {
+    statusDescription = `Thank you for your business! Your order is currently on its way to you. You can track your shipment live in your account dashboard.`;
+  } else if (status === 'out_for_delivery') {
+    statusDescription = `Thank you for your business! Your order is out for delivery today. Please keep your phone reachable for our delivery partner.`;
+  } else if (status === 'delivered') {
+    statusDescription = `Thank you for your business! We have updated our records to show your payment for this delivered order has been received and confirmed.`;
+  }
+
   const content = [
     statusBanner('#3f9733', '💰', 'Payment Received!', `Hi ${data.customerName}, we've successfully received your payment for order #${data.shortId}.`),
     orderIdRow(data.shortId, dateStr),
@@ -722,13 +735,13 @@ export function customerPaymentConfirmedTemplate(data: OrderEmailData): string {
         <tr>
           <td style="padding:14px 20px;">
             <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:0.5px;">Current Fulfillment Status</p>
-            <p style="margin:0;font-size:16px;color:#14532d;font-weight:700;text-transform:uppercase;">${data.statusMessage || 'Processing'}</p>
+            <p style="margin:0;font-size:16px;color:#14532d;font-weight:700;text-transform:uppercase;">${displayStatus}</p>
           </td>
         </tr>
       </table>
     </td></tr>`,
     `<tr><td style="padding:0 24px 16px;">
-      <p style="margin:0;font-size:14px;color:#71717a;line-height:1.5;">Thank you for your business! Your order is now being prioritized in our fulfillment queue. You will receive another update as soon as it's shipped.</p>
+      <p style="margin:0;font-size:14px;color:#71717a;line-height:1.5;">${statusDescription}</p>
     </td></tr>`,
     itemsTable(data.items),
     pricingSummary(data),
