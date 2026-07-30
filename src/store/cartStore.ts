@@ -18,6 +18,7 @@ interface CartState {
   mergeCartOnLogin: (userId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   refreshLocalCartOnMount: () => Promise<void>;
+  reverifyCartPrices: () => Promise<void>;
   coupon: Coupon | null;
   applyCoupon: (coupon: Coupon) => void;
   removeCoupon: () => void;
@@ -178,6 +179,15 @@ export const useCartStore = create<CartState>()(
         const { userId } = get();
         set({ items: [], coupon: null });
         if (userId) await clearCartRemote(userId);
+      },
+
+      reverifyCartPrices: async () => {
+        const { userId, loadCart, refreshLocalCartOnMount } = get();
+        if (userId) {
+          await loadCart();
+        } else {
+          await refreshLocalCartOnMount();
+        }
       },
 
       refreshLocalCartOnMount: async () => {

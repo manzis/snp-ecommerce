@@ -85,6 +85,8 @@ export default function CheckoutPage() {
       useCheckoutStore.getState().clearSelections();
       sessionStorage.setItem('checkout_initiated', 'true');
     }
+    // Reverify live prices immediately upon entering checkout flow
+    useCartStore.getState().reverifyCartPrices();
   }, []);
 
   useEffect(() => {

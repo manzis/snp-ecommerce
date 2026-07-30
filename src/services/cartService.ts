@@ -84,8 +84,11 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
         const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : v.size?.size_label;
         const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : v.flavour?.flavour_name;
         
-        const matchSize = !selectedSize || vSizeLabel === selectedSize;
-        const matchFlavor = !selectedFlavor || vFlavorName === selectedFlavor;
+        const normalizedSize = (!selectedSize || selectedSize === 'none') ? null : selectedSize;
+        const normalizedFlavor = (!selectedFlavor || selectedFlavor === 'Unflavoured' || selectedFlavor === 'none') ? null : selectedFlavor;
+        
+        const matchSize = !normalizedSize || vSizeLabel === normalizedSize;
+        const matchFlavor = !normalizedFlavor || vFlavorName === normalizedFlavor;
         return matchSize && matchFlavor;
       });
 
@@ -303,8 +306,11 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
         const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : v.size?.size_label;
         const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : v.flavour?.flavour_name;
         
-        const matchSize = !item.selected_size || vSizeLabel === item.selected_size;
-        const matchFlavor = !item.selected_flavor || vFlavorName === item.selected_flavor;
+        const normalizedSize = (!item.selected_size || item.selected_size === 'none') ? null : item.selected_size;
+        const normalizedFlavor = (!item.selected_flavor || item.selected_flavor === 'Unflavoured' || item.selected_flavor === 'none') ? null : item.selected_flavor;
+        
+        const matchSize = !normalizedSize || vSizeLabel === normalizedSize;
+        const matchFlavor = !normalizedFlavor || vFlavorName === normalizedFlavor;
         return matchSize && matchFlavor;
       });
 
