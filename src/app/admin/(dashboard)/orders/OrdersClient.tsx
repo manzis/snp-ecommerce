@@ -275,6 +275,12 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         }}
         onRefresh={() => loadOrders(currentPage)}
         refreshLoading={isLoading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => {
+          setCurrentPage(page);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
         filterDropdown={<OrderFilters status={statusFilter} setStatus={(s) => {
           setStatusFilter(s);
           setCurrentPage(1);

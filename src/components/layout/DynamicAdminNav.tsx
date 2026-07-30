@@ -250,7 +250,7 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
 
     return (
         <header className={`sticky top-0 w-full shadow-[0_1px_2px_0_rgba(16,24,40,0.05)] transition-all duration-300 ${isMenuOpen ? 'z-[150] bg-white' : 'z-[110] backdrop-blur-md bg-white/80'}`}>
-            <div className="flex flex-col w-full px-[18px] md:py-[16px] py-[18px]">
+            <div className="flex flex-col w-full px-[18px] md:py-[12px] py-[14px]">
                 <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-[8px]">
                         <button

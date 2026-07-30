@@ -454,7 +454,12 @@ export default function CustomersClient({ initialData }: { initialData?: { custo
                 onSearch={setSearchQuery}
                 onRefresh={loadData}
                 refreshLoading={isLoading}
-                searchPlaceholder="Search customers by name, email or phone..."
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => {
+                    setCurrentPage(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 filterDropdown={
                     <CustomerFilters
                         status={statusFilter}

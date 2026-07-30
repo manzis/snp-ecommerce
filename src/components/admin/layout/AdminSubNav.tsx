@@ -17,6 +17,9 @@ interface AdminSubNavProps {
     searchOnLeft?: boolean;
     onRefresh?: () => void;
     refreshLoading?: boolean;
+    currentPage?: number;
+    totalPages?: number;
+    onPageChange?: (page: number) => void;
 }
 
 export default function AdminSubNav({
@@ -28,7 +31,10 @@ export default function AdminSubNav({
     filterDropdown,
     searchOnLeft = false,
     onRefresh,
-    refreshLoading = false
+    refreshLoading = false,
+    currentPage,
+    totalPages,
+    onPageChange
 }: AdminSubNavProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -61,8 +67,31 @@ export default function AdminSubNav({
         </button>
     );
 
+    const PaginationControls = currentPage !== undefined && totalPages !== undefined && onPageChange && totalPages > 1 && (
+        <div className="flex items-center gap-1 shrink-0">
+            {currentPage > 1 && (
+                <button
+                    onClick={() => onPageChange(currentPage - 1)}
+                    className="flex items-center justify-center w-[38px] h-[38px] bg-transparent border border-gray-200 rounded-[10px] text-[#71717a] hover:bg-gray-100 hover:border-gray-300 hover:text-[#242424] transition-all duration-200"
+                    title="Previous Page"
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+            )}
+            {currentPage < totalPages && (
+                <button
+                    onClick={() => onPageChange(currentPage + 1)}
+                    className="flex items-center justify-center w-[38px] h-[38px] bg-transparent border border-gray-200 rounded-[10px] text-[#71717a] hover:bg-gray-100 hover:border-gray-300 hover:text-[#242424] transition-all duration-200"
+                    title="Next Page"
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            )}
+        </div>
+    );
+
     return (
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 px-4 bg-white border-b border-gray-100 font-rubik tracking-tight sticky top-0 z-[100]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 py-3 px-4 bg-white border-b border-gray-100 font-rubik tracking-tight sticky top-0 z-[100]">
             {/* Left Side: View Mode Toggles or Search Bar */}
             <div className="flex items-center gap-4 flex-1 w-full">
                 {showViewMode && onViewModeChange && (
@@ -84,7 +113,8 @@ export default function AdminSubNav({
                             </button>
                         </div>
                         {/* Mobile Refresh (if grid list present) */}
-                        <div className="md:hidden">
+                        <div className="md:hidden flex items-center gap-2">
+                            {PaginationControls}
                             {RefreshButton}
                         </div>
                     </div>
@@ -105,8 +135,9 @@ export default function AdminSubNav({
                             />
                         </div>
                         {/* Mobile Refresh (inline with search when no filter dropdown exists) */}
-                        {!filterDropdown && onRefresh && (
-                            <div className="md:hidden shrink-0">
+                        {!filterDropdown && (onRefresh || PaginationControls) && (
+                            <div className="md:hidden shrink-0 flex items-center gap-2">
+                                {PaginationControls}
                                 {RefreshButton}
                             </div>
                         )}
@@ -133,7 +164,8 @@ export default function AdminSubNav({
 
                 <div className="flex items-center gap-2">
                     {/* Desktop Refresh or Mobile Refresh (if NO grid list) */}
-                    <div className={`${!showViewMode ? '' : 'hidden md:block'}`}>
+                    <div className={`${!showViewMode ? 'flex' : 'hidden md:flex'} items-center gap-2`}>
+                        {PaginationControls}
                         {RefreshButton}
                     </div>
                     {/* Custom Filter Slot */}

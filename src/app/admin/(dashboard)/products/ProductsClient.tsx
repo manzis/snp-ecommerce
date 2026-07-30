@@ -151,6 +151,12 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
         onRefresh={() => loadProducts(currentPage, searchQuery)}
         refreshLoading={isLoading}
         filterDropdown={<ProductFilters />}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => {
+          setCurrentPage(page);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[200px]">

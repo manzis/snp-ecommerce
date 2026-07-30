@@ -54,6 +54,33 @@ const AdminMobileNav: React.FC = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const { newOrderCount } = useOrderNotifications();
 
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            
+            // If the user scrolls down, hide the nav
+            if (currentScrollY > lastScrollY && currentScrollY > 60) {
+                setIsVisible(false);
+                // Also close any open menus when scrolling down
+                if (currentScrollY - lastScrollY > 20) {
+                    setIsMoreMenuOpen(false);
+                    setIsProfileMenuOpen(false);
+                }
+            } else if (currentScrollY < lastScrollY) {
+                // If the user scrolls up, show the nav
+                setIsVisible(true);
+            }
+            
+            setLastScrollY(currentScrollY);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
+
     const activeIndex = useMemo(() => {
         const index = NAV_ITEMS.findIndex(item => {
             if (item.label === 'More') return isMoreMenuOpen;
@@ -86,7 +113,7 @@ const AdminMobileNav: React.FC = () => {
     if (isPreviewMode) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[160] flex flex-col items-center pointer-events-none md:hidden transition-all duration-300">
+        <div className={`fixed bottom-0 left-0 right-0 z-[160] flex flex-col items-center pointer-events-none md:hidden transition-transform duration-300 ${isVisible || isMoreMenuOpen ? 'translate-y-0' : 'translate-y-[100%]'}`}>
             <AnimatePresence>
                 {isMoreMenuOpen && (
                     <>

@@ -94,8 +94,6 @@ export default async function HomePage() {
     image: p.images?.[0] || '/images/protein.jpg'
   }));
 
-  console.log('[DEBUG] Deals payload:', deals);
-
   return (
     <div className="relative min-h-screen bg-white w-full">
       {/* === ABOVE THE FOLD — Fully Server-Side Rendered for instant LCP === */}

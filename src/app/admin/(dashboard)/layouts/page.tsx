@@ -27,18 +27,18 @@ export default function LayoutsPage() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isBannersLoading, setIsBannersLoading] = useState(true);
-  
+
   // Modal State
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
   const [isSavingBanner, setIsSavingBanner] = useState(false);
-  
+
   const { showAdminToast } = useAdminToast();
 
   const loadAllData = async () => {
     setIsLoading(true);
     setIsBannersLoading(true);
-    
+
     // Load Homepage Sections
     const sectionResults: Record<string, Product[]> = {};
     for (const section of SECTIONS) {
@@ -106,23 +106,23 @@ export default function LayoutsPage() {
   const handleSaveBanner = async (id: string | null, data: Partial<Banner>) => {
     setIsSavingBanner(true);
     if (id) {
-       const res = await updateBannerAction(id, data);
-       if (res.success) {
-           showAdminToast('Banner updated successfully.', 'success');
-           loadAllData();
-           setIsBannerModalOpen(false);
-       } else {
-           showAdminToast(`Error updating banner: ${res.message}`, 'error');
-       }
+      const res = await updateBannerAction(id, data);
+      if (res.success) {
+        showAdminToast('Banner updated successfully.', 'success');
+        loadAllData();
+        setIsBannerModalOpen(false);
+      } else {
+        showAdminToast(`Error updating banner: ${res.message}`, 'error');
+      }
     } else {
-        const res = await createBannerAction(data);
-        if (res.success) {
-            showAdminToast('Banner created successfully.', 'success');
-            loadAllData();
-            setIsBannerModalOpen(false);
-        } else {
-            showAdminToast(`Error creating banner: ${res.message}`, 'error');
-        }
+      const res = await createBannerAction(data);
+      if (res.success) {
+        showAdminToast('Banner created successfully.', 'success');
+        loadAllData();
+        setIsBannerModalOpen(false);
+      } else {
+        showAdminToast(`Error creating banner: ${res.message}`, 'error');
+      }
     }
     setIsSavingBanner(false);
   };
@@ -149,14 +149,14 @@ export default function LayoutsPage() {
 
           {/* HERO IMAGE SECTION */}
           <HeroImageSetup />
-          
+
           <div className="h-[1px] w-full bg-gray-100" />
-          
+
           {/* WHY CHOOSE US BANNER SECTION */}
           <WhyChooseUsSetup />
 
           <div className="h-[1px] w-full bg-gray-100" />
-          
+
           {/* BANNER MANAGEMENT SECTION */}
           <section className="flex flex-col gap-[24px]">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-[16px]">
@@ -164,7 +164,7 @@ export default function LayoutsPage() {
                 <h2 className="text-[24px] font-regular text-[#242424] tracking-tight">Active Banners</h2>
                 <p className="text-[14px] text-[#71717a]">Manage promotional banners (1080x1080) that appear on product pages.</p>
               </div>
-              <button 
+              <button
                 onClick={handleCreateBanner}
                 className="flex items-center gap-2 bg-[#242424] text-white px-5 py-2.5 rounded-full text-[13.5px] font-medium hover:bg-black transition-all active:scale-95 shadow-md shadow-black/10"
               >
@@ -175,15 +175,15 @@ export default function LayoutsPage() {
 
             {isBannersLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                 {[1,2,3,4,5].map(i => <div key={i} className="aspect-square bg-gray-50 animate-pulse rounded-[24px]" />)}
+                {[1, 2, 3, 4, 5].map(i => <div key={i} className="aspect-square bg-gray-50 animate-pulse rounded-[24px]" />)}
               </div>
             ) : (
-                <BannerGrid 
-                  banners={banners} 
-                  onEdit={handleEditBanner}
-                  onDelete={handleDeleteBanner}
-                  onReorder={handleReorderBanners}
-                />
+              <BannerGrid
+                banners={banners}
+                onEdit={handleEditBanner}
+                onDelete={handleDeleteBanner}
+                onReorder={handleReorderBanners}
+              />
             )}
           </section>
 
@@ -217,7 +217,7 @@ export default function LayoutsPage() {
         </div>
       </div>
 
-      <BannerModal 
+      <BannerModal
         isOpen={isBannerModalOpen}
         onClose={() => setIsBannerModalOpen(false)}
         banner={selectedBanner}
