@@ -17,6 +17,7 @@ interface CartState {
   updateQuantity: (item: CartItemType, quantity: number) => void;
   mergeCartOnLogin: (userId: string) => Promise<void>;
   clearCart: () => Promise<void>;
+  refreshLocalCartOnMount: () => Promise<void>;
   coupon: Coupon | null;
   applyCoupon: (coupon: Coupon) => void;
   removeCoupon: () => void;
@@ -177,6 +178,21 @@ export const useCartStore = create<CartState>()(
         const { userId } = get();
         set({ items: [], coupon: null });
         if (userId) await clearCartRemote(userId);
+      },
+
+      refreshLocalCartOnMount: async () => {
+        const { items, isLoading, userId } = get();
+        if (isLoading || items.length === 0 || userId) return;
+        
+        set({ isLoading: true });
+        try {
+          // Dynamic import to avoid circular dependencies if any
+          const { refreshCartItemsPrices } = await import('@/services/cartService');
+          const refreshedItems = await refreshCartItemsPrices(items);
+          set({ items: refreshedItems });
+        } finally {
+          set({ isLoading: false });
+        }
       },
 
       applyCoupon: (coupon) => {

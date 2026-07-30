@@ -45,7 +45,17 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
         stock_status,
         images,
         brands (name),
-        product_flavours (id, flavour_name, image_url)
+        product_flavours (id, flavour_name, image_url),
+        product_variants (
+          size_id,
+          flavour_id,
+          original_price,
+          discounted_price
+        ),
+        product_sizes (
+          id,
+          size_label
+        )
       )
     `)
     .eq('user_id', userId);
@@ -60,11 +70,31 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
   (data || []).forEach((row: any) => {
     const product = row.product;
     const selectedFlavor = row.selected_flavor;
+    const selectedSize = row.selected_size;
     
     // Resolve Flavour-Specific Image
     const flavourImage = product?.product_flavours?.find(
       (f: any) => f.flavour_name === selectedFlavor
     )?.image_url;
+
+    let livePrice = product?.discounted_price;
+    let liveMrp = product?.original_price;
+
+    if (product?.product_variants?.length > 0) {
+      const matchingVariant = product.product_variants.find((v: any) => {
+        const vSizeLabel = product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label;
+        const vFlavorName = product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name;
+        
+        const matchSize = !selectedSize || vSizeLabel === selectedSize;
+        const matchFlavor = !selectedFlavor || vFlavorName === selectedFlavor;
+        return matchSize && matchFlavor;
+      });
+
+      if (matchingVariant) {
+        livePrice = matchingVariant.discounted_price || livePrice;
+        liveMrp = matchingVariant.original_price || liveMrp;
+      }
+    }
 
     const item: CartItemType = {
       id: getCartItemId(row),
@@ -72,11 +102,11 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       name: product?.name || 'Product',
       slug: product?.slug || '',
       brand: product?.brands?.name || 'Store Product',
-      price: product ? parseInt(String(product?.discounted_price || '0').replace(/\D/g, ''), 10) : (row.price || 0),
-      mrp: product ? parseInt(String(product?.original_price || '0').replace(/\D/g, ''), 10) : (row.original_price || 0),
+      price: product ? parseInt(String(livePrice || '0').replace(/\D/g, ''), 10) : (row.price || 0),
+      mrp: product ? parseInt(String(liveMrp || '0').replace(/\D/g, ''), 10) : (row.original_price || 0),
       image: flavourImage || product?.images?.[0] || '',
       quantity: row.quantity,
-      selected_size: row.selected_size,
+      selected_size: selectedSize,
       selected_flavor: selectedFlavor,
       stock_status: product?.stock_status || 'in_stock',
       bundle_id: row.bundle_id === 'standard' ? undefined : row.bundle_id,
@@ -214,5 +244,75 @@ export const mergeCart = async (localItems: CartItemType[], userId: string) => {
 export const clearCartRemote = async (userId: string) => {
   const { error } = await supabase.from('cart_items').delete().eq('user_id', userId);
   if (error) console.error('Error clearing cart:', error);
+};
+
+export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promise<CartItemType[]> => {
+  if (localItems.length === 0) return localItems;
+  
+  const productIds = localItems.map(item => item.product_id);
+  const { data, error } = await supabase
+    .from('products')
+    .select(`
+      id,
+      discounted_price,
+      original_price,
+      stock_status,
+      product_variants (
+        size_id,
+        flavour_id,
+        original_price,
+        discounted_price
+      ),
+      product_sizes (
+        id,
+        size_label
+      ),
+      product_flavours (
+        id,
+        flavour_name
+      )
+    `)
+    .in('id', productIds);
+
+  if (error || !data) return localItems;
+
+  return localItems.map(item => {
+    const product = data.find(p => p.id === item.product_id);
+    if (!product) return item; // If deleted, keep as is
+
+    let livePrice = product.discounted_price;
+    let liveMrp = product.original_price;
+
+    if (product.product_variants?.length > 0) {
+      const matchingVariant = product.product_variants.find((v: any) => {
+        const vSizeLabel = product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label;
+        const vFlavorName = product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name;
+        
+        const matchSize = !item.selected_size || vSizeLabel === item.selected_size;
+        const matchFlavor = !item.selected_flavor || vFlavorName === item.selected_flavor;
+        return matchSize && matchFlavor;
+      });
+
+      if (matchingVariant) {
+        livePrice = matchingVariant.discounted_price || livePrice;
+        liveMrp = matchingVariant.original_price || liveMrp;
+      }
+    }
+
+    const parsedPrice = livePrice !== undefined && livePrice !== null 
+      ? parseInt(String(livePrice || '0').replace(/\D/g, ''), 10) 
+      : item.price;
+      
+    const parsedMrp = liveMrp !== undefined && liveMrp !== null 
+      ? parseInt(String(liveMrp || '0').replace(/\D/g, ''), 10) 
+      : item.mrp;
+
+    return {
+      ...item,
+      price: parsedPrice,
+      mrp: parsedMrp,
+      stock_status: product.stock_status || item.stock_status
+    };
+  });
 };
 

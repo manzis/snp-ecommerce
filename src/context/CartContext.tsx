@@ -34,6 +34,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             mergeCartOnLogin(user.id);
         } else {
             setUserId(null);
+            // Re-fetch prices for guest cart from DB so they aren't stuck with old cached localstorage prices
+            useCartStore.getState().refreshLocalCartOnMount();
         }
     }, [user?.id, authLoading, mounted, setUserId, mergeCartOnLogin]);
 
