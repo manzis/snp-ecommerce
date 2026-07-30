@@ -157,7 +157,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
 
     if (type === 'interactive') {
       const selectedFlavourObj = mainProduct.product_flavours?.find(f => f.id === selectedFlavorId);
-      const activeFlavor = selectedFlavourObj?.flavour_name || 'Regular';
+      const activeFlavor = selectedFlavourObj?.flavour_name || null;
       const mainImage = selectedFlavourObj?.image_url || currentProductImage || mainProduct.images?.[0] || '';
       
       discount = interactiveDiscount;
@@ -184,7 +184,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
       });
 
       selectedProducts.forEach(p => {
-        const subItemData = { product_id: p.product.id, selected_size: p.size, selected_flavor: p.flavor || 'Unflavored', bundle_id: bundleId };
+        const subItemData = { product_id: p.product.id, selected_size: p.size, selected_flavor: p.flavor || null, bundle_id: bundleId };
         bundleItems.push({
           id: getCartItemId(subItemData),
           ...subItemData,
@@ -207,7 +207,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
       finalPrice = selections.reduce((sum, s) => sum + s.price, 0) - discount;
 
       selections.forEach((s, i) => {
-        const itemData = { product_id: mainProduct.id, selected_size: s.size, selected_flavor: s.flavor || 'Regular', bundle_id: bundleId };
+        const itemData = { product_id: mainProduct.id, selected_size: s.size, selected_flavor: s.flavor || null, bundle_id: bundleId };
         bundleItems.push({
           id: getCartItemId(itemData),
           ...itemData,
