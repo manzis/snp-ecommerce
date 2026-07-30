@@ -50,11 +50,9 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
           size_id,
           flavour_id,
           original_price,
-          discounted_price
-        ),
-        product_sizes (
-          id,
-          size_label
+          discounted_price,
+          size:product_sizes(size_label),
+          flavour:product_flavours(flavour_name)
         )
       )
     `)
@@ -82,8 +80,9 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
 
     if (product?.product_variants?.length > 0) {
       const matchingVariant = product.product_variants.find((v: any) => {
-        const vSizeLabel = product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label;
-        const vFlavorName = product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name;
+        // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
+        const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : v.size?.size_label;
+        const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : v.flavour?.flavour_name;
         
         const matchSize = !selectedSize || vSizeLabel === selectedSize;
         const matchFlavor = !selectedFlavor || vFlavorName === selectedFlavor;
@@ -94,6 +93,19 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
         livePrice = matchingVariant.discounted_price || livePrice;
         liveMrp = matchingVariant.original_price || liveMrp;
       }
+    }
+
+    const parsedPrice = product ? parseInt(String(livePrice || '0').replace(/\D/g, ''), 10) : (row.price || 0);
+    const parsedMrp = product ? parseInt(String(liveMrp || '0').replace(/\D/g, ''), 10) : (row.original_price || 0);
+
+    // Auto-sync mismatch to database to prevent stale state on subsequent requests/checkouts
+    if (product && row.id && (parsedPrice !== row.price || parsedMrp !== row.original_price)) {
+      supabase.from('cart_items')
+        .update({ price: parsedPrice, original_price: parsedMrp })
+        .eq('id', row.id)
+        .then(({ error: syncError }) => {
+          if (syncError) console.error('Error auto-syncing cart item price:', syncError);
+        });
     }
 
     const item: CartItemType = {
@@ -261,7 +273,9 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
         size_id,
         flavour_id,
         original_price,
-        discounted_price
+        discounted_price,
+        size:product_sizes(size_label),
+        flavour:product_flavours(flavour_name)
       ),
       product_sizes (
         id,
@@ -285,8 +299,9 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
 
     if (product.product_variants?.length > 0) {
       const matchingVariant = product.product_variants.find((v: any) => {
-        const vSizeLabel = product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label;
-        const vFlavorName = product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name;
+        // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
+        const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : v.size?.size_label;
+        const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : v.flavour?.flavour_name;
         
         const matchSize = !item.selected_size || vSizeLabel === item.selected_size;
         const matchFlavor = !item.selected_flavor || vFlavorName === item.selected_flavor;
