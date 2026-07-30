@@ -23,6 +23,7 @@ import {
 import type { Product } from '@/services/productService.server';
 import { getSeoPage, getSeoGlobal } from '@/lib/seo/getSeoData';
 import { generateHomeFallbackSeo } from '@/lib/seo/seoFallback';
+import { getSiteSetting } from '@/services/settingsService';
 
 export async function generateMetadata(): Promise<Metadata> {
   const [pSeo, gSeo] = await Promise.all([
@@ -75,13 +76,30 @@ export async function generateMetadata(): Promise<Metadata> {
 // ISR: Cache handled by unstable_cache in services (604800s TTL + on-demand revalidateTag).
 // No route-level revalidate timer needed — eliminates unnecessary periodic ISR writes.
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch hero settings and deals at the top level to fully SSR the above-the-fold content
+  const [heroImages, todaysDealsProducts] = await Promise.all([
+    getSiteSetting('hero_images'),
+    fetchHomepageProducts('todays_deals')
+  ]);
+
+  // Map Todays Deals
+  const deals = todaysDealsProducts.map(p => ({
+    id: p.slug,
+    brand: p.brands?.name || '',
+    title: p.title,
+    originalPrice: String(p.original_price),
+    discountedPrice: String(p.discounted_price),
+    discount: String(p.discount_percentage || '0'),
+    image: p.images?.[0] || '/images/protein.jpg'
+  }));
+
+  console.log('[DEBUG] Deals payload:', deals);
+
   return (
     <div className="relative min-h-screen bg-white w-full">
-      {/* === ABOVE THE FOLD — Stream shell instantly, load deals in background === */}
-      <Suspense fallback={<HomeHero deals={[]} />}>
-        <HeroWithDeals />
-      </Suspense>
+      {/* === ABOVE THE FOLD — Fully Server-Side Rendered for instant LCP === */}
+      <HomeHero deals={deals} heroImages={heroImages} />
 
       <main className="flex flex-col items-center  lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
         <HomeCategories />
@@ -95,22 +113,7 @@ export default function HomePage() {
   );
 }
 
-async function HeroWithDeals() {
-  const todaysDealsProducts = await fetchHomepageProducts('todays_deals');
 
-  // Map Todays Deals
-  const deals = todaysDealsProducts.map(p => ({
-    id: p.slug,
-    brand: p.brands?.name || '',
-    title: p.title,
-    originalPrice: String(p.original_price),
-    discountedPrice: String(p.discounted_price),
-    discount: String(p.discount_percentage),
-    image: p.images?.[0] || '/images/protein.webp'
-  }));
-
-  return <HomeHero deals={deals.length > 0 ? deals : []} />;
-}
 
 async function HomeDeferredSections() {
   const {

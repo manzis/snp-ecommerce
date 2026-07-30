@@ -231,11 +231,10 @@ body {
     pointer-events: none;
     z-index: 0;
     overflow: hidden;
-    transform: translateZ(0);
   }
 
   .hero-bg-image-filter {
-    transform: scale(1.03) translateZ(0);
+    transform: scale(1.03);
     object-fit: cover;
     object-position: left center;
   }
@@ -253,12 +252,9 @@ body {
     background-repeat: repeat;
     background-position: center;
     background-size: cover;
-    opacity: 0.09;
-    mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 1) 80%);
-    -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 1) 80%);
+    opacity: 0.06;
     pointer-events: none;
     z-index: 0;
-    transform: translateZ(0);
   }
 
   @media (min-width: 1024px) {
@@ -296,8 +292,8 @@ body {
     gap: 12px;
     animation: marquee-ltr 20s linear infinite;
     width: max-content;
-    transform: translateZ(0);
     will-change: transform;
+    transform: translateZ(0);
   }
 
   .animate-marquee-ltr:hover {

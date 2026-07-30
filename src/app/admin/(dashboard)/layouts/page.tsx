@@ -7,6 +7,7 @@ import { fetchHomepageProductsAction, updateHomepageProductsAction } from '@/app
 import { TableSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import BannerModal from '@/components/admin/layouts/BannerModal';
 import { BannerGrid } from '@/components/admin/layouts/BannerCard';
+import HeroImageSetup from '@/components/admin/layouts/HeroImageSetup';
 import { Banner } from '@/services/bannerService';
 import { fetchBannersAction, createBannerAction, updateBannerAction, deleteBannerAction, updateBannerOrderAction } from '@/app/actions/bannerActions';
 import PlusIcon from '@/components/icons/PlusIcon';
@@ -144,6 +145,11 @@ export default function LayoutsPage() {
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[100px]">
         <div className="w-full flex flex-col gap-[48px]">
+
+          {/* HERO IMAGE SECTION */}
+          <HeroImageSetup />
+          
+          <div className="h-[1px] w-full bg-gray-100" />
           
           {/* BANNER MANAGEMENT SECTION */}
           <section className="flex flex-col gap-[24px]">

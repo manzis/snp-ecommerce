@@ -9,13 +9,15 @@ interface DynamicPageNavProps {
   subtitle?: string; // Optional: "28 Brands", "12 Items", etc.
   onBack?: () => void;
   showBack?: boolean;
+  rightContent?: React.ReactNode;
 }
 
 const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
   title,
   subtitle,
   onBack,
-  showBack = true
+  showBack = true,
+  rightContent
 }) => {
   const router = useRouter();
   const [isClickable, setIsClickable] = useState(false);
@@ -58,6 +60,13 @@ const DynamicPageNav: React.FC<DynamicPageNavProps> = ({
             {title}
           </h1>
         </div>
+
+        {/* Right Content */}
+        {rightContent && (
+          <div className="shrink-0 mr-1 flex items-center justify-center">
+            {rightContent}
+          </div>
+        )}
 
         {/* Subtitle / Meta Info */}
         {subtitle && (

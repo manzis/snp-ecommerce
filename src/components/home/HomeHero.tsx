@@ -3,11 +3,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import heroBg from '../../../public/images/heroimage.webp';
 import { Barlow } from 'next/font/google';
+import { optimizeImage } from '@/lib/optimizeImage';
 
 const barlowFont = Barlow({ subsets: ['latin'], weight: ['800', '900'] });
 
 interface HomeHeroProps {
     deals?: any[];
+    heroImages?: {
+        desktopUrl: string;
+        mobileUrl: string;
+    } | null;
 }
 
 const fallbackDeals = [
@@ -62,7 +67,7 @@ const IconTag = ({ size }: { size: number }) => (
     </svg>
 );
 
-const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
+const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
     // If no deals or not enough, fill with fallback deals to always have beautiful products
     const displayDeals = deals.length >= 3
         ? deals.slice(0, 3)
@@ -74,15 +79,30 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
 
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
             <div className="hero-bg-layer">
-                <Image
-                    src={heroBg}
-                    alt="Hero Background Image"
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="hero-bg-image-filter"
-                    {...({ fetchPriority: 'high' } as any)}
-                />
+                {heroImages?.desktopUrl || heroImages?.mobileUrl ? (
+                    <picture>
+                        {heroImages.desktopUrl && (
+                            <source media="(min-width: 1024px)" srcSet={heroImages.desktopUrl} />
+                        )}
+                        <img 
+                            src={heroImages.mobileUrl || heroImages.desktopUrl} 
+                            alt="Hero Background Image" 
+                            className="hero-bg-image-filter object-cover w-full h-full"
+                            fetchPriority="high"
+                            decoding="sync"
+                        />
+                    </picture>
+                ) : (
+                    <Image
+                        src={heroBg}
+                        alt="Hero Background Image"
+                        fill
+                        priority
+                        sizes="100vw"
+                        className="hero-bg-image-filter"
+                        {...({ fetchPriority: 'high', decoding: 'sync' } as any)}
+                    />
+                )}
                 {/* Radial Gradient Overlay Mask */}
                 <div
                     className="absolute inset-0 z-[1]"
@@ -93,25 +113,12 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             {/* Repeating background pattern layer with responsive opacity */}
             <div className="hero-pattern-layer" />
 
-            {/* Corner Radial Gradient Glows (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
-            <div className="absolute top-0 left-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 0% 0%, rgba(148, 255, 0, 0.05) 0%, rgba(148, 255, 0, 0) 70%)' }} />
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 100% 0%, rgba(52, 211, 153, 0.04) 0%, rgba(52, 211, 153, 0) 70%)' }} />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.04) 0%, rgba(16, 185, 129, 0) 70%)' }} />
-            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] pointer-events-none z-0" style={{ background: 'radial-gradient(circle at 100% 100%, rgba(148, 255, 0, 0.03) 0%, rgba(148, 255, 0, 0) 70%)' }} />
-
-            {/* Ambient Radiant Gradient Spotlight Blobs - Hardware Accelerated */}
-            <div className="absolute top-[-100px] right-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px] transform-gpu will-change-transform" style={{ background: 'radial-gradient(circle, rgba(148, 255, 0, 0.04) 0%, rgba(148, 255, 0, 0) 70%)' }} />
-            <div className="absolute bottom-[-100px] left-[10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0 blur-[120px] transform-gpu will-change-transform" style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%)' }} />
+            {/* Optimized: Removed heavy blur gradient corner and blob layers for performance */}
 
             {/* MOBILE & TABLET LAYOUT: 1:1 exact matching herosection.html coordinates */}
             <div className="relative w-[410px] h-[764px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
                 {/* Title & CTA Block */}
                 <div className="absolute top-[185px] left-[24px] flex w-[340px] h-auto p-[24px_20px] flex-col gap-[16px] justify-center items-start shrink-0 flex-nowrap z-[1]">
-                    {/* Soft Dark Oval Gradient Background */}
-                    <div
-                        className="absolute inset-[-10px_-20px] rounded-full pointer-events-none z-0 blur-[15px] transform-gpu will-change-transform"
-                        style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 70%)' }}
-                    />
                     <h1 className={`w-full shrink-0 ${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] relative text-left z-[2] uppercase`}>
                         <span className={`${barlowFont.className} text-[32px] font-black leading-[44px] text-white tracking-[1px] relative text-left uppercase`}>
                             MEET THE{' '}
@@ -162,10 +169,10 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                 >
                                     <div style={{ minWidth: 0, minHeight: 0, alignSelf: 'stretch', flexGrow: 1, flexShrink: 0, flexBasis: 0, position: 'relative', zIndex: zIndexes[index % 3] + 1 }}>
                                         <Image
-                                            src={item.image}
+                                            src={optimizeImage(item.image, 300, 'auto:low')}
                                             alt={item.title}
                                             fill
-                                            loading="lazy"
+                                            priority
                                             sizes="99px"
                                             className="object-contain"
                                         />
@@ -192,11 +199,6 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
             <div className="hidden lg:flex flex-col w-full max-w-[1440px] h-full items-center justify-center px-[100px] relative">
                 {/* Left Column: Heading and SHOP NOW button with local soft oval dark gradient */}
                 <div className="relative flex flex-col gap-[28px] items-center max-w-[850px] shrink-0 lg:-mt-[40px] px-[40px] py-[30px] rounded-full text-center">
-                    {/* Soft Dark Oval Gradient Background */}
-                    <div
-                        className="absolute inset-[-20px_-30px] rounded-full pointer-events-none z-0 blur-[20px] transform-gpu will-change-transform"
-                        style={{ background: 'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 70%)' }}
-                    />
                     <h1 className={`${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] uppercase text-center relative z-[1] text-white`}>
                         MEET THE{' '}
                         <span
@@ -228,7 +230,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
 
                 {/* Bottom Row: Premium carousel showing Today's Deals dynamically */}
                 <div className="absolute bottom-[50px] left-1/2 -translate-x-1/2 flex flex-col items-center shrink-0 z-10">
-                    <div className="flex items-center p-[16px_24px] rounded-none backdrop-blur-[12px] w-[520px] overflow-hidden relative" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                    <div className="flex items-center p-[16px_24px] rounded-none w-[520px] overflow-hidden relative bg-white/15">
                         <div className="animate-marquee-ltr">
                             {[...displayDeals, ...displayDeals].map((item, index) => (
                                 <Link
@@ -238,10 +240,10 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [] }) => {
                                 >
                                     <div style={{ minWidth: 0, minHeight: 0, alignSelf: 'stretch', flexGrow: 1, flexShrink: 0, flexBasis: 0, position: 'relative' }}>
                                         <Image
-                                            src={item.image}
+                                            src={optimizeImage(item.image, 300, 'auto:low')}
                                             alt={item.title}
                                             fill
-                                            loading="lazy"
+                                            priority
                                             sizes="99px"
                                             className="object-contain"
                                         />

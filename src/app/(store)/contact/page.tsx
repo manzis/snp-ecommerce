@@ -70,14 +70,14 @@ export default function ContactPage() {
                                     Report
                                 </span>
                             </button>
-                            <button className="flex px-[14px] py-[4px] gap-[4px] justify-center items-center bg-[#eaffcc] hover:bg-[#d8f7a1] transition-colors duration-[200ms] rounded-[100px]">
+                            <a href="https://wa.me/9779767609390" target="_blank" rel="noopener noreferrer" className="flex px-[14px] py-[4px] gap-[4px] justify-center items-center bg-[#eaffcc] hover:bg-[#d8f7a1] transition-colors duration-[200ms] rounded-[100px]">
                                 <svg className="w-[15px] h-[15px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="#242424" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                                 </svg>
                                 <span className="text-[16px] font-[600] leading-[26px] text-[#242424] tracking-[-0.03px] whitespace-nowrap">
                                     Live Chat
                                 </span>
-                            </button>
+                            </a>
                         </div>
 
                     </div>
@@ -197,8 +197,8 @@ export default function ContactPage() {
                                         <p className="text-[12px] font-[500] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
                                             Speak to our friendly team
                                         </p>
-                                        <a href="mailto:sales@supplymentnepal.com" className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] hover:text-[#3f9633] transition-colors duration-[150ms] whitespace-nowrap mt-[4px]">
-                                            sales@supplymentnepal.com
+                                        <a href="mailto:brightnepcare@gmail.com" className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] hover:text-[#3f9633] transition-colors duration-[150ms] whitespace-nowrap mt-[4px]">
+                                            brightnepcare@gmail.com
                                         </a>
                                     </div>
                                 </div>
