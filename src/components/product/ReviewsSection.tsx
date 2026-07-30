@@ -57,7 +57,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
         >
-          <h2 className="font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
+          <h2 className="font-rajdhani text-[20px] font-bold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
             Rating and Reviews
           </h2>
           <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px]   outline-none overflow-hidden group-active:scale-95 transition-transform duration-300">
@@ -137,7 +137,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                         >
                           <div className="flex flex-col items-center justify-center gap-[8px] self-stretch text-center relative z-10">
                             <span
- className={`font-rajdhani font-bold text-[14px] leading-[18px] tracking-[0.1px] bg-clip-text text-transparent line-clamp-6 ${theme.text}`}
+                              className={`font-rajdhani font-bold text-[14px] leading-[18px] tracking-[0.1px] bg-clip-text text-transparent line-clamp-6 ${theme.text}`}
                               style={{ maskImage: !hasMedia ? 'none' : 'linear-gradient(to bottom, black 80%, rgba(0,0,0,0.5) 100%)', WebkitMaskImage: !hasMedia ? 'none' : 'linear-gradient(to bottom, black 80%, rgba(0,0,0,0.5) 100%)' }}
                             >
                               {review.text}

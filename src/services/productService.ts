@@ -790,6 +790,82 @@ export const fetchRelatedProducts = cache(async function(
 });
 
 /**
+ * Fetch products from the same brand, prioritizing the same category.
+ */
+export const fetchBrandRelatedProducts = cache(async function(
+  baseProductId: string,
+  brandId: string | null | undefined,
+  categoryId: string | null | undefined,
+  limit: number = 10
+): Promise<Product[]> {
+  if (!brandId) return [];
+  const resultProducts: Product[] = [];
+
+  // 1. Fetch from the specific category first
+  if (categoryId) {
+    const { data: catData, error: catError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories (*),
+        brands (*),
+        sellers (*),
+        product_sizes (*),
+        product_flavours (*),
+        product_info (*),
+        product_variants (*)
+      `)
+      .eq('is_published', true)
+      .eq('brand_id', brandId)
+      .eq('category_id', categoryId)
+      .neq('id', baseProductId)
+      .limit(limit);
+
+    if (!catError && catData) {
+      resultProducts.push(...(catData as any[]));
+    }
+  }
+
+  // 2. If we haven't reached the limit, fetch other products from the same brand
+  const remaining = limit - resultProducts.length;
+  if (remaining > 0) {
+    let query = supabase
+      .from('products')
+      .select(`
+        *,
+        categories (*),
+        brands (*),
+        sellers (*),
+        product_sizes (*),
+        product_flavours (*),
+        product_info (*),
+        product_variants (*)
+      `)
+      .eq('is_published', true)
+      .eq('brand_id', brandId)
+      .neq('id', baseProductId);
+
+    if (categoryId) {
+      query = query.neq('category_id', categoryId);
+    }
+    
+    query = query.order('created_at', { ascending: false }).limit(remaining);
+
+    const { data: fallbackData, error: fallbackError } = await query;
+    if (!fallbackError && fallbackData) {
+      resultProducts.push(...(fallbackData as any[]));
+    }
+  }
+
+  return resultProducts.map((p) => ({
+    ...p,
+    categories: Array.isArray(p.categories) ? p.categories[0] : (p.categories || null),
+    brands: Array.isArray(p.brands) ? p.brands[0] : (p.brands || null),
+    sellers: Array.isArray(p.sellers) ? p.sellers[0] : (p.sellers || null),
+  })) as Product[];
+});
+
+/**
  * Fetch featured testimonials for the home page
  */
 export const fetchHomeTestimonials = cache(async function(): Promise<Review[]> {

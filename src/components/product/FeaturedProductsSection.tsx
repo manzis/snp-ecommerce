@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { fetchRelatedProducts } from '@/services/productService.server';
 import FeaturedProductCard from './FeatureProductCard';
 
@@ -28,6 +29,12 @@ export default async function FeaturedProductsSection({
         <h2 className="font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424]">
           You might also like
         </h2>
+        <Link 
+          href="/products" 
+          className="font-rajdhani text-[14px] font-bold leading-[16px] text-[#5e9756] underline underline-offset-2 hover:text-[#3F9633] transition-colors"
+        >
+          View all
+        </Link>
       </div>
 
       {/* HORIZONTAL SCROLLABLE CONTAINER */}

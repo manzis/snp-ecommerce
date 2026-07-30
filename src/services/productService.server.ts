@@ -77,6 +77,13 @@ export const fetchRelatedProducts = cache(unstable_cache(
   { revalidate: 604800, tags: ['products'] }
 ));
 
+export const fetchBrandRelatedProducts = cache(unstable_cache(
+  async (baseProductId: string, brandId: string | null | undefined, categoryId: string | null | undefined, limit: number = 10) => 
+    baseService.fetchBrandRelatedProducts(baseProductId, brandId, categoryId, limit),
+  ['brand-related-products'],
+  { revalidate: 604800, tags: ['products', 'brands'] }
+));
+
 export const fetchProductReviews = cache(unstable_cache(
   async (productId: string) => baseService.fetchProductReviews(productId),
   ['product-reviews'],

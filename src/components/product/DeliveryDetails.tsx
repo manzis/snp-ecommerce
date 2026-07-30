@@ -43,7 +43,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
   return (
     <section className="flex flex-col gap-[18px] w-full max-w-[700px] lg:max-w-none ">
       {/* SECTION HEADER */}
-      <h2 className="font-rajdhani text-[20px] font-semibold tracking-[-0.4px] text-[#242424] leading-[18px]">
+      <h2 className="font-rajdhani text-[20px] font-bold tracking-[-0.4px] text-[#242424] leading-[18px]">
         Delivery Details
       </h2>
 

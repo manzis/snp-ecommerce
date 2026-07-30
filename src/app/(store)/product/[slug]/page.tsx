@@ -15,9 +15,10 @@ import ReviewsSection from '@/components/product/ReviewsSection';
 import QuestionsAndAnswers from '@/components/product/QuestionsAndAnswers';
 import WhyChooseUs from '@/components/product/WhyChooseUs';
 import FeaturedProductsSection from '@/components/product/FeaturedProductsSection';
+import MoreByBrandSection from '@/components/product/MoreByBrandSection';
 import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
-import { fetchProducts, fetchProductBySlug, fetchProductSEO, fetchRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
+import { fetchProducts, fetchProductBySlug, fetchProductSEO, fetchRelatedProducts, fetchBrandRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { preload } from 'react-dom';
@@ -122,6 +123,35 @@ async function QAWrapper({ productId }: { productId: string }) {
   return <QuestionsAndAnswers qaPairs={qaPairs} />;
 }
 
+async function MoreByBrandWrapper({ 
+  productId, 
+  brandId, 
+  categoryId, 
+  brandName, 
+  brandSlug, 
+  brandLogo 
+}: { 
+  productId: string; 
+  brandId: string; 
+  categoryId?: string | null;
+  brandName: string;
+  brandSlug: string;
+  brandLogo?: string | null;
+}) {
+  const products = await fetchBrandRelatedProducts(productId, brandId, categoryId || null, 10);
+  
+  if (!products || products.length === 0) return null;
+
+  return (
+    <MoreByBrandSection 
+      products={products} 
+      brandName={brandName} 
+      brandSlug={brandSlug} 
+      brandLogo={brandLogo} 
+    />
+  );
+}
+
 const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
   <div className="w-full px-[24px] py-4 animate-pulse">
     <div className={`w-full bg-gray-50 rounded-[12px]`} style={{ height }} />
@@ -213,8 +243,22 @@ async function ProductContent({ slug }: { slug: string }) {
             <div className="hidden lg:block">
               <ProductDetails product={product} />
             </div>
-            {/* Reviews: Desktop only in left column */}
+            {/* Brand & Reviews: Desktop only in left column */}
             <div className="hidden lg:block">
+              {product.brands?.id && (
+                <div className="mt-8">
+                  <Suspense fallback={<SectionSkeleton height="250px" />}>
+                    <MoreByBrandWrapper 
+                      productId={product.id} 
+                      brandId={product.brands.id}
+                      categoryId={product.category_id}
+                      brandName={product.brands.name}
+                      brandSlug={product.brands.slug}
+                      brandLogo={product.brands.image_url}
+                    />
+                  </Suspense>
+                </div>
+              )}
               <div className="mt-8">
                 <Suspense fallback={<SectionSkeleton height="200px" />}>
                   <ReviewsWrapper productId={product.id} />
@@ -257,6 +301,20 @@ async function ProductContent({ slug }: { slug: string }) {
                     product.banner_image4
                   ]}
                 />
+                {product.brands?.id && (
+                  <div className="mt-8">
+                    <Suspense fallback={<SectionSkeleton height="250px" />}>
+                      <MoreByBrandWrapper 
+                        productId={product.id} 
+                        brandId={product.brands.id}
+                        categoryId={product.category_id}
+                        brandName={product.brands.name}
+                        brandSlug={product.brands.slug}
+                        brandLogo={product.brands.image_url}
+                      />
+                    </Suspense>
+                  </div>
+                )}
                 <div className="mt-6">
                   <Suspense fallback={<SectionSkeleton height="200px" />}>
                     <ReviewsWrapper productId={product.id} />

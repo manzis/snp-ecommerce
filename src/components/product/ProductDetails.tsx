@@ -30,7 +30,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       isInitialMount.current = false;
       return;
     }
-    
+
     // We do this immediately (no setTimeout) and with 'auto' (instant) behavior.
     // This prevents the browser from aggressively adjusting scroll when the height 
     // dramatically changes (e.g. from a very long description to short ingredients),
@@ -123,11 +123,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   return (
     <section id="product-details-section" className="scroll-mt-[66px] main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start lg:mx-0 lg:max-w-none px-[24px]">
-      
+
       {/* STICKY HEADER */}
       <div className="sticky top-[66px] z-40 flex w-[calc(100%+48px)] lg:w-full flex-col bg-white pt-4 pb-4 -ml-[24px] px-[24px] lg:ml-0 lg:px-0 lg:pt-0 gap-[24px] shadow-[0_4px_6px_-6px_rgba(0,0,0,0.1)]">
         {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
-        <h2 className="h-[18px] font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
+        <h2 className="h-[18px] font-rajdhani text-[20px] font-bold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
           Product Details
         </h2>
 
@@ -161,7 +161,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       <div className="flex w-full flex-col gap-[16px] self-stretch mt-1">
 
         {/* CONTENT AREA: Smoothest animation transitions */}
-        <div 
+        <div
           className="relative w-full"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
@@ -171,9 +171,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {activeTab === 'description' && (
             <div className="w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
               {info?.description ? (
-                <div 
+                <div
                   className="font-rajdhani text-[16px] leading-[24px] text-[#242424] prose-sm max-w-none [&_*]:!font-rajdhani [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1"
-                  dangerouslySetInnerHTML={{ __html: info.description }} 
+                  dangerouslySetInnerHTML={{ __html: info.description }}
                 />
               ) : (
                 <p>No description available for this product.</p>
@@ -184,7 +184,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {activeTab === 'ingredients' && (
             <div className="w-full flex justify-center animate-in fade-in zoom-in-95 duration-500">
               {/* IMAGE: Using local public folder path to avoid URL errors */}
-              <div 
+              <div
                 className="relative box-content w-full h-[362px] rounded-[8px] border-[4px] border-white shadow-[0_4px_6px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer"
                 onClick={() => setIsLightboxOpen(true)}
               >
@@ -240,7 +240,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         </div>
       </div>
 
-      <MediaLightbox 
+      <MediaLightbox
         isOpen={isLightboxOpen}
         media={[{ type: 'image', url: info?.ingredients_image || "/images/ingredients.png", alt: "Ingredients" }]}
         initialIndex={0}
