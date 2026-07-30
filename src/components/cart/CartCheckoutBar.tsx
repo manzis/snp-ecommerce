@@ -6,6 +6,7 @@ import InfoIcon from '@/components/icons/PriceInfoIcon';
 import { useAuthModal } from '@/context/AuthModalContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
+import { useCartStore } from '@/store/cartStore';
 
 interface CartCheckoutBarProps {
   totalAmount: string;
@@ -39,17 +40,26 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
     }
   }, [router, pathname]);
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (user) {
       if (pathname !== '/checkout') {
         setIsNavigating(true);
       }
+      
+      // Reverify prices strictly before proceeding to checkout
+      await useCartStore.getState().reverifyCartPrices();
+      
       if (onCheckout) onCheckout();
 
       if (pathname !== '/checkout') {
         router.push('/checkout');
       }
     } else {
+      setIsNavigating(true);
+      // Reverify prices strictly before opening login modal for guests
+      await useCartStore.getState().reverifyCartPrices();
+      setIsNavigating(false);
+      
       // Open login modal with a callback that auto-navigates to checkout after login
       openLogin(() => {
         if (onCheckout) onCheckout();
