@@ -38,6 +38,9 @@ export const AdminToastProvider = ({ children }: { children: React.ReactNode }) 
 export const useAdminToast = () => {
     const context = useContext(AdminToastContext);
     if (!context) {
+        if (typeof window === 'undefined') {
+            return { showAdminToast: () => {} };
+        }
         throw new Error("useAdminToast must be used within an AdminToastProvider");
     }
     return context;
