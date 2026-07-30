@@ -25,10 +25,10 @@ export function AdminUIProvider({ children }: { children: ReactNode }) {
 export function useAdminUI() {
   const context = useContext(AdminUIContext);
   if (context === undefined) {
-    if (typeof window === 'undefined') {
-        return { primaryAction: null, setPrimaryAction: () => {}, overrideTitle: null, setOverrideTitle: () => {} };
+    if (typeof window !== 'undefined') {
+        console.warn("useAdminUI must be used within an AdminUIProvider. Returning dummy functions.");
     }
-    throw new Error('useAdminUI must be used within an AdminUIProvider');
+    return { primaryAction: null, setPrimaryAction: () => {}, overrideTitle: null, setOverrideTitle: () => {} };
   }
   return context;
 }
