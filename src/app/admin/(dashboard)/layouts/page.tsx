@@ -8,6 +8,7 @@ import { TableSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 import BannerModal from '@/components/admin/layouts/BannerModal';
 import { BannerGrid } from '@/components/admin/layouts/BannerCard';
 import HeroImageSetup from '@/components/admin/layouts/HeroImageSetup';
+import WhyChooseUsSetup from '@/components/admin/layouts/WhyChooseUsSetup';
 import { Banner } from '@/services/bannerService';
 import { fetchBannersAction, createBannerAction, updateBannerAction, deleteBannerAction, updateBannerOrderAction } from '@/app/actions/bannerActions';
 import PlusIcon from '@/components/icons/PlusIcon';
@@ -149,6 +150,11 @@ export default function LayoutsPage() {
           {/* HERO IMAGE SECTION */}
           <HeroImageSetup />
           
+          <div className="h-[1px] w-full bg-gray-100" />
+          
+          {/* WHY CHOOSE US BANNER SECTION */}
+          <WhyChooseUsSetup />
+
           <div className="h-[1px] w-full bg-gray-100" />
           
           {/* BANNER MANAGEMENT SECTION */}

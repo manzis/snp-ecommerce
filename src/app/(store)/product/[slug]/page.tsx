@@ -26,6 +26,7 @@ import type { Metadata } from 'next';
 import { getSeoProduct, getSeoGlobal, getSeoProductBySlug } from '@/lib/seo/getSeoData';
 import { generateProductFallbackSeo } from '@/lib/seo/seoFallback';
 import ProductViewTracker from '@/components/product/ProductViewTracker';
+import { getSiteSetting } from '@/services/settingsService';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -159,9 +160,10 @@ const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
 );
 
 async function ProductContent({ slug }: { slug: string }) {
-  const [product, dbOverride] = await Promise.all([
+  const [product, dbOverride, bannerSetting] = await Promise.all([
     fetchProductBySlug(slug),
     getSeoProductBySlug(slug),
+    getSiteSetting('why_choose_us_banner'),
   ]);
 
   if (!product) {
@@ -345,7 +347,7 @@ async function ProductContent({ slug }: { slug: string }) {
           <ProductBanners linkedBanners={product.product_banners} />
         </div>
         <div className="w-full mt-[32px] lg:mt-[48px]">
-          <WhyChooseUs />
+          <WhyChooseUs imageUrl={bannerSetting?.imageUrl} />
         </div>
         <div className="w-full mt-[32px] lg:mt-[48px] pb-[40px]">
           <Suspense fallback={<SectionSkeleton height="400px" />}>

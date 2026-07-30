@@ -54,3 +54,46 @@ export async function updateHeroImagesAction(formData: FormData) {
     return { success: false, message: error.message };
   }
 }
+
+export async function getWhyChooseUsBannerAction() {
+  try {
+    const data = await getSiteSetting('why_choose_us_banner');
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+}
+
+export async function updateWhyChooseUsBannerAction(formData: FormData) {
+  try {
+    const bannerImage = formData.get('bannerImage') as File | null;
+    
+    // We will keep existing URLs if new ones are not provided, so let's fetch current
+    const current = await getSiteSetting('why_choose_us_banner') || { imageUrl: '' };
+    
+    let imageUrl = current.imageUrl;
+
+    if (bannerImage && bannerImage.size > 0) {
+      const buffer = Buffer.from(await bannerImage.arrayBuffer());
+      const res = await uploadToCloudinary(buffer, bannerImage.name, 'snp-store/banners');
+      imageUrl = res.secure_url;
+    }
+
+    const value = { imageUrl };
+    console.log('[settingsActions] Updating site_settings with:', value);
+    const success = await updateSiteSetting('why_choose_us_banner', value);
+
+    if (success) {
+      // Revalidate all product pages so they fetch the new banner
+      revalidatePath('/product/[slug]', 'page'); 
+      revalidatePath('/admin/layouts');
+      return { success: true, data: value, message: 'Why Choose Us banner updated successfully.' };
+    }
+    
+    console.error('[settingsActions] updateSiteSetting returned false for why_choose_us_banner');
+    return { success: false, message: 'Failed to update database.' };
+  } catch (error: any) {
+    console.error('[settingsActions] Update why choose us banner error:', error);
+    return { success: false, message: error.message };
+  }
+}
