@@ -57,7 +57,9 @@ export async function updateSiteSetting(key: string, value: any): Promise<boolea
   }
 
   // Clear Next.js cache so changes reflect immediately
+  // @ts-expect-error - Next.js 16 canary changed revalidateTag signature
   revalidateTag('settings');
+  // @ts-expect-error
   revalidateTag(`setting-${key}`);
 
   return true;
