@@ -40,6 +40,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
     const isNewArrival = titleLower.includes('new arrival');
     const isPopular = titleLower.includes('popular');
     
+    // Enable waves for both sections
     const hasTopWave = isNewArrival || isPopular;
     const hasBottomWave = isNewArrival || isPopular;
     const waveColorClass = isNewArrival ? 'text-[#F2F9F1]' : (isPopular ? 'text-[#F1F7F9]' : '');
@@ -52,7 +53,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
         <section className={`mx-auto w-full flex flex-col items-center ${(hasTopWave || hasBottomWave) ? 'mb-4' : ''} ${hasTopWave ? 'mt-4' : ''}`}>
             {hasTopWave && (
                 <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className={`w-full h-[45px] md:h-[60px] lg:h-[80px] block ${waveColorClass} pointer-events-none`}>
-                    <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,100 L0,100 Z" />
+                    <path fill="currentColor" d="M0,50 C240,20 480,80 720,50 C960,20 1200,80 1440,50 L1440,100 L0,100 Z" />
                 </svg>
             )}
 
@@ -92,8 +93,8 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
             </div>
 
             {hasBottomWave && (
-                <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className={`w-full h-[45px] md:h-[60px] lg:h-[80px] block ${waveColorClass} pointer-events-none`}>
-                    <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,0 L0,0 Z" />
+                <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className={`w-full h-[45px] md:h-[60px] lg:h-[80px] block ${waveColorClass} pointer-events-none -scale-x-100`}>
+                    <path fill="currentColor" d="M0,40 C320,-20 500,100 850,70 C1150,40 1300,-10 1440,30 L1440,0 L0,0 Z" />
                 </svg>
             )}
         </section>
