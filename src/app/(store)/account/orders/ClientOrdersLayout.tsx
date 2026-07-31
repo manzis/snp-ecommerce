@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import OrderCard, { OrderProps } from '@/components/orders/OrderCard';
 import SearchIcon from '@/components/icons/SearchIcon';
 import FilterIcon from '@/components/icons/FilterIcon';
@@ -42,9 +41,6 @@ export default function ClientOrdersLayout({ initialOrders }: ClientOrdersLayout
     }, [filteredOrders, currentPage]);
 
     return (
-        <div className="min-h-screen bg-[#f7faf6] pt-[65px] pb-[40px]">
-            <DynamicPageNav title="My Orders" />
-
             <main className="mx-auto w-full max-w-[410px] lg:max-w-[1280px] px-0 lg:px-[24px]">
                 <div className="flex w-full items-center gap-[12px] bg-white lg:px-0 pt-[16px] pb-[8px] px-[24px] lg:py-[24px]">
                     <div className="group flex flex-1 items-center gap-[12px] border-b border-[#f1f5f9] mb-[2px] h-[48px] md:h-[56px] transition-all focus-within:border-[#308026] focus-within:bg-white">
@@ -108,6 +104,5 @@ export default function ClientOrdersLayout({ initialOrders }: ClientOrdersLayout
                     </div>
                 )}
             </main>
-        </div>
     );
 }

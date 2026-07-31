@@ -63,17 +63,34 @@ export default function OrderDetailsPage() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-[#f7faf6]">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#308026] border-t-transparent"></div>
+            <div className="min-h-screen bg-[#f7faf6] pb-[40px] pt-[65px]">
+                <DynamicPageNav title="Order Details" />
+                <main className="mx-auto w-full max-w-[410px] lg:max-w-[1024px] xl:max-w-[1280px] px-0 lg:px-[24px] pt-[16px] lg:pt-[24px]">
+                    <div className="flex flex-col gap-[16px] lg:grid lg:grid-cols-12 lg:gap-[24px] lg:items-start animate-pulse">
+                        <article className="flex flex-col gap-[16px] lg:col-span-7 xl:col-span-8">
+                            <div className="bg-white border border-[#f1f5f9] h-[300px] w-full rounded-md" />
+                            <div className="bg-white border border-[#f1f5f9] h-[200px] w-full rounded-md" />
+                        </article>
+                        <aside className="flex flex-col gap-[16px] lg:col-span-5 xl:col-span-4 lg:sticky lg:top-[100px]">
+                            <div className="bg-white border border-[#f1f5f9] h-[150px] w-full rounded-md" />
+                            <div className="bg-white border border-[#f1f5f9] h-[350px] w-full rounded-md" />
+                        </aside>
+                    </div>
+                </main>
             </div>
         );
     }
 
     if (!order) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-[#f7faf6] gap-4">
-                <h1 className="text-xl font-bold">Order Not Found</h1>
-                <p>We couldn't find the order you're looking for.</p>
+            <div className="min-h-screen bg-[#f7faf6] pb-[40px] pt-[65px]">
+                <DynamicPageNav title="Order Details" />
+                <main className="mx-auto w-full max-w-[410px] lg:max-w-[1024px] xl:max-w-[1280px] px-0 lg:px-[24px] pt-[16px] lg:pt-[24px]">
+                    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
+                        <h1 className="text-xl font-bold">Order Not Found</h1>
+                        <p>We couldn't find the order you're looking for.</p>
+                    </div>
+                </main>
             </div>
         );
     }
