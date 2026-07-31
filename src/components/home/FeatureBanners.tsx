@@ -20,7 +20,7 @@ const FeatureBanners: React.FC = () => {
     ];
 
     return (
-        <section className="relative mx-auto w-full  bg-white py-[40px_48px] lg:max-w-[1440px]  lg:py-[64px]">
+        <section className="relative mx-auto w-full bg-white py-[24px] lg:max-w-[1440px] lg:py-[40px]">
             {/* HEADER SECTION */}
             <div className="mb-[24px] flex flex-col items-center gap-[12px] px-[24px] text-center lg:mb-[48px] lg:px-0">
                 <div className="inline-flex h-[32px] items-center justify-center rounded-[100px] bg-[#d5ffb2] px-[12px] py-[4px]">

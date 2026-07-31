@@ -53,7 +53,7 @@ const ServicesMarquee: React.FC = () => {
     const fullRow2 = [...row2, ...row2, ...row2];
 
     return (
-        <section className="cv-auto relative mx-auto w-full overflow-hidden bg-white  lg:py-[60px] touch-pan-y">
+        <section className="cv-auto relative mx-auto w-full overflow-hidden bg-white py-[48px] md:py-[64px] lg:py-[80px] touch-pan-y">
 
             {/* All keyframe/style CSS moved to globals.css — no more dangerouslySetInnerHTML */}
 

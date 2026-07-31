@@ -74,7 +74,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
         : [...deals, ...fallbackDeals].slice(0, 3);
 
     return (
-        <section className="relative w-full h-[764px] lg:h-screen lg:min-h-[764px] overflow-hidden flex items-center justify-center bg-[#081908]">
+        <section className="relative w-full h-[810px] lg:h-screen lg:min-h-[810px] flex items-center justify-center bg-[#081908]">
             {/* Global style for Hero Section background & Marquee moved to globals.css */}
 
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
@@ -116,7 +116,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
             {/* Optimized: Removed heavy blur gradient corner and blob layers for performance */}
 
             {/* MOBILE & TABLET LAYOUT: 1:1 exact matching herosection.html coordinates */}
-            <div className="relative w-[410px] h-[764px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
+            <div className="relative w-[410px] h-[810px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
                 {/* Title & CTA Block */}
                 <div className="absolute top-[185px] left-[24px] flex w-[340px] h-auto p-[24px_20px] flex-col gap-[16px] justify-center items-start shrink-0 flex-nowrap z-[1]">
                     <h1 className={`w-full shrink-0 ${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] relative text-left z-[2] uppercase`}>
@@ -229,7 +229,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                 </div>
 
                 {/* Bottom Row: Premium carousel showing Today's Deals dynamically */}
-                <div className="absolute bottom-[50px] left-1/2 -translate-x-1/2 flex flex-col items-center shrink-0 z-10">
+                <div className="absolute bottom-[100px] left-1/2 -translate-x-1/2 flex flex-col items-center shrink-0 z-10">
                     <div className="flex items-center p-[16px_24px] rounded-none w-[520px] overflow-hidden relative bg-white/15">
                         <div className="animate-marquee-ltr">
                             {[...displayDeals, ...displayDeals].map((item, index) => (
@@ -262,6 +262,11 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                     </div>
                 </div>
             </div>
+
+            {/* Wavy bottom border to blend into the next section */}
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="absolute bottom-0 left-0 w-full h-[45px] md:h-[60px] lg:h-[80px] block text-white z-20 pointer-events-none translate-y-[2px]">
+                <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,100 L0,100 Z" />
+            </svg>
         </section>
     );
 };

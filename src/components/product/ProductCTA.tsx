@@ -123,7 +123,7 @@ const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, 
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none lg:hidden transition-all duration-300 ease-out"
+      className={`fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center lg:hidden transition-all duration-300 ease-out ${isVisible ? 'pointer-events-auto visible' : 'pointer-events-none invisible'}`}
       style={{
         transform: isVisible ? 'translateY(0) translateZ(0)' : 'translateY(100%) translateZ(0)',
         opacity: isVisible ? 1 : 0,

@@ -99,7 +99,7 @@ export default async function HomePage() {
       {/* === ABOVE THE FOLD — Fully Server-Side Rendered for instant LCP === */}
       <HomeHero deals={deals} heroImages={heroImages} />
 
-      <main className="flex flex-col items-center  lg:border-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
+      <main className="flex flex-col items-center lg:border-x-[1px] lg:border-b-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
         <HomeCategories />
 
         {/* Stream heavy sections after critical content is visible. */}
@@ -175,6 +175,10 @@ async function HomeDeferredSections() {
         </div>
       )}
 
+      <div className="w-full">
+        <ServicesMarquee />
+      </div>
+
       {popularProducts.length > 0 && (
         <div className="w-full">
           <ProductGridSection
@@ -220,9 +224,7 @@ async function HomeDeferredSections() {
         </div>
       )}
 
-      <div className="w-full">
-        <ServicesMarquee />
-      </div>
+
 
       <div className="w-full">
         <SubscribeSection />

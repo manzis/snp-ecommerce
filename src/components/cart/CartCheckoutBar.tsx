@@ -45,10 +45,10 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       if (pathname !== '/checkout') {
         setIsNavigating(true);
       }
-      
+
       // Reverify prices strictly before proceeding to checkout
       await useCartStore.getState().reverifyCartPrices();
-      
+
       if (onCheckout) onCheckout();
 
       if (pathname !== '/checkout') {
@@ -59,7 +59,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       // Reverify prices strictly before opening login modal for guests
       await useCartStore.getState().reverifyCartPrices();
       setIsNavigating(false);
-      
+
       // Open login modal with a callback that auto-navigates to checkout after login
       openLogin(() => {
         if (onCheckout) onCheckout();

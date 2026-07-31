@@ -46,91 +46,103 @@ const TestimonialSection: React.FC<TestimonialSectionProps> = ({ testimonials = 
     };
 
     return (
-        <section className="cv-auto relative mx-auto flex w-full  flex-col items-center gap-[32px] bg-[#eaffe8] pb-[40px] pt-[180px]  lg:pt-[280px] ">
-            {/* Athlete images — CSS animations instead of framer-motion (compositor thread, zero JS cost) */}
-            <div className="absolute top-[31.96px] left-[-24px] lg:max-w-[1440px]  flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[50px]">
-                {/* LEFT SCATTER PARTICLES */}
-                <div className="animate-float-particle-left absolute left-[-20px] top-[40px] z-30 h-[24px] w-[24px] blur-[2px] lg:left-[-40px]">
-                    <Image src="/images/athelete.webp" alt="Professional athlete testimonial" fill sizes="24px" loading="lazy" className="rounded-full object-cover" />
+        <section className="cv-auto relative mx-auto flex w-full flex-col items-center mt-4 mb-4">
+            {/* Top Wave */}
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-[45px] md:h-[60px] lg:h-[80px] block text-[#eaffe8]">
+                <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,100 L0,100 Z" />
+            </svg>
+
+            <div className="w-full bg-[#eaffe8] relative flex flex-col items-center gap-[32px] pb-[40px] pt-[180px] lg:pt-[280px]">
+                {/* Athlete images */}
+                <div className="absolute top-[40px] left-[-24px] lg:max-w-[1440px] flex h-[126.96px] w-[460px] items-center justify-center lg:left-1/2 lg:-translate-x-1/2 lg:w-[800px] lg:h-[200px] lg:top-[60px]">
+                    {/* LEFT SCATTER PARTICLES */}
+                    <div className="animate-float-particle-left absolute left-[-20px] top-[40px] z-30 h-[24px] w-[24px] blur-[2px] lg:left-[-40px]">
+                        <Image src="/images/athelete.webp" alt="Professional athlete testimonial" fill sizes="24px" loading="lazy" className="rounded-full object-cover" />
+                    </div>
+
+                    {/* Image 1 */}
+                    <div className="animate-float-img-1 absolute left-0 top-[32.10px] h-[94.85px] w-[82.05px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[140px] lg:top-[45px] lg:left-0">
+                        <Image src="/images/athelete.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
+                        <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_right,black_0%,transparent_30%)]" />
+                    </div>
+                    {/* Image 2 */}
+                    <div className="animate-float-img-2 absolute left-[98px] top-0 h-[95.07px] w-[82.31px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[140px] lg:top-0 lg:left-[170px]">
+                        <Image src="/images/athelete-2.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
+                    </div>
+                    {/* Image 3 */}
+                    <div className="animate-float-img-3 absolute left-[196px] top-[26.03px] h-[89px] w-[82px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[130px] lg:top-[35px] lg:left-[340px]">
+                        <Image src="/images/athelete4.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
+                    </div>
+                    {/* Image 4 */}
+                    <div className="animate-float-img-4 absolute left-[288px] top-[4.40px] h-[98.26px] w-[86.27px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[125px] lg:h-[145px] lg:top-[6px] lg:left-[510px]">
+                        <Image src="/images/athelete-3.webp" alt="Athlete" fill sizes="(max-width: 1024px) 86px, 125px" loading="lazy" className="object-cover" />
+                    </div>
+                    {/* Image 5 */}
+                    <div className="animate-float-img-5 absolute left-[390px] top-[25.25px] h-[90.56px] w-[76.86px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[115px] lg:h-[135px] lg:top-[35px] lg:left-[680px]">
+                        <Image src="/images/athelete4.webp" alt="Athlete" fill sizes="(max-width: 1024px) 76px, 115px" loading="lazy" className="object-cover" />
+                        <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_left,black_0%,transparent_30%)]" />
+                    </div>
+
+                    {/* RIGHT SCATTER PARTICLES */}
+                    <div className="animate-float-particle-right absolute right-[-10px] top-[20px] z-30 h-[20px] w-[20px] blur-[3px] lg:right-[-30px]">
+                        <Image src="/images/athelete-2.webp" alt="Fitness enthusiast testimonial" fill sizes="20px" loading="lazy" className="rounded-full object-cover" />
+                    </div>
                 </div>
 
-                {/* Image 1 */}
-                <div className="animate-float-img-1 absolute left-0 top-[32.10px] h-[94.85px] w-[82.05px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[140px] lg:top-[45px] lg:left-0">
-                    <Image src="/images/athelete.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
-                    <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_right,black_0%,transparent_30%)]" />
-                </div>
-                {/* Image 2 */}
-                <div className="animate-float-img-2 absolute left-[98px] top-0 h-[95.07px] w-[82.31px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[140px] lg:top-0 lg:left-[170px]">
-                    <Image src="/images/athelete-2.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
-                </div>
-                {/* Image 3 */}
-                <div className="animate-float-img-3 absolute left-[196px] top-[26.03px] h-[89px] w-[82px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[120px] lg:h-[130px] lg:top-[35px] lg:left-[340px]">
-                    <Image src="/images/athelete4.webp" alt="Athlete" fill sizes="(max-width: 1024px) 82px, 120px" loading="lazy" className="object-cover" />
-                </div>
-                {/* Image 4 */}
-                <div className="animate-float-img-4 absolute left-[288px] top-[4.40px] h-[98.26px] w-[86.27px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[125px] lg:h-[145px] lg:top-[6px] lg:left-[510px]">
-                    <Image src="/images/athelete-3.webp" alt="Athlete" fill sizes="(max-width: 1024px) 86px, 125px" loading="lazy" className="object-cover" />
-                </div>
-                {/* Image 5 */}
-                <div className="animate-float-img-5 absolute left-[390px] top-[25.25px] h-[90.56px] w-[76.86px] overflow-hidden rounded-[6px] border border-[#f1f5f9] shadow-sm bg-white lg:w-[115px] lg:h-[135px] lg:top-[35px] lg:left-[680px]">
-                    <Image src="/images/athelete4.webp" alt="Athlete" fill sizes="(max-width: 1024px) 76px, 115px" loading="lazy" className="object-cover" />
-                    <div className="absolute inset-0 z-20 backdrop-blur-[4px] [mask-image:linear-gradient(to_left,black_0%,transparent_30%)]" />
+                {/* HEADER */}
+                <div className="max-w-[1440px] mx-auto flex w-full flex-col items-center gap-[12px] px-[24px] lg:pb-[20px] text-center">
+                    <div className="inline-flex items-center justify-center rounded-[100px] bg-[#d5ffb2] px-[12px] py-[4px]">
+                        <span className="font-rajdhani text-[16px] font-[500] leading-[24px] text-[#242424]">Testimonials</span>
+                    </div>
+                    <h2 className="w-full font-rajdhani text-[32px] font-bold leading-[36px] text-[#242424] lg:text-[48px] lg:leading-[54px]">
+                        Trusted by Athletes<br />
+                        <span className="text-[#5ca452]">from various industries</span>
+                    </h2>
+                    <p className="max-w-[362px] font-rajdhani text-[16px] font-[500] leading-[22px] text-[#515151] lg:max-w-[600px] lg:text-[18px]">
+                        Learn why professional trainers and fitness athletes choose us over others
+                    </p>
                 </div>
 
-                {/* RIGHT SCATTER PARTICLES */}
-                <div className="animate-float-particle-right absolute right-[-10px] top-[20px] z-30 h-[20px] w-[20px] blur-[3px] lg:right-[-30px]">
-                    <Image src="/images/athelete-2.webp" alt="Fitness enthusiast testimonial" fill sizes="20px" loading="lazy" className="rounded-full object-cover" />
+                {/* SLIDER & CONTROLS */}
+                <div className="max-w-[1440px] mx-auto relative w-full overflow-hidden">
+                    <div ref={scrollRef} className="no-scrollbar flex w-full gap-[12px] overflow-x-auto px-[24px] pb-[10px] lg:gap-[24px] lg:px-[64px]">
+                        {testimonials.length > 0 ? (
+                            testimonials.map((item) => (
+                                <TestimonialCard
+                                    key={item.id}
+                                    review={item}
+                                    onMediaClick={() => {
+                                        if (item.image) {
+                                            const isVideo = item.image.toLowerCase().endsWith('.mp4') || item.image.toLowerCase().endsWith('.webm');
+                                            openLightbox(item.image, isVideo ? 'video' : 'image', item.author);
+                                        }
+                                    }}
+                                />
+                            ))
+                        ) : (
+                            <div className="flex h-[200px] w-full items-center justify-center text-center text-[#535353] italic">
+                                No featured testimonials found.
+                            </div>
+                        )}
+                    </div>
                 </div>
+
+                <div className="flex w-full items-center justify-end gap-[16px] px-[24px] lg:px-[64px]">
+                    <button onClick={() => scroll('left')} className="flex h-[36px] w-[36px] rotate-225 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px] " /></button>
+                    <button onClick={() => scroll('right')} className="flex h-[36px] w-[36px] rotate-45 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px]" /></button>
+                </div>
+
+                <MediaLightbox
+                    isOpen={lightboxOpen}
+                    media={selectedMedia}
+                    onClose={() => setLightboxOpen(false)}
+                />
             </div>
 
-            {/* HEADER */}
-            <div className="max-w-[1440px] mx-auto flex w-full flex-col items-center gap-[12px] px-[24px] lg:pb-[20px] text-center">
-                <div className="inline-flex items-center justify-center rounded-[100px] bg-[#d5ffb2] px-[12px] py-[4px]">
-                    <span className="font-rajdhani text-[16px] font-[500] leading-[24px] text-[#242424]">Testimonials</span>
-                </div>
-                <h2 className="w-full font-rajdhani text-[32px] font-bold leading-[36px] text-[#242424] lg:text-[48px] lg:leading-[54px]">
-                    Trusted by Athletes<br />
-                    <span className="text-[#5ca452]">from various industries</span>
-                </h2>
-                <p className="max-w-[362px] font-rajdhani text-[16px] font-[500] leading-[22px] text-[#515151] lg:max-w-[600px] lg:text-[18px]">
-                    Learn why professional trainers and fitness athletes choose us over others
-                </p>
-            </div>
-
-            {/* SLIDER & CONTROLS */}
-            <div className="max-w-[1440px] mx-auto relative w-full overflow-hidden">
-                <div ref={scrollRef} className="no-scrollbar flex w-full gap-[12px] overflow-x-auto px-[24px] pb-[10px] lg:gap-[24px] lg:px-[64px]">
-                    {testimonials.length > 0 ? (
-                        testimonials.map((item) => (
-                            <TestimonialCard
-                                key={item.id}
-                                review={item}
-                                onMediaClick={() => {
-                                    if (item.image) {
-                                        const isVideo = item.image.toLowerCase().endsWith('.mp4') || item.image.toLowerCase().endsWith('.webm');
-                                        openLightbox(item.image, isVideo ? 'video' : 'image', item.author);
-                                    }
-                                }}
-                            />
-                        ))
-                    ) : (
-                        <div className="flex h-[200px] w-full items-center justify-center text-center text-[#535353] italic">
-                            No featured testimonials found.
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex w-full items-center justify-end gap-[16px] px-[24px] lg:px-[64px]">
-                <button onClick={() => scroll('left')} className="flex h-[36px] w-[36px] rotate-225 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px] " /></button>
-                <button onClick={() => scroll('right')} className="flex h-[36px] w-[36px] rotate-45 items-center justify-center rounded-full border border-[#308026] bg-white text-[#308026] transition-all hover:bg-[#308026] hover:text-white active:scale-90"><ArrowRightIcon className="h-[16px] w-[16px]" /></button>
-            </div>
-
-            <MediaLightbox
-                isOpen={lightboxOpen}
-                media={selectedMedia}
-                onClose={() => setLightboxOpen(false)}
-            />
+            {/* Bottom Wave */}
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-[45px] md:h-[60px] lg:h-[80px] block text-[#eaffe8]">
+                <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,0 L0,0 Z" />
+            </svg>
         </section>
     );
 };

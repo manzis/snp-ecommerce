@@ -3,13 +3,12 @@ import { fetchBrandBySlug, fetchProducts } from '@/services/productService.serve
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
-import ProductCard from '@/components/search/SearchProductCard';
 import { BRAND_THEMES } from '@/lib/BrandThemes';
-import BackButton from '@/components/ui/BackButton';
 import type { Metadata } from 'next';
 import { getSeoGlobal } from '@/lib/seo/getSeoData';
 import { generateBrandFallbackSeo } from '@/lib/seo/seoFallback';
 import BrandJsonLd from '@/components/seo/BrandJsonLd';
+import BrandProductSection from './BrandProductSection';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -202,34 +201,7 @@ async function BrandDataWrapper({ slug }: { slug: string }) {
           ))}
         </section>
 
-        <div className="flex items-center gap-[10px]  border-[#f1f5f9] px-[24px] py-[24px] bg-white">
-          <span className="flex-1 font-rajdhani text-[16px] lg:text-[20px] font-semibold text-[#242424] tracking-[-0.64px] leading-[26px]">
-            Explore Brand & Products
-          </span>
-        </div>
-
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full border-t border-l border-[#f1f5f9] bg-white overflow-hidden">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </section>
-
-        {products.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-[100px] px-[24px] text-center bg-white ">
-            <div className="w-[64px] h-[64px] bg-[#f9fafb] rounded-full flex items-center justify-center mb-4">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-              </svg>
-            </div>
-            <p className="font-rajdhani text-[18px] font-semibold text-[#242424] mb-2">No Products Available</p>
-            <p className="font-rajdhani text-[14px] text-[#71717a] mb-8">Go back and check other brands or categories.</p>
-            <BackButton
-              className="px-8 py-3 bg-[#242424] text-white rounded-full text-[14px] font-medium hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
-            >
-              Go Back
-            </BackButton>
-          </div>
-        )}
+        <BrandProductSection products={products} />
       </main>
     </div>
   );

@@ -26,7 +26,7 @@ export default async function FeaturedProductsSection({
       
       {/* HEADER ROW */}
       <div className="flex w-full items-center justify-between px-[24px]">
-        <h2 className="font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424]">
+        <h2 className="font-rajdhani text-[22px] lg:text-[28px] font-bold tracking-[-0.4px] text-[#242424]">
           You might also like
         </h2>
         <Link 

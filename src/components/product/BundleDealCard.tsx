@@ -234,13 +234,11 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
   const buy3PriceMin = ((storePrice || basePrice) * 3) - 100;
 
   return (
-    <div
-      className="w-full max-w-[700px] flex flex-col rounded-[16px] overflow-hidden  font-rajdhani"
-      style={{ background: 'linear-gradient(87.93deg, #318126 10.71%, #33D81D 124.28%)' }}
-    >
+    <div className="w-full max-w-[700px] flex flex-col rounded-[16px] overflow-hidden font-rajdhani bg-[#FAFAFA]">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full h-[52px] px-5 flex items-center justify-between text-white transition-all active:opacity-90 relative"
+        style={{ background: 'linear-gradient(87.93deg, #318126 10.71%, #33D81D 124.28%)' }}
       >
         <div className="flex items-center gap-3">
           <div className="relative w-[24px] h-[24px] flex items-center justify-center">
@@ -256,7 +254,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
       <>
         {isExpanded && (
           <div className="overflow-hidden animate-page-enter">
-            <div className="p-[8px] flex flex-col gap-2 bg-[#FAFAFA] rounded-t-[12px]">
+            <div className="p-[8px] flex flex-col gap-2">
 
               <div className="flex items-baseline gap-2 px-3 pt-2">
                 <h2 className="font-rajdhani text-[24px] font-bold bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent leading-none">

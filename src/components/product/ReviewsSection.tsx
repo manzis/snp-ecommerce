@@ -57,7 +57,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
           onClick={() => setIsExpanded(!isExpanded)}
           className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
         >
-          <h2 className="font-rajdhani text-[20px] font-bold leading-[18px] tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
+          <h2 className="font-rajdhani text-[22px] lg:text-[28px] font-bold tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
             Rating and Reviews
           </h2>
           <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px]   outline-none overflow-hidden group-active:scale-95 transition-transform duration-300">
