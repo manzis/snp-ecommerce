@@ -21,24 +21,44 @@ export default function OrderDetailsPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let isMounted = true;
+
         async function getOrder() {
             if (!orderId) return;
             try {
-                // Sync external tracking (Expo Express) in the background before fetching
-                await syncExternalOrderTrackingAction(orderId);
-
+                // 1. Fetch from DB first for instant UI rendering
                 const data = await fetchOrderDetails(orderId);
-                if (data) {
+                if (data && isMounted) {
                     setOrderData(data);
                     setOrder(mapToOrderProps(data));
                 }
             } catch (err) {
                 console.error('Failed to fetch order:', err);
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
+            }
+
+            // 2. Sync external tracking (Expo Express) in the background WITHOUT blocking the UI paint
+            try {
+                const syncResult = await syncExternalOrderTrackingAction(orderId);
+                if (syncResult?.success && isMounted) {
+                    // Silently refetch to grab any new tracking logs added by the background sync
+                    const updatedData = await fetchOrderDetails(orderId);
+                    if (updatedData && isMounted) {
+                        setOrderData(updatedData);
+                        setOrder(mapToOrderProps(updatedData));
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to sync external tracking:', err);
             }
         }
+        
         getOrder();
+        
+        return () => {
+            isMounted = false;
+        };
     }, [orderId]);
 
     const handleCancelSuccess = (reason: string) => {
