@@ -95,29 +95,25 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                     }
 
                     if (heroImages.desktopUrl && heroImages.mobileUrl) {
-                        const { props: desktopProps } = getImageProps({
-                            src: heroImages.desktopUrl,
-                            alt: 'Hero Background Desktop',
-                            fill: true,
-                            priority: true,
-                            sizes: '100vw',
-                            className: 'hero-bg-image-filter object-cover'
-                        });
-
-                        const { props: mobileProps } = getImageProps({
-                            src: heroImages.mobileUrl,
-                            alt: 'Hero Background Mobile',
-                            fill: true,
-                            priority: true,
-                            sizes: '100vw',
-                            className: 'hero-bg-image-filter object-cover'
-                        });
-
                         return (
-                            <picture>
-                                <source media="(min-width: 1024px)" srcSet={desktopProps.srcSet} sizes={desktopProps.sizes} />
-                                <img {...mobileProps} />
-                            </picture>
+                            <>
+                                <Image
+                                    src={heroImages.desktopUrl}
+                                    alt="Hero Background Desktop"
+                                    fill
+                                    priority
+                                    sizes="100vw"
+                                    className="hero-bg-image-filter object-cover hidden lg:block"
+                                />
+                                <Image
+                                    src={heroImages.mobileUrl}
+                                    alt="Hero Background Mobile"
+                                    fill
+                                    priority
+                                    sizes="100vw"
+                                    className="hero-bg-image-filter object-cover block lg:hidden"
+                                />
+                            </>
                         );
                     }
 
