@@ -41,13 +41,11 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
     const isPopular = titleLower.includes('popular');
     
     // Enable waves for both sections
-    const hasTopWave = isNewArrival || isPopular;
+    const hasTopWave = false;
     const hasBottomWave = isNewArrival || isPopular;
     const waveColorClass = isNewArrival ? 'text-[#F2F9F1]' : (isPopular ? 'text-[#F1F7F9]' : '');
     
-    const paddingClass = isPopular 
-        ? 'pt-[56px] pb-[32px] md:pt-[80px] md:pb-[64px] lg:pt-[96px] lg:pb-[48px] lg:px-[48px]' 
-        : 'py-[32px] lg:px-[48px] lg:py-[48px] md:py-[64px]';
+    const paddingClass = 'pt-[48px] pb-[32px] lg:px-[48px] lg:pt-[64px] lg:pb-[48px] md:pt-[80px] md:pb-[64px]';
 
     return (
         <section className={`mx-auto w-full flex flex-col items-center ${(hasTopWave || hasBottomWave) ? 'mb-4' : ''} ${hasTopWave ? 'mt-4' : ''}`}>
@@ -84,7 +82,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
                     <div className="flex justify-center mt-[16px] md:mt-[24px]">
                         <button
                             onClick={() => setShowAll(true)}
-                            className="font-rajdhani text-[14px] font-semibold text-[#308026] bg-[#f2f9f1] hover:bg-[#e5f3e3] px-[24px] py-[10px] rounded-full transition-all active:scale-95"
+                            className="font-rajdhani text-[13px] font-semibold text-[#308026] bg-transparent border border-[#308026] hover:bg-[#308026] hover:text-white active:bg-[#308026] active:text-white px-[20px] py-[8px] rounded-full transition-all active:scale-95"
                         >
                             Show all {products.length} products
                         </button>

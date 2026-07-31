@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import Image, { getImageProps } from 'next/image';
 import Link from 'next/link';
 import heroBg from '../../../public/images/heroimage.webp';
 import { Barlow } from 'next/font/google';
@@ -79,30 +79,60 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
 
             {/* Absolute Background Image Layer using optimized Next.js Image with high-priority preloading */}
             <div className="hero-bg-layer">
-                {heroImages?.desktopUrl || heroImages?.mobileUrl ? (
-                    <picture>
-                        {heroImages.desktopUrl && (
-                            <source media="(min-width: 1024px)" srcSet={heroImages.desktopUrl} />
-                        )}
-                        <img 
-                            src={heroImages.mobileUrl || heroImages.desktopUrl} 
-                            alt="Hero Background Image" 
-                            className="hero-bg-image-filter object-cover w-full h-full"
-                            fetchPriority="high"
-                            decoding="sync"
+                {(() => {
+                    if (!heroImages?.desktopUrl && !heroImages?.mobileUrl) {
+                        return (
+                            <Image
+                                src={heroBg}
+                                alt="Hero Background Image"
+                                fill
+                                priority
+                                sizes="100vw"
+                                className="hero-bg-image-filter"
+                                {...({ fetchPriority: 'high', decoding: 'sync' } as any)}
+                            />
+                        );
+                    }
+
+                    if (heroImages.desktopUrl && heroImages.mobileUrl) {
+                        const { props: desktopProps } = getImageProps({
+                            src: heroImages.desktopUrl,
+                            alt: 'Hero Background Desktop',
+                            fill: true,
+                            priority: true,
+                            sizes: '100vw',
+                            className: 'hero-bg-image-filter object-cover'
+                        });
+
+                        const { props: mobileProps } = getImageProps({
+                            src: heroImages.mobileUrl,
+                            alt: 'Hero Background Mobile',
+                            fill: true,
+                            priority: true,
+                            sizes: '100vw',
+                            className: 'hero-bg-image-filter object-cover'
+                        });
+
+                        return (
+                            <picture>
+                                <source media="(min-width: 1024px)" srcSet={desktopProps.srcSet} />
+                                <img {...mobileProps} />
+                            </picture>
+                        );
+                    }
+
+                    const singleUrl = heroImages.desktopUrl || heroImages.mobileUrl;
+                    return (
+                        <Image
+                            src={singleUrl!}
+                            alt="Hero Background"
+                            fill
+                            priority
+                            sizes="100vw"
+                            className="hero-bg-image-filter object-cover"
                         />
-                    </picture>
-                ) : (
-                    <Image
-                        src={heroBg}
-                        alt="Hero Background Image"
-                        fill
-                        priority
-                        sizes="100vw"
-                        className="hero-bg-image-filter"
-                        {...({ fetchPriority: 'high', decoding: 'sync' } as any)}
-                    />
-                )}
+                    );
+                })()}
                 {/* Radial Gradient Overlay Mask */}
                 <div
                     className="absolute inset-0 z-[1]"
@@ -156,7 +186,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                     className="absolute top-[570px] left-[50%] flex w-[478px] h-[160px] p-[16px] items-center shrink-0 flex-nowrap z-[5] overflow-hidden"
                     style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', transform: 'translateX(-46.86%)' }}
                 >
-                    <div className="animate-marquee-ltr">
+                    <div className="animate-marquee-ltr will-change-transform transform-gpu">
                         {[...displayDeals, ...displayDeals].map((item, index) => {
                             const zIndexes = [6, 10, 14];
                             const badgeZIndexes = [8, 12, 16];
@@ -172,7 +202,6 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                                             src={optimizeImage(item.image, 300, 'auto:low')}
                                             alt={item.title}
                                             fill
-                                            priority
                                             sizes="99px"
                                             className="object-contain"
                                         />
@@ -231,7 +260,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                 {/* Bottom Row: Premium carousel showing Today's Deals dynamically */}
                 <div className="absolute bottom-[100px] left-1/2 -translate-x-1/2 flex flex-col items-center shrink-0 z-10">
                     <div className="flex items-center p-[16px_24px] rounded-none w-[520px] overflow-hidden relative bg-white/15">
-                        <div className="animate-marquee-ltr">
+                        <div className="animate-marquee-ltr will-change-transform transform-gpu">
                             {[...displayDeals, ...displayDeals].map((item, index) => (
                                 <Link
                                     key={`${item.id}-${index}`}
@@ -243,7 +272,6 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                                             src={optimizeImage(item.image, 300, 'auto:low')}
                                             alt={item.title}
                                             fill
-                                            priority
                                             sizes="99px"
                                             className="object-contain"
                                         />

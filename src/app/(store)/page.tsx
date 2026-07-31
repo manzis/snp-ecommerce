@@ -175,10 +175,6 @@ async function HomeDeferredSections() {
         </div>
       )}
 
-      <div className="w-full">
-        <ServicesMarquee />
-      </div>
-
       {popularProducts.length > 0 && (
         <div className="w-full">
           <ProductGridSection
@@ -213,6 +209,10 @@ async function HomeDeferredSections() {
             };
           })
         } />
+      </div>
+
+      <div className="w-full">
+        <ServicesMarquee />
       </div>
 
       {bestSellingProducts.length > 0 && (
@@ -283,11 +283,13 @@ function HomeDeferredSectionsFallback() {
         <div className="h-[300px] w-full max-w-4xl mx-auto rounded-[20px] bg-gray-200" />
       </section>
 
+      {/* Services skeleton */}
+      <div className="w-full h-[150px] bg-gray-100 animate-pulse mt-8" />
+
       {/* Best Sellers skeleton */}
       <ProductGridSectionSkeleton bgColor="bg-white" />
 
-      {/* Services, Subscribe skeleton */}
-      <div className="w-full h-[150px] bg-gray-100 animate-pulse mt-8" />
+      {/* Subscribe skeleton */}
       <div className="w-full h-[300px] bg-gray-50 animate-pulse mt-8" />
 
       {/* Product Banners #2 skeleton */}

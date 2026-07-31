@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
@@ -9,24 +11,30 @@ export interface SiteSettings {
 }
 
 /**
- * Fetch a specific setting by key
+ * Fetch a specific setting by key (Cached)
  */
-export async function getSiteSetting(key: string) {
-  const { data, error } = await supabase
-    .from('site_settings')
-    .select('value')
-    .eq('key', key)
-    .single();
+export const getSiteSetting = cache(async (key: string) => {
+  return unstable_cache(
+    async (settingKey: string) => {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('value')
+        .eq('key', settingKey)
+        .single();
 
-  if (error) {
-    if (error.code !== 'PGRST116') { // not found error
-      console.error(`[settingsService] Error fetching setting ${key}:`, error);
-    }
-    return null;
-  }
+      if (error) {
+        if (error.code !== 'PGRST116') { // not found error
+          console.error(`[settingsService] Error fetching setting ${settingKey}:`, error);
+        }
+        return null;
+      }
 
-  return data?.value || null;
-}
+      return data?.value || null;
+    },
+    ['site-setting', key],
+    { revalidate: 604800, tags: ['settings', `setting-${key}`] }
+  )(key);
+});
 
 /**
  * Upsert a setting by key
