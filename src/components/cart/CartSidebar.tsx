@@ -21,7 +21,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 
 export default function CartSidebar() {
   const router = useRouter();
-  const { items, loadCart, getCouponDiscount, isCartOpen, setCartOpen } = useCartStore();
+  const { items, reverifyCartPrices, getCouponDiscount, isCartOpen, setCartOpen } = useCartStore();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { openLogin } = useAuthModal();
   const { showToast } = useToast();
@@ -40,14 +40,14 @@ export default function CartSidebar() {
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = 'hidden';
-      loadCart();
+      reverifyCartPrices();
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isCartOpen, loadCart]);
+  }, [isCartOpen, reverifyCartPrices]);
 
   useEffect(() => {
     if (user && isCartOpen) {

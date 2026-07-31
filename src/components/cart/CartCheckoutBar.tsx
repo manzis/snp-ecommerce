@@ -37,6 +37,10 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   useEffect(() => {
     if (pathname !== '/checkout') {
       router.prefetch('/checkout');
+      // Pre-warm the serverless function and database connection silently.
+      // This eliminates the 1-3 second delay on the first "Checkout" click 
+      // by ensuring the DB and JS chunks are already loaded/warm.
+      useCartStore.getState().reverifyCartPrices().catch(() => {});
     }
   }, [router, pathname]);
 

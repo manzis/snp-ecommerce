@@ -8,6 +8,7 @@ interface CartState {
   items: CartItemType[];
   isLoading: boolean;
   userId: string | null;
+  lastVerifiedAt: number | null;
   setUserId: (id: string | null) => void;
   loadCart: () => Promise<void>;
   addItem: (item: CartItemType) => void;
@@ -18,7 +19,7 @@ interface CartState {
   mergeCartOnLogin: (userId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   refreshLocalCartOnMount: () => Promise<void>;
-  reverifyCartPrices: () => Promise<void>;
+  reverifyCartPrices: (force?: boolean) => Promise<void>;
   coupon: Coupon | null;
   applyCoupon: (coupon: Coupon) => void;
   removeCoupon: () => void;
@@ -36,6 +37,7 @@ export const useCartStore = create<CartState>()(
       userId: null,
       coupon: null,
       isCartOpen: false,
+      lastVerifiedAt: null,
 
       setCartOpen: (isOpen) => set({ isCartOpen: isOpen }),
       setUserId: (userId) => set({ userId }),
@@ -181,13 +183,21 @@ export const useCartStore = create<CartState>()(
         if (userId) await clearCartRemote(userId);
       },
 
-      reverifyCartPrices: async () => {
-        const { userId, loadCart, refreshLocalCartOnMount } = get();
+      reverifyCartPrices: async (force = false) => {
+        const { userId, loadCart, refreshLocalCartOnMount, lastVerifiedAt } = get();
+        
+        // 30 seconds throttle to prevent spamming the database and eating Supabase free limits
+        if (!force && lastVerifiedAt && Date.now() - lastVerifiedAt < 30000) {
+          return;
+        }
+
         if (userId) {
           await loadCart();
         } else {
           await refreshLocalCartOnMount();
         }
+
+        set({ lastVerifiedAt: Date.now() });
       },
 
       refreshLocalCartOnMount: async () => {
