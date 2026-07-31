@@ -115,7 +115,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
 
                         return (
                             <picture>
-                                <source media="(min-width: 1024px)" srcSet={desktopProps.srcSet} />
+                                <source media="(min-width: 1024px)" srcSet={desktopProps.srcSet} sizes={desktopProps.sizes} />
                                 <img {...mobileProps} />
                             </picture>
                         );

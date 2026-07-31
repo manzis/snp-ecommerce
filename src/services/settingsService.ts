@@ -2,6 +2,7 @@ import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { revalidateTag } from 'next/cache';
 
 export interface SiteSettings {
   hero_images?: {
@@ -54,6 +55,10 @@ export async function updateSiteSetting(key: string, value: any): Promise<boolea
     console.error(`[settingsService] Error updating setting ${key}:`, error);
     return false;
   }
+
+  // Clear Next.js cache so changes reflect immediately
+  revalidateTag('settings');
+  revalidateTag(`setting-${key}`);
 
   return true;
 }
