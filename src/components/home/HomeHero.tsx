@@ -95,36 +95,29 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
                     }
 
                     if (heroImages.desktopUrl && heroImages.mobileUrl) {
-                        const common = {
-                            fill: true,
-                            priority: true,
-                            unoptimized: true, // Bypass Next.js server optimization for instant CDN delivery
-                            sizes: '100vw',
-                            className: 'hero-bg-image-filter object-cover'
-                        };
-
-                        const {
-                            props: { srcSet: desktopSrcSet, ...desktopRest }
-                        } = getImageProps({
-                            ...common,
-                            src: heroImages.desktopUrl,
-                            alt: 'Hero Background Desktop'
-                        });
-
-                        const {
-                            props: { srcSet: mobileSrcSet }
-                        } = getImageProps({
-                            ...common,
-                            src: heroImages.mobileUrl,
-                            alt: 'Hero Background Mobile'
-                        });
-
                         return (
-                            <picture>
-                                <source media="(min-width: 1024px)" srcSet={desktopSrcSet} sizes="100vw" />
-                                <source media="(max-width: 1023px)" srcSet={mobileSrcSet} sizes="100vw" />
-                                <img {...desktopRest} fetchPriority="high" decoding="sync" />
-                            </picture>
+                            <>
+                                <Image
+                                    src={heroImages.desktopUrl}
+                                    alt="Hero Background Desktop"
+                                    fill
+                                    priority
+                                    unoptimized
+                                    sizes="100vw"
+                                    className="hero-bg-image-filter object-cover hidden lg:block"
+                                    {...({ fetchPriority: 'high', decoding: 'sync' } as any)}
+                                />
+                                <Image
+                                    src={heroImages.mobileUrl}
+                                    alt="Hero Background Mobile"
+                                    fill
+                                    priority
+                                    unoptimized
+                                    sizes="100vw"
+                                    className="hero-bg-image-filter object-cover block lg:hidden"
+                                    {...({ fetchPriority: 'high', decoding: 'sync' } as any)}
+                                />
+                            </>
                         );
                     }
 
