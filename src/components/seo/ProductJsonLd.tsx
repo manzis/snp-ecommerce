@@ -72,10 +72,10 @@ export default function ProductJsonLd({
     '@context': 'https://schema.org',
     '@type': 'Product',
     name,
-    description,
+    description: description || `Buy authentic ${name} supplements in Nepal at Supplyment Nepal. 100% genuine products, best prices, fast delivery.`,
     image: images.slice(0, 5),
     url: canonical,
-    sku: sku || slug,
+    sku: String(sku || slug).substring(0, 50), // Google limits SKU string length
     brand: {
       '@type': 'Brand',
       name: brand,
@@ -93,7 +93,43 @@ export default function ProductJsonLd({
         name: 'Supplyment Nepal',
         url: 'https://www.brightsupplements.store',
       },
+      validFrom: new Date('2024-01-01').toISOString().split('T')[0],
       priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'NP',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnInStore',
+        returnFees: 'https://schema.org/FreeReturn',
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'NPR',
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'NP',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 1,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 1,
+            maxValue: 3,
+            unitCode: 'DAY',
+          },
+        },
+      },
     },
     aggregateRating: {
       '@type': 'AggregateRating',

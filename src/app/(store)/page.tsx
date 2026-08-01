@@ -95,11 +95,11 @@ export default async function HomePage() {
   }));
 
   return (
-    <div className="relative min-h-screen bg-white w-full">
+    <div className="relative min-h-screen w-full bg-[#081908]">
       {/* === ABOVE THE FOLD — Fully Server-Side Rendered for instant LCP === */}
       <HomeHero deals={deals} heroImages={heroImages} />
 
-      <main className="flex flex-col items-center lg:border-x-[1px] lg:border-b-[1px] border-[#efefef] pb-[86px] mx-auto w-full">
+      <main className="flex flex-col items-center lg:border-x-[1px] lg:border-b-[1px] border-[#efefef] pb-[86px] mx-auto w-full bg-[#F9F9F9]">
         <HomeCategories />
 
         {/* Stream heavy sections after critical content is visible. */}

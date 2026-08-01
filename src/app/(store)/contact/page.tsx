@@ -223,6 +223,29 @@ export default function ContactPage() {
                                     </div>
                                 </div>
 
+                                {/* Address Card (Required for Google Merchant Center) */}
+                                <div className="flex px-[20px] py-[24px] flex-col gap-[10px] items-start self-stretch bg-[#ffffff] relative z-[60]">
+                                    <div className="w-[40px] h-[39px] shrink-0 bg-[#efefef] rounded-[12px] flex items-center justify-center relative z-[61]">
+                                        <svg className="w-[20px] h-[20px] text-[#3f9633]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                            <circle cx="12" cy="10" r="3" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col items-start self-stretch relative z-[62]">
+                                        <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                            Visit Us
+                                        </h3>
+                                        <p className="text-[12px] font-[500] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
+                                            Bright Nepcare Pvt. Ltd.
+                                        </p>
+                                        <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] mt-[4px]">
+                                            Butwal, Tilottama<br />
+                                            Butwal Lumbini 32907<br />
+                                            Nepal
+                                        </span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </section>

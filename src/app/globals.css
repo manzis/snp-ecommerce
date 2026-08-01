@@ -225,24 +225,48 @@ body {
      HERO SECTION STYLES (moved from inline <style>)
      ============================================ */
 
+  @keyframes heroBgFade {
+    0% {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1.03);
+    }
+  }
+
   .hero-bg-layer {
     position: absolute;
     inset: 0;
     pointer-events: none;
     z-index: 0;
     overflow: hidden;
+    background-color: #081908;
   }
 
   .hero-bg-image-filter {
     transform: scale(1.03);
     object-fit: cover;
     object-position: left center;
+    opacity: 0;
+    animation: heroBgFade 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   @media (min-width: 1024px) {
     .hero-bg-image-filter {
       object-position: center;
     }
+  }
+
+  @keyframes patternFade {
+    0% { opacity: 0; }
+    100% { opacity: 0.06; }
+  }
+
+  @keyframes patternFadeLg {
+    0% { opacity: 0; }
+    100% { opacity: 0.04; }
   }
 
   .hero-pattern-layer {
@@ -252,14 +276,15 @@ body {
     background-repeat: repeat;
     background-position: center;
     background-size: cover;
-    opacity: 0.06;
+    opacity: 0;
     pointer-events: none;
     z-index: 0;
+    animation: patternFade 1.2s ease-out 0.3s forwards;
   }
 
   @media (min-width: 1024px) {
     .hero-pattern-layer {
-      opacity: 0.04;
+      animation: patternFadeLg 1.2s ease-out 0.3s forwards;
     }
   }
 

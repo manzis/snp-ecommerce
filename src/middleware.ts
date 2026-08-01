@@ -40,8 +40,20 @@ export async function middleware(request: NextRequest) {
 
   // --- SEO Redirects ---
   // Evaluate active SEO redirects from the database before proceeding
+  // Using Service Role Key because seo_redirects table might have RLS blocking anon read
   try {
-    const { data: redirectRule } = await supabase
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return []; },
+          setAll() { },
+        }
+      }
+    );
+
+    const { data: redirectRule } = await supabaseAdmin
       .from('seo_redirects')
       .select('to_url, type')
       .eq('from_url', request.nextUrl.pathname)
