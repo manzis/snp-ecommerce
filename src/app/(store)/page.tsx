@@ -99,7 +99,7 @@ export default async function HomePage() {
       {/* === ABOVE THE FOLD — Fully Server-Side Rendered for instant LCP === */}
       <HomeHero deals={deals} heroImages={heroImages} />
 
-      <main className="flex flex-col items-center lg:border-x-[1px] lg:border-b-[1px] border-[#efefef] pb-[86px] mx-auto w-full bg-[#F9F9F9]">
+      <main className="flex flex-col items-center lg:border-x-[1px] lg:border-b-[1px] border-[#efefef] pb-[86px] mx-auto w-full bg-[#ffffff]">
         <HomeCategories />
 
         {/* Stream heavy sections after critical content is visible. */}
