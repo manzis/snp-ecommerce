@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import HomeHero from '@/components/home/HomeHero';
 import HomeCategories from '@/components/home/HomeCategory';
+import HomeSplashLoader from '@/components/home/HomeSplashLoader';
 
 // Dynamic imports for below-the-fold / heavy sections
 const ProductGridSection = dynamic(() => import('@/components/home/ProductGridSection'));
@@ -96,6 +97,7 @@ export default async function HomePage() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#081908]">
+      <HomeSplashLoader />
       {/* === ABOVE THE FOLD — Fully Server-Side Rendered for instant LCP === */}
       <HomeHero deals={deals} heroImages={heroImages} />
 
