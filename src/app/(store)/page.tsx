@@ -15,6 +15,7 @@ const ServicesMarquee = dynamic(() => import('@/components/home/ServicesMarquee'
 const SubscribeSection = dynamic(() => import('@/components/home/SubscribeSection'));
 const HomeFaqSection = dynamic(() => import('@/components/home/HomeFaqSection'));
 const ProductBanners = dynamic(() => import('@/components/product/ProductBanners'));
+const ActiveSalesSection = dynamic(() => import('@/components/home/ActiveSalesSection'));
 
 import ProductGridSectionSkeleton from '@/components/home/ProductGridSectionSkeleton';
 import {
@@ -158,6 +159,10 @@ async function HomeDeferredSections() {
 
   return (
     <>
+      <div className="w-full">
+        <ActiveSalesSection />
+      </div>
+
       {newArrivalsProducts.length > 0 && (
         <div className="w-full">
           <ProductGridSection

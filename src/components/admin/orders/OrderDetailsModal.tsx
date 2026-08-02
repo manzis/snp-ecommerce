@@ -13,6 +13,9 @@ import { resolveOrderPhone, openWhatsAppForOrder, getWhatsAppButtonLabel } from 
 import PhoneIcon from '@/components/icons/PhoneIcon';
 import CopyIcon from '@/components/icons/CopyIcon';
 import { syncExternalOrderTrackingAction } from '@/app/actions/orderActions';
+import InvoiceTemplate from './InvoiceTemplate';
+import html2canvas from 'html2canvas-pro';
+import jsPDF from 'jspdf';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -55,6 +58,9 @@ export default function OrderDetailsModal({
     const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set(['ORDERED']));
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState("Order Cancelled By the seller. This might be a technical default , Try Ordering it again!");
+
+    const invoiceRef = React.useRef<HTMLDivElement>(null);
+    const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
 
     // Auto-expand the active milestone on mount or status change
     React.useEffect(() => {
@@ -163,6 +169,45 @@ export default function OrderDetailsModal({
             console.error('Fallback: Oops, unable to copy', err);
         }
         document.body.removeChild(textArea);
+    };
+
+    const handleGenerateInvoice = async () => {
+        if (!invoiceRef.current || !order) return;
+        setIsGeneratingInvoice(true);
+        showAdminToast('Generating Invoice...', 'success');
+
+        try {
+            const element = invoiceRef.current;
+            // Temporarily show element for accurate capture if needed, though position fixed offscreen usually works.
+            const canvas = await html2canvas(element, {
+                scale: 3, // Optimal balance of crisp resolution and generation speed
+                useCORS: true,
+                logging: false,
+                width: 794,
+                height: 1123,
+                windowWidth: 794,
+                windowHeight: 1123,
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+            // Standard A4
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+
+            const pdfBlobUrl = pdf.output('bloburl');
+            window.open(pdfBlobUrl, '_blank');
+
+            showAdminToast('Invoice opened in new tab!', 'success');
+        } catch (error) {
+            console.error('Failed to generate invoice', error);
+            showAdminToast('Failed to generate invoice. Please try again.', 'error');
+        } finally {
+            setIsGeneratingInvoice(false);
+        }
     };
 
     const handleShare = async (type: 'tracking' | 'payment') => {
@@ -594,8 +639,9 @@ export default function OrderDetailsModal({
                                     Share Pay URL
                                 </button>
                                 <button
-                                    onClick={() => alert('Invoice Generation Module linking...')}
-                                    className="flex-[2] flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98]"
+                                    onClick={handleGenerateInvoice}
+                                    disabled={isGeneratingInvoice}
+                                    className={`flex-[2] flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98] ${isGeneratingInvoice ? 'opacity-70 cursor-wait' : ''}`}
                                 >
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -604,7 +650,7 @@ export default function OrderDetailsModal({
                                         <line x1="16" y1="17" x2="8" y2="17"></line>
                                         <polyline points="10 9 9 9 8 9"></polyline>
                                     </svg>
-                                    Generate Invoice
+                                    {isGeneratingInvoice ? 'Generating...' : 'Generate Invoice'}
                                 </button>
                             </div>
                         </div>
@@ -973,6 +1019,11 @@ export default function OrderDetailsModal({
                     </div>
                 </div>
             </AdminModal>
+
+            {/* Hidden Invoice Template for PDF Generation */}
+            <div style={{ position: 'absolute', top: 0, left: 0, opacity: 0, pointerEvents: 'none', zIndex: -9999 }}>
+                <InvoiceTemplate ref={invoiceRef} order={order} />
+            </div>
         </>
     );
 }

@@ -20,6 +20,7 @@ const ROUTE_MAP: Record<string, string[]> = {
     '/admin/abandoned-cart': ['Home', 'More Options', 'Abandoned Carts'],
     '/admin/reviews': ['Home', 'More Options', 'Reviews'],
     '/admin/qa': ['Home', 'More Options', 'QA'],
+    '/admin/offers': ['Home', 'More Options', 'Offers & Sales'],
     '/admin/analytics': ['Home', 'Stores', 'Analytics'],
     '/admin/layouts': ['Home', 'Stores', 'Layouts'],
     '/admin/settings': ['Home', 'System', 'Settings'],

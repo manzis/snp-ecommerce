@@ -52,6 +52,7 @@ const MORE_OPTIONS_SUB_MENU = [
     { name: 'Reviews', href: '/admin/reviews' },
     { name: 'QA', href: '/admin/qa' },
     { name: 'Coupons', href: '/admin/coupons' },
+    { name: 'Offers & Sales', href: '/admin/offers' },
 ];
 
 
@@ -140,7 +141,7 @@ export default function AdminSidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const [isProductsOpen, setIsProductsOpen] = useState(pathname.includes('/products') || pathname.includes('/categories'));
-    const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa') || pathname.includes('/coupons'));
+    const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa') || pathname.includes('/coupons') || pathname.includes('/offers'));
     const [optimisticActivePath, setOptimisticActivePath] = useState(pathname);
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -153,7 +154,7 @@ export default function AdminSidebar() {
         if (pathname.includes('/products') || pathname.includes('/categories')) {
             setIsProductsOpen(true);
         }
-        if (pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa') || pathname.includes('/coupons')) {
+        if (pathname.includes('/abandoned-cart') || pathname.includes('/reviews') || pathname.includes('/qa') || pathname.includes('/coupons') || pathname.includes('/offers')) {
             setIsMoreOptionsOpen(true);
         }
     }, [pathname]);
@@ -182,7 +183,7 @@ export default function AdminSidebar() {
         [optimisticActivePath]);
 
     const isMoreOptionsSectionActive = useMemo(() =>
-        optimisticActivePath.includes('/abandoned-cart') || optimisticActivePath.includes('/reviews') || optimisticActivePath.includes('/qa') || optimisticActivePath.includes('/coupons'),
+        optimisticActivePath.includes('/abandoned-cart') || optimisticActivePath.includes('/reviews') || optimisticActivePath.includes('/qa') || optimisticActivePath.includes('/coupons') || optimisticActivePath.includes('/offers'),
         [optimisticActivePath]);
 
 

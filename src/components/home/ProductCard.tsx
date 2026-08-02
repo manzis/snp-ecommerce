@@ -17,6 +17,12 @@ interface ProductCardProps {
     stockStatus?: string;
     stock_status?: string;
     benefit?: string;
+    activeSale?: {
+        name: string;
+        discount_type: string;
+        discount_value: number;
+        ends_at: string;
+    };
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -31,6 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     stockStatus,
     stock_status,
     benefit,
+    activeSale,
 }) => {
     const router = useRouter();
     const prefetched = useRef(false);
@@ -107,15 +114,40 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     </div>
 
                     {/* PRICING ROW */}
-                    <div className="flex items-start gap-[6px] self-stretch">
-                        <div className="flex flex-1 shrink-0 items-center gap-[6px]">
+                    <div className="flex flex-col items-start self-stretch mt-1">
+                        <div className="flex items-center gap-[6px] self-stretch">
                             <span className="font-rajdhani text-[17px] font-medium leading-[22px] tracking-[-1.12px] text-[#979797] line-through">
                                 Rs. {originalPrice}
                             </span>
-                            <span className="bg-[linear-gradient(68.09deg,#308026,#2fc219)] bg-clip-text font-rajdhani font-bold text-[17px] leading-[22px] text-transparent">
-                                Rs. {discountedPrice}
-                            </span>
+                            
+                            {activeSale ? (
+                                <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text font-rajdhani font-bold text-[17px] leading-[22px] text-transparent flex items-center gap-1">
+                                    Rs. {
+                                        activeSale.discount_type === 'PERCENTAGE' 
+                                            ? Math.round(Number(discountedPrice) * (1 - activeSale.discount_value / 100))
+                                            : Math.max(0, Number(discountedPrice) - activeSale.discount_value)
+                                    }
+                                </span>
+                            ) : (
+                                <span className="bg-[linear-gradient(68.09deg,#308026,#2fc219)] bg-clip-text font-rajdhani font-bold text-[17px] leading-[22px] text-transparent">
+                                    Rs. {discountedPrice}
+                                </span>
+                            )}
                         </div>
+                        
+                        {activeSale && (
+                            <div className="flex flex-col w-full mt-1.5 pt-1.5 border-t border-red-100">
+                                <div className="flex items-center justify-between w-full">
+                                    <span className="text-[10px] font-bold text-red-600 uppercase tracking-tight flex items-center gap-0.5">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                                        {activeSale.name}
+                                    </span>
+                                    <span className="text-[9px] font-semibold bg-red-50 text-red-500 px-1.5 rounded-sm">
+                                        {activeSale.discount_type === 'PERCENTAGE' ? `${activeSale.discount_value}% OFF` : `रु ${activeSale.discount_value} OFF`}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

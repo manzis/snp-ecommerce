@@ -14,7 +14,7 @@ import { Product } from '@/services/productService';
  * Wraps the entire card in a Next.js Link for optimized navigation.
  * Uses custom fonts and specific border logic for a perfect grid layout.
  */
-const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
+const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product, activeSale }) => {
   const router = useRouter();
   const prefetched = useRef(false);
 
@@ -24,6 +24,21 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
       prefetched.current = true;
     }
   };
+
+  // Calculate dynamic sale pricing
+  const baseDiscounted = Number(product.discounted_price);
+  const baseOriginal = Number(product.original_price);
+  
+  const finalDiscounted = activeSale 
+    ? activeSale.discount_type === 'PERCENTAGE'
+        ? Math.round(baseDiscounted * (1 - activeSale.discount_value / 100))
+        : Math.max(0, baseDiscounted - activeSale.discount_value)
+    : baseDiscounted;
+
+  let displayPercentage = product.discount_percentage;
+  if (activeSale && baseOriginal > 0) {
+    displayPercentage = Math.round(((baseOriginal - finalDiscounted) / baseOriginal) * 100).toString();
+  }
 
   return (
     <Link
@@ -47,7 +62,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         {product.stock_status === 'out_of_stock' && (
           <div className="absolute inset-0 z-[15] flex items-center justify-center p-4 pointer-events-none">
             <div className="w-full bg-red-600/95 py-2 lg:py-3 flex items-center justify-center shadow-2xl transform -rotate-1 border-y border-red-400/30">
-              <span className="font-rajdhani font-bold text-[10px] lg:text-[14px] font-bold tracking-[0.25em] text-white uppercase drop-shadow-md">
+              <span className="font-rajdhani font-bold text-[10px] lg:text-[14px] tracking-[0.25em] text-white uppercase drop-shadow-md">
                 Out of Stock
               </span>
             </div>
@@ -55,9 +70,9 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         )}
 
         {/* Save Badge - Decorative Custom Font */}
-        <div className="absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] bg-[#94ff00] px-[8px] py-[4px] lg:px-[10px]">
-          <span className="font-rajdhani uppercase font-bold text-[10px] lg:text-[13px] leading-[14px] text-[#242424]">
-            save {product.discount_percentage}%
+        <div className={`absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] px-[8px] py-[4px] lg:px-[10px] ${activeSale ? 'bg-[#ff0000]' : 'bg-[#94ff00]'}`}>
+          <span className={`font-rajdhani uppercase font-bold text-[10px] lg:text-[13px] leading-[14px] ${activeSale ? 'text-white' : 'text-[#242424]'}`}>
+            save {displayPercentage}%
           </span>
         </div>
 
@@ -91,10 +106,19 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
             Rs. {product.original_price}
           </span>
 
-          {/* Discounted Price - Custom Font + Brand Green Gradient */}
-          <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
-            Rs. {product.discounted_price}
-          </span>
+          {/* Discounted Price - Custom Font + Brand Green Gradient or Sale Red Gradient */}
+          {activeSale ? (
+            <div className="flex items-center gap-[2px]">
+              <svg className="text-[#ff0000]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+              <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#ff0000] to-[#ff4d4d] bg-clip-text text-transparent">
+                Rs. {finalDiscounted}
+              </span>
+            </div>
+          ) : (
+            <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#308026] to-[#32d71d] bg-clip-text text-transparent">
+              Rs. {finalDiscounted}
+            </span>
+          )}
         </div>
       </div>
     </Link>

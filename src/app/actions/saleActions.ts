@@ -1,0 +1,338 @@
+'use server';
+
+import { createClient } from '@/lib/supabase/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
+
+export interface SaleOffer {
+    id: string;
+    slug: string;
+    name: string;
+    banner_image: string | null;
+    discount_type: 'AMOUNT' | 'PERCENTAGE';
+    discount_value: number;
+    ends_at: string;
+    is_active: boolean;
+    created_at: string;
+    products?: any[]; // Joined products
+}
+
+/**
+ * Creates a new sale offer and links it to multiple products.
+ */
+export async function createSaleAction(formData: {
+    name: string;
+    slug: string;
+    banner_image: string | null;
+    discount_type: 'AMOUNT' | 'PERCENTAGE';
+    discount_value: number;
+    ends_at: string;
+    product_ids: string[];
+}) {
+    const supabase = await createClient();
+
+    // Verify Admin Role
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { success: false, message: 'Unauthorized' };
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (profile?.role !== 'admin') return { success: false, message: 'Forbidden' };
+
+    try {
+        // 1. Insert Sale Offer
+        const { data: sale, error: saleError } = await supabase
+            .from('sales_offers')
+            .insert({
+                name: formData.name,
+                slug: formData.slug,
+                banner_image: formData.banner_image,
+                discount_type: formData.discount_type,
+                discount_value: formData.discount_value,
+                ends_at: formData.ends_at,
+                is_active: true
+            })
+            .select()
+            .single();
+
+        if (saleError) throw saleError;
+
+        // 2. Insert Products to junction table
+        if (formData.product_ids.length > 0) {
+            const junctionData = formData.product_ids.map(productId => ({
+                sale_id: sale.id,
+                product_id: productId
+            }));
+
+            const { error: junctionError } = await supabase
+                .from('sales_offers_products')
+                .insert(junctionData);
+
+            if (junctionError) throw junctionError;
+        }
+
+        revalidatePath('/admin/offers');
+        revalidatePath('/');
+        revalidateTag('sales', 'max');
+
+        return { success: true, data: sale };
+    } catch (error: any) {
+        console.error('Action Error: createSaleAction:', error);
+        return { success: false, message: error.message || 'Failed to create sale.' };
+    }
+}
+
+/**
+ * Updates an existing sale offer and its linked products.
+ */
+export async function updateSaleAction(saleId: string, formData: {
+    name: string;
+    slug: string;
+    banner_image: string | null;
+    discount_type: 'AMOUNT' | 'PERCENTAGE';
+    discount_value: number;
+    ends_at: string;
+    product_ids: string[];
+}) {
+    const supabase = await createClient();
+
+    // Verify Admin Role
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { success: false, message: 'Unauthorized' };
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (profile?.role !== 'admin') return { success: false, message: 'Forbidden' };
+
+    try {
+        // 1. Update Sale Offer
+        const { data: sale, error: saleError } = await supabase
+            .from('sales_offers')
+            .update({
+                name: formData.name,
+                slug: formData.slug,
+                banner_image: formData.banner_image,
+                discount_type: formData.discount_type,
+                discount_value: formData.discount_value,
+                ends_at: formData.ends_at
+            })
+            .eq('id', saleId)
+            .select()
+            .single();
+
+        if (saleError) throw saleError;
+
+        // 2. Clear old linked products
+        const { error: deleteError } = await supabase
+            .from('sales_offers_products')
+            .delete()
+            .eq('sale_id', saleId);
+
+        if (deleteError) throw deleteError;
+
+        // 3. Insert new Products to junction table
+        if (formData.product_ids.length > 0) {
+            const junctionData = formData.product_ids.map(productId => ({
+                sale_id: saleId,
+                product_id: productId
+            }));
+
+            const { error: junctionError } = await supabase
+                .from('sales_offers_products')
+                .insert(junctionData);
+
+            if (junctionError) throw junctionError;
+        }
+
+        revalidatePath('/admin/offers');
+        revalidatePath('/');
+        revalidateTag('sales', 'max');
+
+        return { success: true, data: sale };
+    } catch (error: any) {
+        console.error('Action Error: updateSaleAction:', error);
+        return { success: false, message: error.message || 'Failed to update sale.' };
+    }
+}
+
+/**
+ * Fetches all sales for the admin dashboard.
+ */
+export async function fetchAllSalesAction() {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, message: 'Unauthorized' };
+
+    try {
+        // Fetch sales with products to calculate count
+        const { data, error } = await supabase
+            .from('sales_offers')
+            .select(`
+                *,
+                sales_offers_products (product_id)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            // If table doesn't exist yet, return empty gracefully for local dev
+            if (error.code === '42P01') {
+                return { success: true, data: [] };
+            }
+            throw error;
+        }
+
+        const formattedData = data.map(sale => ({
+            ...sale,
+            product_count: sale.sales_offers_products?.length || 0,
+            product_ids: sale.sales_offers_products?.map((sop: any) => sop.product_id) || [],
+            sales_offers_products: undefined // clean up response
+        }));
+
+        return { success: true, data: formattedData };
+    } catch (error: any) {
+        console.error('Action Error: fetchAllSalesAction:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+        return { success: false, message: error?.message || 'Failed to fetch sales.' };
+    }
+}
+
+/**
+ * Toggles a sale's active status
+ */
+export async function toggleSaleActiveAction(saleId: string, isActive: boolean) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, message: 'Unauthorized' };
+
+    try {
+        const { error } = await supabase
+            .from('sales_offers')
+            .update({ is_active: isActive })
+            .eq('id', saleId);
+
+        if (error) throw error;
+
+        revalidatePath('/admin/offers');
+        revalidatePath('/');
+        revalidateTag('sales', 'max');
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('Action Error: toggleSaleActiveAction:', error);
+        return { success: false, message: error.message || 'Failed to toggle sale status.' };
+    }
+}
+
+/**
+ * Fetches active sales for the storefront (Homepage)
+ */
+export async function fetchActiveSalesAction() {
+    const supabase = await createClient();
+
+    try {
+        const { data, error } = await supabase
+            .from('sales_offers')
+            .select('*')
+            .eq('is_active', true)
+            .gt('ends_at', new Date().toISOString())
+            .order('ends_at', { ascending: true });
+
+        if (error) {
+            if (error.code === '42P01') return { success: true, data: [] };
+            throw error;
+        }
+
+        return { success: true, data };
+    } catch (error: any) {
+        console.error('Action Error: fetchActiveSalesAction:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+/**
+ * Fetches a specific sale by slug along with its products
+ */
+export async function fetchSaleBySlugAction(slug: string) {
+    const supabase = await createClient();
+
+    try {
+        const { data: sale, error } = await supabase
+            .from('sales_offers')
+            .select(`
+                *,
+                sales_offers_products (
+                    products (
+                        id, slug, name, title, images,
+                        original_price, discounted_price, discount_percentage,
+                        stock_status, rating,
+                        brands (id, name, slug)
+                    )
+                )
+            `)
+            .eq('slug', slug)
+            .eq('is_active', true)
+            .single();
+
+        if (error) {
+            if (error.code === '42P01' || error.code === 'PGRST116') return { success: false, message: 'Sale not found.' };
+            throw error;
+        }
+
+        // Format the products array cleanly
+        const formattedSale = {
+            ...sale,
+            products: sale.sales_offers_products
+                .map((sop: any) => sop.products)
+                .filter(Boolean)
+        };
+        delete formattedSale.sales_offers_products;
+
+        return { success: true, data: formattedSale };
+    } catch (error: any) {
+        console.error('Action Error: fetchSaleBySlugAction:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+/**
+ * Fetches the active sale for a specific product (if any)
+ */
+export async function fetchActiveSaleForProductAction(productId: string) {
+    const supabase = await createClient();
+
+    try {
+        const { data, error } = await supabase
+            .from('sales_offers_products')
+            .select(`
+                sales_offers (
+                    id, name, slug, discount_type, discount_value, ends_at, is_active
+                )
+            `)
+            .eq('product_id', productId);
+
+        if (error) {
+            if (error.code === '42P01' || error.code === 'PGRST116') return { success: true, data: null };
+            throw error;
+        }
+
+        if (!data || data.length === 0) return { success: true, data: null };
+
+        // Find the first active sale that hasn't expired
+        const activeSale = data.map((d: any) => d.sales_offers).find((sale: any) =>
+            sale && sale.is_active && new Date(sale.ends_at) > new Date()
+        );
+
+        return { success: true, data: activeSale || null };
+    } catch (error: any) {
+        console.error('Action Error: fetchActiveSaleForProductAction:', error);
+        return { success: false, message: error.message };
+    }
+}

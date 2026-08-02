@@ -19,6 +19,7 @@ import MoreByBrandSection from '@/components/product/MoreByBrandSection';
 import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
 import { fetchProducts, fetchProductBySlug, fetchProductSEO, fetchRelatedProducts, fetchBrandRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
+import { fetchActiveSaleForProductAction } from '@/app/actions/saleActions';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { preload } from 'react-dom';
@@ -170,6 +171,8 @@ async function ProductContent({ slug }: { slug: string }) {
     notFound();
   }
 
+  const { data: activeSale } = await fetchActiveSaleForProductAction(product.id);
+
   // Preload the first image immediately for LCP
   if (product.images?.[0]) {
     preload(product.images[0], { as: 'image', fetchPriority: 'high' });
@@ -281,6 +284,7 @@ async function ProductContent({ slug }: { slug: string }) {
               originalPrice={product.original_price}
               discountedPrice={product.discounted_price}
               discountPercentage={product.discount_percentage}
+              activeSale={activeSale}
             />
             <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
               <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers || null} />
