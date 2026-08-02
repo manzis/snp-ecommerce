@@ -1,7 +1,8 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 
 export interface SaleOffer {
     id: string;
@@ -282,113 +283,135 @@ export async function deleteSaleAction(saleId: string) {
  * Fetches active sales for the storefront (Homepage)
  */
 export async function fetchActiveSalesAction() {
-    const supabase = await createClient();
+    return unstable_cache(
+        async () => {
+            const supabase = getSupabaseAdmin();
+            if (!supabase) return { success: true, data: [] };
 
-    try {
-        const { data, error } = await supabase
-            .from('sales_offers')
-            .select('*')
-            .eq('is_active', true)
-            .gt('ends_at', new Date().toISOString())
-            .order('ends_at', { ascending: true });
+            try {
+                const { data, error } = await supabase
+                    .from('sales_offers')
+                    .select('*')
+                    .eq('is_active', true)
+                    .gt('ends_at', new Date().toISOString())
+                    .order('ends_at', { ascending: true });
 
-        if (error) {
-            if (error.code === '42P01') return { success: true, data: [] };
-            throw error;
-        }
+                if (error) {
+                    if (error.code === '42P01') return { success: true, data: [] };
+                    throw error;
+                }
 
-        return { success: true, data };
-    } catch (error: any) {
-        console.error('Action Error: fetchActiveSalesAction:', error);
-        return { success: false, message: error.message };
-    }
+                return { success: true, data };
+            } catch (error: any) {
+                console.error('Action Error: fetchActiveSalesAction:', error);
+                return { success: false, message: error.message };
+            }
+        },
+        ['active-sales-global'],
+        { revalidate: 3600, tags: ['sales'] }
+    )();
 }
 
 /**
  * Fetches a specific sale by slug along with its products
  */
 export async function fetchSaleBySlugAction(slug: string) {
-    const supabase = await createClient();
+    return unstable_cache(
+        async () => {
+            const supabase = getSupabaseAdmin();
+            if (!supabase) return { success: false, message: 'Supabase client not initialized.' };
 
-    try {
-        const { data: sale, error } = await supabase
-            .from('sales_offers')
-            .select(`
-                *,
-                sales_offers_products (
-                    products (
-                        id, slug, name, title, images,
-                        original_price, discounted_price, discount_percentage,
-                        stock_status, rating,
-                        brands (id, name, slug)
-                    )
-                )
-            `)
-            .eq('slug', slug)
-            .eq('is_active', true)
-            .single();
+            try {
+                const { data: sale, error } = await supabase
+                    .from('sales_offers')
+                    .select(`
+                        *,
+                        sales_offers_products (
+                            products (
+                                id, slug, name, title, images,
+                                original_price, discounted_price, discount_percentage,
+                                stock_status, rating,
+                                brands (id, name, slug)
+                            )
+                        )
+                    `)
+                    .eq('slug', slug)
+                    .eq('is_active', true)
+                    .single();
 
-        if (error) {
-            if (error.code === '42P01' || error.code === 'PGRST116') return { success: false, message: 'Sale not found.' };
-            throw error;
-        }
+                if (error) {
+                    if (error.code === '42P01' || error.code === 'PGRST116') return { success: false, message: 'Sale not found.' };
+                    throw error;
+                }
 
-        // Format the products array cleanly
-        const formattedSale = {
-            ...sale,
-            products: sale.sales_offers_products
-                .map((sop: any) => sop.products)
-                .filter(Boolean)
-        };
-        delete formattedSale.sales_offers_products;
+                // Format the products array cleanly
+                const formattedSale = {
+                    ...sale,
+                    products: sale.sales_offers_products
+                        .map((sop: any) => sop.products)
+                        .filter(Boolean)
+                };
+                delete formattedSale.sales_offers_products;
 
-        return { success: true, data: formattedSale };
-    } catch (error: any) {
-        console.error('Action Error: fetchSaleBySlugAction:', error);
-        return { success: false, message: error.message };
-    }
+                return { success: true, data: formattedSale };
+            } catch (error: any) {
+                console.error('Action Error: fetchSaleBySlugAction:', error);
+                return { success: false, message: error.message };
+            }
+        },
+        [`sale-by-slug-${slug}`],
+        { revalidate: 3600, tags: ['sales', 'products'] }
+    )();
 }
 
 /**
  * Fetches the active sale for a specific product (if any)
  */
 export async function fetchActiveSaleForProductAction(productId: string) {
-    const supabase = await createClient();
+    return unstable_cache(
+        async () => {
+            const supabase = getSupabaseAdmin();
+            if (!supabase) return { success: true, data: null };
 
-    try {
-        const { data, error } = await supabase
-            .from('sales_offers_products')
-            .select(`
-                sales_offers (
-                    id, name, slug, discount_type, discount_value, ends_at, is_active
-                )
-            `)
-            .eq('product_id', productId);
+            try {
+                const { data, error } = await supabase
+                    .from('sales_offers_products')
+                    .select(`
+                        sales_offers (
+                            id, name, slug, discount_type, discount_value, ends_at, is_active
+                        )
+                    `)
+                    .eq('product_id', productId);
 
-        if (error) {
-            if (error.code === '42P01' || error.code === 'PGRST116') return { success: true, data: null };
-            throw error;
-        }
+                if (error) {
+                    if (error.code === '42P01' || error.code === 'PGRST116') return { success: true, data: null };
+                    throw error;
+                }
 
-        if (!data || data.length === 0) return { success: true, data: null };
+                if (!data || data.length === 0) return { success: true, data: null };
 
-        // Find the first active sale that hasn't expired
-        const activeSale = data.map((d: any) => d.sales_offers).find((sale: any) =>
-            sale && sale.is_active && new Date(sale.ends_at) > new Date()
-        );
+                // Find the first active sale that hasn't expired
+                const activeSale = data.map((d: any) => d.sales_offers).find((sale: any) =>
+                    sale && sale.is_active && new Date(sale.ends_at) > new Date()
+                );
 
-        return { success: true, data: activeSale || null };
-    } catch (error: any) {
-        console.error('Action Error: fetchActiveSaleForProductAction:', error);
-        return { success: false, message: error.message };
-    }
+                return { success: true, data: activeSale || null };
+            } catch (error: any) {
+                console.error('Action Error: fetchActiveSaleForProductAction:', error);
+                return { success: false, message: error.message };
+            }
+        },
+        [`active-sale-product-${productId}`],
+        { revalidate: 3600, tags: ['sales'] }
+    )();
 }
 
 /**
  * Fetches the active sale for a specific product by SLUG (For parallel data fetching)
  */
 export async function fetchActiveSaleForProductBySlugAction(slug: string) {
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
+    if (!supabase) return { success: true, data: null };
 
     try {
         const { data, error } = await supabase
