@@ -12,6 +12,7 @@ import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
 import LazyLoginModal from '@/components/auth/LazyLoginModal';
 import NextTopLoader from 'nextjs-toploader';
+import HomeSplashLoader from '@/components/home/HomeSplashLoader';
 
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
@@ -159,6 +160,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           speed={200} 
           shadow="none" 
         />
+        
+        {/* Instant Splash Loader (client-side checks pathname === '/') */}
+        <HomeSplashLoader />
+
         {/* Organization + WebSite JSON-LD — global structured data for Google */}
         <OrganizationJsonLd />
 

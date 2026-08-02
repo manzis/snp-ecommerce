@@ -3,7 +3,6 @@ import { optimizeImage } from '@/lib/optimizeImage';
 import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
-import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
     brand: string;
@@ -40,24 +39,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     benefit,
     activeSale,
 }) => {
-    const router = useRouter();
-    const prefetched = useRef(false);
     const finalStockStatus = stockStatus || stock_status;
-
-    const handlePrefetch = () => {
-        if (!prefetched.current) {
-            router.prefetch(`/product/${slug}`);
-            prefetched.current = true;
-        }
-    };
 
     return (
         <Link
             href={`/product/${slug}`}
             prefetch={false}
-            onPointerDown={handlePrefetch}
-            onTouchStart={handlePrefetch}
-            onMouseEnter={handlePrefetch}
             className={`group relative flex h-[261px] w-full max-w-[199px] flex-shrink-0 flex-col items-center gap-[10px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[8px] transition-all active:scale-[0.98] md:max-w-full lg:h-[320px] lg:max-w-[250px] ${finalStockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
         >
             {/* RATING BADGE (TOP LEFT) */}

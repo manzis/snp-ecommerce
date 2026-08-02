@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
 import { optimizeImage } from '@/lib/optimizeImage';
-import { useRouter } from 'next/navigation';
 
 import { Product } from '@/services/productService';
 
@@ -15,15 +14,6 @@ import { Product } from '@/services/productService';
  * Uses custom fonts and specific border logic for a perfect grid layout.
  */
 const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product, activeSale }) => {
-  const router = useRouter();
-  const prefetched = useRef(false);
-
-  const handlePrefetch = () => {
-    if (!prefetched.current) {
-      router.prefetch(`/product/${product.slug}`);
-      prefetched.current = true;
-    }
-  };
 
   // Calculate dynamic sale pricing
   const baseDiscounted = Number(product.discounted_price);
@@ -43,9 +33,7 @@ const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product
   return (
     <Link
       href={`/product/${product.slug}`}
-      onPointerDown={handlePrefetch}
-      onTouchStart={handlePrefetch}
-      onMouseEnter={handlePrefetch}
+      prefetch={false}
       className={`group relative flex w-full flex-col gap-[4px] border-r border-b border-[#e8e8e8] bg-white transition-all active:scale-[0.98] lg:gap-0 ${product.stock_status === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
     >
       {/* IMAGE & BADGES CONTAINER */}

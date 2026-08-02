@@ -3,8 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { optimizeImage } from '@/lib/optimizeImage';
-import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
 
 // --- TYPES ---
 export interface FeaturedProductCardProps {
@@ -41,23 +39,11 @@ export default function FeaturedProductCard({
     productUrl = MOCK_PRODUCT.productUrl!,
     stockStatus,
 }: FeaturedProductCardProps) {
-    const router = useRouter();
-    const prefetched = useRef(false);
-
-    const handlePrefetch = () => {
-        if (!prefetched.current && productUrl) {
-            router.prefetch(productUrl);
-            prefetched.current = true;
-        }
-    };
-
     return (
         <article className="group flex w-full max-w-[169px] mx-auto flex-col gap-[8px] items-start relative font-['Rajdhani',sans-serif]">
             <Link
                 href={productUrl}
-                onPointerDown={handlePrefetch}
-                onTouchStart={handlePrefetch}
-                onMouseEnter={handlePrefetch}
+                prefetch={false}
                 className="flex flex-col gap-[8px] w-full focus:outline-none"
             >
 

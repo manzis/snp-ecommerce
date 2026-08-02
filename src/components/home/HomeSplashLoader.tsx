@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function HomeSplashLoader() {
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [showAnimation, setShowAnimation] = useState(true);
 
@@ -32,8 +34,8 @@ export default function HomeSplashLoader() {
     }
   }, []);
 
-  // If they've already seen it, return nothing so it doesn't even render or animate out
-  if (!showAnimation) return null;
+  // If they've already seen it, or not on the homepage, return nothing so it doesn't even render or animate out
+  if (!showAnimation || pathname !== '/') return null;
 
   return (
     <>

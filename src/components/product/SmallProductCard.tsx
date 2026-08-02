@@ -5,7 +5,6 @@ import { optimizeImage } from '@/lib/optimizeImage';
 import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
-import { useRouter } from 'next/navigation';
 
 interface SmallProductCardProps {
     brand: string;
@@ -28,23 +27,10 @@ const SmallProductCard: React.FC<SmallProductCardProps> = ({
     slug,
     stockStatus
 }) => {
-    const router = useRouter();
-    const prefetched = useRef(false);
-
-    const handlePrefetch = () => {
-        if (!prefetched.current) {
-            router.prefetch(`/product/${slug}`);
-            prefetched.current = true;
-        }
-    };
-
     return (
         <Link
             href={`/product/${slug}`}
             prefetch={false}
-            onPointerDown={handlePrefetch}
-            onTouchStart={handlePrefetch}
-            onMouseEnter={handlePrefetch}
             className={`group flex w-[150px] md:w-[170px] flex-shrink-0 flex-col items-start gap-[8px] rounded-[20px] border border-[#f2f9f1] bg-[#ffffff] p-[10px] transition-all active:scale-[0.98] ${stockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
         >
 
