@@ -82,6 +82,16 @@ export async function validateCoupon(
     };
   }
 
+  // 3.5 Check for Sale Items
+  const hasSaleItem = items.some(item => item.is_sale);
+  if (hasSaleItem) {
+    return {
+      isValid: false,
+      discountAmount: 0,
+      message: "Coupons cannot be applied when your cart contains sale items"
+    };
+  }
+
   // 4. Check Product Eligibility
   let eligibleAmount = subtotal;
   if (typedCoupon.product_id) {

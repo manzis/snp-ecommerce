@@ -38,7 +38,7 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
       >
-        <h2 className="font-rajdhani text-[22px] lg:text-[28px] font-bold tracking-[-0.4px] text-[#242424] group-active:opacity-80 transition-opacity">
+        <h2 className="font-rajdhani text-[20px] font-bold tracking-[-0.4px] text-[#242424] leading-[18px] group-active:opacity-80 transition-opacity">
           Questions & Answers
         </h2>
         <button

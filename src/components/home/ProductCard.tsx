@@ -22,6 +22,7 @@ interface ProductCardProps {
         discount_type: string;
         discount_value: number;
         ends_at: string;
+        max_discount_percentage?: number;
     };
 }
 
@@ -121,7 +122,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             </span>
                             
                             {activeSale ? (
-                                <span className="bg-gradient-to-r from-red-600 to-red-500 bg-clip-text font-rajdhani font-bold text-[17px] leading-[22px] text-transparent flex items-center gap-1">
+                                <span className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text font-rajdhani font-bold text-[17px] leading-[22px] text-transparent flex items-center gap-1">
                                     Rs. {
                                         activeSale.discount_type === 'PERCENTAGE' 
                                             ? Math.round(Number(discountedPrice) * (1 - activeSale.discount_value / 100))
@@ -143,7 +144,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                         {activeSale.name}
                                     </span>
                                     <span className="text-[9px] font-semibold bg-red-50 text-red-500 px-1.5 rounded-sm">
-                                        {activeSale.discount_type === 'PERCENTAGE' ? `${activeSale.discount_value}% OFF` : `रु ${activeSale.discount_value} OFF`}
+                                        {(activeSale.max_discount_percentage || 0) > 0 
+                                            ? `Up to ${activeSale.max_discount_percentage}% OFF` 
+                                            : activeSale.discount_type === 'PERCENTAGE' ? `${activeSale.discount_value}% OFF` : `रु ${activeSale.discount_value} OFF`}
                                     </span>
                                 </div>
                             </div>

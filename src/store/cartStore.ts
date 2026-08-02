@@ -227,6 +227,8 @@ export const useCartStore = create<CartState>()(
         const { coupon, items } = get();
         if (!coupon) return 0;
 
+        if (items.some(item => item.is_sale)) return 0;
+
         const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
         // 1. Min Cart Value check

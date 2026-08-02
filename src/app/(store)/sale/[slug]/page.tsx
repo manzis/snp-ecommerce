@@ -76,7 +76,22 @@ async function SaleDataWrapper({ slug }: { slug: string }) {
   
   const discountText = sale.discount_type === 'PERCENTAGE' ? `${sale.discount_value}% OFF` : `रु ${sale.discount_value} OFF`;
   const endsAtDate = new Date(sale.ends_at);
-  const isExpiringSoon = endsAtDate.getTime() - new Date().getTime() < 86400000;
+  const now = new Date();
+  const isExpired = endsAtDate < now;
+  const isExpiringSoon = endsAtDate.getTime() - now.getTime() < 86400000;
+
+  let agoText = '';
+  if (isExpired) {
+      const diffMs = Math.abs(now.getTime() - endsAtDate.getTime());
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const minutes = Math.floor(diffMs / (1000 * 60));
+      
+      if (days > 0) agoText = `${days} day${days > 1 ? 's' : ''}`;
+      else if (hours > 0) agoText = `${hours} hour${hours > 1 ? 's' : ''}`;
+      else if (minutes > 0) agoText = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+      else agoText = 'a few seconds';
+  }
 
   return (
     <div className="flex flex-col w-full lg:items-center bg-[#fcfcfc]">
@@ -97,11 +112,11 @@ async function SaleDataWrapper({ slug }: { slug: string }) {
             <div className="flex flex-wrap items-center gap-3 mb-3">
                 <span className="bg-red-600 text-white text-[10px] lg:text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg shadow-red-900/50 uppercase tracking-wider">
                     <Tag className="w-3.5 h-3.5" />
-                    {discountText} Additional
+                    {sale.max_discount_percentage > 0 ? `Up to ${sale.max_discount_percentage}% OFF` : discountText + ' Additional'}
                 </span>
-                <span className={`flex items-center gap-1.5 text-[10px] lg:text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-md ${isExpiringSoon ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-white/20 text-white border border-white/20'}`}>
+                <span className={`flex items-center gap-1.5 text-[10px] lg:text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-md ${isExpired ? 'bg-gray-500/80 text-white border border-gray-400' : isExpiringSoon ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-white/20 text-white border border-white/20'}`}>
                     <Clock className="w-3.5 h-3.5" />
-                    {isExpiringSoon ? 'Ending Soon!' : `Ends ${endsAtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                    {isExpired ? `Ended ${agoText} ago` : isExpiringSoon ? 'Ending Soon!' : `Ends ${endsAtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
                 </span>
             </div>
             <h1 className="font-rajdhani text-3xl lg:text-5xl font-bold text-white tracking-tight uppercase">
@@ -111,8 +126,23 @@ async function SaleDataWrapper({ slug }: { slug: string }) {
       </header>
 
       <main className="w-full lg:max-w-[1280px] lg:mt-[24px]">
-        {/* Pass the sale data down to the product section so it can inject the additional discount into the product cards */}
-        <SaleProductSection products={products} sale={sale} />
+        <SaleProductSection products={products} sale={isExpired ? null : sale} />
+        
+        {isExpired && (
+          <div className="fixed bottom-[110px] lg:bottom-12 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center">
+            <div className="bg-red-600 text-white px-5 py-3 shadow-2xl flex items-center gap-3 w-full max-w-md mx-auto pointer-events-auto border border-red-500">
+              <Clock className="w-6 h-6 text-red-200 shrink-0" />
+              <div className="flex flex-col">
+                <span className="font-rajdhani font-bold text-lg uppercase tracking-tight leading-tight">
+                  Sale Ended {agoText} ago !
+                </span>
+                <span className="text-red-100 text-xs mt-0.5">
+                  Products are now at their regular prices.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

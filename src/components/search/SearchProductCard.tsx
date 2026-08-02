@@ -110,7 +110,7 @@ const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product
           {activeSale ? (
             <div className="flex items-center gap-[2px]">
               <svg className="text-[#ff0000]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-              <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-gradient-to-r from-[#ff0000] to-[#ff4d4d] bg-clip-text text-transparent">
+              <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text text-transparent">
                 Rs. {finalDiscounted}
               </span>
             </div>

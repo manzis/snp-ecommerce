@@ -12,6 +12,30 @@ interface AvailabilityProps {
 
 const Availability: React.FC<AvailabilityProps> = ({ stockStatus }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [viewers, setViewers] = useState(92);
+
+  // Use useEffect to set random number after mount to avoid hydration mismatch
+  React.useEffect(() => {
+    const initialViewers = Math.floor(Math.random() * (100 - 25 + 1)) + 25;
+    setViewers(initialViewers);
+
+    // Simulate live traffic fluctuations every 4-6 seconds
+    const interval = setInterval(() => {
+      setViewers(prev => {
+        // Random change between -2 and +4
+        const change = Math.floor(Math.random() * 7) - 2;
+        let next = prev + change;
+        
+        // Ensure it stays within bounds
+        if (next < 25) next = 25 + Math.floor(Math.random() * 5);
+        if (next > 100) next = 100 - Math.floor(Math.random() * 5);
+        
+        return next;
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const getStatusColor = () => {
     switch (stockStatus) {
@@ -75,11 +99,22 @@ const Availability: React.FC<AvailabilityProps> = ({ stockStatus }) => {
 
         {/* FRAME 43: Social Proof (32px) */}
         <div className="flex w-full items-center justify-center gap-[4px] px-[12px] py-[8px] shrink-0">
-          <div className="relative  w-[16px] flex-shrink-0">
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes eyeFlash {
+              0% { transform: scale(1); opacity: 1; }
+              50% { transform: scale(1.35); opacity: 0.3; }
+              100% { transform: scale(1); opacity: 1; }
+            }
+          `}} />
+          <div 
+            key={viewers}
+            className="relative w-[16px] flex-shrink-0"
+            style={{ animation: 'eyeFlash 0.5s cubic-bezier(0.4, 0, 0.2, 1) 1' }}
+          >
             <EyeIcon className="h-full w-full text-[#000000]" />
           </div>
           <p className="whitespace-nowrap font-rajdhani text-[14px] font-medium leading-[16px] text-[#121212]">
-            92 People viewing this item now, <span className="font-semibold">Selling Fast!</span>
+            {viewers} People viewing this item now, <span className="font-semibold">Selling Fast!</span>
           </p>
         </div>
       </section>

@@ -27,6 +27,7 @@ export async function createSaleAction(formData: {
     discount_value: number;
     ends_at: string;
     product_ids: string[];
+    max_discount_percentage?: number;
 }) {
     const supabase = await createClient();
 
@@ -53,7 +54,8 @@ export async function createSaleAction(formData: {
                 discount_type: formData.discount_type,
                 discount_value: formData.discount_value,
                 ends_at: formData.ends_at,
-                is_active: true
+                is_active: true,
+                max_discount_percentage: formData.max_discount_percentage || 0
             })
             .select()
             .single();
@@ -96,6 +98,7 @@ export async function updateSaleAction(saleId: string, formData: {
     discount_value: number;
     ends_at: string;
     product_ids: string[];
+    max_discount_percentage?: number;
 }) {
     const supabase = await createClient();
 
@@ -121,7 +124,8 @@ export async function updateSaleAction(saleId: string, formData: {
                 banner_image: formData.banner_image,
                 discount_type: formData.discount_type,
                 discount_value: formData.discount_value,
-                ends_at: formData.ends_at
+                ends_at: formData.ends_at,
+                max_discount_percentage: formData.max_discount_percentage || 0
             })
             .eq('id', saleId)
             .select()
@@ -228,6 +232,49 @@ export async function toggleSaleActiveAction(saleId: string, isActive: boolean) 
     } catch (error: any) {
         console.error('Action Error: toggleSaleActiveAction:', error);
         return { success: false, message: error.message || 'Failed to toggle sale status.' };
+    }
+}
+
+/**
+ * Deletes a sale offer completely
+ */
+export async function deleteSaleAction(saleId: string) {
+    const supabase = await createClient();
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { success: false, message: 'Unauthorized' };
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (profile?.role !== 'admin') return { success: false, message: 'Forbidden' };
+
+    try {
+        const { error: deleteJunctionError } = await supabase
+            .from('sales_offers_products')
+            .delete()
+            .eq('sale_id', saleId);
+
+        if (deleteJunctionError) throw deleteJunctionError;
+
+        const { error: deleteError } = await supabase
+            .from('sales_offers')
+            .delete()
+            .eq('id', saleId);
+
+        if (deleteError) throw deleteError;
+
+        revalidatePath('/admin/offers');
+        revalidatePath('/');
+        revalidateTag('sales', 'max');
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('Action Error: deleteSaleAction:', error);
+        return { success: false, message: error.message || 'Failed to delete sale.' };
     }
 }
 

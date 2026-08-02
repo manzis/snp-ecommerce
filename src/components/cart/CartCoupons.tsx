@@ -69,11 +69,11 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
             key={shakeCount}
             animate={shakeCount > 0 ? { x: [0, -10, 10, -7, 7, -4, 4, 0] } : {}}
             transition={{ duration: 0.4 }}
-            className={`flex items-center justify-between rounded-[12px] border-[1px] p-[12px] transition-all duration-300 ${isApplied
-              ? 'border-[#308026]'
+            className={`flex items-center justify-between rounded-[12px] p-[12px] transition-all duration-300 focus-within:border-[1.5px] ${isApplied
+              ? 'border-[1.5px] border-[#308026] focus-within:border-[#308026]'
               : errorMessage
-                ? 'border-[#e11717]'
-                : 'border-transparent'
+                ? 'border border-[#e11717] focus-within:border-[#e11717]'
+                : 'border border-transparent focus-within:border-[#3F9733]'
               }`}
             style={{
               background: isApplied
@@ -194,8 +194,8 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
             >
               <div className="flex items-center gap-[6px]">
                 <CouponAppliedIcon className="h-[15px] w-[15px] text-[#3F9733]" />
-                <p className="font-rajdhani text-[16px] text-[#242424]">
-                  Rs {lastDiscount || currentDiscount} Saved with <span className="font-semibold uppercase tracking-[0.5px]">“{coupon?.code}”</span>
+                <p className="font-rajdhani text-[15px] font-medium text-[#308026]">
+                  Rs {lastDiscount || currentDiscount} Saved with <span className="font-bold uppercase tracking-[0.5px]">“{coupon?.code}”</span>
                 </p>
               </div>
               <button

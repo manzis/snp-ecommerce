@@ -57,6 +57,40 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       .reduce((acc, i) => acc + ((i.bundle_discount || 0) * i.quantity), 0));
   }, [items, item.bundle_id]);
 
+  const [saleTimeLeft, setSaleTimeLeft] = React.useState('');
+
+  React.useEffect(() => {
+    if (!item.is_sale || !item.sale_end_date) return;
+    const endsAt = new Date(item.sale_end_date).getTime();
+
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const distance = endsAt - now;
+
+      if (distance < 0) {
+        setSaleTimeLeft('Ended');
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0 || days > 0) parts.push(`${hours}h`);
+      parts.push(`${minutes}m`);
+      parts.push(`${seconds}s`);
+
+      setSaleTimeLeft(parts.join(' '));
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [item.is_sale, item.sale_end_date]);
+
   return (
     <div className="flex w-full flex-col border-t border-[#f1f5f9] bg-white relative overflow-hidden">
       {/* Savings Header - All Bundle Items */}
@@ -103,23 +137,25 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           </div>
 
 
-          <div className="flex items-center gap-[6px]">
-            {item.mrp > (item.price - (item.bundle_discount || 0)) && (
-              <div className="flex items-center text-[#308026] mr-[4px]">
-                <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
-                <span className="font-rajdhani text-[18px] font-semibold tracking-[-0.5px]">
-                  {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0))) / item.mrp) * 100)}%
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-[6px]">
+              {item.mrp > (item.price - (item.bundle_discount || 0)) && (
+                <div className="flex items-center text-[#308026] mr-[4px]">
+                  <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
+                  <span className="font-rajdhani text-[18px] font-semibold tracking-[-0.5px]">
+                    {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0))) / item.mrp) * 100)}%
+                  </span>
+                </div>
+              )}
+              {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0)) && (
+                <span className="font-rajdhani text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-0.8px]">
+                  Rs. {item.mrp.toLocaleString()}
                 </span>
-              </div>
-            )}
-            {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0)) && (
-              <span className="font-rajdhani text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-0.8px]">
-                Rs. {item.mrp.toLocaleString()}
+              )}
+              <span className={`font-rajdhani font-bold text-[18px] ${item.is_sale ? 'bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)]' : 'bg-gradient-to-r from-[#308026] to-[#3AAF2A]'} bg-clip-text text-transparent`}>
+                Rs. {Math.round(item.price - (item.bundle_discount || 0)).toLocaleString()}
               </span>
-            )}
-            <span className="font-rajdhani font-bold text-[18px] bg-gradient-to-r from-[#308026] to-[#3AAF2A] bg-clip-text text-transparent">
-              Rs. {Math.round(item.price - (item.bundle_discount || 0)).toLocaleString()}
-            </span>
+            </div>
           </div>
 
 
@@ -129,6 +165,13 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               <span>{[item.selected_size, item.selected_flavor].filter(Boolean).join(', ')}</span>
             )}
           </div>
+
+          {item.is_sale && saleTimeLeft && (
+            <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[#E3241B] mt-[-2px]">
+              <FlashIcon className="w-[14px] h-[14px]" />
+              <span>Sale ends in {saleTimeLeft}</span>
+            </div>
+          )}
 
           {/* Quantity Selector */}
           <div className="relative flex w-[79px] items-center justify-center gap-[10px] rounded-[6px] border border-[#f1f5f9]  py-[8px] active:scale-95 transition-all hover:border-[#3F9733]">

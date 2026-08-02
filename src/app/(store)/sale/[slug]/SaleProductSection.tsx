@@ -5,7 +5,7 @@ import ProductCard from '@/components/search/SearchProductCard';
 
 interface SaleProductSectionProps {
   products: any[];
-  sale: any;
+  sale: any | null;
 }
 
 export default function SaleProductSection({ products, sale }: SaleProductSectionProps) {
@@ -14,6 +14,8 @@ export default function SaleProductSection({ products, sale }: SaleProductSectio
   // Helper to calculate the final price after sale discount
   const getFinalPrice = (product: any) => {
       const basePrice = Number(product.discounted_price);
+      if (!sale) return basePrice;
+      
       if (sale.discount_type === 'PERCENTAGE') {
           return basePrice * (1 - sale.discount_value / 100);
       }
@@ -74,12 +76,12 @@ export default function SaleProductSection({ products, sale }: SaleProductSectio
               <ProductCard
                 key={p.id}
                 product={p}
-                activeSale={{
+                activeSale={sale ? {
                   name: sale.name,
                   discount_type: sale.discount_type,
                   discount_value: sale.discount_value,
                   ends_at: sale.ends_at
-                }}
+                } : undefined}
               />
             );
           })}

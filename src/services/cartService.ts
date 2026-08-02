@@ -15,6 +15,8 @@ export interface CartItemType {
   stock_status?: string;
   bundle_id?: string;
   bundle_discount?: number;
+  is_sale?: boolean;
+  sale_end_date?: string;
 }
 
 export const getCartItemId = (item: { 
@@ -110,12 +112,17 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
     let parsedPrice = product ? parseInt(String(livePrice || '0').replace(/\D/g, ''), 10) : (row.price || 0);
     const parsedMrp = product ? parseInt(String(liveMrp || '0').replace(/\D/g, ''), 10) : (row.original_price || 0);
 
+    let isSale = false;
+    let saleEndDate: string | undefined = undefined;
+
     if (product?.sales_offers_products?.length > 0) {
       const activeSale = product.sales_offers_products
         .map((sop: any) => sop.sales_offers)
         .find((sale: any) => sale && sale.is_active && new Date(sale.ends_at) > new Date());
       
       if (activeSale) {
+        isSale = true;
+        saleEndDate = activeSale.ends_at;
         if (activeSale.discount_type === 'PERCENTAGE') {
           parsedPrice = Math.round(parsedPrice * (1 - activeSale.discount_value / 100));
         } else {
@@ -140,15 +147,17 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       name: product?.name || 'Product',
       slug: product?.slug || '',
       brand: product?.brands?.name || 'Store Product',
-      price: product ? parseInt(String(livePrice || '0').replace(/\D/g, ''), 10) : (row.price || 0),
-      mrp: product ? parseInt(String(liveMrp || '0').replace(/\D/g, ''), 10) : (row.original_price || 0),
+      price: parsedPrice,
+      mrp: parsedMrp,
       image: flavourImage || product?.images?.[0] || '',
       quantity: row.quantity,
       selected_size: selectedSize,
       selected_flavor: selectedFlavor,
       stock_status: product?.stock_status || 'in_stock',
       bundle_id: row.bundle_id === 'standard' ? undefined : row.bundle_id,
-      bundle_discount: row.bundle_discount || 0
+      bundle_discount: row.bundle_discount || 0,
+      is_sale: isSale,
+      sale_end_date: saleEndDate
     };
 
     const existing = itemsMap.get(item.id);
@@ -359,12 +368,17 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       ? parseInt(String(liveMrp || '0').replace(/\D/g, ''), 10) 
       : item.mrp;
 
+    let isSale = false;
+    let saleEndDate: string | undefined = undefined;
+
     if (product?.sales_offers_products?.length > 0) {
       const activeSale = product.sales_offers_products
         .map((sop: any) => sop.sales_offers)
         .find((sale: any) => sale && sale.is_active && new Date(sale.ends_at) > new Date());
       
       if (activeSale) {
+        isSale = true;
+        saleEndDate = activeSale.ends_at;
         if (activeSale.discount_type === 'PERCENTAGE') {
           parsedPrice = Math.round(parsedPrice * (1 - activeSale.discount_value / 100));
         } else {
@@ -377,7 +391,9 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       ...item,
       price: parsedPrice,
       mrp: parsedMrp,
-      stock_status: product.stock_status || item.stock_status
+      stock_status: product.stock_status || item.stock_status,
+      is_sale: isSale,
+      sale_end_date: saleEndDate
     };
   });
 };

@@ -28,7 +28,7 @@ const MoreByBrandSection: React.FC<MoreByBrandSectionProps> = ({
         <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,100 L0,100 Z" />
       </svg>
 
-      <div className="w-full bg-[#f2faf2] py-[16px] md:py-[24px] px-[16px] flex flex-col items-center">
+      <div className="w-full bg-[#f2faf2] pt-[40px] pb-[16px] md:pt-[60px] md:pb-[24px] px-[16px] flex flex-col items-center">
         <div className="w-full max-w-[1440px] flex flex-col items-center gap-[24px] md:gap-[32px]">
           {/* HEADER */}
           <div className="flex flex-col items-center gap-[8px]">

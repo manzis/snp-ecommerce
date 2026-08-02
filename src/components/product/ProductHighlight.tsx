@@ -75,7 +75,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
 
   return (
     <section className="relative mx-auto flex w-full max-w-[362px] md:max-w-none flex-col items-start gap-[24px] lg:mx-0 select-none">
-      <h2 className="font-rajdhani text-[20px] font-semibold leading-[18px] tracking-[-0.4px] text-[#242424]">
+      <h2 className="font-rajdhani text-[20px] font-bold tracking-[-0.4px] text-[#242424] leading-[18px]">
         Product Highlights
       </h2>
 
