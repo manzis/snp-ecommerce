@@ -128,22 +128,16 @@ const ProductHeader = ({
             <RedirectIcon className="w-[14px] h-[14px] text-[#AAAAAA] group-hover:text-[#555] transition-colors duration-150 shrink-0" />
           </Link>
 
-          {activeSale && timeLeft && (
-            <div className="ml-auto flex items-center gap-1.5">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 mb-[1px]" fill="url(#flash-grad)" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="flash-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#ff0000" />
-                    <stop offset="70%" stopColor="#ff2a00" />
-                    <stop offset="100%" stopColor="#ff7300" />
-                  </linearGradient>
-                </defs>
-                <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
-              </svg>
-              <span className="font-rajdhani font-bold text-[12px] bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text text-transparent">
-                {timeLeft === 'Ended' ? 'SALE HAS ENDED' : `Sale Ends in ${timeLeft}`}
+          {activeSale && (
+            <Link href={`/sale/${activeSale.slug || ''}`} className="ml-auto group flex items-center gap-[8px] bg-black text-white p-[4px] pr-[8px] lg:pr-[12px] shadow-sm hover:opacity-90 transition-opacity">
+                <div className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] text-white text-[10px] font-bold px-[6px] py-[2px] uppercase tracking-wider leading-none flex items-center justify-center">
+                    SALE
+                </div>
+              <span className="font-rajdhani font-bold text-[11px] lg:text-[12px] leading-none uppercase tracking-wider mt-[1px]">
+                {activeSale.name}
               </span>
-            </div>
+              <RedirectIcon className="w-2.5 h-2.5 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
+            </Link>
           )}
         </div>
 
@@ -191,16 +185,22 @@ const ProductHeader = ({
             <span className="h-[10px] font-rajdhani text-[12px] font-[500] leading-[10px] text-[#606060] whitespace-nowrap">
               *inclusive of all taxes
             </span>
-            {activeSale && (
-              <Link href={`/sale/${activeSale.slug || ''}`} className="group flex items-center gap-[8px] bg-black text-white p-[4px] pr-[8px] lg:pr-[12px] shadow-sm hover:opacity-90 transition-opacity">
-                  <div className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] text-white text-[10px] font-bold px-[6px] py-[2px] uppercase tracking-wider leading-none flex items-center justify-center">
-                      SALE
-                  </div>
-                <span className="font-rajdhani font-bold text-[11px] lg:text-[12px] leading-none uppercase tracking-wider mt-[1px]">
-                  {activeSale.name}
+            {activeSale && timeLeft && (
+              <div className="flex items-center gap-1.5">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 mb-[1px]" fill="url(#flash-grad)" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="flash-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#ff0000" />
+                      <stop offset="70%" stopColor="#ff2a00" />
+                      <stop offset="100%" stopColor="#ff7300" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>
+                </svg>
+                <span className="font-rajdhani font-bold text-[12px] bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text text-transparent">
+                  {timeLeft === 'Ended' ? 'SALE HAS ENDED' : `Sale Ends in ${timeLeft}`}
                 </span>
-                <RedirectIcon className="w-2.5 h-2.5 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
-              </Link>
+              </div>
             )}
           </div>
         </div>

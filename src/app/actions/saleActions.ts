@@ -383,3 +383,39 @@ export async function fetchActiveSaleForProductAction(productId: string) {
         return { success: false, message: error.message };
     }
 }
+
+/**
+ * Fetches the active sale for a specific product by SLUG (For parallel data fetching)
+ */
+export async function fetchActiveSaleForProductBySlugAction(slug: string) {
+    const supabase = await createClient();
+
+    try {
+        const { data, error } = await supabase
+            .from('sales_offers_products')
+            .select(`
+                sales_offers (
+                    id, name, slug, discount_type, discount_value, ends_at, is_active
+                ),
+                products!inner(slug)
+            `)
+            .eq('products.slug', slug);
+
+        if (error) {
+            if (error.code === '42P01' || error.code === 'PGRST116') return { success: true, data: null };
+            throw error;
+        }
+
+        if (!data || data.length === 0) return { success: true, data: null };
+
+        // Find the first active sale that hasn't expired
+        const activeSale = data.map((d: any) => d.sales_offers).find((sale: any) =>
+            sale && sale.is_active && new Date(sale.ends_at) > new Date()
+        );
+
+        return { success: true, data: activeSale || null };
+    } catch (error: any) {
+        console.error('Action Error: fetchActiveSaleForProductBySlugAction:', error);
+        return { success: false, message: error.message };
+    }
+}

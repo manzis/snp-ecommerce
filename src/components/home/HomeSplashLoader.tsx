@@ -8,36 +8,28 @@ export default function HomeSplashLoader() {
   const [showAnimation, setShowAnimation] = useState(true);
 
   useEffect(() => {
-    const lastVisit = localStorage.getItem('lastSplashTime');
-    const now = Date.now();
+    const hasSeenSplash = localStorage.getItem('hasSeenSplash');
     
-    // 30 minutes in milliseconds (Simulates a "warm" cache/database period)
-    const WARM_UP_TIME = 30 * 60 * 1000;
-    let timer: NodeJS.Timeout;
-    
-    if (lastVisit && (now - parseInt(lastVisit) < WARM_UP_TIME)) {
-      // Visited recently, assets and DB are likely warm/cached. Skip the loader.
-      localStorage.setItem('lastSplashTime', now.toString());
+    if (hasSeenSplash === 'true') {
+      // Already seen, skip completely.
       setShowAnimation(false);
       setIsLoading(false);
     } else {
-      // True cold start (First visit or haven't visited in 30 mins)
-      // Lock scroll while loader is visible
+      // First visit
       document.body.style.overflow = 'hidden';
       
-      // Hide loader after a short delay to ensure assets are ready
-      timer = setTimeout(() => {
+      // Hide loader after a short delay
+      const timer = setTimeout(() => {
         setIsLoading(false);
         document.body.style.overflow = '';
-        // Set localStorage ONLY after loader finishes so React Strict Mode doesn't abort it
-        localStorage.setItem('lastSplashTime', Date.now().toString());
+        localStorage.setItem('hasSeenSplash', 'true');
       }, 1200);
-    }
 
-    return () => {
-      if (timer) clearTimeout(timer);
-      document.body.style.overflow = '';
-    };
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = '';
+      };
+    }
   }, []);
 
   // If they've already seen it, return nothing so it doesn't even render or animate out
@@ -55,9 +47,7 @@ export default function HomeSplashLoader() {
         dangerouslySetInnerHTML={{
           __html: `
             try {
-              var lastVisit = localStorage.getItem('lastSplashTime');
-              var now = Date.now();
-              if (lastVisit && (now - parseInt(lastVisit) < 30 * 60 * 1000)) {
+              if (localStorage.getItem('hasSeenSplash') === 'true') {
                 var style = document.createElement('style');
                 style.innerHTML = '#snp-splash-screen { display: none !important; }';
                 document.head.appendChild(style);

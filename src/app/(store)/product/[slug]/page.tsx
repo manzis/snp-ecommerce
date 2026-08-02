@@ -19,7 +19,7 @@ import MoreByBrandSection from '@/components/product/MoreByBrandSection';
 import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
 import { fetchProducts, fetchProductBySlug, fetchProductSEO, fetchRelatedProducts, fetchBrandRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
-import { fetchActiveSaleForProductAction } from '@/app/actions/saleActions';
+import { fetchActiveSaleForProductBySlugAction } from '@/app/actions/saleActions';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { preload } from 'react-dom';
@@ -161,17 +161,18 @@ const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
 );
 
 async function ProductContent({ slug }: { slug: string }) {
-  const [product, dbOverride, bannerSetting] = await Promise.all([
+  const [product, dbOverride, bannerSetting, saleResult] = await Promise.all([
     fetchProductBySlug(slug),
     getSeoProductBySlug(slug),
     getSiteSetting('why_choose_us_banner'),
+    fetchActiveSaleForProductBySlugAction(slug)
   ]);
 
   if (!product) {
     notFound();
   }
 
-  const { data: activeSale } = await fetchActiveSaleForProductAction(product.id);
+  const activeSale = saleResult?.data || null;
 
   // Preload the first image immediately for LCP
   if (product.images?.[0]) {
