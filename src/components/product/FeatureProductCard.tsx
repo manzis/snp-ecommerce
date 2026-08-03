@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { optimizeImage } from '@/lib/optimizeImage';
+import { useUIStore } from '@/store/uiStore';
 
 // --- TYPES ---
 export interface FeaturedProductCardProps {
@@ -39,11 +40,16 @@ export default function FeaturedProductCard({
     productUrl = MOCK_PRODUCT.productUrl!,
     stockStatus,
 }: FeaturedProductCardProps) {
+    const setNavigatingProductSlug = useUIStore(s => s.setNavigatingProductSlug);
+    
+    // Extract slug from productUrl (e.g., "/product/slug" -> "slug")
+    const slug = productUrl.split('/').pop() || '';
+
     return (
         <article className="group flex w-full max-w-[169px] mx-auto flex-col gap-[8px] items-start relative font-['Rajdhani',sans-serif]">
             <Link
                 href={productUrl}
-                prefetch={false}
+                onClick={() => setNavigatingProductSlug(slug)}
                 className="flex flex-col gap-[8px] w-full focus:outline-none"
             >
 

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import StarIcon from '@/components/icons/StarIcon';
 import { optimizeImage } from '@/lib/optimizeImage';
+import { useUIStore } from '@/store/uiStore';
 
 import { Product } from '@/services/productService';
 
@@ -30,10 +31,12 @@ const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product
     displayPercentage = Math.round(((baseOriginal - finalDiscounted) / baseOriginal) * 100).toString();
   }
 
+  const setNavigatingProductSlug = useUIStore(s => s.setNavigatingProductSlug);
+
   return (
     <Link
       href={`/product/${product.slug}`}
-      prefetch={false}
+      onClick={() => setNavigatingProductSlug(product.slug)}
       className={`group relative flex w-full flex-col gap-[4px] border-r border-b border-[#e8e8e8] bg-white transition-all active:scale-[0.98] lg:gap-0 ${product.stock_status === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}
     >
       {/* IMAGE & BADGES CONTAINER */}

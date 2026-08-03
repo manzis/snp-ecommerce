@@ -8,6 +8,8 @@ interface UIState {
   showBack: boolean;
   onBack?: () => void;
   setNavData: (data: Partial<Pick<UIState, 'navTitle' | 'navSubtitle' | 'showBack' | 'onBack'>>) => void;
+  navigatingProductSlug: string | null;
+  setNavigatingProductSlug: (slug: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -18,4 +20,6 @@ export const useUIStore = create<UIState>((set) => ({
   showBack: true,
   onBack: undefined,
   setNavData: (data) => set((state) => ({ ...state, ...data })),
+  navigatingProductSlug: null,
+  setNavigatingProductSlug: (slug) => set({ navigatingProductSlug: slug }),
 }));

@@ -9,6 +9,7 @@ import { useCartStore } from '@/store/cartStore';
 import HomeBottomNav from '@/components/home/HomeBottomNav';
 import FloatingNav from '@/components/layout/FloatingNav';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
+import GlobalProductLoadingOverlay from '@/components/layout/GlobalProductLoadingOverlay';
 
 // Lazy-load below-fold / non-critical layout elements
 // Footer & FloatingNav must SSR so Googlebot can see internal links (products, brands, policies)
@@ -65,6 +66,7 @@ export default function ConditionalLayoutElements() {
             <HomeBottomNav key="global-bottom-nav" />
             <Footer key="global-footer" />
             <CartSidebar key="global-cart-sidebar" />
+            <GlobalProductLoadingOverlay key="global-product-loading" />
         </>
     );
 }
