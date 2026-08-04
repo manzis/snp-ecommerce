@@ -22,6 +22,7 @@ import LayoutsIcon from '@/components/icons/LayoutsIcon';
 import SettingsIcon from '@/components/icons/SettingsIcon';
 import AnalyticsIcon from '@/components/icons/AnalyticsIcon';
 import PreferencesIcon from '@/components/icons/PreferencesIcon';
+import SearchIcon from '@/components/icons/SearchIcon';
 
 import { AuthService } from '@/services/auth.service';
 import CartIcon from '@/components/icons/CartIcon';
@@ -41,9 +42,11 @@ const MORE_MENU_ITEMS = [
     { label: 'Sellers', icon: AnalyticsIcon, href: '/admin/sellers' },
     { label: 'Layouts', icon: LayoutsIcon, href: '/admin/layouts' },
     { label: 'Coupons', icon: PreferencesIcon, href: '/admin/coupons' }, // Map correctly
+    { label: 'Offers & Sales', icon: PreferencesIcon, href: '/admin/offers' },
     { label: 'Reviews', icon: PreferencesIcon, href: '/admin/reviews' },
     { label: 'QA', icon: PreferencesIcon, href: '/admin/qa' },
     { label: 'Analytics', icon: AnalyticsIcon, href: '/admin/analytics' },
+    { label: 'SEO', icon: SearchIcon, href: '/admin/seo' },
     { label: 'Abandoned Cart', icon: CartIcon, href: '/admin/abandoned-cart' },
 ];
 
