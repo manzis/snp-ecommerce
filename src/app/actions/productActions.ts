@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateProduct } from '@/lib/cacheUtils';
 import { ProductVariant } from '@/services/productService';
 
 /**
@@ -62,8 +63,8 @@ export async function updateProductAction(id: string, updates: any) {
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
     revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/', 'layout');
-    revalidateTag('products', 'max');
+    revalidatePath('/');
+    revalidateProduct(id, data[0]?.slug);
     
     return { success: true, data: data[0] };
   } catch (error: any) {
@@ -126,11 +127,13 @@ export async function updateProductVariantPricesAction(productId: string, varian
 
     if (error) throw error;
 
+    const { data: pData } = await finalClient.from('products').select('slug').eq('id', productId).single();
+
     // 4. Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/', 'layout');
-    revalidateTag('products', 'max');
+    revalidatePath('/');
+    revalidateProduct(productId, pData?.slug);
     
     return { success: true };
   } catch (error: any) {
@@ -408,8 +411,8 @@ export async function createProductAction(productData: any) {
     // 9. Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/', 'layout');
-    revalidateTag('products', 'max');
+    revalidatePath('/');
+    revalidateProduct(productId, newProduct.slug);
 
     return { success: true, data: newProduct };
   } catch (error: any) {
@@ -504,8 +507,8 @@ export async function deleteProductAction(id: string) {
 
     revalidatePath('/admin/products');
     revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/', 'layout');
-    revalidateTag('products', 'max');
+    revalidatePath('/');
+    revalidateProduct(id, product?.slug);
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: deleteProductAction:', error);
@@ -886,8 +889,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
     revalidatePath(`/admin/products/edit/${id}`);
     revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
     revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/', 'layout');
-    revalidateTag('products', 'max');
+    revalidatePath('/');
+    revalidateProduct(id, updatedProduct.slug);
 
     return { success: true, data: updatedProduct };
   } catch (error: any) {

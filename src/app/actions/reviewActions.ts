@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidateProduct } from '@/lib/cacheUtils';
 
 /**
  * Server action to fetch all reviews
@@ -109,7 +110,9 @@ export async function createReviewAction(reviewData: any, productIds: string[] =
     };
 
     revalidatePath('/admin/reviews');
-    revalidateTag('products', 'max');
+    for (const pid of productIds) {
+      revalidateProduct(pid);
+    }
     return { success: true, data: normalizedData };
   } catch (error: any) {
     console.error('Action Error: createReviewAction:', error);
@@ -189,7 +192,9 @@ export async function updateReviewAction(id: string, updates: any, productIds: s
     };
 
     revalidatePath('/admin/reviews');
-    revalidateTag('products', 'max');
+    for (const pid of productIds) {
+      revalidateProduct(pid);
+    }
     return { success: true, data: normalizedReview as any };
   } catch (error: any) {
     console.error('Action Error: updateReviewAction:', error);
@@ -220,6 +225,10 @@ export async function deleteReviewAction(id: string) {
     const adminClient = getSupabaseAdmin();
     const finalClient = adminClient || supabase;
 
+    // Fetch product mappings before deletion to revalidate them
+    const { data: mappings } = await finalClient.from('product_review_mapping').select('product_id').eq('review_id', id);
+    const pids = mappings?.map(m => m.product_id) || [];
+
     const { error } = await finalClient
       .from('reviews')
       .delete()
@@ -228,7 +237,9 @@ export async function deleteReviewAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/reviews');
-    revalidateTag('products', 'max');
+    for (const pid of pids) {
+      revalidateProduct(pid);
+    }
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: deleteReviewAction:', error);

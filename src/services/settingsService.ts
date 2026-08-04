@@ -33,7 +33,7 @@ export const getSiteSetting = cache(async (key: string) => {
       return data?.value || null;
     },
     ['site-setting', key],
-    { revalidate: 604800, tags: ['settings', `setting-${key}`] }
+    { revalidate: 31536000, tags: ['settings', `setting-${key}`] }
   )(key);
 });
 

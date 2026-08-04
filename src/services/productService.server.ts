@@ -16,85 +16,94 @@ export const fetchProducts = cache(unstable_cache(
   async (options?: { brandSlug?: string; categorySlug?: string; search?: string }) => 
     baseService.fetchProducts(options),
   ['products-list'],
-  { revalidate: 604800, tags: ['products'] }
+  { revalidate: 31536000, tags: ['products-list'] }
 ));
 
-export const fetchProductBySlug = cache(unstable_cache(
-  async (slug: string, options?: { requirePublished?: boolean }) => 
-    baseService.fetchProductBySlug(slug, options),
-  ['product-by-slug'],
-  { revalidate: 604800, tags: ['products'] }
-));
+export const fetchProductBySlug = cache(async (slug: string, options?: { requirePublished?: boolean }) => {
+  return unstable_cache(
+    async () => baseService.fetchProductBySlug(slug, options),
+    ['product-by-slug', slug, options?.requirePublished ? 'published' : 'all'],
+    { revalidate: 31536000, tags: [`product-slug-${slug}`] }
+  )();
+});
 
 /**
  * LIGHTWEIGHT SEO FETCHER
  * Fetches only what is needed for generateMetadata to resolve faster.
  */
-export const fetchProductSEO = cache(unstable_cache(
-  async (slug: string) => {
-    const admin = getSupabaseAdmin();
-    if (!admin) return null;
-    const { data } = await admin
-      .from('products')
-      .select('id, name, title, slug, images, brands(name), categories(name)')
-      .eq('slug', slug)
-      .single();
-    
-    if (!data) return null;
+export const fetchProductSEO = cache(async (slug: string) => {
+  return unstable_cache(
+    async () => {
+      const admin = getSupabaseAdmin();
+      if (!admin) return null;
+      const { data } = await admin
+        .from('products')
+        .select('id, name, title, slug, images, brands(name), categories(name)')
+        .eq('slug', slug)
+        .single();
+      
+      if (!data) return null;
 
-    return {
-      ...data,
-      brands: Array.isArray(data.brands) ? data.brands[0] : data.brands,
-      categories: Array.isArray(data.categories) ? data.categories[0] : data.categories
-    } as any;
-  },
-  ['product-seo-only'],
-  { revalidate: 604800, tags: ['products'] }
-));
+      return {
+        ...data,
+        brands: Array.isArray(data.brands) ? data.brands[0] : data.brands,
+        categories: Array.isArray(data.categories) ? data.categories[0] : data.categories
+      } as any;
+    },
+    ['product-seo-only', slug],
+    { revalidate: 31536000, tags: [`product-slug-${slug}`] }
+  )();
+});
 
 export const fetchCategoryBySlug = cache(unstable_cache(
   async (slug: string) => baseService.fetchCategoryBySlug(slug),
   ['category-by-slug'],
-  { revalidate: 604800, tags: ['categories'] }
+  { revalidate: 31536000, tags: ['categories'] }
 ));
 
 export const fetchCategories = cache(unstable_cache(
   async (includeCounts: boolean = true) => baseService.fetchCategories(includeCounts),
   ['categories-list'],
-  { revalidate: 604800, tags: ['categories'] }
+  { revalidate: 31536000, tags: ['categories'] }
 ));
 
 export const fetchBrandBySlug = cache(unstable_cache(
   async (slug: string) => baseService.fetchBrandBySlug(slug),
   ['brand-by-slug'],
-  { revalidate: 604800, tags: ['brands'] }
+  { revalidate: 31536000, tags: ['brands'] }
 ));
 
-export const fetchRelatedProducts = cache(unstable_cache(
-  async (baseProductId: string, categoryId: string | null | undefined, limit: number = 10) => 
-    baseService.fetchRelatedProducts(baseProductId, categoryId, limit),
-  ['related-products'],
-  { revalidate: 604800, tags: ['products'] }
-));
+export const fetchRelatedProducts = cache(async (baseProductId: string, categoryId: string | null | undefined, limit: number = 10) => {
+  return unstable_cache(
+    async () => baseService.fetchRelatedProducts(baseProductId, categoryId, limit),
+    ['related-products', baseProductId, categoryId || 'all', limit.toString()],
+    { revalidate: 31536000, tags: [`product-related-${baseProductId}`] }
+  )();
+});
 
-export const fetchBrandRelatedProducts = cache(unstable_cache(
-  async (baseProductId: string, brandId: string | null | undefined, categoryId: string | null | undefined, limit: number = 10) => 
-    baseService.fetchBrandRelatedProducts(baseProductId, brandId, categoryId, limit),
-  ['brand-related-products'],
-  { revalidate: 604800, tags: ['products', 'brands'] }
-));
+export const fetchBrandRelatedProducts = cache(async (baseProductId: string, brandId: string | null | undefined, categoryId: string | null | undefined, limit: number = 10) => {
+  return unstable_cache(
+    async () => baseService.fetchBrandRelatedProducts(baseProductId, brandId, categoryId, limit),
+    ['brand-related-products', baseProductId, brandId || 'none', categoryId || 'all', limit.toString()],
+    { revalidate: 31536000, tags: [`product-brand-related-${baseProductId}`, 'brands'] }
+  )();
+});
 
-export const fetchProductReviews = cache(unstable_cache(
-  async (productId: string) => baseService.fetchProductReviews(productId),
-  ['product-reviews'],
-  { revalidate: 604800, tags: ['products'] }
-));
+export const fetchProductReviews = cache(async (productId: string) => {
+  return unstable_cache(
+    async () => baseService.fetchProductReviews(productId),
+    ['product-reviews', productId],
+    { revalidate: 31536000, tags: [`product-reviews-${productId}`] }
+  )();
+});
 
-export const fetchProductQA = cache(unstable_cache(
-  async (productId: string) => baseService.fetchProductQA(productId),
-  ['product-qa'],
-  { revalidate: 604800, tags: ['products'] }
-));
+export const fetchProductQA = cache(async (productId: string) => {
+  return unstable_cache(
+    async () => baseService.fetchProductQA(productId),
+    ['product-qa', productId],
+    { revalidate: 31536000, tags: [`product-qa-${productId}`] }
+  )();
+});
 
 /**
  * HOMEPAGE-SPECIFIC CACHED FETCHERS
@@ -105,20 +114,20 @@ export const fetchHomepageProducts = cache(async (sectionKey?: string) => {
   return unstable_cache(
     async (key?: string) => baseService.fetchHomepageProducts(key),
     ['homepage-products', sectionKey || 'default'],
-    { revalidate: 604800, tags: ['products', 'homepage'] }
+    { revalidate: 31536000, tags: ['homepage-products', 'homepage'] }
   )(sectionKey);
 });
 
 export const fetchBrands = cache(unstable_cache(
   async (includeCounts: boolean = true) => baseService.fetchBrands(includeCounts),
   ['brands-list'],
-  { revalidate: 604800, tags: ['brands'] }
+  { revalidate: 31536000, tags: ['brands'] }
 ));
 
 export const fetchHomeTestimonials = cache(unstable_cache(
   async () => baseService.fetchHomeTestimonials(),
   ['home-testimonials'],
-  { revalidate: 604800, tags: ['reviews'] }
+  { revalidate: 31536000, tags: ['reviews'] }
 ));
 
 /**
@@ -160,5 +169,5 @@ export const fetchHomepageFullData = cache(unstable_cache(
     };
   },
   ['homepage-full-data-v1'],
-  { revalidate: 604800, tags: ['products', 'brands', 'banners', 'reviews', 'homepage'] }
+  { revalidate: 31536000, tags: ['homepage-products', 'brands', 'banners', 'reviews', 'homepage'] }
 ));

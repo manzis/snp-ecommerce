@@ -37,7 +37,7 @@ export async function deleteBrandAction(id: string) {
 
     revalidatePath('/admin/brands');
     revalidatePath('/brand/[slug]', 'page');
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     revalidateTag('brands', 'max');
     return { success: true };
   } catch (error: any) {
@@ -80,7 +80,7 @@ export async function updateBrandAction(id: string, updates: any) {
 
     revalidatePath('/admin/brands');
     revalidatePath('/brand/[slug]', 'page');
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     revalidateTag('brands', 'max');
     return { success: true, data: data[0] };
   } catch (error: any) {
@@ -122,7 +122,7 @@ export async function createBrandAction(brandData: any) {
 
     revalidatePath('/admin/brands');
     revalidatePath('/brand/[slug]', 'page');
-    revalidatePath('/', 'layout');
+    revalidatePath('/');
     revalidateTag('brands', 'max');
     return { success: true, data: data[0] };
   } catch (error: any) {

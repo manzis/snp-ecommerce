@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+import { revalidateProduct } from '@/lib/cacheUtils';
 
 export interface SaleOffer {
     id: string;
@@ -80,6 +81,9 @@ export async function createSaleAction(formData: {
         revalidatePath('/admin/offers');
         revalidatePath('/');
         revalidateTag('sales', 'max');
+        for (const pid of formData.product_ids) {
+            revalidateProduct(pid);
+        }
 
         return { success: true, data: sale };
     } catch (error: any) {
@@ -134,6 +138,11 @@ export async function updateSaleAction(saleId: string, formData: {
 
         if (saleError) throw saleError;
 
+        // Fetch old products to invalidate them too
+        const { data: oldJunction } = await supabase.from('sales_offers_products').select('product_id').eq('sale_id', saleId);
+        const oldProductIds = oldJunction?.map(j => j.product_id) || [];
+        const allAffectedProductIds = Array.from(new Set([...oldProductIds, ...formData.product_ids]));
+
         // 2. Clear old linked products
         const { error: deleteError } = await supabase
             .from('sales_offers_products')
@@ -159,6 +168,9 @@ export async function updateSaleAction(saleId: string, formData: {
         revalidatePath('/admin/offers');
         revalidatePath('/');
         revalidateTag('sales', 'max');
+        for (const pid of allAffectedProductIds) {
+            revalidateProduct(pid);
+        }
 
         return { success: true, data: sale };
     } catch (error: any) {
@@ -225,9 +237,15 @@ export async function toggleSaleActiveAction(saleId: string, isActive: boolean) 
 
         if (error) throw error;
 
+        const { data: junction } = await supabase.from('sales_offers_products').select('product_id').eq('sale_id', saleId);
+        const productIds = junction?.map(j => j.product_id) || [];
+
         revalidatePath('/admin/offers');
         revalidatePath('/');
         revalidateTag('sales', 'max');
+        for (const pid of productIds) {
+            revalidateProduct(pid);
+        }
 
         return { success: true };
     } catch (error: any) {
@@ -254,6 +272,9 @@ export async function deleteSaleAction(saleId: string) {
     if (profile?.role !== 'admin') return { success: false, message: 'Forbidden' };
 
     try {
+        const { data: junction } = await supabase.from('sales_offers_products').select('product_id').eq('sale_id', saleId);
+        const productIds = junction?.map(j => j.product_id) || [];
+
         const { error: deleteJunctionError } = await supabase
             .from('sales_offers_products')
             .delete()
@@ -271,6 +292,9 @@ export async function deleteSaleAction(saleId: string) {
         revalidatePath('/admin/offers');
         revalidatePath('/');
         revalidateTag('sales', 'max');
+        for (const pid of productIds) {
+            revalidateProduct(pid);
+        }
 
         return { success: true };
     } catch (error: any) {
@@ -308,7 +332,7 @@ export async function fetchActiveSalesAction() {
             }
         },
         ['active-sales-global'],
-        { revalidate: 3600, tags: ['sales'] }
+        { revalidate: 31536000, tags: ['sales'] }
     )();
 }
 
@@ -360,7 +384,7 @@ export async function fetchSaleBySlugAction(slug: string) {
             }
         },
         [`sale-by-slug-${slug}`],
-        { revalidate: 3600, tags: ['sales', 'products'] }
+        { revalidate: 31536000, tags: ['sales'] }
     )();
 }
 
@@ -402,7 +426,7 @@ export async function fetchActiveSaleForProductAction(productId: string) {
             }
         },
         [`active-sale-product-${productId}`],
-        { revalidate: 3600, tags: ['sales'] }
+        { revalidate: 31536000, tags: [`product-related-${productId}`] }
     )();
 }
 

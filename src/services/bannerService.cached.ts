@@ -42,5 +42,5 @@ export const fetchActiveBannersCached = cache(unstable_cache(
     }
   },
   ['active-banners'],
-  { revalidate: 604800, tags: ['banners'] }
+  { revalidate: 31536000, tags: ['banners'] }
 ));

@@ -21,7 +21,7 @@ export const getSeoGlobal = cache(async (): Promise<SeoGlobal | null> => {
       }
     },
     ['seo-global'],
-    { revalidate: 604800, tags: ['seo'] }
+    { revalidate: 31536000, tags: ['seo'] }
   )();
 });
 
@@ -43,7 +43,7 @@ export const getSeoPage = cache(async (pageIdentifier: string): Promise<SeoPage 
       }
     },
     [`seo-page-${pageIdentifier}`],
-    { revalidate: 604800, tags: ['seo'] }
+    { revalidate: 31536000, tags: ['seo'] }
   )();
 });
 
@@ -64,7 +64,7 @@ export const getSeoProduct = cache(async (productId: string): Promise<SeoProduct
       }
     },
     [`seo-product-${productId}`],
-    { revalidate: 604800, tags: ['seo', 'products'] }
+    { revalidate: 31536000, tags: ['seo', 'products'] }
   )();
 });
 
@@ -85,7 +85,7 @@ export const getSeoProductBySlug = cache(async (slug: string): Promise<SeoProduc
       }
     },
     [`seo-product-slug-${slug}`],
-    { revalidate: 604800, tags: ['seo', 'products'] }
+    { revalidate: 31536000, tags: ['seo', 'products'] }
   )();
 });
 
