@@ -42,6 +42,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
     const finalStockStatus = stockStatus || stock_status;
     const setNavigatingProductSlug = useUIStore(s => s.setNavigatingProductSlug);
+    
+    const [isSaleValid, setIsSaleValid] = React.useState(true);
+    React.useEffect(() => {
+        if (activeSale && new Date(activeSale.ends_at).getTime() < Date.now()) {
+            setIsSaleValid(false);
+        }
+    }, [activeSale]);
+
+    const effectiveSale = isSaleValid ? activeSale : null;
 
     return (
         <Link
@@ -110,12 +119,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
                                 Rs. {originalPrice}
                             </span>
                             
-                            {activeSale ? (
+                            {effectiveSale ? (
                                 <span className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text font-rajdhani font-bold text-[17px] leading-[22px] text-transparent flex items-center gap-1">
                                     Rs. {
-                                        activeSale.discount_type === 'PERCENTAGE' 
-                                            ? Math.round(Number(discountedPrice) * (1 - activeSale.discount_value / 100))
-                                            : Math.max(0, Number(discountedPrice) - activeSale.discount_value)
+                                        effectiveSale.discount_type === 'PERCENTAGE' 
+                                            ? Math.round(Number(discountedPrice) * (1 - effectiveSale.discount_value / 100))
+                                            : Math.max(0, Number(discountedPrice) - effectiveSale.discount_value)
                                     }
                                 </span>
                             ) : (
@@ -125,17 +134,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
                             )}
                         </div>
                         
-                        {activeSale && (
+                        {effectiveSale && (
                             <div className="flex flex-col w-full mt-1.5 pt-1.5 border-t border-red-100">
                                 <div className="flex items-center justify-between w-full">
                                     <span className="text-[10px] font-bold text-red-600 uppercase tracking-tight flex items-center gap-0.5">
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-                                        {activeSale.name}
+                                        {effectiveSale.name}
                                     </span>
                                     <span className="text-[9px] font-semibold bg-red-50 text-red-500 px-1.5 rounded-sm">
-                                        {(activeSale.max_discount_percentage || 0) > 0 
-                                            ? `Up to ${activeSale.max_discount_percentage}% OFF` 
-                                            : activeSale.discount_type === 'PERCENTAGE' ? `${activeSale.discount_value}% OFF` : `रु ${activeSale.discount_value} OFF`}
+                                        {(effectiveSale.max_discount_percentage || 0) > 0 
+                                            ? `Up to ${effectiveSale.max_discount_percentage}% OFF` 
+                                            : effectiveSale.discount_type === 'PERCENTAGE' ? `${effectiveSale.discount_value}% OFF` : `रु ${effectiveSale.discount_value} OFF`}
                                     </span>
                                 </div>
                             </div>

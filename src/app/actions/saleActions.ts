@@ -317,7 +317,7 @@ export async function fetchActiveSalesAction() {
                     .from('sales_offers')
                     .select('*')
                     .eq('is_active', true)
-                    .gt('ends_at', new Date().toISOString())
+                    .gt('ends_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
                     .order('ends_at', { ascending: true });
 
                 if (error) {

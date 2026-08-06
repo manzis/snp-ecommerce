@@ -225,6 +225,13 @@ body {
      HERO SECTION STYLES (moved from inline <style>)
      ============================================ */
 
+  /* Anti-Flash Splash Screen Rule */
+  html.hide-splash #snp-splash-screen {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
   @keyframes heroBgFade {
     0% {
       opacity: 0;

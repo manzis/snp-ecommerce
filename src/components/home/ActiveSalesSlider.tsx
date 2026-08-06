@@ -173,7 +173,7 @@ export default function ActiveSalesSlider({ sales }: ActiveSalesSliderProps) {
                                             <div className="flex items-center gap-1.5 md:gap-2 text-[13px] md:text-base font-medium text-white/90 drop-shadow-md">
                                                 <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
                                                 <span>
-                                                    {timeLeft ? `Ends in ${timeLeft}` : 'Ending Soon!'}
+                                                    {timeLeft === 'Ended' ? 'Sales Ended !' : timeLeft ? `Ends in ${timeLeft}` : 'Ending Soon!'}
                                                 </span>
                                             </div>
                                         )}

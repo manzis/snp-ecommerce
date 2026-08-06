@@ -22,9 +22,9 @@ const MoreByBrandSection: React.FC<MoreByBrandSectionProps> = ({
   }
 
   return (
-    <div className="w-[100vw] relative left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] mt-4 mb-4 flex flex-col">
+    <div className="w-[100vw] lg:w-full relative left-[50%] lg:left-auto right-[50%] lg:right-auto -ml-[50vw] lg:ml-0 -mr-[50vw] lg:mr-0 mt-4 mb-4 flex flex-col rounded-none lg:rounded-[20px] overflow-hidden lg:bg-[#f2faf2]">
       {/* Top Wave */}
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-[45px] md:h-[60px] lg:h-[80px] block text-[#f2faf2]">
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-[45px] md:h-[60px] lg:hidden block text-[#f2faf2]">
         <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,100 L0,100 Z" />
       </svg>
 
@@ -79,7 +79,7 @@ const MoreByBrandSection: React.FC<MoreByBrandSectionProps> = ({
       </div>
 
       {/* Bottom Wave */}
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-[45px] md:h-[60px] lg:h-[80px] block text-[#f2faf2]">
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="w-full h-[45px] md:h-[60px] lg:hidden block text-[#f2faf2]">
         <path fill="currentColor" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,0 L0,0 Z" />
       </svg>
     </div>

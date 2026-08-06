@@ -35,7 +35,7 @@ const ServiceHighlights: React.FC = () => {
         className="relative mx-auto flex w-full max-w-[700px] flex-col items-center bg-white border border-[#E9E9E9] rounded-[6px] p-[4px] gap-[4px] shrink-0 lg:mx-0 lg:max-w-none "
       >
 
-        <div className="flex flex-row items-stretch w-full h-[122px] lg:h-[172px] self-stretch ">
+        <div className="flex flex-row items-stretch w-full self-stretch ">
           {highlights.map((item) => (
             <div
               key={item.id}
@@ -63,7 +63,7 @@ const ServiceHighlights: React.FC = () => {
                 - w-full ensures text centers within the 1/3rd grid
             */}
               <span
-                className="w-full h-[40px] font-rajdhani text-[16px] font-medium leading-[20px] text-[#242424] text-center whitespace-pre-line overflow-hidden"
+                className="w-full min-h-[40px] font-rajdhani text-[16px] font-medium leading-[20px] text-[#242424] text-center whitespace-pre-line overflow-hidden"
               >
                 {item.title}
               </span>

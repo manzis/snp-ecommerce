@@ -147,6 +147,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `
           }}
         ></script>
+        {/* Anti-Flash Splash Screen Script */}
+        <script
+          id="splash-check"
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('hasSeenSplash') === 'true') {
+                  document.documentElement.classList.add('hide-splash');
+                }
+              } catch(e) {}
+            `
+          }}
+        />
       </head>
       <body className="bg-white font-rajdhani font-medium min-h-screen flex flex-col overflow-x-clip">
         <NextTopLoader 

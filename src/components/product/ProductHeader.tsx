@@ -39,6 +39,15 @@ const ProductHeader = ({
   const { currentPrice, originalPrice } = useProductSelectionStore();
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
+  const [isSaleValid, setIsSaleValid] = useState(true);
+
+  React.useEffect(() => {
+    if (activeSale?.ends_at && new Date(activeSale.ends_at).getTime() < Date.now()) {
+      setIsSaleValid(false);
+    }
+  }, [activeSale]);
+
+  const effectiveActiveSale = isSaleValid ? activeSale : null;
 
   const cleanPrice = (val: string | number) => String(val).replace(/NPR\s?/g, '').replace(/Rs\.?\s?/ig, '').trim();
 
@@ -46,10 +55,10 @@ const ProductHeader = ({
   const baseDiscounted = currentPrice ? currentPrice : Number(cleanPrice(propsDiscounted));
   const baseOriginal = originalPrice ? originalPrice : Number(cleanPrice(propsOriginal));
   
-  const finalDiscounted = activeSale 
-    ? activeSale.discount_type === 'PERCENTAGE'
-        ? Math.round(baseDiscounted * (1 - activeSale.discount_value / 100))
-        : Math.max(0, baseDiscounted - activeSale.discount_value)
+  const finalDiscounted = effectiveActiveSale 
+    ? effectiveActiveSale.discount_type === 'PERCENTAGE'
+        ? Math.round(baseDiscounted * (1 - effectiveActiveSale.discount_value / 100))
+        : Math.max(0, baseDiscounted - effectiveActiveSale.discount_value)
     : baseDiscounted;
 
   // Calculate dynamic discount percentage
@@ -128,13 +137,13 @@ const ProductHeader = ({
             <RedirectIcon className="w-[14px] h-[14px] text-[#AAAAAA] group-hover:text-[#555] transition-colors duration-150 shrink-0" />
           </Link>
 
-          {activeSale && (
-            <Link href={`/sale/${activeSale.slug || ''}`} className="ml-auto group flex items-center gap-[8px] bg-black text-white p-[4px] pr-[8px] lg:pr-[12px] shadow-sm hover:opacity-90 transition-opacity">
+          {effectiveActiveSale && (
+            <Link href={`/sale/${effectiveActiveSale.slug || ''}`} className="ml-auto group flex items-center gap-[8px] bg-black text-white p-[4px] pr-[8px] lg:pr-[12px] shadow-sm hover:opacity-90 transition-opacity">
                 <div className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] text-white text-[10px] font-bold px-[6px] py-[2px] uppercase tracking-wider leading-none flex items-center justify-center">
                     SALE
                 </div>
               <span className="font-rajdhani font-bold text-[11px] lg:text-[12px] leading-none uppercase tracking-wider mt-[1px]">
-                {activeSale.name}
+                {effectiveActiveSale.name}
               </span>
               <RedirectIcon className="w-2.5 h-2.5 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
             </Link>
@@ -166,10 +175,10 @@ const ProductHeader = ({
               Rs. {baseOriginal}
             </span>
             <div className="flex items-center gap-[2px]">
-              {activeSale && (
+              {effectiveActiveSale && (
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="url(#flash-grad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
               )}
-              {activeSale ? (
+              {effectiveActiveSale ? (
                  <span className="h-[30px] font-rajdhani font-bold text-[28px] lg:text-[32px] leading-[30px] lg:leading-[32px] bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text text-transparent whitespace-nowrap">
                      Rs. {finalDiscounted}
                  </span>
@@ -185,7 +194,7 @@ const ProductHeader = ({
             <span className="h-[10px] font-rajdhani text-[12px] font-[500] leading-[10px] text-[#606060] whitespace-nowrap">
               *inclusive of all taxes
             </span>
-            {activeSale && timeLeft && (
+            {effectiveActiveSale && timeLeft && (
               <div className="flex items-center gap-1.5">
                 <svg viewBox="0 0 24 24" className="w-5 h-5 mb-[1px]" fill="url(#flash-grad)" xmlns="http://www.w3.org/2000/svg">
                   <defs>

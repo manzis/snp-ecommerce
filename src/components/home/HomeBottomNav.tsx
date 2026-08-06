@@ -153,7 +153,7 @@ const HomeBottomNav: React.FC = () => {
             </>
 
             <nav
-                className={`pointer-events-auto relative flex w-[410px] items-center justify-between bg-white px-[12px] shadow-[0_-1px_4px_0_rgba(0,0,0,0.04)] ${isMounted ? 'transition-all duration-300 ease-out' : ''} will-change-transform`}
+                className={`pointer-events-auto relative flex w-full items-center justify-between bg-white px-[12px] shadow-[0_-8px_24px_-4px_rgba(0,0,0,0.08)] ${isMounted ? 'transition-all duration-300 ease-out' : ''} will-change-transform`}
                 style={{
                     paddingBottom: 'calc(env(safe-area-inset-bottom) + 7px)',
                     paddingTop: '5px',

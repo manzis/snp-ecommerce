@@ -16,18 +16,27 @@ import { Product } from '@/services/productService';
  */
 const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product, activeSale }) => {
 
+  const [isSaleValid, setIsSaleValid] = React.useState(true);
+  React.useEffect(() => {
+    if (activeSale && new Date(activeSale.ends_at).getTime() < Date.now()) {
+      setIsSaleValid(false);
+    }
+  }, [activeSale]);
+
+  const effectiveSale = isSaleValid ? activeSale : null;
+
   // Calculate dynamic sale pricing
   const baseDiscounted = Number(product.discounted_price);
   const baseOriginal = Number(product.original_price);
   
-  const finalDiscounted = activeSale 
-    ? activeSale.discount_type === 'PERCENTAGE'
-        ? Math.round(baseDiscounted * (1 - activeSale.discount_value / 100))
-        : Math.max(0, baseDiscounted - activeSale.discount_value)
+  const finalDiscounted = effectiveSale 
+    ? effectiveSale.discount_type === 'PERCENTAGE'
+        ? Math.round(baseDiscounted * (1 - effectiveSale.discount_value / 100))
+        : Math.max(0, baseDiscounted - effectiveSale.discount_value)
     : baseDiscounted;
 
   let displayPercentage = product.discount_percentage;
-  if (activeSale && baseOriginal > 0) {
+  if (effectiveSale && baseOriginal > 0) {
     displayPercentage = Math.round(((baseOriginal - finalDiscounted) / baseOriginal) * 100).toString();
   }
 
@@ -61,8 +70,8 @@ const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product
         )}
 
         {/* Save Badge - Decorative Custom Font */}
-        <div className={`absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] px-[8px] py-[4px] lg:px-[10px] ${activeSale ? 'bg-[#ff0000]' : 'bg-[#94ff00]'}`}>
-          <span className={`font-rajdhani uppercase font-bold text-[10px] lg:text-[13px] leading-[14px] ${activeSale ? 'text-white' : 'text-[#242424]'}`}>
+        <div className={`absolute right-[11px] top-[11px] z-[10] flex items-center justify-center rounded-[6px] px-[8px] py-[4px] lg:px-[10px] ${effectiveSale ? 'bg-[#ff0000]' : 'bg-[#94ff00]'}`}>
+          <span className={`font-rajdhani uppercase font-bold text-[10px] lg:text-[13px] leading-[14px] ${effectiveSale ? 'text-white' : 'text-[#242424]'}`}>
             save {displayPercentage}%
           </span>
         </div>
@@ -98,7 +107,7 @@ const ProductCard: React.FC<{ product: Product, activeSale?: any }> = ({ product
           </span>
 
           {/* Discounted Price - Custom Font + Brand Green Gradient or Sale Red Gradient */}
-          {activeSale ? (
+          {effectiveSale ? (
             <div className="flex items-center gap-[2px]">
               <svg className="text-[#ff0000]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
               <span className="font-rajdhani font-bold text-[17px] lg:text-[20px] leading-[24px] bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text text-transparent">
