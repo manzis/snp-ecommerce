@@ -12,7 +12,7 @@ const CATEGORIES = [
 
 const HomeCategories: React.FC = () => {
     return (
-        <section className="mx-auto max-w-[1440px] w-full px-[24px] pt-[24px] pb-[24px] md:pt-[40px] md:pb-[32px] lg:px-[60px] lg:pt-[48px] lg:pb-[40px]">
+        <section className="mx-auto max-w-[1440px] w-full px-[24px] pt-[24px] pb-[40px] md:pt-[40px] md:pb-[64px] lg:px-[60px] lg:pt-[48px] lg:pb-[80px]">
             {/* Header */}
             <div className="mb-[24px] flex items-center justify-center md:mb-[32px]">
                 <h2 className="font-rajdhani text-[22px] font-bold text-[#242424] md:text-[28px]">

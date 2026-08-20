@@ -155,14 +155,18 @@ export default function CustomerDetailsModal({
                             </span>
                         </div>
                         <div className="flex flex-wrap justify-center md:justify-start gap-y-2 gap-x-4 mt-2">
-                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
-                                <Mail className="w-3.5 h-3.5" />
-                                <span>{customer.email}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
-                                <Phone className="w-3.5 h-3.5" />
-                                <span>{customer.phone}</span>
-                            </div>
+                            {customer.email && customer.email !== 'No email' && customer.email !== 'N/A' && (
+                                <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
+                                    <Mail className="w-3.5 h-3.5" />
+                                    <span>{customer.email}</span>
+                                </div>
+                            )}
+                            {customer.phone && customer.phone !== 'No phone' && customer.phone !== 'N/A' && (
+                                <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
+                                    <Phone className="w-3.5 h-3.5" />
+                                    <span>{customer.phone}</span>
+                                </div>
+                            )}
                             <div className="flex items-center gap-1.5 text-[12px] text-[#71717a] font-normal">
                                 <Calendar className="w-3.5 h-3.5" />
                                 <span>Joined {new Date(customer.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>

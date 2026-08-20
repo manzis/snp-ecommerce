@@ -231,18 +231,52 @@ export default function ContactPage() {
                                             <circle cx="12" cy="10" r="3" />
                                         </svg>
                                     </div>
-                                    <div className="flex flex-col items-start self-stretch relative z-[62]">
-                                        <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                    <div className="flex flex-col items-start self-stretch relative z-[62] w-full">
+                                        <h3 className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap mb-[4px]">
                                             Visit Us
                                         </h3>
-                                        <p className="text-[12px] font-[500] leading-[24px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
-                                            Bright Nepcare Pvt. Ltd.
-                                        </p>
-                                        <span className="text-[16px] font-[600] leading-[24px] text-[#242424] tracking-[-0.2px] mt-[4px]">
-                                            Butwal, Tilottama<br />
-                                            Butwal Lumbini 32907<br />
-                                            Nepal
-                                        </span>
+                                        
+                                        {/* Main Office */}
+                                        <div className="flex flex-col items-start w-full">
+                                            <p className="text-[12px] font-[600] leading-[20px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                                Main Office
+                                            </p>
+                                            <p className="text-[12px] font-[500] leading-[20px] text-[#535353] tracking-[-0.2px] whitespace-nowrap">
+                                                Bright Nepcare Pvt. Ltd.
+                                            </p>
+                                            <span className="text-[14px] font-[600] leading-[20px] text-[#242424] tracking-[-0.2px] mt-[2px]">
+                                                Kathmandu, Nepal
+                                            </span>
+                                        </div>
+
+                                        {/* Divider */}
+                                        <div className="w-full h-[1px] bg-[#eaebf0] my-[12px]"></div>
+
+                                        {/* Warehouse */}
+                                        <div className="flex flex-col items-start w-full">
+                                            <div className="flex items-center gap-[6px] mb-[2px]">
+                                                <svg className="w-[12px] h-[12px] text-[#535353]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+                                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                                    <line x1="12" y1="22.08" x2="12" y2="12" />
+                                                </svg>
+                                                <p className="text-[12px] font-[600] leading-[20px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                                                    Warehouse
+                                                </p>
+                                            </div>
+                                            <span className="text-[14px] font-[600] leading-[20px] text-[#242424] tracking-[-0.2px]">
+                                                Butwal, Nepal
+                                            </span>
+                                            <span className="text-[12px] text-[#d92d20] font-[600] mt-[6px] flex items-center gap-[4px]">
+                                                <svg className="w-[12px] h-[12px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                                </svg>
+                                                In-store sales not available
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -18,35 +18,12 @@ import { useAdminUI } from '@/context/AdminUIContext';
 import { AlertTriangle, Trash2, Users, Star, Zap, UserPlus, ArrowUpRight, Zap as ZapIcon, Trophy, TrendingUp, Medal, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import CustomerDetailsModal from '@/components/admin/customers/CustomerDetailsModal';
+import { MetricCard } from '@/components/admin/analytics/MetricCard';
 
 // --- Types ---
 type FilterStatus = 'all' | 'active' | 'new' | 'vip' | 'at_risk';
 
-// --- Shared KPI Component ---
-const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 flex flex-col gap-4 group hover:bg-gray-50/50 transition-all duration-500"
-    >
-        <div className="flex justify-between items-start">
-            <div className="p-2.5 bg-gray-50 rounded-xl group-hover:bg-[#242424] group-hover:text-white transition-colors duration-300">
-                <Icon className="w-5 h-5" />
-            </div>
-            {trend && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-green-50 rounded-lg">
-                    <ArrowUpRight className="w-3 h-3 text-green-600" />
-                    <span className="text-[10px] font-bold text-green-600">{trend}%</span>
-                </div>
-            )}
-        </div>
-        <div>
-            <p className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1">{title}</p>
-            <h3 className="text-2xl font-semibold text-[#242424] tracking-tighter">{value}</h3>
-            <p className="text-[10px] text-[#a1a1aa] font-normal mt-1 uppercase tracking-wider">{subValue}</p>
-        </div>
-    </motion.div>
-);
+
 
 // --- Customer Card (Grid View - Parity with OrderCard) ---
 const DashboardCustomerCard = ({
@@ -485,27 +462,27 @@ export default function CustomersClient({ initialData }: { initialData?: { custo
                                     <MetricCard
                                         title="All Customers"
                                         value={data.stats.totalCustomers.toLocaleString()}
-                                        subValue="Registered Users"
+                                        subtext="Registered Users"
                                         icon={Users}
                                     />
                                     <MetricCard
                                         title="Active Monthly"
                                         value={data.stats.activeCustomers.toLocaleString()}
-                                        subValue="Constant Shoppers"
+                                        subtext="Constant Shoppers"
                                         icon={Zap}
                                         trend={12.4}
                                     />
                                     <MetricCard
                                         title="New Growth"
                                         value={data.stats.newThisMonth.toLocaleString()}
-                                        subValue="Past 30 Days"
+                                        subtext="Past 30 Days"
                                         icon={UserPlus}
                                         trend={5.2}
                                     />
                                     <MetricCard
                                         title="VIP Loyalty"
                                         value={data.stats.highValueCustomers.toLocaleString()}
-                                        subValue="High LTV Segment"
+                                        subtext="High LTV Segment"
                                         icon={Star}
                                     />
                                 </div>
@@ -513,38 +490,38 @@ export default function CustomersClient({ initialData }: { initialData?: { custo
                                 {/* Monthly Insights Section */}
                                 {insights && (
                                     <div className="flex flex-col gap-4">
-                                        <h2 className="text-[12px] font-semibold text-[#71717a] uppercase tracking-[0.2em] px-1 flex items-center gap-2">
-                                            <TrendingUp className="w-4 h-4" /> Monthly Insights
+                                        <h2 className="text-base font-semibold text-[#242424] px-1 flex items-center gap-2">
+                                            <TrendingUp className="w-5 h-5 text-blue-600" /> Monthly Insights
                                         </h2>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
-                                                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
-                                                    <Trophy className="w-6 h-6" />
+                                            <div className="bg-white p-6 rounded-[12px] border border-gray-100 flex items-center gap-4 group transition-all duration-300">
+                                                <div className="p-3 rounded-lg bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#bef264]/20 transition-colors">
+                                                    <Trophy className="w-5 h-5" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-wider">Highest Spender</span>
-                                                    <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.topSpender.name}</span>
-                                                    <span className="text-[11px] text-[#242424] font-semibold">रु {insights.topSpender.behavior.totalSpent.toLocaleString()} LTV</span>
+                                                    <span className="text-sm font-normal text-[#71717a] mb-1">Highest Spender</span>
+                                                    <span className="text-lg font-semibold text-[#242424] font-rubik tracking-tight truncate max-w-[150px]">{insights.topSpender.name}</span>
+                                                    <span className="text-xs text-[#a1a1aa] mt-1 font-normal">रु {insights.topSpender.behavior.totalSpent.toLocaleString()} LTV</span>
                                                 </div>
                                             </div>
-                                            <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
-                                                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
-                                                    <ZapIcon className="w-6 h-6" />
+                                            <div className="bg-white p-6 rounded-[12px] border border-gray-100 flex items-center gap-4 group transition-all duration-300">
+                                                <div className="p-3 rounded-lg bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#bef264]/20 transition-colors">
+                                                    <ZapIcon className="w-5 h-5" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest">Most Frequent</span>
-                                                    <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.mostOrders.name}</span>
-                                                    <span className="text-[11px] text-[#242424] font-semibold">{insights.mostOrders.behavior.totalOrders} Orders Placed</span>
+                                                    <span className="text-sm font-normal text-[#71717a] mb-1">Most Frequent</span>
+                                                    <span className="text-lg font-semibold text-[#242424] font-rubik tracking-tight truncate max-w-[150px]">{insights.mostOrders.name}</span>
+                                                    <span className="text-xs text-[#a1a1aa] mt-1 font-normal">{insights.mostOrders.behavior.totalOrders} Orders Placed</span>
                                                 </div>
                                             </div>
-                                            <div className="bg-white p-5 rounded-2xl border border-gray-100 flex items-center gap-4 group transition-all duration-500">
-                                                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#242424] group-hover:text-white transition-all duration-300">
-                                                    <Medal className="w-6 h-6" />
+                                            <div className="bg-white p-6 rounded-[12px] border border-gray-100 flex items-center gap-4 group transition-all duration-300">
+                                                <div className="p-3 rounded-lg bg-gray-50 flex items-center justify-center text-[#242424] group-hover:bg-[#bef264]/20 transition-colors">
+                                                    <Medal className="w-5 h-5" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-semibold text-[#a1a1aa] uppercase tracking-widest">Highest AOV</span>
-                                                    <span className="text-[15px] font-semibold text-[#242424] truncate max-w-[150px]">{insights.highestAOV.name}</span>
-                                                    <span className="text-[11px] text-[#242424] font-semibold">रु {Math.round(insights.highestAOV.behavior.avgOrderValue).toLocaleString()} Average</span>
+                                                    <span className="text-sm font-normal text-[#71717a] mb-1">Highest AOV</span>
+                                                    <span className="text-lg font-semibold text-[#242424] font-rubik tracking-tight truncate max-w-[150px]">{insights.highestAOV.name}</span>
+                                                    <span className="text-xs text-[#a1a1aa] mt-1 font-normal">रु {Math.round(insights.highestAOV.behavior.avgOrderValue).toLocaleString()} Average</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -555,13 +532,13 @@ export default function CustomersClient({ initialData }: { initialData?: { custo
 
                         {recently.length > 0 && (
                             <div className="flex flex-col gap-4">
-                                <h2 className="text-[12px] font-semibold text-[#71717a] uppercase tracking-[0.2em] px-1">Recently Joined</h2>
+                                <h2 className="text-base font-semibold text-[#242424] px-1">Recently Joined</h2>
                                 {viewMode === 'grid' ? renderGrid(recently) : renderTable(recently)}
                             </div>
                         )}
 
                         <div className="flex flex-col gap-4 mt-4">
-                            <h2 className="text-[12px] font-bold text-[#71717a] uppercase tracking-[0.2em] px-1">
+                            <h2 className="text-base font-semibold text-[#242424] px-1">
                                 {searchQuery ? `Search Results for "${searchQuery}"` : 'All Customers'}
                             </h2>
                             {viewMode === 'grid' ? renderGrid(paginatedOthers) : renderTable(paginatedOthers)}

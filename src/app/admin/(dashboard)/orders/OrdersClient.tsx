@@ -14,6 +14,8 @@ import Pagination from '@/components/admin/products/Pagination';
 import OrderDetailsModal from '@/components/admin/orders/OrderDetailsModal';
 import StatusUpdateModal from '@/components/admin/orders/StatusUpdateModal';
 import UpdatePaymentStatusModal from '@/components/admin/orders/UpdatePaymentStatusModal';
+import LabelPrintModal from '@/components/admin/orders/LabelPrintModal';
+import { Printer } from 'lucide-react';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
 import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaymentAdminAction } from '@/app/actions/orderActions';
@@ -43,6 +45,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   const [orderToUpdate, setOrderToUpdate] = useState<any | null>(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const { showAdminToast } = useAdminToast();
   const searchParams = useSearchParams();
   const deepLinkOrderId = searchParams ? searchParams.get('orderId') : null;
@@ -245,6 +248,34 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     }
   };
 
+  const handleBatchDelete = async () => {
+    if (!selectedIds.length) return;
+    if (confirm(`Are you sure you want to delete ${selectedIds.length} orders? This action cannot be undone.`)) {
+      setIsLoading(true);
+      let successCount = 0;
+      let failCount = 0;
+      
+      await Promise.all(selectedIds.map(async (id) => {
+        const res = await deleteOrderAction(id);
+        if (res.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      }));
+      
+      if (successCount > 0) {
+        showAdminToast(`${successCount} order(s) deleted successfully.`, 'success');
+      }
+      if (failCount > 0) {
+        showAdminToast(`Failed to delete ${failCount} order(s).`, 'error');
+      }
+      
+      setSelectedIds([]);
+      loadOrders(currentPage);
+    }
+  };
+
   const handleResetPayment = async (order: OrderProps) => {
     if (confirm(`Are you sure you want to reset the payment state for Order #${order.shortId}? This will clear the uploaded proof and allow the customer to submit a new one.`)) {
       setIsLoading(true);
@@ -291,7 +322,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         }} />}
       />
 
-      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden pb-[100px]">
+      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden pb-[100px] relative">
         <AnimatePresence mode="wait">
           {isLoading && orders.length === 0 ? (
             <motion.div
@@ -416,6 +447,55 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         order={orderToUpdate}
         onConfirm={handleConfirmPaymentUpdate}
       />
+
+      <LabelPrintModal
+        isOpen={isLabelModalOpen}
+        onClose={() => setIsLabelModalOpen(false)}
+        orders={orders.filter(o => selectedIds.includes(o.id))}
+      />
+
+      {/* Floating Batch Action Bar */}
+      <AnimatePresence>
+        {selectedIds.length > 0 && (
+          <motion.div
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 bg-[#242424] text-white px-4 py-2.5 shadow-2xl flex items-center gap-4 z-[999] font-rubik border border-white/10 rounded-sm"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-sm bg-white/20 flex items-center justify-center text-[11px] font-medium">
+                {selectedIds.length}
+              </div>
+              <span className="text-[12px] font-normal">Orders selected</span>
+            </div>
+            
+            <div className="w-px h-5 bg-white/20" />
+            
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsLabelModalOpen(true)}
+                className="flex items-center gap-1.5 bg-white text-black px-3 py-1.5 rounded-sm text-[12px] font-medium hover:bg-gray-100 transition-colors active:scale-95"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Generate Labels
+              </button>
+              <button
+                onClick={handleBatchDelete}
+                className="flex items-center gap-1.5 bg-red-500 text-white px-3 py-1.5 rounded-sm text-[12px] font-medium hover:bg-red-600 transition-colors active:scale-95 ml-1"
+              >
+                Delete Selected
+              </button>
+              <button
+                onClick={() => setSelectedIds([])}
+                className="px-3 py-1.5 text-[12px] font-normal text-white/70 hover:text-white transition-colors ml-1"
+              >
+                Clear
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

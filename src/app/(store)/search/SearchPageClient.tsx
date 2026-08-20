@@ -13,6 +13,8 @@ import { performSearch } from '@/lib/searchLogic';
 import { Product, Brand, Category } from '@/services/productService';
 import { recordSearchAction } from '@/app/actions/analyticsActions';
 import { useSessionId } from '@/hooks/useSessionId';
+import { Search } from 'lucide-react';
+import PreOrderModal from '@/components/search/PreOrderModal';
 
 interface SearchPageClientProps {
   initialProducts: Product[];
@@ -33,6 +35,7 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
   const [isSearched, setIsSearched] = useState(!!urlQuery);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPreOrderModalOpen, setIsPreOrderModalOpen] = useState(false);
   
   const sessionId = useSessionId();
   
@@ -211,26 +214,62 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
           </div>
         ) : (
           <div className="flex flex-col py-[20px]">
-            <div className="px-[24px] mb-[16px]">
-              <p className="font-rajdhani text-[14px] text-[#656565]">
-                {isLoading ? 'Searching...' : (
-                  filteredResults.length > 0
-                    ? `Showing ${filteredResults.length} results for "${query}"`
-                    : `No exact matches for "${query}". Try different filters or keywords.`
-                )}
-              </p>
-            </div>
-
             {isLoading ? (
-               <div className="flex justify-center py-20">
-                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#308026]"></div>
-               </div>
+              <div className="flex flex-col">
+                <div className="px-[24px] mb-[16px]">
+                  <p className="font-rajdhani text-[14px] text-[#656565]">Searching...</p>
+                </div>
+                <div className="flex justify-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#308026]"></div>
+                </div>
+              </div>
+            ) : filteredResults.length > 0 ? (
+              <div className="flex flex-col">
+                <div className="px-[24px] mb-[16px]">
+                  <p className="font-rajdhani text-[14px] text-[#656565]">
+                    Showing {filteredResults.length} results for "{query}"
+                  </p>
+                </div>
+                <SearchResults products={filteredResults} />
+              </div>
             ) : (
-              <SearchResults products={filteredResults} />
+              <div className="flex flex-col items-center justify-center py-[40px] px-[24px]">
+                <div className="w-[80px] h-[80px] bg-[#f7faf6] rounded-full flex items-center justify-center mb-[24px]">
+                  <Search className="w-[40px] h-[40px] text-[#308026]" />
+                </div>
+                <h2 className="font-rajdhani font-bold text-[24px] text-[#242424] text-center mb-[8px]">
+                  No Products Found
+                </h2>
+                <p className="font-rajdhani text-[15px] text-[#656565] text-center max-w-[400px] leading-[22px]">
+                  We couldn't find any exact matches for "{query}". Try checking the spelling or use different keywords.
+                </p>
+
+                {/* Pre-order Section */}
+                <div className="mt-[48px] bg-[#F2F9F1] rounded-[16px] p-[24px] md:p-[32px] w-full max-w-[600px] text-center">
+                  <h3 className="font-rajdhani font-bold text-[24px] text-[#242424] mb-[12px] tracking-[-0.5px]">
+                    Pre-order your own product
+                  </h3>
+                  <p className="font-rajdhani text-[15px] text-[#535353] mb-[24px] leading-[24px]">
+                    We import various brands on pre-order as well. Click the button below and request a quotation for a pre-order.
+                  </p>
+                  <button
+                    onClick={() => setIsPreOrderModalOpen(true)}
+                    className="h-[50px] px-[24px] bg-[#308026] hover:bg-[#25661d] active:scale-95 transition-all rounded-[12px] font-rajdhani font-bold text-[16px] text-white inline-flex items-center justify-center"
+                  >
+                    Know availability
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}
       </main>
+
+      <PreOrderModal
+        isOpen={isPreOrderModalOpen}
+        onClose={() => setIsPreOrderModalOpen(false)}
+        initialProductName={query}
+      />
     </div>
   );
 }

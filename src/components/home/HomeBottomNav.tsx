@@ -206,7 +206,7 @@ const HomeBottomNav: React.FC = () => {
                             <div className={`relative h-[24px] w-[24px] flex items-center justify-center ${isMounted ? 'transition-transform duration-300' : ''} ${isActive ? 'scale-110' : 'scale-100 group-active:scale-95'}`}>
                                 <Icon className={`h-full w-full ${isActive ? 'text-[#242424]' : 'text-[#626262]'}`} />
                             </div>
-                            <span className={`relative font-rajdhani text-[12px] font-semibold leading-[18px] ${isMounted ? 'transition-colors duration-300' : ''} ${isActive ? 'text-[#242424]' : 'text-[#626262]'
+                            <span className={`relative font-rajdhani text-[12px] leading-[18px] ${isMounted ? 'transition-colors duration-300' : ''} ${isActive ? 'font-bold text-[#242424]' : 'font-semibold text-[#626262]'
                                 }`}>
                                 {item.label}
                             </span>

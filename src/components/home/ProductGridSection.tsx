@@ -46,7 +46,7 @@ const ProductGridSection: React.FC<ProductGridSectionProps> = ({ title, products
     const waveColorClass = isNewArrival ? 'text-[#F2F9F1]' : (isPopular ? 'text-[#F1F7F9]' : '');
     
     const paddingClass = isNewArrival 
-        ? 'pt-[24px] pb-[32px] lg:px-[48px] lg:pt-[32px] lg:pb-[48px] md:pt-[40px] md:pb-[64px]'
+        ? 'pt-[40px] pb-[32px] lg:px-[48px] lg:pt-[48px] lg:pb-[48px] md:pt-[56px] md:pb-[64px]'
         : 'pt-[48px] pb-[32px] lg:px-[48px] lg:pt-[64px] lg:pb-[48px] md:pt-[80px] md:pb-[64px]';
 
     return (

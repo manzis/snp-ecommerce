@@ -27,6 +27,7 @@ import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import Link from 'next/link';
 import { RecentlyViewedSection } from '@/components/admin/analytics/RecentlyViewedSection';
 import { RecentViewsModal } from '@/components/admin/analytics/RecentViewsModal';
+import CustomerDetailsModal from '@/components/admin/customers/CustomerDetailsModal';
 
 
 
@@ -36,6 +37,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
     const [data, setData] = useState<DashboardData | null>(initialData || null);
     const [searchQuery, setSearchQuery] = useState('');
     const [showAllViews, setShowAllViews] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
 
     const { showAdminToast } = useAdminToast();
     const { setPrimaryAction, setOverrideTitle } = useAdminUI();
@@ -77,6 +79,45 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
             return matchesSearch;
         });
     }, [data, searchQuery]);
+
+    const groupedRecentViews = React.useMemo(() => {
+        if (!data?.recentViewsTable) return [];
+        
+        const grouped = data.recentViewsTable.reduce((acc: any, view: any) => {
+            const key = view.session_id || view.user_id || view.customer_name;
+            if (!acc[key]) {
+                acc[key] = {
+                    id: key,
+                    user_id: view.user_id,
+                    customer_name: view.customer_name,
+                    customer_avatar: view.customer_avatar,
+                    customer_email: view.customer_email,
+                    customer_phone: view.customer_phone,
+                    customer_created_at: view.customer_created_at,
+                    last_viewed_at: view.viewed_at,
+                    viewed_products: []
+                };
+            }
+            
+            const existingProduct = acc[key].viewed_products.find((p: any) => p.product_id === view.product_id);
+            if (!existingProduct) {
+                acc[key].viewed_products.push({
+                    product_id: view.product_id,
+                    product_name: view.product_name,
+                    thumbnail: view.thumbnail,
+                    viewed_at: view.viewed_at
+                });
+            }
+            
+            if (new Date(view.viewed_at) > new Date(acc[key].last_viewed_at)) {
+                acc[key].last_viewed_at = view.viewed_at;
+            }
+            
+            return acc;
+        }, {});
+        
+        return Object.values(grouped).sort((a: any, b: any) => new Date(b.last_viewed_at).getTime() - new Date(a.last_viewed_at).getTime());
+    }, [data?.recentViewsTable]);
 
     const stats = data?.stats || { totalOrders: 0, grossRevenue: 0, totalCustomers: 0, avgOrderValue: 0 };
     const chartData = data?.revenueChart || [];
@@ -318,7 +359,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                             </div>
 
                                             {chartData.slice(-15).map((item, i: number) => {
-                                                const rev = item.revenue || 0;
+                                                const rev = Number(item.revenue) || 0;
                                                 const heightPercent = (rev / chartMax) * 100;
                                                 return (
                                                     <div key={i} className="relative flex-1 flex flex-col items-center group h-full justify-end min-w-0 z-10">
@@ -334,6 +375,26 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                             className={`w-full max-w-[20px] rounded-t-[4px] relative overflow-hidden transition-colors ${heightPercent > 0 ? 'bg-[#242424] group-hover:bg-[#bef264]' : 'bg-gray-100'}`}
                                                         />
                                                     </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* X-Axis Labels */}
+                                        <div className="h-6 flex justify-between items-center mt-3 px-1 text-[8px] md:text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-widest border-t border-gray-50 pt-2">
+                                            {chartData.slice(-15).map((item, i: number) => {
+                                                let dateStr = '';
+                                                if (item.date) {
+                                                    const d = new Date(item.date as string);
+                                                    if (!isNaN(d.getTime())) {
+                                                        dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                                                    } else {
+                                                        dateStr = String(item.date);
+                                                    }
+                                                }
+                                                return (
+                                                    <span key={i} className="flex-1 text-center truncate">
+                                                        {dateStr}
+                                                    </span>
                                                 );
                                             })}
                                         </div>
@@ -417,49 +478,65 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                         </button>
                                     </div>
 
-                                    <div className="overflow-x-auto scrollbar-hide">
-                                        <table className="w-full text-left border-collapse min-w-[600px]">
-                                            <thead>
-                                                <tr className="bg-gray-50/50 text-[#71717a] text-xs font-semibold border-b border-gray-100">
-                                                    <th className="px-6 py-4">Product</th>
-                                                    <th className="px-6 py-4">Customer</th>
-                                                    <th className="px-6 py-4 text-right">Date</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-50">
-                                                {data.recentViewsTable.slice(0, 10).map((view: any) => (
-                                                    <tr key={view.id} className="group hover:bg-gray-50/80 transition-colors">
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-10 h-10 rounded-lg border border-gray-100 bg-white overflow-hidden shrink-0">
-                                                                    <img src={view.thumbnail || '/images/protein.webp'} alt="" className="w-full h-full object-cover" />
-                                                                </div>
-                                                                <span className="hidden md:block text-sm font-semibold text-[#242424] truncate max-w-[200px]">{view.product_name}</span>
+                                    <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 bg-gray-50/30">
+                                        {groupedRecentViews.slice(0, 10).map((userGroup: any, index: number) => (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: Math.min(index * 0.03, 0.3) }}
+                                                key={userGroup.id}
+                                                className="group flex flex-col bg-white rounded-[12px] border border-gray-100 hover:border-gray-200 transition-all p-4 shadow-none hover:shadow-none"
+                                            >
+                                                {/* Customer Header */}
+                                                <div 
+                                                    className={`flex items-center justify-between mb-4 ${userGroup.user_id ? 'cursor-pointer hover:bg-gray-50/50 p-1 -m-1 rounded-lg transition-colors' : ''}`}
+                                                    onClick={() => {
+                                                        if (userGroup.user_id) {
+                                                            setSelectedCustomer({
+                                                                id: userGroup.user_id,
+                                                                name: userGroup.customer_name,
+                                                                avatar: userGroup.customer_avatar,
+                                                                email: userGroup.customer_email || 'No email',
+                                                                phone: userGroup.customer_phone || 'No phone',
+                                                                status: 'active',
+                                                                createdAt: userGroup.customer_created_at || new Date().toISOString(),
+                                                                behavior: { totalOrders: 0, totalSpent: 0, lastActive: userGroup.last_viewed_at, avgOrderValue: 0, isVIP: false, monthlyConsistency: false }
+                                                            });
+                                                        } else {
+                                                            showAdminToast('Guest users do not have a full customer profile', 'info');
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        {userGroup.customer_avatar ? (
+                                                            <img src={userGroup.customer_avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100" />
+                                                        ) : (
+                                                            <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-100">
+                                                                <User className="w-3.5 h-3.5 text-gray-400" />
                                                             </div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-2">
-                                                                {view.customer_avatar ? (
-                                                                    <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
-                                                                        <img src={view.customer_avatar} alt="" className="w-full h-full object-cover" />
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                                                                        <User className="w-3 h-3 text-gray-400" />
-                                                                    </div>
-                                                                )}
-                                                                <span className="text-sm font-semibold text-[#242424]">{view.customer_name}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-right">
-                                                            <span className="text-xs text-[#71717a] font-normal">
-                                                                {new Date(view.viewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                        )}
+                                                        <span className="text-[13px] font-semibold text-[#242424] truncate max-w-[140px]">{userGroup.customer_name}</span>
+                                                    </div>
+                                                    <span className="text-[10px] text-[#71717a] font-medium bg-gray-50 border border-gray-100 px-2 py-1 rounded-md">
+                                                        {new Date(userGroup.last_viewed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                                                    </span>
+                                                </div>
+                                                
+                                                {/* Products Row */}
+                                                <div className="flex items-center gap-2 overflow-x-auto subtle-scrollbar pb-1">
+                                                    {userGroup.viewed_products.slice(0, 5).map((product: any) => (
+                                                        <div key={product.product_id} title={product.product_name} className="w-11 h-11 rounded-lg bg-[#f4f4f5] border border-gray-100 overflow-hidden shrink-0 relative group/product cursor-help">
+                                                            <img src={product.thumbnail || '/images/protein.webp'} alt={product.product_name} className="w-full h-full object-cover group-hover/product:scale-110 transition-transform" />
+                                                        </div>
+                                                    ))}
+                                                    {userGroup.viewed_products.length > 5 && (
+                                                        <div className="w-11 h-11 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                                                            <span className="text-[11px] font-bold text-[#71717a]">+{userGroup.viewed_products.length - 5}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -500,7 +577,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <tr key={order.id} className="group hover:bg-gray-50/80 transition-colors">
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
-                                                            <span className="text-sm font-semibold text-[#242424] truncate max-w-[200px]">
+                                                            <span className="text-sm font-medium text-[#242424] truncate max-w-[200px]">
                                                                 {order.title || 'Products'}
                                                             </span>
                                                             <span className="text-[11px] text-[#71717a] font-normal mt-1 bg-gray-100 px-1.5 py-0.5 rounded-md inline-block w-fit border border-gray-200">
@@ -510,22 +587,22 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col">
-                                                            <span className="text-sm font-semibold text-[#242424]">{order.customerName || 'Guest'}</span>
+                                                            <span className="text-sm font-medium text-[#242424]">{order.customerName || 'Guest'}</span>
                                                             {order.customerPhone && <span className="text-[11px] text-[#a1a1aa] font-normal mt-0.5">{order.customerPhone}</span>}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold ${order.status === 'DELIVERED' ? 'bg-[#bef264]/20 text-[#4d7c0f] border border-[#bef264]/30' :
-                                                            order.status === 'CANCELLED' ? 'bg-red-50 text-red-600 border border-red-100' :
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[12px] font-medium capitalize ${order.status === 'DELIVERED' || order.status === 'delivered' ? 'bg-[#bef264]/20 text-[#4d7c0f] border border-[#bef264]/30' :
+                                                            order.status === 'CANCELLED' || order.status === 'cancelled' ? 'bg-red-50 text-red-600 border border-red-100' :
                                                                 'bg-amber-50 text-amber-600 border border-amber-100'
                                                             }`}>
-                                                            {order.status}
+                                                            {order.status?.toLowerCase().replace('_', ' ')}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-xs text-[#71717a] font-normal">{order.dateText}</td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-sm font-semibold text-[#242424]">रु {(order.totalAmount || 0).toLocaleString()}</span>
+                                                            <span className="text-sm font-medium text-[#242424]">रु {(order.totalAmount || 0).toLocaleString()}</span>
                                                             <span className="text-[11px] text-[#a1a1aa] font-normal mt-0.5 capitalize">{order.paymentMethod}</span>
                                                         </div>
                                                     </td>
@@ -550,6 +627,13 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                 isOpen={showAllViews} 
                 onClose={() => setShowAllViews(false)} 
                 views={data?.recentViewsTable || []} 
+                onCustomerClick={setSelectedCustomer}
+            />
+
+            <CustomerDetailsModal
+                isOpen={!!selectedCustomer}
+                onClose={() => setSelectedCustomer(null)}
+                customer={selectedCustomer}
             />
         </div>
     );

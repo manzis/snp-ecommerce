@@ -151,12 +151,12 @@ export function AdminOrderList({
                 />
               </div>
             </th>
-            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Order</th>
-            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Customer</th>
-            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Product Item</th>
-            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100">Status</th>
-            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100 text-right">Amount</th>
-            <th className="py-4 px-4 text-[11px] font-bold text-[#71717a] uppercase tracking-widest border-b border-gray-100 text-center last:rounded-tr-[12px]">Action</th>
+            <th className="py-4 px-4 text-sm font-medium text-[#71717a] border-b border-gray-100">Order</th>
+            <th className="py-4 px-4 text-sm font-medium text-[#71717a] border-b border-gray-100">Customer</th>
+            <th className="py-4 px-4 text-sm font-medium text-[#71717a] border-b border-gray-100">Product Item</th>
+            <th className="py-4 px-4 text-sm font-medium text-[#71717a] border-b border-gray-100">Status</th>
+            <th className="py-4 px-4 text-sm font-medium text-[#71717a] border-b border-gray-100 text-right">Amount</th>
+            <th className="py-4 px-4 text-sm font-medium text-[#71717a] border-b border-gray-100 text-center last:rounded-tr-[12px]">Action</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -218,15 +218,15 @@ export function AdminOrderList({
                   <td className="py-4 px-4 min-w-[140px]">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-[14px] font-bold text-[#242424] tracking-tight">#{order.shortId}</span>
+                        <span className="text-[14px] font-semibold text-[#242424] tracking-tight">#{order.shortId}</span>
                         {isNew && (
-                          <span className="h-[14px] px-1 bg-[#242424] text-white text-[8px] font-bold rounded flex items-center justify-center tracking-tighter">NEW</span>
+                          <span className="h-[16px] px-1.5 bg-[#242424] text-white text-[10px] font-medium rounded flex items-center justify-center">New</span>
                         )}
                         {isPaymentAttempted && (
-                          <span className="h-[14px] px-1.5 bg-[#74a134] text-white text-[8px] font-bold rounded flex items-center justify-center tracking-tighter shadow-sm animate-pulse">ATTEMPTED</span>
+                          <span className="h-[16px] px-1.5 bg-[#74a134] text-white text-[10px] font-medium rounded flex items-center justify-center shadow-sm animate-pulse">Attempted</span>
                         )}
                       </div>
-                      <span className="text-[12px] text-[#a1a1aa] font-medium">
+                      <span className="text-[12px] text-[#a1a1aa] font-normal">
                         {new Date(order.createdAt || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
@@ -235,8 +235,8 @@ export function AdminOrderList({
                   {/* CUSTOMER NAME & ADDRESS */}
                   <td className="py-4 px-4 min-w-[170px]">
                     <div className="flex flex-col gap-1 max-w-[160px]">
-                      <span className="text-[14px] font-semibold text-[#242424] truncate">{order.customerName}</span>
-                      <span className="text-[11px] leading-tight text-[#71717a] line-clamp-2" title={addressSummary}>
+                      <span className="text-[14px] font-medium text-[#242424] truncate">{order.customerName}</span>
+                      <span className="text-[11px] leading-tight text-[#71717a] font-normal line-clamp-2" title={addressSummary}>
                         {addressSummary || 'Address N/A'}
                       </span>
                     </div>
@@ -255,27 +255,27 @@ export function AdminOrderList({
                           />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="text-[14px] font-bold text-[#242424] truncate leading-tight mb-1" title={firstItem.products?.name}>
+                          <span className="text-[14px] font-medium text-[#242424] truncate leading-tight mb-1" title={firstItem.products?.name}>
                             {firstItem.products?.name}
                           </span>
                           <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-tighter">Size:</span>
-                              <span className="text-[12px] font-semibold text-[#242424]">{firstItem.selected_size || '—'}</span>
+                              <span className="text-[11px] font-normal text-[#a1a1aa] capitalize">Size:</span>
+                              <span className="text-[12px] font-medium text-[#242424]">{firstItem.selected_size || '—'}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-tighter">Flav:</span>
-                              <span className="text-[12px] font-semibold text-[#242424] truncate max-w-[100px]">{firstItem.selected_flavor || '—'}</span>
+                              <span className="text-[11px] font-normal text-[#a1a1aa] capitalize">Flav:</span>
+                              <span className="text-[12px] font-medium text-[#242424] truncate max-w-[100px]">{firstItem.selected_flavor || '—'}</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] font-medium text-[#a1a1aa] uppercase tracking-tighter">Qty:</span>
-                              <span className="text-[12px] font-bold text-[#242424]">{firstItem.quantity}</span>
+                              <span className="text-[11px] font-normal text-[#a1a1aa] capitalize">Qty:</span>
+                              <span className="text-[12px] font-medium text-[#242424]">{firstItem.quantity}</span>
                             </div>
                           </div>
 
                           {order.extraItemsCount > 0 && (
                             <div className="mt-1.5">
-                              <span className="inline-flex py-0.5 px-2 bg-[#74a134]/10 text-[#74a134] text-[10px] font-semibold  tracking-tighter rounded-full border border-[#74a134]/20">
+                              <span className="inline-flex py-0.5 px-2 bg-[#74a134]/10 text-[#74a134] text-[11px] font-normal rounded-full border border-[#74a134]/20">
                                 + {order.extraItemsCount} More items
                               </span>
                             </div>
@@ -289,13 +289,13 @@ export function AdminOrderList({
 
                   {/* STATUS */}
                   <td className="py-4 px-4 whitespace-nowrap">
-                    <div className={`inline-flex px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
-                      {order.status}
+                    <div className={`inline-flex px-2.5 py-1 rounded-full border text-[12px] font-medium capitalize ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
+                      {order.status?.toLowerCase().replace('_', ' ')}
                     </div>
                     {order.paymentStatus === 'paid' && (
                       <div className="mt-1 flex items-center gap-1 ml-1 text-green-600">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
-                        <span className="text-[9px] font-bold uppercase">PAID</span>
+                        <span className="text-[10px] font-normal capitalize">Paid</span>
                       </div>
                     )}
                   </td>
@@ -303,11 +303,11 @@ export function AdminOrderList({
                   {/* AMOUNT */}
                   <td className="py-4 px-4 text-right">
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-[15px] font-bold text-[#242424] tracking-tight">NPR {order.totalAmount?.toLocaleString()}</span>
+                      <span className="text-[15px] font-medium text-[#242424] tracking-tight">NPR {order.totalAmount?.toLocaleString()}</span>
                       <div className={`h-1.5 w-12 rounded-full ${order.paymentStatus === 'paid' ? 'bg-green-500' : 'bg-gray-200'}`} />
-                      <div className="flex items-center gap-1.5 leading-none">
-                        <span className="text-[9px] py-0.5 px-1.5 bg-gray-100 text-gray-500 rounded font-bold uppercase tracking-tighter">{order.paymentMethod}</span>
-                        <span className={`text-[9px] font-bold uppercase tracking-widest ${paymentColors.text}`}>{paymentColors.label}</span>
+                      <div className="flex items-center gap-1.5 leading-none mt-0.5">
+                        <span className="text-[10px] py-0.5 px-1.5 bg-gray-100 text-gray-500 rounded font-normal capitalize">{order.paymentMethod}</span>
+                        <span className={`text-[10px] font-medium capitalize ${paymentColors.text}`}>{paymentColors.label}</span>
                       </div>
                     </div>
                   </td>

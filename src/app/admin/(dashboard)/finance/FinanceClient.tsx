@@ -26,31 +26,9 @@ import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import FinanceFilters from '@/components/admin/finance/FinanceFilters';
+import { MetricCard } from '@/components/admin/analytics/MetricCard';
 
-const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
-    <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-5 rounded-xl border border-gray-100 hover:border-gray-300 transition-all group cursor-default"
-    >
-        <div className="flex justify-between items-start mb-4">
-            <div className="p-2.5 rounded-lg bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300">
-                <Icon className="w-5 h-5 text-[#242424]" />
-            </div>
-            {trend && (
-                <div className={`flex items-center gap-0.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full ${trend > 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
-                    {trend > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                    {Math.abs(trend)}%
-                </div>
-            )}
-        </div>
-        <div>
-            <p className="text-[#71717a] text-[10px] font-semibold uppercase tracking-wider mb-1">{title}</p>
-            <h3 className="text-xl md:text-2xl font-semibold font-rubik text-[#242424] tracking-tight">{value}</h3>
-            {subValue && <p className="text-[10px] text-[#a1a1aa] mt-1 font-normal">{subValue}</p>}
-        </div>
-    </motion.div>
-);
+
 
 const SectionHeader = ({ title, description, isOpen, onToggle }: any) => (
     <button
@@ -536,14 +514,14 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
                                 <MetricCard
                                     title="Gross Revenue"
                                     value={`रु ${data.stats.totalDeliveredRevenue.toLocaleString()}`}
-                                    subValue={`${data.stats.totalOrders} Total Orders`}
+                                    subtext={`${data.stats.totalOrders} Total Orders`}
                                     icon={TrendingUp}
                                     trend={12.5}
                                 />
                                 <MetricCard
                                     title="Net Revenue"
                                     value={`रु ${data.stats.totalNetRevenue.toLocaleString()}`}
-                                    subValue={data.stats.totalDeliveredPendingRevenue > 0 
+                                    subtext={data.stats.totalDeliveredPendingRevenue > 0 
                                         ? `रु ${data.stats.totalDeliveredPendingRevenue.toLocaleString()} Pending` 
                                         : "Paid & Delivered"
                                     }
@@ -552,14 +530,14 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
                                 <MetricCard
                                     title="Avg Order"
                                     value={`रु ${Math.round(data.stats.avgOrderValue).toLocaleString()}`}
-                                    subValue="Per sale"
+                                    subtext="Per sale"
                                     icon={ShoppingBag}
                                     trend={5.2}
                                 />
                                 <MetricCard
                                     title="Coupons"
                                     value={`रु ${data.stats.totalCouponDiscount.toLocaleString()}`}
-                                    subValue="Given out"
+                                    subtext="Given out"
                                     icon={Tag}
                                 />
                             </div>

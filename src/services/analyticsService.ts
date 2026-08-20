@@ -140,6 +140,7 @@ export const analyticsService = {
         id,
         product_id,
         user_id,
+        session_id,
         viewed_at,
         products(title, name, images)
       `)
@@ -164,7 +165,7 @@ export const analyticsService = {
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email, avatar_url')
+        .select('id, full_name, email, avatar_url, phone, created_at')
         .in('id', userIds);
       profilesMap = new Map(profiles?.map(p => [p.id, p]));
 
@@ -180,6 +181,9 @@ export const analyticsService = {
                 ...(existing || {}),
                 id: au.id,
                 full_name: existing?.full_name || au.user_metadata?.full_name || au.email?.split('@')[0],
+                email: existing?.email || au.email || '',
+                phone: existing?.phone || au.phone || '',
+                created_at: existing?.created_at || au.created_at || '',
                 avatar_url: existing?.avatar_url || authAvatar || ''
               });
             }
@@ -200,8 +204,12 @@ export const analyticsService = {
         thumbnail: product?.images?.[0] || '/images/protein.webp',
         viewed_at: view.viewed_at,
         user_id: view.user_id,
+        session_id: view.session_id,
         customer_name: profile?.full_name || 'Anonymous User',
-        customer_avatar: profile?.avatar_url || ''
+        customer_avatar: profile?.avatar_url || '',
+        customer_email: profile?.email || '',
+        customer_phone: profile?.phone || '',
+        customer_created_at: profile?.created_at || new Date().toISOString()
       };
     });
   }),
@@ -286,7 +294,7 @@ export const analyticsService = {
 
     const [productsRes, profilesRes] = await Promise.all([
       supabase.from('products').select('id, name, images').in('id', productIds),
-      supabase.from('profiles').select('id, full_name, email, avatar_url').in('id', userIds)
+      supabase.from('profiles').select('id, full_name, email, phone, avatar_url').in('id', userIds)
     ]);
 
     const productsMap = new Map(productsRes.data?.map(p => [p.id, p]));
@@ -304,6 +312,7 @@ export const analyticsService = {
             profilesMap.set(authUser.id, {
               id: authUser.id,
               email: authUser.email || existing?.email || 'No email',
+              phone: existing?.phone || authUser.phone || '',
               full_name: authUser.user_metadata?.full_name || existing?.full_name || authUser.email?.split('@')[0] || 'Anonymous',
               avatar_url: existing?.avatar_url || authAvatar || ''
             });
@@ -341,6 +350,7 @@ export const analyticsService = {
           id: item.user_id,
           name: profile?.full_name || 'Anonymous User',
           email: profile?.email || 'No email',
+          phone: profile?.phone || '',
           avatar: profile?.avatar_url || ''
         });
       }
