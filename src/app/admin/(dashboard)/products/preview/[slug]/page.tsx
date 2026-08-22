@@ -95,6 +95,7 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                   {/* RIGHT COLUMN: DETAILS & MOBILE HIGHLIGHTS */}
                   <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col lg:px-[0] ">
                     <ProductHeader
+                      productSlug={product.slug}
                       brand={{
                         name: product.brands?.name || '',
                         slug: product.brands?.slug || '',
@@ -109,7 +110,7 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                     {/* SPACED COMPONENTS */}
                     <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
                       <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers || null} />
-                      <Availability stockStatus={product.stock_status || 'in_stock'} />
+                      <Availability productSlug={product.slug} stockStatus={product.stock_status || 'in_stock'} />
                       <ServiceHighlights />
 
                       {product.highlights && product.highlights.length > 0 && (
@@ -160,7 +161,7 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                 </div>
               </main>
 
-              <ProductCTA stockStatus={product.stock_status} isPreview />
+              <ProductCTA productSlug={product.slug} stockStatus={product.stock_status} isPreview />
             </article>
           </AuthModalProvider>
         </CartProvider>
