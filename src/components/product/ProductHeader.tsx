@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useProductSelectionStore } from '@/store/productSelectionStore';
 import RedirectIcon from '@/components/icons/RedirectIcon';
+import { useVolatileProductData } from '@/hooks/useVolatileProductData';
 
 interface BrandInfo {
   name: string;
@@ -13,6 +14,7 @@ interface BrandInfo {
 }
 
 interface ProductHeaderProps {
+  productSlug: string;
   brand: BrandInfo;
   title: string;
   originalPrice: string;
@@ -29,21 +31,28 @@ interface ProductHeaderProps {
 }
 
 const ProductHeader = ({
+  productSlug,
   brand,
   title,
   originalPrice: propsOriginal,
   discountedPrice: propsDiscounted,
   discountPercentage: propsPercentage,
-  activeSale
+  activeSale: propsActiveSale
 }: ProductHeaderProps) => {
-  const { currentPrice, originalPrice } = useProductSelectionStore();
+  const { currentPrice, originalPrice, setPrice } = useProductSelectionStore();
   const [isTitleExpanded, setIsTitleExpanded] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [isSaleValid, setIsSaleValid] = useState(true);
 
+  const { volatileData, isLoading } = useVolatileProductData(productSlug);
+
+  const activeSale = volatileData !== null ? volatileData.activeSale : propsActiveSale;
+  
   React.useEffect(() => {
     if (activeSale?.ends_at && new Date(activeSale.ends_at).getTime() < Date.now()) {
       setIsSaleValid(false);
+    } else {
+      setIsSaleValid(true);
     }
   }, [activeSale]);
 
@@ -51,9 +60,13 @@ const ProductHeader = ({
 
   const cleanPrice = (val: string | number) => String(val).replace(/NPR\s?/g, '').replace(/Rs\.?\s?/ig, '').trim();
 
+  // If volatile data is present, override the props.
+  const hydratedOriginal = volatileData !== null ? volatileData.original_price : propsOriginal;
+  const hydratedDiscounted = volatileData !== null ? volatileData.discounted_price : propsDiscounted;
+
   // Calculate final prices
-  const baseDiscounted = currentPrice ? currentPrice : Number(cleanPrice(propsDiscounted));
-  const baseOriginal = originalPrice ? originalPrice : Number(cleanPrice(propsOriginal));
+  const baseDiscounted = currentPrice ? currentPrice : Number(cleanPrice(hydratedDiscounted));
+  const baseOriginal = originalPrice ? originalPrice : Number(cleanPrice(hydratedOriginal));
   
   const finalDiscounted = effectiveActiveSale 
     ? effectiveActiveSale.discount_type === 'PERCENTAGE'

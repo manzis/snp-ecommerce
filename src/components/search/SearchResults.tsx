@@ -1,33 +1,67 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ProductCard from './SearchProductCard';
-import Pagination from './Pagination';
+import SearchProductSkeleton from './SearchProductSkeleton';
 
 export default function SearchResults({ products }: { products: any[] }) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 12;
+  const [displayCount, setDisplayCount] = useState(10);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = products.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const ITEMS_PER_LOAD = 10;
+  const hasMore = displayCount < products.length;
 
-return (
-  <div className="flex flex-col w-full bg-white">
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full border-t border-l border-[#e8e8e8]">
-      {currentProducts.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
+  const currentProducts = products.slice(0, displayCount);
+
+  // Reset display count when new search results are provided
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [products]);
+
+  const lastProductElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (isLoadingMore) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setIsLoadingMore(true);
+        // Simulate network delay for smooth skeleton rendering
+        setTimeout(() => {
+          setDisplayCount(prev => prev + ITEMS_PER_LOAD);
+          setIsLoadingMore(false);
+        }, 600);
+      }
+    }, {
+      rootMargin: '200px', // Trigger load slightly before user reaches the exact bottom
+    });
+
+    if (node) observer.current.observe(node);
+  }, [isLoadingMore, hasMore]);
+
+  return (
+    <div className="flex flex-col w-full bg-white pb-[40px]">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full border-t border-l border-[#e8e8e8]">
+        {currentProducts.map((product, index) => {
+          if (currentProducts.length === index + 1) {
+            // Attach the ref to the last product to trigger the infinite scroll
+            return (
+              <div ref={lastProductElementRef} key={product.id} className="h-full w-full">
+                <ProductCard product={product} />
+              </div>
+            );
+          } else {
+            return <ProductCard key={product.id} product={product} />;
+          }
+        })}
+
+        {/* Render Skeletons while loading more */}
+        {isLoadingMore && (
+          Array.from({ length: Math.min(ITEMS_PER_LOAD, products.length - displayCount) }).map((_, i) => (
+            <SearchProductSkeleton key={`skeleton-${i}`} />
+          ))
+        )}
+      </div>
     </div>
-
-    {/* ALWAYS RENDER: Removed totalPages > 1 condition */}
-    <div className="w-full flex justify-center mt-[12px]">
-      <Pagination 
-        currentPage={currentPage} 
-        totalPages={totalPages} 
-        onPageChange={setCurrentPage} 
-      />
-    </div>
-  </div>
-);
+  );
 }

@@ -92,7 +92,7 @@ export default function ActiveSalesSlider({ sales }: ActiveSalesSliderProps) {
 
     return (
         <section 
-            className="relative w-full flex flex-col items-center pb-10 pt-0 md:pb-16 md:pt-0 overflow-hidden bg-gradient-to-b from-white via-white to-[#F2F9F1]"
+            className="relative w-full flex flex-col items-center pt-0 overflow-hidden bg-gradient-to-b from-white via-white to-[#F2F9F1]"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onTouchStart={() => setIsHovered(true)}

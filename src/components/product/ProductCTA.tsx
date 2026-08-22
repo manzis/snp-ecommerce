@@ -3,14 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
+import { useVolatileProductData } from '@/hooks/useVolatileProductData';
 
 /**
  * ProductCTA - Final Stable Version
  */
-const ProductCTA = ({ stockStatus, isPreview = false }: { stockStatus?: string, isPreview?: boolean }) => {
+const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = false }: { productSlug?: string, stockStatus?: string, isPreview?: boolean }) => {
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
+  const { volatileData } = useVolatileProductData(productSlug || '');
+  
+  const stockStatus = volatileData ? volatileData.stock_status : propsStockStatus;
   const isOutOfStock = stockStatus === 'out_of_stock';
 
   useEffect(() => {

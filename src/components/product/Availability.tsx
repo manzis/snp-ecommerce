@@ -5,14 +5,19 @@ import InventoryIcon from '@/components/icons/InventoryIcon';
 import InfoIcon from '@/components/icons/InfoIcon';
 import EyeIcon from '@/components/icons/EyeIcon';
 import AvailabilityPopup from './AvailabilityPopup';
+import { useVolatileProductData } from '@/hooks/useVolatileProductData';
 
 interface AvailabilityProps {
-  stockStatus: 'in_stock' | 'pre_order' | 'out_of_stock';
+  productSlug: string;
+  stockStatus: 'in_stock' | 'pre_order' | 'out_of_stock' | string;
 }
 
-const Availability: React.FC<AvailabilityProps> = ({ stockStatus }) => {
+const Availability: React.FC<AvailabilityProps> = ({ productSlug, stockStatus: propsStockStatus }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [viewers, setViewers] = useState(92);
+  const { volatileData } = useVolatileProductData(productSlug);
+  
+  const stockStatus = volatileData ? volatileData.stock_status : propsStockStatus;
 
   // Use useEffect to set random number after mount to avoid hydration mismatch
   React.useEffect(() => {

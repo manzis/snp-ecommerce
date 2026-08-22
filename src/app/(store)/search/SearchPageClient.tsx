@@ -231,6 +231,24 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
                   </p>
                 </div>
                 <SearchResults products={filteredResults} />
+
+                {/* Pre-order Section when results are found */}
+                <div className="flex justify-center w-full px-[24px] pb-[40px]">
+                  <div className="mt-[24px] bg-[#F2F9F1] rounded-[16px] p-[24px] md:p-[32px] w-full max-w-[600px] text-center border border-[#e2e8f0]">
+                    <h3 className="font-rajdhani font-bold text-[24px] text-[#242424] mb-[12px] tracking-[-0.5px]">
+                      Didn't find what you were looking for?
+                    </h3>
+                    <p className="font-rajdhani text-[15px] text-[#535353] mb-[24px] leading-[24px]">
+                      We import various brands on pre-order as well. Request a quotation for a pre-order now!
+                    </p>
+                    <button
+                      onClick={() => setIsPreOrderModalOpen(true)}
+                      className="h-[50px] px-[24px] bg-[#308026] hover:bg-[#25661d] active:scale-95 transition-all rounded-[12px] font-rajdhani font-bold text-[16px] text-white inline-flex items-center justify-center shadow-sm"
+                    >
+                      Know availability
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-[40px] px-[24px]">
@@ -245,16 +263,16 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
                 </p>
 
                 {/* Pre-order Section */}
-                <div className="mt-[48px] bg-[#F2F9F1] rounded-[16px] p-[24px] md:p-[32px] w-full max-w-[600px] text-center">
+                <div className="mt-[48px] bg-[#F2F9F1] rounded-[16px] p-[24px] md:p-[32px] w-full max-w-[600px] text-center border border-[#e2e8f0]">
                   <h3 className="font-rajdhani font-bold text-[24px] text-[#242424] mb-[12px] tracking-[-0.5px]">
-                    Pre-order your own product
+                    Didn't find what you were looking for?
                   </h3>
                   <p className="font-rajdhani text-[15px] text-[#535353] mb-[24px] leading-[24px]">
-                    We import various brands on pre-order as well. Click the button below and request a quotation for a pre-order.
+                    We import various brands on pre-order as well. Request a quotation for a pre-order now!
                   </p>
                   <button
                     onClick={() => setIsPreOrderModalOpen(true)}
-                    className="h-[50px] px-[24px] bg-[#308026] hover:bg-[#25661d] active:scale-95 transition-all rounded-[12px] font-rajdhani font-bold text-[16px] text-white inline-flex items-center justify-center"
+                    className="h-[50px] px-[24px] bg-[#308026] hover:bg-[#25661d] active:scale-95 transition-all rounded-[12px] font-rajdhani font-bold text-[16px] text-white inline-flex items-center justify-center shadow-sm"
                   >
                     Know availability
                   </button>

@@ -40,7 +40,8 @@ export default function CartSidebar() {
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = 'hidden';
-      reverifyCartPrices();
+      // Pass true to force re-verification, bypassing the 30s throttle
+      reverifyCartPrices(true);
     } else {
       document.body.style.overflow = 'unset';
     }
