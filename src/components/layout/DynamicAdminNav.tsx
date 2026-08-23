@@ -125,7 +125,7 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { primaryAction: contextPrimaryAction, overrideTitle: contextOverrideTitle } = useAdminUI();
+    const { primaryAction: contextPrimaryAction, overrideTitle: contextOverrideTitle, headerActionNode } = useAdminUI();
 
     // Auto-close menu on navigation
     React.useEffect(() => {
@@ -168,6 +168,13 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
                             {primaryAction.label}
                         </button>
                     )
+                )}
+
+                {/* Custom Context Actions */}
+                {headerActionNode && (
+                    <div className="flex items-center">
+                        {headerActionNode}
+                    </div>
                 )}
 
                 {/* Unified Dynamic Action Menu */}

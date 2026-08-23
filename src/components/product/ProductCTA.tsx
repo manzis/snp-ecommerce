@@ -8,7 +8,7 @@ import { useVolatileProductData } from '@/hooks/useVolatileProductData';
 /**
  * ProductCTA - Final Stable Version
  */
-const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = false }: { productSlug?: string, stockStatus?: string, isPreview?: boolean }) => {
+const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = false, ordersDisabled = false }: { productSlug?: string, stockStatus?: string, isPreview?: boolean, ordersDisabled?: boolean }) => {
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const router = useRouter();
@@ -145,8 +145,8 @@ const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = fa
           type="button"
           onClick={handleAddToCart}
           onPointerUp={blurButton}
-          disabled={isOutOfStock}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
+          disabled={isOutOfStock || ordersDisabled}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || ordersDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
         >
           <span className="uppercase relative z-[1] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#4d4d4d] whitespace-nowrap">
             {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
@@ -158,8 +158,8 @@ const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = fa
           type="button"
           onClick={handleBuyNow}
           onPointerUp={blurButton}
-          disabled={isOutOfStock}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
+          disabled={isOutOfStock || ordersDisabled}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || ordersDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
         >
           <span className="uppercase relative z-[3] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#1e1e1e] whitespace-nowrap">
             {isOutOfStock ? "Unavailable" : "Buy Now"}

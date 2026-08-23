@@ -19,9 +19,10 @@ interface ProductOptionsProps {
   sizes: ProductSize[];
   flavours: ProductFlavour[];
   seller: Seller | null;
+  ordersDisabled?: boolean;
 }
 
-const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavours, seller }) => {
+const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavours, seller, ordersDisabled = false }) => {
   const [isInCart, setIsInCart] = useState(false);
   const { showToast } = useToast();
   const router = useRouter();
@@ -316,16 +317,16 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={product.stock_status === 'out_of_stock'}
-          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
+          disabled={product.stock_status === 'out_of_stock' || ordersDisabled}
+          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || ordersDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
         >
           {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
         </button>
         <button
           type="button"
           onClick={handleDesktopBuyNow}
-          disabled={product.stock_status === 'out_of_stock'}
-          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
+          disabled={product.stock_status === 'out_of_stock' || ordersDisabled}
+          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || ordersDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
         >
           {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
         </button>

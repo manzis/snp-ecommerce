@@ -216,6 +216,17 @@ const AdminMobileNav: React.FC = () => {
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /></svg>
                                                     View Profile
                                                 </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsProfileMenuOpen(false);
+                                                        setIsMoreMenuOpen(false);
+                                                        router.push('/admin/settings');
+                                                    }}
+                                                    className="flex items-center gap-[10px] w-full px-[12px] py-[8px] rounded-[8px] text-[12px] font-medium text-[#18181b] hover:bg-[#f4f4f5] transition-colors"
+                                                >
+                                                    <SettingsIcon className="w-[14px] h-[14px]" />
+                                                    Settings
+                                                </button>
                                                 <div className="h-[1px] bg-gray-50 my-[4px] mx-[8px]" />
                                                 <button
                                                     onClick={handleLogout}

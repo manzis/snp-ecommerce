@@ -13,6 +13,8 @@ import OrganizationJsonLd from '@/components/seo/OrganizationJsonLd';
 import LazyLoginModal from '@/components/auth/LazyLoginModal';
 import NextTopLoader from 'nextjs-toploader';
 import HomeSplashLoader from '@/components/home/HomeSplashLoader';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
+import StoreMaintenance from '@/components/store/StoreMaintenance';
 
 export async function generateMetadata(): Promise<Metadata> {
   const gSeo = await getSeoGlobal();
@@ -73,7 +75,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settingsResult = await getStoreSettingsAction();
+  const storeSettings = settingsResult.data || {};
+  const isLive = storeSettings.is_live !== false;
+
   return (
     <html
       lang="en"
@@ -188,10 +194,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CartProvider>
               <AuthModalProvider>
 
-                {children}
-
-                <ConditionalLayoutElements />
-                <LazyLoginModal />
+                {isLive ? (
+                  <>
+                    {children}
+                    <ConditionalLayoutElements />
+                    <LazyLoginModal />
+                  </>
+                ) : (
+                  <StoreMaintenance message={storeSettings.maintenance_message} />
+                )}
 
               </AuthModalProvider>
             </CartProvider>

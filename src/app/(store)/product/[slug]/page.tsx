@@ -20,7 +20,9 @@ import ProductJsonLd from '@/components/seo/ProductJsonLd';
 
 import { fetchProducts, fetchProductBySlug, fetchProductSEO, fetchRelatedProducts, fetchBrandRelatedProducts, fetchProductReviews, fetchProductQA } from '@/services/productService.server';
 import { fetchActiveSaleForProductAction } from '@/app/actions/saleActions';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
 import { notFound } from 'next/navigation';
+import { Lock } from 'lucide-react';
 import { Suspense } from 'react';
 import { preload } from 'react-dom';
 import type { Metadata } from 'next';
@@ -161,11 +163,14 @@ const SectionSkeleton = ({ height = "200px" }: { height?: string }) => (
 );
 
 async function ProductContent({ slug }: { slug: string }) {
-  const [product, dbOverride, bannerSetting] = await Promise.all([
+  const [product, dbOverride, bannerSetting, settingsRes] = await Promise.all([
     fetchProductBySlug(slug),
     getSeoProductBySlug(slug),
     getSiteSetting('why_choose_us_banner'),
+    getStoreSettingsAction(),
   ]);
+
+  const ordersDisabled = settingsRes?.data?.orders_disabled === true;
 
   if (!product) {
     notFound();
@@ -288,7 +293,7 @@ async function ProductContent({ slug }: { slug: string }) {
               activeSale={activeSale}
             />
             <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
-              <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers || null} />
+              <ProductOptions product={product} sizes={product.product_sizes || []} flavours={product.product_flavours || []} seller={product.sellers || null} ordersDisabled={ordersDisabled} />
               <Availability productSlug={product.slug} stockStatus={product.stock_status || 'in_stock'} />
               <ServiceHighlights />
               {product.highlights && product.highlights.length > 0 && (
@@ -359,8 +364,24 @@ async function ProductContent({ slug }: { slug: string }) {
             <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
           </Suspense>
         </div>
+
+        {ordersDisabled && (
+          <div className="fixed bottom-[110px] lg:bottom-12 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center">
+            <div className="bg-red-600 text-white px-5 py-3 shadow-2xl flex items-center gap-3 w-full max-w-md mx-auto pointer-events-auto border border-red-500">
+              <Lock className="w-6 h-6 text-red-200 shrink-0" />
+              <div className="flex flex-col">
+                <span className="font-rajdhani font-bold text-lg uppercase tracking-tight leading-tight">
+                  Orders are currently disabled!
+                </span>
+                <span className="text-red-100 text-xs mt-0.5">
+                  Please try again later.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
-      <ProductCTA productSlug={product.slug} stockStatus={product.stock_status} />
+      <ProductCTA productSlug={product.slug} stockStatus={product.stock_status} ordersDisabled={ordersDisabled} />
     </>
   );
 }

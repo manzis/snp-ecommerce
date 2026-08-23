@@ -15,6 +15,7 @@ import HomeIcon from '@/components/icons/HomeIcon';
 import PlusIcon from '@/components/icons/PlusIcon';
 import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon';
 import BackArrowIcon from '@/components/icons/BackArrowIcon';
+import StoreStatusToggle from '@/components/admin/layout/StoreStatusToggle';
 
 
 
@@ -99,6 +100,7 @@ export default function AdminHeader() {
 
             {/* Right Section: Utilities & Profile */}
             <div className="flex items-center gap-3 shrink-0">
+                <StoreStatusToggle />
                 {/* Message Button */}
                 <button className="p-2 hover:bg-[#f4f4f5] rounded-[10px] text-[#71717a] hover:text-[#242424] transition-all relative group" title="Messages">
                     <MessageIcon className="w-[20px] h-[20px]" />
