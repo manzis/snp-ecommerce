@@ -45,19 +45,31 @@ const SectionHeader = ({ title, description, isOpen, onToggle }: any) => (
 
 const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData['timeSeries'], stats: FinanceDashboardData['stats'] }) => {
     const [chartMode, setChartMode] = useState<'bar' | 'line'>('bar');
-    const [interval, setInterval] = useState<'daily' | 'monthly' | 'yearly'>('daily');
+    const [interval, setInterval] = useState<'weekly' | 'monthly' | 'yearly'>('weekly');
 
     const processedData = useMemo(() => {
         if (!timeSeries) return [];
-        if (interval === 'daily') {
-            return timeSeries.map(d => {
+        if (interval === 'weekly') {
+            const aggregated: Record<string, { revenue: number, label: string, fullDate: string }> = {};
+            timeSeries.forEach(d => {
                 const date = new Date(d.date);
-                return {
-                    ...d,
-                    label: date.getDate().toString(), // Just day
-                    fullDate: d.date
-                };
+                const day = date.getDay();
+                const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+                const monday = new Date(date.getTime());
+                monday.setDate(diff);
+                const weekKey = `${monday.toLocaleString('default', { month: 'short' })} ${monday.getDate()}`;
+                const fullDate = `Week of ${monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+                if (!aggregated[weekKey]) {
+                    aggregated[weekKey] = {
+                        revenue: 0,
+                        label: weekKey,
+                        fullDate: fullDate
+                    };
+                }
+                aggregated[weekKey].revenue += d.revenue;
             });
+            return Object.values(aggregated);
         }
 
         const aggregated: Record<string, { revenue: number, label: string, fullDate: string }> = {};
@@ -131,7 +143,7 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                     <div className="hidden xs:block h-5 w-px bg-gray-200 mx-1" />
 
                     <div className="flex items-center gap-1 flex-1 sm:flex-none">
-                        {(['daily', 'monthly', 'yearly'] as const).map((int) => (
+                        {(['weekly', 'monthly', 'yearly'] as const).map((int) => (
                             <button
                                 key={int}
                                 onClick={() => setInterval(int)}
@@ -327,17 +339,17 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
             <div className="mt-8 pt-6 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
                 <div className="flex flex-col">
                     <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Delivered (Period)</span>
-                    <span className="text-xl md:text-2xl font-semibold text-[#242424] tracking-tight">रु {processedData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}</span>
+                    <span className="text-[22px] md:text-2xl font-semibold text-[#242424] tracking-tight truncate">रु {processedData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}</span>
                     <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Successfully Delivered</p>
                 </div>
                 <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
                     <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Total Orders Value</span>
-                    <span className="text-xl md:text-2xl font-semibold text-blue-600 tracking-tight">रु {stats.totalGrossRevenue.toLocaleString()}</span>
+                    <span className="text-[22px] md:text-2xl font-semibold text-blue-600 tracking-tight truncate">रु {stats.totalGrossRevenue.toLocaleString()}</span>
                     <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">All Orders (Excl. Cancelled)</p>
                 </div>
                 <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
                     <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Overall Receivables</span>
-                    <span className="text-xl md:text-2xl font-semibold text-amber-600 tracking-tight">रु {stats.totalPendingRevenue.toLocaleString()}</span>
+                    <span className="text-[22px] md:text-2xl font-semibold text-amber-600 tracking-tight truncate">रु {stats.totalPendingRevenue.toLocaleString()}</span>
                     <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Pending Collection</p>
                 </div>
             </div>

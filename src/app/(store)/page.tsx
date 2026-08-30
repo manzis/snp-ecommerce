@@ -237,7 +237,7 @@ async function HomeDeferredSections() {
 
       {activeBanners.length > 0 && (
         <div className="w-full">
-          <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} />
+          <ProductBanners linkedBanners={activeBanners.map(b => ({ banner: b }))} variant="white" />
         </div>
       )}
 

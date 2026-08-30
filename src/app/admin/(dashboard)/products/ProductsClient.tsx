@@ -14,8 +14,6 @@ import { ProductTableSkeleton, ProductGridSkeleton } from '@/components/admin/sh
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
 
-const PAGE_SIZE = 8;
-
 export default function ProductsClient({ initialData }: { initialData?: any }) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,10 +36,13 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
   const [selectedProductForPrice, setSelectedProductForPrice] = useState<Product | null>(null);
 
-  const loadProducts = async (page: number, search: string) => {
+  const pageSize = viewMode === 'list' ? 30 : 8;
+
+  const loadProducts = async (page: number, search: string, mode: 'grid' | 'list' = viewMode) => {
     setIsLoading(true);
+    const limit = mode === 'list' ? 30 : 8;
     try {
-      const result = await fetchProductsPaginatedAction(page, PAGE_SIZE, { search });
+      const result = await fetchProductsPaginatedAction(page, limit, { search });
       if (result?.success) {
         setProducts(result.products as Product[] || []);
         setTotalCount(result.totalCount || 0);
@@ -62,16 +63,16 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
   useEffect(() => {
     if (isInitialMount.current) {
         isInitialMount.current = false;
-        // If we have SSR data, and we are on page 1 with no search query, skip the initial fetch
-        if (initialData?.success && currentPage === 1 && searchQuery === '') {
+        // If we have SSR data, and we are on page 1 with no search query in grid view, skip the initial fetch
+        if (initialData?.success && currentPage === 1 && searchQuery === '' && viewMode === 'grid') {
             setIsLoading(false);
             return;
         }
     }
-    loadProducts(currentPage, searchQuery);
-  }, [currentPage, searchQuery]);
+    loadProducts(currentPage, searchQuery, viewMode);
+  }, [currentPage, searchQuery, viewMode]);
 
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const handleToggleSelect = (id: string) => {
     setSelectedIds(prev =>
@@ -159,7 +160,7 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
         }}
       />
 
-      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto pb-[200px]">
+      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[200px]">
         <AnimatePresence mode="wait">
           {isLoading && products.length === 0 ? (
             <motion.div
@@ -168,8 +169,9 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
+              className="w-full max-w-full"
             >
-              {viewMode === 'grid' ? <ProductGridSkeleton count={8} /> : <ProductTableSkeleton rows={8} />}
+              {viewMode === 'grid' ? <ProductGridSkeleton count={8} /> : <ProductTableSkeleton rows={15} />}
             </motion.div>
           ) : products.length > 0 ? (
             <motion.div
@@ -178,6 +180,7 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
+              className="w-full max-w-full"
             >
               <div className="mb-6 flex items-center justify-between">
               <div className="flex flex-col gap-1">

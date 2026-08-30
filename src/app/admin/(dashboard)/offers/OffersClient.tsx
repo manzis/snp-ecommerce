@@ -29,7 +29,7 @@ const MetricCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
         </div>
         <div>
             <p className="text-[#71717a] text-[10px] font-semibold uppercase tracking-wider mb-1">{title}</p>
-            <h3 className="text-xl md:text-2xl font-semibold font-rubik text-[#242424] tracking-tight">{value}</h3>
+            <h3 className="text-[22px] md:text-2xl font-semibold font-rubik text-[#242424] tracking-tight truncate">{value}</h3>
             {subValue && <p className="text-[10px] text-[#a1a1aa] mt-1 font-normal">{subValue}</p>}
         </div>
     </motion.div>

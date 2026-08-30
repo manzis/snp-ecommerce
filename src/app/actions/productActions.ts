@@ -967,6 +967,7 @@ export async function fetchProductsPaginatedAction(page: number, pageSize: numbe
         original_price, discounted_price, discount_percentage,
         stock_count, stock_status, is_published, is_draft,
         rating, reviews_count, created_at,
+        categories (id, name, slug),
         brands (id, name, slug),
         product_sizes (id, size_label),
         product_flavours (id, flavour_name),
@@ -987,6 +988,7 @@ export async function fetchProductsPaginatedAction(page: number, pageSize: numbe
       success: true,
       products: (data as any[]).map(p => ({
         ...p,
+        categories: Array.isArray(p.categories) ? p.categories[0] || null : p.categories,
         brands: Array.isArray(p.brands) ? p.brands[0] || null : p.brands,
       })), 
       totalCount: count || 0 

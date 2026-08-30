@@ -215,7 +215,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 {/* Total Sold */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-gray-400 mb-1">Total Sold</h3>
-                                                    <p className="text-2xl font-semibold text-[#bef264] font-rubik tracking-tight">
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#bef264] font-rubik tracking-tight truncate">
                                                         {data?.productStats.totalSold.toLocaleString()}
                                                     </p>
                                                 </div>
@@ -223,7 +223,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 {/* Catalog Size */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-gray-400 mb-1">Catalog Size</h3>
-                                                    <p className="text-2xl font-semibold text-white font-rubik tracking-tight">
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-white font-rubik tracking-tight truncate">
                                                         {data?.productStats.totalProducts.toLocaleString()}
                                                     </p>
                                                 </div>
@@ -231,7 +231,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 {/* In Stock */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-gray-400 mb-1">In Stock</h3>
-                                                    <p className="text-2xl font-semibold text-white font-rubik tracking-tight">
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-white font-rubik tracking-tight truncate">
                                                         {data?.productStats.inStock.toLocaleString()}
                                                     </p>
                                                 </div>
@@ -240,7 +240,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <div>
                                                     <h3 className="text-sm font-normal text-gray-400 mb-1">Out of Stock</h3>
                                                     <div className="flex items-center gap-2">
-                                                        <p className={`text-2xl font-semibold font-rubik tracking-tight ${(data?.productStats?.outOfStock ?? 0) > 0 ? 'text-red-400' : 'text-white'}`}>
+                                                        <p className={`text-[22px] md:text-2xl font-semibold font-rubik tracking-tight truncate ${(data?.productStats?.outOfStock ?? 0) > 0 ? 'text-red-400' : 'text-white'}`}>
                                                             {data?.productStats?.outOfStock.toLocaleString() ?? '0'}
                                                         </p>
                                                         {(data?.productStats?.outOfStock ?? 0) > 0 && (
@@ -289,7 +289,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 {/* Total Customers */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Total Users</h3>
-                                                    <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate">
                                                         {data?.stats.totalCustomers.toLocaleString() || '0'}
                                                     </p>
                                                 </div>
@@ -298,7 +298,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Active Now</h3>
                                                     <div className="flex items-center gap-2">
-                                                        <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                        <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate">
                                                             24
                                                         </p>
                                                         <span className="w-2 h-2 bg-[#86efac] rounded-full animate-pulse shadow-[0_0_8px_0_#86efac]"></span>
@@ -308,7 +308,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 {/* Returning Customers (Mock) */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Return Rate</h3>
-                                                    <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate">
                                                         18<span className="text-base text-[#a1a1aa] ml-0.5">%</span>
                                                     </p>
                                                 </div>
@@ -316,7 +316,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 {/* Avg Order Value */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Avg Order</h3>
-                                                    <p className="text-2xl font-semibold text-[#242424] font-rubik tracking-tight">
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate" title={`रु ${Math.round(data?.stats.avgOrderValue || 0).toLocaleString()}`}>
                                                         रु {Math.round(data?.stats.avgOrderValue || 0).toLocaleString()}
                                                     </p>
                                                 </div>

@@ -20,8 +20,6 @@ import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
 import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaymentAdminAction } from '@/app/actions/orderActions';
 
-const PAGE_SIZE = 12;
-
 export default function OrdersClient({ initialOrdersData }: { initialOrdersData?: any }) {
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(!initialOrdersData?.success);
@@ -50,6 +48,8 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   const searchParams = useSearchParams();
   const deepLinkOrderId = searchParams ? searchParams.get('orderId') : null;
 
+  const pageSize = viewMode === 'list' ? 30 : 12;
+
   const handleToggleSelect = (id: string) => {
     setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
@@ -68,7 +68,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   const { markAsSeen, lastSeenAt, isHydrated } = useOrderNotifications();
   const lastSeenAtOnMount = useRef<string | null>(null);
   const hasEffectRun = useRef(false); // Guard for notification effect
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   const { setPrimaryAction, setOverrideTitle } = useAdminUI();
 
@@ -86,10 +86,17 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     hasEffectRun.current = true;
   }, [isHydrated, lastSeenAt, markAsSeen]);
 
-  const loadOrders = async (page: number, search: string = searchQuery, status: string = statusFilter, hide: boolean = hideCancelled) => {
+  const loadOrders = async (
+    page: number,
+    search: string = searchQuery,
+    status: string = statusFilter,
+    hide: boolean = hideCancelled,
+    mode: 'grid' | 'list' = viewMode
+  ) => {
     setIsLoading(true);
+    const limit = mode === 'list' ? 30 : 12;
     try {
-      const result = await fetchAllOrdersAdminAction(page, PAGE_SIZE, { search, status, hideCancelled: hide });
+      const result = await fetchAllOrdersAdminAction(page, limit, { search, status, hideCancelled: hide });
       if (result && result.success) {
         setOrders(result.orders || []);
         setTotalCount(result.totalCount || 0);
@@ -108,14 +115,14 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-      // If we have SSR data, and we are on page 1 with default filters, skip the initial fetch
-      if (initialOrdersData?.success && currentPage === 1 && searchQuery === '' && statusFilter === 'all' && !hideCancelled) {
+      // If we have SSR data, and we are on page 1 with default filters in grid view, skip initial fetch
+      if (initialOrdersData?.success && currentPage === 1 && searchQuery === '' && statusFilter === 'all' && !hideCancelled && viewMode === 'grid') {
         setIsLoading(false);
         return;
       }
     }
-    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled);
-  }, [currentPage, searchQuery, statusFilter, hideCancelled]);
+    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode);
+  }, [currentPage, searchQuery, statusFilter, hideCancelled, viewMode]);
 
   // Auto-sync external tracking for visible active orders
   const syncedPageRef = useRef<number | null>(null);
@@ -134,7 +141,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         .then((res) => {
           if (res?.updatedCount && res.updatedCount > 0) {
             // Silently refresh the list without triggering isLoading=true and hiding the current list
-            fetchAllOrdersAdminAction(currentPage, PAGE_SIZE, { search: searchQuery, status: statusFilter, hideCancelled })
+            fetchAllOrdersAdminAction(currentPage, pageSize, { search: searchQuery, status: statusFilter, hideCancelled })
               .then((result) => {
                 if (result && result.success) {
                   setOrders(result.orders || []);
@@ -145,7 +152,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         })
         .catch(err => console.error("Auto-sync failed:", err));
     }
-  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled]);
+  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled, pageSize]);
 
   // Deep Link Logic
   useEffect(() => {
@@ -322,7 +329,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         }} />}
       />
 
-      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden pb-[100px] relative">
+      <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[100px] relative">
         <AnimatePresence mode="wait">
           {isLoading && orders.length === 0 ? (
             <motion.div
@@ -331,8 +338,9 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
+              className="w-full max-w-full"
             >
-              {viewMode === 'list' ? <OrderTableSkeleton rows={8} /> : <OrderGridSkeleton count={8} />}
+              {viewMode === 'list' ? <OrderTableSkeleton rows={15} /> : <OrderGridSkeleton count={12} />}
             </motion.div>
           ) : orders.length > 0 ? (
             <motion.div

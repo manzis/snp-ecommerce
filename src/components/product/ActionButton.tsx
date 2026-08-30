@@ -16,7 +16,8 @@ const ActionButton = ({ icon, label, className, ...props }: ActionButtonProps) =
         flex h-[42px] w-[42px] items-center justify-center shrink-0 
         rounded-[6px] border border-[#eaebf0] bg-[#ffffff] p-[8px] 
         shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] overflow-hidden
-        outline-none transition-all duration-200
+        outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0
+        select-none transition-all duration-150
         
         /* HOVER: Only enabled for desktop/tablet (md and up) */
         md:hover:bg-[#f2f3f5] 
@@ -24,8 +25,7 @@ const ActionButton = ({ icon, label, className, ...props }: ActionButtonProps) =
 
         /* TAP/CLICK: Works on all devices, provides gentle feedback */
         active:bg-[#fafbfc]
-        active:scale-98
-        active:border-[#d1d5db]
+        active:scale-95
         
         ${className || ''}
       `}

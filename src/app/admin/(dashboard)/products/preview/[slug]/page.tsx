@@ -153,7 +153,7 @@ export default async function AdminProductPreviewPage({ params }: AdminProductPr
                 </div>
 
                 <div className="w-full mt-[32px] lg:mt-[48px]">
-                  <ProductBanners linkedBanners={product.product_banners} />
+                  <ProductBanners linkedBanners={product.product_banners} variant="white" />
                 </div>
                 
                 <div className="w-full mt-[32px] lg:mt-[48px]">

@@ -7,13 +7,14 @@ import { useRouter } from 'next/navigation';
 interface ProductBannersProps {
   banners?: (string | undefined)[];
   linkedBanners?: any[];
+  variant?: 'split' | 'white';
 }
 
 /**
  * Premium Banner Carousel with native CSS hardware acceleration.
  * Optimized for both desktop and mobile with zero JS hydration overhead.
  */
-const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBanners = [] }) => {
+const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBanners = [], variant = 'split' }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -109,16 +110,19 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
     router.push(banner.link);
   };
 
-  if (total === 0) return null;
+  const sectionBgClass = variant === 'white' 
+    ? 'bg-white' 
+    : 'bg-[linear-gradient(to_bottom,#ffffff_50%,#F1F7F9_50%)]';
 
   return (
     <section 
       id="storefront-premium-banner"
-      className="relative w-full overflow-hidden bg-zinc-950 border-y border-gray-100 group/section select-none"
+      className={`w-full ${sectionBgClass} py-[8px] md:py-[16px] lg:py-[20px] group/section select-none`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-[530px] md:h-[650px] lg:h-[720px] w-full bg-zinc-950 overflow-hidden">
+      <div className="mx-auto max-w-[1440px] w-full px-[12px] md:px-[24px] lg:px-[32px]">
+        <div className="relative h-[500px] md:h-[600px] lg:h-[680px] w-full bg-zinc-950 rounded-[16px] md:rounded-[24px] overflow-hidden shadow-sm">
         
         {/* Native CSS Snap Container */}
         <div 
@@ -202,6 +206,7 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
             </button>
         </div>
       )}
+        </div>
       </div>
     </section>
   );

@@ -137,7 +137,7 @@ export function AdminOrderList({
   );
 
   const renderTable = (orderList: OrderProps[]) => (
-    <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] font-rubik">
+    <div className="w-full max-w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)] font-rubik">
       <table className="w-full text-left border-separate border-spacing-0">
         <thead>
           <tr className="border-b border-gray-50 bg-[#fafafa]">
@@ -198,7 +198,6 @@ export function AdminOrderList({
               return (
                 <motion.tr
                   key={order.id}
-                  layout
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

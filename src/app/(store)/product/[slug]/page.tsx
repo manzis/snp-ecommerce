@@ -354,7 +354,7 @@ async function ProductContent({ slug }: { slug: string }) {
         </div>
 
         <div className="w-full mt-[32px] lg:mt-[48px]">
-          <ProductBanners linkedBanners={product.product_banners} />
+          <ProductBanners linkedBanners={product.product_banners} variant="white" />
         </div>
         <div className="w-full mt-[32px] lg:mt-[48px]">
           <WhyChooseUs imageUrl={bannerSetting?.imageUrl} />

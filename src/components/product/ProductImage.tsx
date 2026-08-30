@@ -23,7 +23,6 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [animateHeart, setAnimateHeart] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -55,8 +54,6 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   const handleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
-    setAnimateHeart(true);
-    setTimeout(() => setAnimateHeart(false), 200);
   };
 
   const handleShare = async (e: React.MouseEvent) => {
@@ -128,13 +125,13 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
         </div>
 
         {stockStatus === 'out_of_stock' && (
-          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none px-[2px]">
-            <div className="w-full bg-white/95 backdrop-blur-[4px] py-8 lg:py-12 flex flex-col items-center justify-center shadow-[0_10px_40px_rgba(0,0,0,0.08)] border-y border-[#F0F0F0]/80">
- <h2 className="font-rajdhani font-bold text-[24px] lg:text-[36px] font-bold tracking-[-0.02em] uppercase leading-none bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none px-2 lg:px-4">
+            <div className="w-full bg-white/90 backdrop-blur-[6px] py-5 lg:py-7 px-4 flex flex-col items-center justify-center">
+              <h2 className="font-rajdhani font-bold text-[22px] lg:text-[30px] tracking-[-0.02em] uppercase leading-none text-red-600">
                 Out of Stock
               </h2>
-              <p className="font-rajdhani text-[12px] lg:text-[14px] font-medium text-[#797979] mt-3 tracking-wide">
-                This product is no longer available!
+              <p className="font-rajdhani text-[12px] lg:text-[14px] font-medium text-[#797979] mt-2 tracking-wide text-center">
+                The product is not currently available , Restocking soon
               </p>
             </div>
           </div>
@@ -173,12 +170,11 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
             onTouchStart={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
             icon={
-              <div className={`transition-transform duration-200 ${animateHeart ? 'scale-110' : 'scale-100'}`}>
-                <WishlistIcon
-                  className={`w-full h-full transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-[#242424]'
-                    }`}
-                />
-              </div>
+              <WishlistIcon
+                filled={isWishlisted}
+                className={`w-full h-full transition-colors duration-200 ${isWishlisted ? 'text-red-500' : 'text-[#242424]'
+                  }`}
+              />
             }
           />
         </div>

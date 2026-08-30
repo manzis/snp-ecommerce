@@ -31,7 +31,7 @@ export default function ProductTableView({
     const isAllSelected = safeProducts.length > 0 && selectedIds.length === safeProducts.length;
 
     return (
-        <div className="w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+        <div className="w-full max-w-full overflow-x-auto border border-gray-100 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr className="border-b border-gray-50 bg-[#fafafa]">
@@ -57,7 +57,6 @@ export default function ProductTableView({
                         {safeProducts.map((product) => (
                             <motion.tr
                                 key={product.id}
-                                layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
