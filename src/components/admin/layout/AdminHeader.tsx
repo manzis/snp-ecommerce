@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthService } from '@/services/auth.service';
+import { X } from 'lucide-react';
 
 import SearchIcon from '@/components/icons/SearchIcon';
 import NotificationIcon from '@/components/icons/NotificationIcon';
@@ -24,6 +25,7 @@ export default function AdminHeader() {
     const pathname = usePathname();
     const router = useRouter();
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const isPreviewMode = pathname.includes('/preview/');
 
@@ -87,15 +89,28 @@ export default function AdminHeader() {
                 </div>
                 <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search anything..."
                     className="w-full bg-[#f4f4f5] border-transparent rounded-[10px] py-[8px] pl-10 pr-12 text-[14px] font-['Rubik',_sans-serif] focus:bg-white focus:ring-1 focus:ring-[#e4e4e7] focus:border-[#e4e4e7] outline-none transition-all placeholder:text-gray-400"
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:opacity-0 transition-opacity flex items-center">
-                    <kbd className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium text-gray-400 bg-white border border-gray-200 rounded-[5px] ">
-                        <span className="text-[11px] font-sans">⌘</span>
-                        <span>K</span>
-                    </kbd>
-                </div>
+                {searchQuery ? (
+                    <button
+                        type="button"
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200/50 transition-colors"
+                        title="Clear search"
+                    >
+                        <X className="w-3.5 h-3.5" />
+                    </button>
+                ) : (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none group-focus-within:opacity-0 transition-opacity flex items-center">
+                        <kbd className="flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium text-gray-400 bg-white border border-gray-200 rounded-[5px] ">
+                            <span className="text-[11px] font-sans">⌘</span>
+                            <span>K</span>
+                        </kbd>
+                    </div>
+                )}
             </div>
 
             {/* Right Section: Utilities & Profile */}

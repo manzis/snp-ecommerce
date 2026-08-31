@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { getStoreSettingsAction, updateStoreSettingsAction } from '@/app/actions/settingsActions';
-import { toast } from 'sonner';
+import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 
 export default function StoreStatusToggle() {
   const [isLive, setIsLive] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { showAdminToast } = useAdminToast();
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -22,16 +23,15 @@ export default function StoreStatusToggle() {
   const handleToggle = async () => {
     const newStatus = !isLive;
     setIsLive(newStatus);
-    const toastId = toast.loading('Updating store status...');
     
     const result = await updateStoreSettingsAction({ is_live: newStatus });
     
     if (result.success) {
-      toast.success(newStatus ? 'Store is now LIVE!' : 'Store is now OFFLINE!', { id: toastId });
+      showAdminToast(newStatus ? 'Store is now LIVE!' : 'Store is now OFFLINE!', 'success');
     } else {
       // Revert if failed
       setIsLive(!newStatus);
-      toast.error('Failed to update store status', { id: toastId });
+      showAdminToast('Failed to update store status', 'error');
     }
   };
 

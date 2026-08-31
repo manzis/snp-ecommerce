@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import { checkAndSyncExpoExpressStatus, checkAndPersistDelayedStatus } from '@/app/actions/orderActions';
+import { checkAndSyncExpoExpressStatus, checkAndSyncKourtierStatus, checkAndPersistDelayedStatus } from '@/app/actions/orderActions';
 
 export const maxDuration = 60; // Allow 60s for external API calls
 export const dynamic = 'force-dynamic';
@@ -18,15 +18,14 @@ export async function GET(request: Request) {
   }
 
   try {
-    // 2. Find active orders being shipped by Expo Express
+    // 2. Find active orders being shipped by Expo Express or Kourtier Courier
     const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery'];
     
     const { data: activeOrders, error } = await supabase
       .from('orders')
       .select('id, status, carrier_name, tracking_number, status_updates, created_at, order_items(id, quantity, price, mrp, selected_size, selected_flavor, products(name, stock_status))')
       .in('status', activeTransitStatuses)
-      .not('tracking_number', 'is', null)
-      .ilike('carrier_name', '%expoexpress%');
+      .not('tracking_number', 'is', null);
 
     if (error) {
       throw error;
@@ -35,7 +34,7 @@ export async function GET(request: Request) {
     if (!activeOrders || activeOrders.length === 0) {
       return NextResponse.json({ 
         success: true, 
-        message: 'No active Expo Express orders found.', 
+        message: 'No active tracked orders found.', 
         processedCount: 0 
       });
     }
@@ -46,10 +45,9 @@ export async function GET(request: Request) {
     for (const order of activeOrders) {
       const originalStatus = order.status;
       
-      // We pass the order object to these mutative functions.
-      // They handle updating Supabase AND firing the emails internally!
       await checkAndPersistDelayedStatus(order, supabase);
       await checkAndSyncExpoExpressStatus(order, supabase);
+      await checkAndSyncKourtierStatus(order, supabase);
       
       if (order.status !== originalStatus) {
         updatedCount++;

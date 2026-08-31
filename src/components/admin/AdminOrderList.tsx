@@ -402,7 +402,8 @@ export function AdminOrderList({
                       onChange={(e) => setCarrierName(e.target.value)}
                     >
                       <option value="">Manual / Other</option>
-                      <option value="ExpoExpress">Expo Express</option>
+                      <option value="ExpoExpress">Expo Express (Auto-Tracking)</option>
+                      <option value="Kourtier Courier">Kourtier Courier (Auto-Tracking)</option>
                     </select>
                   </div>
                   <div>

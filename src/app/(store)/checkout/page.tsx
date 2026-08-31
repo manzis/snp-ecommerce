@@ -14,6 +14,7 @@ import { useCheckoutStore } from '@/store/checkoutStore';
 import { validateCoupon } from '@/services/couponService';
 import { placeOrderAction } from '@/app/actions/orderActions';
 import { uploadFileAction } from '@/app/actions/storageActions';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
 import { supabase } from '@/lib/supabase/client';
 import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
 import CheckoutCancelModal from '@/components/checkout/CheckoutCancelModal';
@@ -23,6 +24,19 @@ import PickupCodWarningModal from '@/components/checkout/PickupCodWarningModal';
 
 export default function CheckoutPage() {
   const [isMounted, setIsMounted] = useState(false);
+
+  // DYNAMIC STORE SETTINGS
+  const [storeSettings, setStoreSettings] = useState<{
+    codFee: number;
+    homeDeliveryCost: number;
+    pickupCost: number;
+    freeThreshold: number;
+  }>({
+    codFee: 23,
+    homeDeliveryCost: 150,
+    pickupCost: 100,
+    freeThreshold: 5000,
+  });
 
   // 1. STATE MANAGEMENT
   const activeStep = useCheckoutStore((state) => state.activeStep);
@@ -87,6 +101,18 @@ export default function CheckoutPage() {
     }
     // Reverify live prices immediately upon entering checkout flow
     useCartStore.getState().reverifyCartPrices();
+
+    // Fetch dynamic store settings (COD fee, shipping costs, free threshold)
+    getStoreSettingsAction().then((res) => {
+      if (res.success && res.data) {
+        setStoreSettings({
+          codFee: Number(res.data.payment_methods?.cod_fee ?? 23),
+          homeDeliveryCost: Number(res.data.shipping?.standard_cost ?? 150),
+          pickupCost: Number(res.data.shipping?.pickup_cost ?? 100),
+          freeThreshold: Number(res.data.shipping?.free_threshold ?? 5000),
+        });
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -105,8 +131,8 @@ export default function CheckoutPage() {
   };
 
   const handleDeliveryConfirm = (address: any, option: string) => {
-    const shippingPrice = option === 'home' ? 150 : 100;
-    setDeliveryData({ addressId: address.id, option, shippingPrice, addressDetails: address });
+    const rawPrice = option === 'home' ? storeSettings.homeDeliveryCost : storeSettings.pickupCost;
+    setDeliveryData({ addressId: address.id, option, shippingPrice: rawPrice, addressDetails: address });
     setDeliveryError(null);
     setCompletedSteps((prev) => [...new Set([...prev, 'delivery'])]);
     setActiveStep('payments');
@@ -375,8 +401,19 @@ export default function CheckoutPage() {
     return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
   }, [items]);
 
-  const shippingCharge = deliveryData?.shippingPrice || 0;
-  const codCharge = selectedPaymentId === 'cod' ? 23 : 0;
+  const rawShippingPrice = useMemo(() => {
+    if (!deliveryData?.option) return 0;
+    return deliveryData.option === 'home' ? storeSettings.homeDeliveryCost : storeSettings.pickupCost;
+  }, [deliveryData?.option, storeSettings.homeDeliveryCost, storeSettings.pickupCost]);
+
+  const shippingCharge = useMemo(() => {
+    if (subtotal >= storeSettings.freeThreshold && storeSettings.freeThreshold > 0) {
+      return 0;
+    }
+    return rawShippingPrice;
+  }, [subtotal, storeSettings.freeThreshold, rawShippingPrice]);
+
+  const codCharge = selectedPaymentId === 'cod' ? storeSettings.codFee : 0;
   const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - bundleDiscount - couponDiscountValue, [subtotal, shippingCharge, codCharge, bundleDiscount, couponDiscountValue]);
 
   const mainButtonText = useMemo(() => {
@@ -402,7 +439,7 @@ export default function CheckoutPage() {
           isProcessing={isAbandoning}
         />
 
-        <main className="mx-auto w-full md:max-w-[640px] lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
+        <main className="mx-auto w-full md:max-w-[640px] lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-[48px] lg:pb-[40px]">
           <div className="flex-1 min-w-0 flex flex-col gap-[12px]">
             <CheckoutPriceHeader
               ref={priceHeaderRef}
@@ -446,6 +483,9 @@ export default function CheckoutPage() {
                   initialAddressId={deliveryData?.addressId}
                   initialOption={deliveryData?.option}
                   externalError={deliveryError}
+                  homeDeliveryCost={storeSettings.homeDeliveryCost}
+                  pickupCost={storeSettings.pickupCost}
+                  freeThreshold={storeSettings.freeThreshold}
                 />
               </div>
 
@@ -467,7 +507,8 @@ export default function CheckoutPage() {
                   initialQrData={{ file: qrData.qrFile, remarks: qrData.qrRemarks }}
                   hasQrError={selectedPaymentId === 'qr' && !!paymentError}
                   externalError={paymentError}
-                  totalAmount={`Rs. ${(finalTotal - 25).toLocaleString()}`}
+                  totalAmount={`Rs. ${Math.max(0, finalTotal - 25).toLocaleString()}`}
+                  codFee={storeSettings.codFee}
                 />
               </div>
             </div>
@@ -495,9 +536,10 @@ export default function CheckoutPage() {
           isOpen={showPickupCodWarning}
           mode={modalMode}
           onClose={() => setShowPickupCodWarning(false)}
+          codFee={storeSettings.codFee}
           onSwitchToHomeDelivery={() => {
             if (deliveryData) {
-              setDeliveryData({ ...deliveryData, option: 'home', shippingPrice: 150 });
+              setDeliveryData({ ...deliveryData, option: 'home', shippingPrice: storeSettings.homeDeliveryCost });
             }
             setShowPickupCodWarning(false);
           }}

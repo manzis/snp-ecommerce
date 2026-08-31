@@ -111,8 +111,18 @@ export const RecentViewsModal = ({ isOpen, onClose, views, onCustomerClick }: Re
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search by product or customer name..."
-                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#bef264]/50 focus:border-[#bef264] sm:text-sm transition-all"
+                                    className={`block w-full pl-10 ${searchQuery ? 'pr-9' : 'pr-3'} py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#bef264]/50 focus:border-[#bef264] sm:text-sm transition-all`}
                                 />
+                                {searchQuery && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200/50 transition-colors"
+                                        title="Clear search"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
                             </div>
                         </div>
 

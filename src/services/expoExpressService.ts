@@ -35,7 +35,7 @@ function mapExpoUpdate(update: ExpoUpdate): { status: string; message: string; l
   if (desc.includes('delivered')) {
     return {
       status: 'delivered',
-      message: `Order successfully delivered.`,
+      message: `Your package has been delivered successfully. Thank you for shopping with us!`,
       location: loc
     };
   }
@@ -44,7 +44,7 @@ function mapExpoUpdate(update: ExpoUpdate): { status: string; message: string; l
   if (desc.includes('out for delivery') || desc.includes('picked by rider')) {
     return {
       status: 'out_for_delivery',
-      message: `Out for delivery.`,
+      message: `Your package is out for delivery with our delivery partner and will arrive today.`,
       location: loc
     };
   }
@@ -54,17 +54,17 @@ function mapExpoUpdate(update: ExpoUpdate): { status: string; message: string; l
     const locationStr = loc ? ` from ${loc}` : '';
     return {
       status: 'in_transit',
-      message: `Your shipment is in transit and on the way to your destination${locationStr}.`,
+      message: `Your package is in transit and on its way to your destination${locationStr}.`,
       location: loc
     };
   }
 
   // 4. Shipment Arrived (Received at facility)
   if (desc.includes('received at facility') || desc.includes('arrived at facility')) {
-    //const locationStr = loc ? ` at ${loc}` : ' at local processing hub';
+    const locationStr = loc ? ` (${loc})` : '';
     return {
       status: 'shipment_arrived',
-      message: `Package arrived at local processing hub.`,
+      message: `Your package has arrived at the local processing hub${locationStr}.`,
       location: loc
     };
   }

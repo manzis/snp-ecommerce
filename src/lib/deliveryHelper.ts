@@ -123,3 +123,38 @@ export function formatSingleDate(dateInput?: string | Date): string {
   const month = months[date.getMonth()];
   return `${day}${getOrdinalSuffix(day)} ${month}`;
 }
+
+/**
+ * Resolves external courier tracking link based on carrier name and tracking number.
+ * - Kourtier Courier: https://kourtierlive.com/tracking?tracking_number=${trackingNumber}
+ * - Expo Express: https://expoxpress.com/Home
+ */
+export function getCarrierTrackingUrl(carrierName?: string, trackingNumber?: string): string | null {
+  if (!carrierName || !carrierName.trim()) return null;
+  const name = carrierName.trim();
+  const nameLower = name.toLowerCase();
+
+  // If carrierName is already a full URL
+  if (nameLower.startsWith('http://') || nameLower.startsWith('https://')) {
+    return name;
+  }
+
+  // Kourtier Courier
+  if (nameLower.includes('kourtier')) {
+    const tn = trackingNumber ? trackingNumber.trim() : '';
+    return `https://kourtierlive.com/tracking?tracking_number=${encodeURIComponent(tn)}`;
+  }
+
+  // Expo Express
+  if (nameLower.includes('expo')) {
+    return 'https://expoxpress.com/Home';
+  }
+
+  // If trackingNumber itself is a full URL
+  if (trackingNumber && (trackingNumber.trim().startsWith('http://') || trackingNumber.trim().startsWith('https://'))) {
+    return trackingNumber.trim();
+  }
+
+  return null;
+}
+

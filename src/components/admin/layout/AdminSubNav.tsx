@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ListIcon from '@/components/icons/ListIcon';
 import GridIcon from '@/components/icons/GridIcon';
 import SearchIcon from '@/components/icons/SearchIcon';
-import { RefreshCcw } from 'lucide-react';
+import { RefreshCcw, X } from 'lucide-react';
 
 interface AdminSubNavProps {
     onSearch: (query: string) => void;
@@ -47,6 +47,12 @@ export default function AdminSubNav({
         debounceRef.current = setTimeout(() => {
             onSearch(query);
         }, 300);
+    };
+
+    const handleClearSearch = () => {
+        setSearchQuery('');
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        onSearch('');
     };
 
     // Cleanup on unmount
@@ -136,8 +142,18 @@ export default function AdminSubNav({
                                 value={searchQuery}
                                 onChange={handleSearchChange}
                                 placeholder={searchPlaceholder}
-                                className="w-full bg-gray-50 md:bg-gray-100 border-transparent rounded-[10px] py-[8px] pl-10 pr-4 text-[14px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
+                                className={`w-full bg-gray-50 md:bg-gray-100 border-transparent rounded-[10px] py-[8px] pl-10 ${searchQuery ? 'pr-9' : 'pr-4'} text-[14px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400`}
                             />
+                            {searchQuery && (
+                                <button
+                                    type="button"
+                                    onClick={handleClearSearch}
+                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200/50 transition-colors"
+                                    title="Clear search"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            )}
                         </div>
                         {/* Mobile Refresh (inline with search when no filter dropdown exists) */}
                         {!filterDropdown && (onRefresh || PaginationControls) && (
@@ -162,8 +178,18 @@ export default function AdminSubNav({
                             value={searchQuery}
                             onChange={handleSearchChange}
                             placeholder={searchPlaceholder}
-                            className="w-full bg-gray-50 md:bg-gray-100 border-transparent rounded-[10px] py-[8px] pl-10 pr-4 text-[14px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
+                            className={`w-full bg-gray-50 md:bg-gray-100 border-transparent rounded-[10px] py-[8px] pl-10 ${searchQuery ? 'pr-9' : 'pr-4'} text-[14px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400`}
                         />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={handleClearSearch}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200/50 transition-colors"
+                                title="Clear search"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        )}
                     </div>
                 )}
 

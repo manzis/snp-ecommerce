@@ -51,11 +51,23 @@ const SectionSearch: React.FC<SectionSearchProps> = ({ onSelectProduct }) => {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setIsOpen(true)}
           placeholder="Search products to add..."
-          className="w-full px-[16px] py-[10px] pl-[40px] border border-[#e8e8e8] rounded-[8px] text-[14px] focus:outline-none focus:ring-2 focus:ring-black/5"
+          className={`w-full px-[16px] py-[10px] pl-[40px] ${query ? 'pr-[36px]' : ''} border border-[#e8e8e8] rounded-[8px] text-[14px] focus:outline-none focus:ring-2 focus:ring-black/5`}
         />
         <svg className="absolute left-[12px] top-[12px] w-[16px] h-[16px] text-[#bebebe]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="absolute right-[12px] top-[12px] text-[#bebebe] hover:text-[#242424] transition-colors"
+            title="Clear search"
+          >
+            <svg className="w-[16px] h-[16px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {isOpen && (results.length > 0 || isLoading) && (

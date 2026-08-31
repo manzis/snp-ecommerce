@@ -9,7 +9,7 @@ import InfoIcon from '@/components/icons/InfoIcon';
 import TickIcon from '@/components/icons/TickIcon';
 import CloseIcon from '@/components/icons/CloseIcon2';
 import { StatusUpdateLog, OrderStatus, STATUS_CONFIG } from '@/components/orders/OrderCard';
-import { getExpectedDeliveryRange, formatSingleDate, getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
+import { getExpectedDeliveryRange, formatSingleDate, getExpectedDeliveryDetails, getCarrierTrackingUrl } from '@/lib/deliveryHelper';
 
 interface TrackingModalProps {
     isOpen: boolean;
@@ -464,9 +464,32 @@ export default function TrackingModal({ isOpen, onClose, statusUpdates, carrierN
                                 <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#242424]">
                                     Delivery Partner
                                 </span>
-                                <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424]">
-                                    {carrierName || 'Unknown'}
-                                </span>
+                                {(() => {
+                                    const trackingUrl = getCarrierTrackingUrl(carrierName, trackingNumber);
+                                    if (trackingUrl) {
+                                        return (
+                                            <a
+                                                href={trackingUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#308026] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                                                title={`Open ${carrierName} tracking page`}
+                                            >
+                                                <span>{carrierName || 'Unknown'}</span>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                                </svg>
+                                            </a>
+                                        );
+                                    }
+                                    return (
+                                        <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424]">
+                                            {carrierName || 'Unknown'}
+                                        </span>
+                                    );
+                                })()}
                             </div>
                             <div className="flex flex-1 flex-col items-start gap-[4px] px-[20px]">
                                 <span className="w-full font-rajdhani text-[14px] font-[500] leading-[18px] text-[#242424]">

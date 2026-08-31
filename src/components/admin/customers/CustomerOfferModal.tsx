@@ -7,7 +7,8 @@ import {
     ShoppingBag,
     Ticket,
     Check,
-    Copy
+    Copy,
+    X
 } from 'lucide-react';
 import AdminModal from '@/components/admin/shared/AdminModal';
 import { CustomerData } from '@/app/actions/customerActions';
@@ -163,8 +164,18 @@ export default function CustomerOfferModal({
                             placeholder="Search products..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-[#242424]/5 transition-all"
+                            className={`w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-[13px] focus:outline-none focus:ring-2 focus:ring-[#242424]/5 transition-all ${searchTerm ? 'pr-9' : ''}`}
                         />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchTerm('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200/50 transition-colors"
+                                title="Clear search"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 mt-2 max-h-[300px] overflow-y-auto pr-1">

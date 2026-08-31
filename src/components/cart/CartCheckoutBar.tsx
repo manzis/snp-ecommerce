@@ -110,7 +110,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       </div>
 
       {/* RIGHT SECTION: Action Button */}
-      <div className="flex flex-1 basis-0 h-full items-center justify-center bg-transparent px-[16px] lg:pr-0">
+      <div className="flex flex-1 basis-0 h-full items-center justify-center bg-transparent px-[16px]">
         <button
           onClick={handleAction}
           disabled={isNavigating || buttonText === 'Processing...'}

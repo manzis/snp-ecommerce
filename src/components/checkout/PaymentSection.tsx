@@ -29,6 +29,7 @@ interface PaymentSectionProps {
   externalError?: string | null;
   excludeOptions?: string[];
   totalAmount?: string;
+  codFee?: number;
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({
@@ -44,7 +45,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   hasQrError = false,
   externalError,
   excludeOptions = [],
-  totalAmount
+  totalAmount,
+  codFee = 23
 }) => {
   return (
     <div className={`main-container mx-auto flex w-full max-w-[412px] flex-col items-start border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
@@ -170,8 +172,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       icon={
                         <div className="relative w-[18px] h-[18px]">
                           <Image
-                            src="/images/cod.png
-                            "
+                            src="/images/cod.png"
                             alt="Cash on Delivery"
                             fill
                             className="object-contain"
@@ -181,10 +182,10 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       }
                       isActive={selectedId === 'cod'}
                       onSelect={onSelect}
-                      badge="+ Rs 23 Fee"
+                      badge={`+ Rs ${codFee} Fee`}
                       badgeType="fee"
                     >
-                      <CodPaymentDetails handlingFee={23} onPlaceOrder={onPlaceOrder} />
+                      <CodPaymentDetails handlingFee={codFee} onPlaceOrder={onPlaceOrder} />
                     </PaymentOption>
                   )}
                 </div>

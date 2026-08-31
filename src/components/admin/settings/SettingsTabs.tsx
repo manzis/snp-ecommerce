@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateStoreSettingsAction } from '@/app/actions/settingsActions';
-import { toast } from 'sonner';
 import SaveIcon from '@/components/icons/TickIcon';
 import { useAdminUI } from '@/context/AdminUIContext';
+import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 
 const TABS = [
   { id: 'general', label: 'General' },
@@ -19,6 +19,7 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
   const [settings, setSettings] = useState(initialSettings);
   const [isSaving, setIsSaving] = useState(false);
   const { setHeaderActionNode } = useAdminUI();
+  const { showAdminToast } = useAdminToast();
 
   const handleChange = (section: string, field: string, value: any) => {
     if (section) {
@@ -39,14 +40,13 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
 
   const handleSave = async () => {
     setIsSaving(true);
-    const toastId = toast.loading('Saving settings...');
     
     const result = await updateStoreSettingsAction(settings);
     
     if (result.success) {
-      toast.success('Settings saved successfully!', { id: toastId });
+      showAdminToast('Settings saved successfully!', 'success');
     } else {
-      toast.error(result.message || 'Failed to save settings', { id: toastId });
+      showAdminToast(result.message || 'Failed to save settings', 'error');
     }
     setIsSaving(false);
   };
@@ -267,11 +267,45 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                 <div className="space-y-6">
                   <div className="border-b border-gray-100 pb-6">
                     <h2 className="text-[15px] font-medium text-[#242424] tracking-tight">Payment Gateways</h2>
-                    <p className="text-[12px] text-[#71717a] mt-1 font-regular mb-6">Enable or disable payment methods available to customers at checkout.</p>
+                    <p className="text-[12px] text-[#71717a] mt-1 font-regular mb-6">Enable or disable payment methods available to customers at checkout and configure fees.</p>
                     
                     <div className="grid gap-4">
+                      {/* Cash on Delivery */}
+                      <div className="flex flex-col gap-3 bg-gray-50/50 p-4 rounded-[12px] border border-gray-100">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-[13px] font-medium text-[#242424]">Cash on Delivery (COD)</h3>
+                            <p className="text-[11px] text-[#71717a] mt-0.5">Allow customers to pay with cash upon receiving their order.</p>
+                          </div>
+                          <button 
+                            onClick={() => handleChange('payment_methods', 'cod', !settings.payment_methods?.cod)}
+                            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${settings.payment_methods?.cod ? 'bg-[#242424]' : 'bg-gray-300'}`}
+                          >
+                            <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.payment_methods?.cod ? 'translate-x-5' : 'translate-x-0'}`} />
+                          </button>
+                        </div>
+
+                        {settings.payment_methods?.cod && (
+                          <div className="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between gap-4">
+                            <div>
+                              <label className="text-[12px] font-medium text-[#242424]">COD Extra Charge / Handling Fee (NPR)</label>
+                              <p className="text-[11px] text-[#71717a]">Additional fee applied to orders when customer selects COD payment.</p>
+                            </div>
+                            <div className="w-32 flex-none">
+                              <input
+                                type="number"
+                                min="0"
+                                value={settings.payment_methods?.cod_fee ?? 0}
+                                onChange={(e) => handleChange('payment_methods', 'cod_fee', Math.max(0, Number(e.target.value)))}
+                                placeholder="e.g. 23"
+                                className="w-full bg-white border border-gray-200 rounded-[8px] py-[6px] px-3 text-[13px] font-medium focus:ring-1 focus:ring-gray-300 outline-none"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       {[
-                        { id: 'cod', label: 'Cash on Delivery (COD)' },
                         { id: 'esewa', label: 'eSewa Integration' },
                         { id: 'khalti', label: 'Khalti Wallet' },
                         { id: 'fonepay', label: 'Fonepay QR' },
@@ -295,31 +329,48 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
               {activeTab === 'shipping' && (
                 <div className="space-y-8">
                   <div className="border-b border-gray-100 pb-6">
-                    <h2 className="text-[15px] font-medium text-[#242424] tracking-tight">Delivery Rules</h2>
-                    <p className="text-[12px] text-[#71717a] mt-1 font-regular">Configure how shipping costs are calculated at checkout.</p>
+                    <h2 className="text-[15px] font-medium text-[#242424] tracking-tight">Delivery Rules & Shipping Charges</h2>
+                    <p className="text-[12px] text-[#71717a] mt-1 font-regular">Configure dynamic shipping costs and thresholds applied at checkout.</p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[12px] font-medium text-[#242424]">Standard Shipping Cost (NPR)</label>
+                      <label className="text-[12px] font-medium text-[#242424]">Home Delivery Cost (NPR)</label>
                       <input
                         type="number"
-                        value={settings.shipping?.standard_cost || ''}
-                        onChange={(e) => handleChange('shipping', 'standard_cost', Number(e.target.value))}
+                        min="0"
+                        value={settings.shipping?.standard_cost ?? 150}
+                        onChange={(e) => handleChange('shipping', 'standard_cost', Math.max(0, Number(e.target.value)))}
+                        placeholder="e.g. 150"
+                        className="w-full bg-gray-50 border-transparent rounded-[10px] py-[8px] px-4 text-[13px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
+                      />
+                      <p className="text-[11px] text-[#71717a] mt-1">Doorstep home delivery charge.</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[12px] font-medium text-[#242424]">Pickup Station Cost (NPR)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={settings.shipping?.pickup_cost ?? 100}
+                        onChange={(e) => handleChange('shipping', 'pickup_cost', Math.max(0, Number(e.target.value)))}
                         placeholder="e.g. 100"
                         className="w-full bg-gray-50 border-transparent rounded-[10px] py-[8px] px-4 text-[13px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
                       />
+                      <p className="text-[11px] text-[#71717a] mt-1">Nearest station pickup charge.</p>
                     </div>
+
                     <div className="space-y-2">
                       <label className="text-[12px] font-medium text-[#242424]">Free Shipping Threshold (NPR)</label>
                       <input
                         type="number"
-                        value={settings.shipping?.free_threshold || ''}
-                        onChange={(e) => handleChange('shipping', 'free_threshold', Number(e.target.value))}
+                        min="0"
+                        value={settings.shipping?.free_threshold ?? 5000}
+                        onChange={(e) => handleChange('shipping', 'free_threshold', Math.max(0, Number(e.target.value)))}
                         placeholder="e.g. 5000"
                         className="w-full bg-gray-50 border-transparent rounded-[10px] py-[8px] px-4 text-[13px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
                       />
-                      <p className="text-[11px] text-[#71717a] mt-1">Cart total required for the customer to receive free shipping.</p>
+                      <p className="text-[11px] text-[#71717a] mt-1">Cart subtotal required for free shipping.</p>
                     </div>
                   </div>
                 </div>

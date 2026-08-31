@@ -114,6 +114,8 @@ const ProductBanners: React.FC<ProductBannersProps> = ({ banners = [], linkedBan
     ? 'bg-white' 
     : 'bg-[linear-gradient(to_bottom,#ffffff_50%,#F1F7F9_50%)]';
 
+  if (normalizedBanners.length === 0) return null;
+
   return (
     <section 
       id="storefront-premium-banner"

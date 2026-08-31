@@ -109,6 +109,7 @@ const DEFAULT_STORE_SETTINGS = {
   orders_disabled: false,
   payment_methods: {
     cod: true,
+    cod_fee: 23,
     esewa: false,
     khalti: false,
     fonepay: false,
@@ -124,7 +125,8 @@ const DEFAULT_STORE_SETTINGS = {
     whatsapp: "",
   },
   shipping: {
-    standard_cost: 100,
+    standard_cost: 150,
+    pickup_cost: 100,
     free_threshold: 5000,
   },
 };
@@ -132,8 +134,23 @@ const DEFAULT_STORE_SETTINGS = {
 export async function getStoreSettingsAction() {
   try {
     const data = await getSiteSetting('store_settings');
-    // Merge with defaults so we always have a complete object
-    const merged = { ...DEFAULT_STORE_SETTINGS, ...(data || {}) };
+    // Merge with defaults so we always have a complete object, including payment_methods subfields
+    const merged = {
+      ...DEFAULT_STORE_SETTINGS,
+      ...(data || {}),
+      payment_methods: {
+        ...DEFAULT_STORE_SETTINGS.payment_methods,
+        ...((data || {}).payment_methods || {})
+      },
+      business_details: {
+        ...DEFAULT_STORE_SETTINGS.business_details,
+        ...((data || {}).business_details || {})
+      },
+      shipping: {
+        ...DEFAULT_STORE_SETTINGS.shipping,
+        ...((data || {}).shipping || {})
+      }
+    };
     return { success: true, data: merged };
   } catch (error: any) {
     return { success: false, message: error.message };

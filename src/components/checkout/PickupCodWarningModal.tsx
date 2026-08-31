@@ -10,6 +10,7 @@ interface PickupCodWarningModalProps {
   onSwitchToHomeDelivery?: () => void;
   onPayOnline?: () => void;
   onConfirmOrder?: () => void;
+  codFee?: number;
 }
 
 const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
@@ -18,7 +19,8 @@ const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
   onClose,
   onSwitchToHomeDelivery,
   onPayOnline,
-  onConfirmOrder
+  onConfirmOrder,
+  codFee = 23
 }) => {
   if (!isOpen) return null;
 
@@ -70,7 +72,7 @@ const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
               )
               : (
                 <>
-                  <strong className="text-[#e11717] font-bold">Rs 23</strong> additional added for Pay on delivery orders.
+                  <strong className="text-[#e11717] font-bold">Rs {codFee}</strong> additional added for Pay on delivery orders.
                 </>
               )}
           </p>

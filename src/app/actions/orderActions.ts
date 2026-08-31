@@ -16,6 +16,74 @@ import {
 } from '@/services/emailService';
 import { getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
 import { fetchExpoExpressUpdate } from '@/services/expoExpressService';
+import { fetchKourtierUpdate } from '@/services/kourtierService';
+
+export async function checkAndSyncKourtierStatus(order: any, supabase: any) {
+  if (!order || !order.id || !order.tracking_number) return;
+  
+  const carrier = (order.carrier_name || '').toLowerCase().replace(/\s+/g, '');
+  if (!carrier.includes('kourtier')) return;
+
+  const TERMINAL_STATUSES = ['delivered', 'cancelled', 'returned'];
+  const dbStatus = (order.status || '').toLowerCase();
+  if (TERMINAL_STATUSES.includes(dbStatus)) return;
+
+  const newUpdates = await fetchKourtierUpdate(order.tracking_number);
+  if (!newUpdates || newUpdates.length === 0) return;
+
+  const statusUpdates = [...(order.status_updates || [])];
+  let didUpdate = false;
+  let latestStatus = dbStatus;
+  let latestMessage = '';
+
+  // newUpdates is sorted oldest to newest
+  for (const nu of newUpdates) {
+    // Skip initial 'shipped' updates from external API since shipped state is set manually by admin
+    if (nu.status === 'shipped') continue;
+
+    const hasUpdate = statusUpdates.some((up: any) => {
+      if (up.message !== nu.message) return false;
+      if (!up.date || !nu.date) return true;
+      return up.date.split(' ')[0] === nu.date.split(' ')[0];
+    });
+    
+    if (!hasUpdate) {
+      statusUpdates.push(nu);
+      didUpdate = true;
+      latestStatus = nu.status;
+      latestMessage = nu.message;
+    }
+  }
+
+  if (!didUpdate) return;
+
+  const { error } = await supabase
+    .from('orders')
+    .update({ 
+      status: latestStatus, 
+      status_updates: statusUpdates,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', order.id);
+
+  if (!error) {
+    if (dbStatus !== latestStatus) {
+      const normalizedStatus = latestStatus;
+      if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit') {
+        sendOrderShippedEmail(order.id, latestMessage).catch(console.error);
+      } else if (normalizedStatus === 'out_for_delivery') {
+        sendOutForDeliveryEmail(order.id).catch(console.error);
+      } else if (normalizedStatus === 'failed') {
+        sendDeliveryFailedEmail(order.id, latestMessage).catch(console.error);
+      }
+    }
+
+    order.status = latestStatus;
+    order.status_updates = statusUpdates;
+  } else {
+    console.error('[Kourtier] Failed to persist tracking updates:', error);
+  }
+}
 
 export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
   if (!order || !order.id || !order.tracking_number) return;
@@ -37,6 +105,9 @@ export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
 
   // newUpdates is sorted oldest to newest
   for (const nu of newUpdates) {
+    // Skip initial 'shipped' updates from external API since shipped state is set manually by admin
+    if (nu.status === 'shipped') continue;
+
     // Allow the same message (e.g. "Out for delivery.") if it happens on a different day (retry)
     const hasUpdate = statusUpdates.some((up: any) => {
       if (up.message !== nu.message) return false;
@@ -226,6 +297,7 @@ export async function trackOrderByIdAction(shortId: string) {
     await checkAndPersistDelayedStatus(data, supabase);
     // Fetch external courier API updates if applicable
     await checkAndSyncExpoExpressStatus(data, supabase);
+    await checkAndSyncKourtierStatus(data, supabase);
 
     return { success: true, order: mapToOrderProps(data as any) };
   } catch (error: any) {
@@ -455,59 +527,106 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
     }
 
     // Apply Comprehensive Search Filter
-    if (options?.search) {
-      const searchStr = options.search.trim();
-      
-      // 1. Find orders that contain products matching the search string
-      // First, get matching product IDs from the products table
-      const { data: matchingProducts } = await adminClient
-        .from('products')
-        .select('id')
-        .or(`name.ilike.%${searchStr}%,title.ilike.%${searchStr}%`);
-      
-      const productIds = matchingProducts?.map(p => p.id) || [];
-      
-      let orderIdsFromProducts: string[] = [];
-      if (productIds.length > 0) {
-        // Then, get order IDs that contain these products
-        const { data: itemData } = await adminClient
-          .from('order_items')
-          .select('order_id')
-          .in('product_id', productIds);
-        
-        orderIdsFromProducts = itemData?.map(i => i.order_id) || [];
-      }
-      
-      // 2. Build the OR clauses for the main query
-      let orClauses = [
-        `contact_details->>full_name.ilike.%${searchStr}%`,
-        `contact_details->>name.ilike.%${searchStr}%`,
-        `contact_details->>email.ilike.%${searchStr}%`,
-        `contact_details->>phone.ilike.%${searchStr}%`,
-        `contact_details->>value.ilike.%${searchStr}%`,
-        `shipping_address->>first_name.ilike.%${searchStr}%`,
-        `shipping_address->>last_name.ilike.%${searchStr}%`,
-        `shipping_address->addressDetails->>first_name.ilike.%${searchStr}%`,
-        `shipping_address->addressDetails->>last_name.ilike.%${searchStr}%`,
-        `shipping_address->addressDetails->>phone.ilike.%${searchStr}%`
-      ];
+    if (options?.search && options.search.trim().length > 0) {
+      const rawSearch = options.search.trim();
+      const cleanSearch = rawSearch.replace(/^#/, '').replace(/[,()%\\]/g, '').trim();
 
-      // If we found orders by product name, include them in the OR filter
-      if (orderIdsFromProducts.length > 0) {
-        const uniqueIds = Array.from(new Set(orderIdsFromProducts)).slice(0, 200); // Cap at 200 to keep URL length safe
-        orClauses.push(`id.in.(${uniqueIds.join(',')})`);
-      }
-      
-      // Search by ID if it's a valid hex string (partial match attempt)
-      if (searchStr.length >= 4 && /^[0-9a-fA-F\-]+$/.test(searchStr)) {
-          // Note: PostgreSQL UUIDs don't support ILIKE directly without cast, 
-          // but we can use 'id.in' for exact UUID matches if the string is 36 chars.
-          if (searchStr.length === 36) {
-              orClauses.push(`id.eq.${searchStr}`);
+      if (cleanSearch.length > 0) {
+        let orderIdsFromItems: string[] = [];
+        let matchingOrderUuid: string[] = [];
+
+        try {
+          // 1. Find matching product IDs from products & brands tables
+          const { data: matchingProducts } = await adminClient
+            .from('products')
+            .select('id')
+            .or(`name.ilike.%${cleanSearch}%,title.ilike.%${cleanSearch}%,slug.ilike.%${cleanSearch}%`);
+
+          const { data: matchingBrands } = await adminClient
+            .from('brands')
+            .select('id')
+            .ilike('name', `%${cleanSearch}%`);
+
+          const brandIds = matchingBrands?.map(b => b.id) || [];
+          let productIdsFromBrands: string[] = [];
+          if (brandIds.length > 0) {
+            const { data: brandProducts } = await adminClient
+              .from('products')
+              .select('id')
+              .in('brand_id', brandIds);
+            productIdsFromBrands = brandProducts?.map(p => p.id) || [];
           }
-      }
 
-      query = query.or(orClauses.join(','));
+          const allMatchingProductIds = Array.from(new Set([
+            ...(matchingProducts?.map(p => p.id) || []),
+            ...productIdsFromBrands
+          ]));
+
+          // 2. Query order_items to find order IDs for matching products, flavors, or sizes
+          const itemFilters: string[] = [];
+          if (allMatchingProductIds.length > 0) {
+            itemFilters.push(`product_id.in.(${allMatchingProductIds.slice(0, 200).join(',')})`);
+          }
+          itemFilters.push(`selected_flavor.ilike.%${cleanSearch}%`);
+          itemFilters.push(`selected_size.ilike.%${cleanSearch}%`);
+
+          const { data: itemData } = await adminClient
+            .from('order_items')
+            .select('order_id')
+            .or(itemFilters.join(','));
+
+          if (itemData && itemData.length > 0) {
+            orderIdsFromItems = itemData.map(i => i.order_id);
+          }
+        } catch (itemErr) {
+          console.error('[Order Search] Item matching error:', itemErr);
+        }
+
+        try {
+          // 3. Check for Short ID or UUID prefix matches across all orders
+          const { data: allOrderIds } = await adminClient
+            .from('orders')
+            .select('id');
+
+          if (allOrderIds) {
+            const normalizedSearch = cleanSearch.toLowerCase().replace(/-/g, '');
+            matchingOrderUuid = allOrderIds
+              .filter(o => o.id.toLowerCase().replace(/-/g, '').startsWith(normalizedSearch))
+              .map(o => o.id);
+          }
+        } catch (idErr) {
+          console.error('[Order Search] ID matching error:', idErr);
+        }
+
+        // 4. Combine all order IDs matching items or ID prefix
+        const combinedOrderIds = Array.from(new Set([
+          ...orderIdsFromItems,
+          ...matchingOrderUuid
+        ])).slice(0, 300);
+
+        // 5. Build OR clauses for main orders query
+        let orClauses = [
+          `contact_details->>full_name.ilike.%${cleanSearch}%`,
+          `contact_details->>name.ilike.%${cleanSearch}%`,
+          `contact_details->>email.ilike.%${cleanSearch}%`,
+          `contact_details->>phone.ilike.%${cleanSearch}%`,
+          `contact_details->>value.ilike.%${cleanSearch}%`,
+          `shipping_address->>first_name.ilike.%${cleanSearch}%`,
+          `shipping_address->>last_name.ilike.%${cleanSearch}%`,
+          `shipping_address->addressDetails->>first_name.ilike.%${cleanSearch}%`,
+          `shipping_address->addressDetails->>last_name.ilike.%${cleanSearch}%`,
+          `shipping_address->addressDetails->>phone.ilike.%${cleanSearch}%`,
+          `coupon_code.ilike.%${cleanSearch}%`,
+          `tracking_number.ilike.%${cleanSearch}%`,
+          `carrier_name.ilike.%${cleanSearch}%`
+        ];
+
+        if (combinedOrderIds.length > 0) {
+          orClauses.push(`id.in.(${combinedOrderIds.join(',')})`);
+        }
+
+        query = query.or(orClauses.join(','));
+      }
     }
 
     const { data, error, count } = await query
@@ -601,6 +720,18 @@ export async function updateOrderStatusAdminAction(
           .from('orders')
           .update(updateData)
           .eq('id', orderId);
+
+        // Instantly trigger live courier tracking sync so database updates immediately
+        const { data: updatedOrder } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .single();
+
+        if (updatedOrder) {
+          await checkAndSyncExpoExpressStatus(updatedOrder, supabase);
+          await checkAndSyncKourtierStatus(updatedOrder, supabase);
+        }
       }
     }
 

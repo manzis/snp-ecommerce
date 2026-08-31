@@ -202,15 +202,16 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
                                 <p className="text-[10px] font-medium text-[#71717a] uppercase mb-2">Carrier Name</p>
                                 <div className="flex flex-col gap-2">
                                     <select 
-                                        value={['', 'ExpoExpress'].includes(carrierName) ? carrierName : 'Other'}
+                                        value={['', 'ExpoExpress', 'Kourtier Courier'].includes(carrierName) ? carrierName : 'Other'}
                                         onChange={(e) => setCarrierName(e.target.value === 'Other' ? 'Custom Courier' : e.target.value)}
                                         className="w-full bg-transparent text-[14px] font-medium text-[#242424] transition-all outline-none"
                                     >
                                         <option value="">No Carrier / Manual</option>
                                         <option value="ExpoExpress">Expo Express (Auto-Tracking)</option>
+                                        <option value="Kourtier Courier">Kourtier Courier (Auto-Tracking)</option>
                                         <option value="Other">Other / Custom Courier</option>
                                     </select>
-                                    {!['', 'ExpoExpress'].includes(carrierName) && (
+                                    {!['', 'ExpoExpress', 'Kourtier Courier'].includes(carrierName) && (
                                         <input 
                                             type="text"
                                             value={carrierName}

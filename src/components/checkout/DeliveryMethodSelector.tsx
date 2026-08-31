@@ -14,6 +14,7 @@ interface DeliveryMethodSelectorProps {
   selectedMethodId: string;
   onSelect: (id: string) => void;
   hasError?: boolean;
+  freeThreshold?: number;
 }
 
 const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
@@ -21,6 +22,7 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
   selectedMethodId,
   onSelect,
   hasError = false,
+  freeThreshold = 5000,
 }) => {
   return (
     <div className={`flex flex-col rounded-[12px] border transition-all duration-200 overflow-hidden bg-white ${hasError ? 'border-[#e11717] bg-[#fff5f5]' : 'border-[#eaebf0]'
@@ -66,7 +68,7 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
       {/* SHIPPING FOOTNOTE - Removed border-top */}
       <div className="px-[16px] py-[12px] /50">
         <p className="font-rajdhani text-[13px] leading-[18px] text-[#838383]">
-          Shipping Free for orders above NPR 5000, Only applied to items not on offer & no coupons applied !!
+          Shipping Free for orders above NPR {freeThreshold.toLocaleString()}, Only applied to items not on offer & no coupons applied !!
         </p>
       </div>
     </div>

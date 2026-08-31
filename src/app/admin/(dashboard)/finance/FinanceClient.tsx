@@ -362,7 +362,8 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
     const [isLoading, setIsLoading] = useState(!initialData);
     const [data, setData] = useState<FinanceDashboardData | null>(initialData || null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [status, setStatus] = useState('all');
+    const [orderStatus, setOrderStatus] = useState('all');
+    const [paymentStatus, setPaymentStatus] = useState('all');
     const [datePreset, setDatePreset] = useState('30d');
     const [dateRange, setDateRange] = useState(serverDateRange || {
         start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -416,7 +417,7 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
     const loadFinanceData = async () => {
         setIsLoading(true);
         try {
-            const result = await fetchFinanceDashboardDataAction(dateRange.start, dateRange.end);
+            const result = await fetchFinanceDashboardDataAction(dateRange.start, dateRange.end, orderStatus, paymentStatus);
             if (result.success && result.data) {
                 setData(result.data);
             } else {
@@ -441,12 +442,12 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
         
         if (isInitialMount.current) {
             isInitialMount.current = false;
-            // If SSR data is present, skip the first fetch
-            if (initialData) return;
+            // If SSR data is present, skip the first fetch if default filters are set
+            if (initialData && orderStatus === 'all' && paymentStatus === 'all') return;
         }
         
         loadFinanceData();
-    }, [dateRange]);
+    }, [dateRange, orderStatus, paymentStatus]);
 
     const toggleSection = (id: string) => {
         setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
@@ -455,7 +456,8 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
     const handleResetFilters = () => {
         setDatePreset('30d');
         calculateDateFromPreset('30d');
-        setStatus('all');
+        setOrderStatus('all');
+        setPaymentStatus('all');
         setSearchQuery('');
     };
 
@@ -464,10 +466,9 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
         return data.recentTransactions.filter(tx => {
             const matchesSearch = tx.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 tx.id.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesStatus = status === 'all' || tx.status.toLowerCase() === status.toLowerCase();
-            return matchesSearch && matchesStatus;
+            return matchesSearch;
         });
-    }, [data, searchQuery, status]);
+    }, [data, searchQuery]);
 
     return (
         <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik tracking-tight">
@@ -504,8 +505,10 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
                         <FinanceFilters
                             datePreset={datePreset}
                             onDatePresetChange={handleDatePresetChange}
-                            status={status}
-                            onStatusChange={setStatus}
+                            orderStatus={orderStatus}
+                            onOrderStatusChange={setOrderStatus}
+                            paymentStatus={paymentStatus}
+                            onPaymentStatusChange={setPaymentStatus}
                             onReset={handleResetFilters}
                         />
                     </div>

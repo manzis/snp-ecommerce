@@ -19,16 +19,14 @@ interface DeliverySectionProps {
   externalError?: string | null;
   initialAddressId?: string;
   initialOption?: string;
+  homeDeliveryCost?: number;
+  pickupCost?: number;
+  freeThreshold?: number;
 }
 
 export interface DeliverySectionHandle {
   handleConfirm: () => boolean;
 }
-
-const DELIVERY_METHODS = [
-  { id: 'home', title: 'Home Delivery', price: 'NPR 150', desc: 'Deliver the parcel to home address, Doorstep' },
-  { id: 'pickup', title: 'Pickup', price: 'NPR 100', desc: 'Pickup from the nearest station' }
-];
 
 const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(({
   isOpen,
@@ -39,8 +37,15 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
   onToggle,
   externalError,
   initialAddressId,
-  initialOption
+  initialOption,
+  homeDeliveryCost = 150,
+  pickupCost = 100,
+  freeThreshold = 5000
 }, ref) => {
+  const deliveryMethods = [
+    { id: 'home', title: 'Home Delivery', price: `NPR ${homeDeliveryCost}`, desc: 'Deliver the parcel to home address, Doorstep' },
+    { id: 'pickup', title: 'Pickup', price: `NPR ${pickupCost}`, desc: 'Pickup from the nearest station' }
+  ];
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState(initialAddressId || '');
   const [deliveryOption, setDeliveryOption] = useState<string>(initialOption || '');
@@ -180,9 +185,10 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
               />
 
               <DeliveryMethodSelector
-                methods={DELIVERY_METHODS}
+                methods={deliveryMethods}
                 selectedMethodId={deliveryOption}
                 hasError={!!errorMessage && !deliveryOption}
+                freeThreshold={freeThreshold}
                 onSelect={(id) => {
                   setDeliveryOption(id);
                   setErrorMessage(null);

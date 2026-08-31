@@ -37,7 +37,12 @@ export interface FinanceDashboardData {
     }[];
 }
 
-export async function fetchFinanceDashboardDataAction(startDate?: string, endDate?: string): Promise<{ success: boolean; data?: FinanceDashboardData; message?: string }> {
+export async function fetchFinanceDashboardDataAction(
+    startDate?: string, 
+    endDate?: string,
+    orderStatus?: string,
+    paymentStatus?: string
+): Promise<{ success: boolean; data?: FinanceDashboardData; message?: string }> {
     const supabase = await createClient();
 
     // 1. Verify Admin Role
@@ -58,7 +63,7 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
     const adminClient = getSupabaseAdmin() || supabase;
 
     try {
-        // Build Date Range Filter
+        // Build Date Range & Status Filters
         let query = adminClient.from('orders').select('*');
         
         if (startDate) query = query.gte('created_at', startDate);
@@ -68,82 +73,113 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
             end.setHours(23, 59, 59, 999);
             query = query.lte('created_at', end.toISOString());
         }
+
+        // Order Status Filter (confirmed, shipped, delivered)
+        if (orderStatus && orderStatus !== 'all') {
+            const normOrder = orderStatus.toLowerCase();
+            if (normOrder === 'confirmed') {
+                query = query.in('status', ['confirmed', 'processing']);
+            } else if (normOrder === 'shipped') {
+                query = query.in('status', ['shipped', 'in_transit', 'out_for_delivery']);
+            } else if (normOrder === 'delivered') {
+                query = query.eq('status', 'delivered');
+            } else {
+                query = query.eq('status', normOrder);
+            }
+        }
+
+        // Payment Status Filter (paid, pending, failed)
+        if (paymentStatus && paymentStatus !== 'all') {
+            const normPay = paymentStatus.toLowerCase();
+            if (normPay === 'paid') {
+                query = query.eq('payment_status', 'paid');
+            } else if (normPay === 'pending') {
+                query = query.or('payment_status.eq.pending,payment_status.eq.unpaid,payment_status.is.null');
+            } else if (normPay === 'failed') {
+                query = query.eq('payment_status', 'failed');
+            }
+        }
         
         const { data: orders, error: ordersError } = await query.order('created_at', { ascending: false });
 
         if (ordersError) throw ordersError;
 
-        // Metrics for Top Cards (Delivered Only)
         let deliveredGrossRevenue = 0; 
         let deliveredNetRevenue = 0;
         let deliveredPendingRevenue = 0;
 
-        // Metrics for Bottom Section (All Active)
-        let totalGrossRevenue = 0; // Total value of all non-cancelled orders
-        let totalPendingRevenue = 0; // Value of pending/receivable orders (unpaid)
+        let totalGrossRevenue = 0; 
+        let totalNetRevenue = 0;
+        let totalPendingRevenue = 0; 
         
         let totalDeliveryCharges = 0;
         let totalCouponDiscount = 0;
         let totalCodFees = 0;
-        const totalOrdersCount = orders.length;
+        const totalOrdersCount = orders ? orders.length : 0;
 
         const paymentMethodMap: Record<string, { amount: number; count: number }> = {};
         const timeSeriesMap: Record<string, { revenue: number; orders: number }> = {};
 
-        orders.forEach(order => {
-            const amount = Number(order.total_amount) || 0;
-            const shipping = Number(order.shipping_amount) || 0;
-            const coupon = Number(order.coupon_discount) || 0;
-            const cod = Number(order.cod_fees) || 0;
-            const status = order.status?.toLowerCase() || 'pending';
-            const rawPayStatus = order.payment_status?.toLowerCase();
-            const payStatus = rawPayStatus === 'paid' ? 'paid' : 'pending';
-            let method = order.payment_method || 'Unknown';
-            // Differentiate QR Payment Types
-            if (method.toLowerCase() === 'qr') {
-                if (method === 'QR') {
-                    method = 'Link Payment (QR)';
-                } else if (method === 'qr') {
-                    method = 'QR on Purchase';
-                } else {
-                    method = 'QR Payment';
-                }
-            }
+        const isFilteredByOrderStatus = Boolean(orderStatus && orderStatus !== 'all');
 
-            const date = new Date(order.created_at).toISOString().split('T')[0];
+        if (orders) {
+            orders.forEach(order => {
+                const amount = Number(order.total_amount) || 0;
+                const shipping = Number(order.shipping_amount) || 0;
+                const coupon = Number(order.coupon_discount) || 0;
+                const cod = Number(order.cod_fees) || 0;
+                const status = order.status?.toLowerCase() || 'pending';
+                const rawPayStatus = order.payment_status?.toLowerCase();
+                const payStatus = rawPayStatus === 'paid' ? 'paid' : 'pending';
+                let method = order.payment_method || 'Unknown';
 
-            if (status !== 'cancelled') {
-                // Bottom Section: All Non-Cancelled
-                totalGrossRevenue += amount;
-                totalDeliveryCharges += shipping;
-                totalCouponDiscount += coupon;
-                totalCodFees += cod;
-
-                if (payStatus !== 'paid') {
-                    totalPendingRevenue += amount;
-                }
-
-                // Top Cards: Delivered Only
-                if (status === 'delivered') {
-                    deliveredGrossRevenue += amount;
-                    if (payStatus === 'paid') {
-                        deliveredNetRevenue += (amount - shipping - cod);
+                if (method.toLowerCase() === 'qr') {
+                    if (method === 'QR') {
+                        method = 'Link Payment (QR)';
+                    } else if (method === 'qr') {
+                        method = 'QR on Purchase';
                     } else {
-                        deliveredPendingRevenue += amount;
+                        method = 'QR Payment';
+                    }
+                }
+
+                const date = new Date(order.created_at).toISOString().split('T')[0];
+
+                if (status !== 'cancelled') {
+                    totalGrossRevenue += amount;
+                    totalDeliveryCharges += shipping;
+                    totalCouponDiscount += coupon;
+                    totalCodFees += cod;
+
+                    if (payStatus === 'paid') {
+                        totalNetRevenue += (amount - shipping - cod);
+                    } else {
+                        totalPendingRevenue += amount;
                     }
 
-                    // Chart follows delivered revenue
-                    if (!timeSeriesMap[date]) timeSeriesMap[date] = { revenue: 0, orders: 0 };
-                    timeSeriesMap[date].revenue += amount;
-                    timeSeriesMap[date].orders += 1;
-                }
+                    if (status === 'delivered') {
+                        deliveredGrossRevenue += amount;
+                        if (payStatus === 'paid') {
+                            deliveredNetRevenue += (amount - shipping - cod);
+                        } else {
+                            deliveredPendingRevenue += amount;
+                        }
+                    }
 
-                // Payment Method Breakdown
-                if (!paymentMethodMap[method]) paymentMethodMap[method] = { amount: 0, count: 0 };
-                paymentMethodMap[method].amount += amount;
-                paymentMethodMap[method].count += 1;
-            }
-        });
+                    // For chart: track revenue over time for all non-cancelled orders in dataset
+                    if (isFilteredByOrderStatus || status === 'delivered') {
+                        if (!timeSeriesMap[date]) timeSeriesMap[date] = { revenue: 0, orders: 0 };
+                        timeSeriesMap[date].revenue += amount;
+                        timeSeriesMap[date].orders += 1;
+                    }
+
+                    // Payment Method Breakdown
+                    if (!paymentMethodMap[method]) paymentMethodMap[method] = { amount: 0, count: 0 };
+                    paymentMethodMap[method].amount += amount;
+                    paymentMethodMap[method].count += 1;
+                }
+            });
+        }
 
         const avgOrderValue = totalOrdersCount > 0 ? totalGrossRevenue / totalOrdersCount : 0;
 
@@ -161,7 +197,7 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
             }))
             .sort((a, b) => a.date.localeCompare(b.date));
 
-        const recentTransactions = orders.slice(0, 10).map(order => ({
+        const recentTransactions = (orders || []).slice(0, 15).map(order => ({
             id: order.id,
             customer: order.contact_details?.name || order.contact_details?.full_name || 'Guest',
             amount: Number(order.total_amount) || 0,
@@ -174,11 +210,11 @@ export async function fetchFinanceDashboardDataAction(startDate?: string, endDat
             success: true,
             data: {
                 stats: {
-                    totalGrossRevenue, // Bottom Total
-                    totalDeliveredRevenue: deliveredGrossRevenue, // Top Gross
-                    totalNetRevenue: deliveredNetRevenue, // Top Net
-                    totalDeliveredPendingRevenue: deliveredPendingRevenue,
-                    totalPendingRevenue, // Bottom Receivables
+                    totalGrossRevenue, 
+                    totalDeliveredRevenue: isFilteredByOrderStatus ? totalGrossRevenue : deliveredGrossRevenue, 
+                    totalNetRevenue: isFilteredByOrderStatus ? totalNetRevenue : deliveredNetRevenue, 
+                    totalDeliveredPendingRevenue: isFilteredByOrderStatus ? totalPendingRevenue : deliveredPendingRevenue,
+                    totalPendingRevenue, 
                     totalDeliveryCharges,
                     totalCouponDiscount,
                     totalOrders: totalOrdersCount,

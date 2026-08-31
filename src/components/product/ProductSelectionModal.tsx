@@ -156,6 +156,16 @@ export default function ProductSelectionModal({
                             onChange={(e) => setSearch(e.target.value)}
                             className="flex-1 bg-transparent text-[16px] text-[#242424] outline-none placeholder:text-[#a1a1aa]"
                         />
+                        {search && (
+                            <button
+                                type="button"
+                                onClick={() => setSearch('')}
+                                className="p-1 rounded-full text-[#71717a] hover:text-[#242424] hover:bg-gray-200/50 transition-colors ml-1"
+                                title="Clear search"
+                            >
+                                <CloseIcon className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
