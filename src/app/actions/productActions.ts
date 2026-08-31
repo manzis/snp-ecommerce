@@ -1020,33 +1020,20 @@ export async function getProductStatsAction() {
   try {
     const adminClient = getSupabaseAdmin() || supabase;
 
-    // 1. Total Products
-    const { count: totalProducts } = await adminClient
-      .from('products')
-      .select('*', { count: 'exact', head: true });
+    // Run queries in parallel for high performance
+    const [totalRes, outRes, inRes, soldRes] = await Promise.all([
+      adminClient.from('products').select('*', { count: 'exact', head: true }),
+      adminClient.from('products').select('*', { count: 'exact', head: true }).lte('stock_count', 0),
+      adminClient.from('products').select('*', { count: 'exact', head: true }).gt('stock_count', 0),
+      adminClient.from('order_items').select('quantity, orders!inner(status)').neq('orders.status', 'cancelled')
+    ]);
 
-    // 2. Out of Stock (stock_count <= 0)
-    const { count: outOfStock } = await adminClient
-      .from('products')
-      .select('*', { count: 'exact', head: true })
-      .lte('stock_count', 0);
-
-    // 3. In Stock (stock_count > 0)
-    const { count: inStock } = await adminClient
-      .from('products')
-      .select('*', { count: 'exact', head: true })
-      .gt('stock_count', 0);
-
-    // 4. Total Products Sold
-    // We join with orders to exclude cancelled ones
-    const { data: soldItems, error: soldError } = await adminClient
-      .from('order_items')
-      .select('quantity, orders!inner(status)')
-      .neq('orders.status', 'cancelled');
-
-    if (soldError) console.error('Error fetching sold items:', soldError);
+    const totalProducts = totalRes.count || 0;
+    const outOfStock = outRes.count || 0;
+    const inStock = inRes.count || 0;
     
-    const totalSold = soldItems?.reduce((acc, curr) => acc + (curr.quantity || 0), 0) || 0;
+    if (soldRes.error) console.error('Error fetching sold items:', soldRes.error);
+    const totalSold = soldRes.data?.reduce((acc, curr) => acc + (curr.quantity || 0), 0) || 0;
 
     return {
       success: true,

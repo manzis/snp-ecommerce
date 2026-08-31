@@ -168,30 +168,6 @@ export const analyticsService = {
         .select('id, full_name, email, avatar_url, phone, created_at')
         .in('id', userIds);
       profilesMap = new Map(profiles?.map(p => [p.id, p]));
-
-      // Fetch auth metadata for Google avatars if admin client is available
-      if (admin) {
-        try {
-          const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
-          authUsers.forEach(au => {
-            if (userIds.includes(au.id)) {
-              const existing = profilesMap.get(au.id);
-              const authAvatar = au.user_metadata?.avatar_url || au.user_metadata?.picture;
-              profilesMap.set(au.id, {
-                ...(existing || {}),
-                id: au.id,
-                full_name: existing?.full_name || au.user_metadata?.full_name || au.email?.split('@')[0],
-                email: existing?.email || au.email || '',
-                phone: existing?.phone || au.phone || '',
-                created_at: existing?.created_at || au.created_at || '',
-                avatar_url: existing?.avatar_url || authAvatar || ''
-              });
-            }
-          });
-        } catch (e) {
-          console.error('Failed to fetch auth users for views metadata:', e);
-        }
-      }
     }
 
     return rawData.map((view: any) => {
@@ -300,29 +276,6 @@ export const analyticsService = {
     const productsMap = new Map(productsRes.data?.map(p => [p.id, p]));
     const profilesMap = new Map(profilesRes.data?.map(p => [p.id, p]));
 
-    // 2.5 Fetch auth users to get Google metadata (e.g. avatars) if admin client is available
-    if (admin) {
-      try {
-        const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
-        authUsers.forEach(authUser => {
-          if (userIds.includes(authUser.id)) {
-            const existing = profilesMap.get(authUser.id);
-            const authAvatar = authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture;
-
-            profilesMap.set(authUser.id, {
-              id: authUser.id,
-              email: authUser.email || existing?.email || 'No email',
-              phone: existing?.phone || authUser.phone || '',
-              full_name: authUser.user_metadata?.full_name || existing?.full_name || authUser.email?.split('@')[0] || 'Anonymous',
-              avatar_url: existing?.avatar_url || authAvatar || ''
-            });
-          }
-        });
-      } catch (e) {
-        console.error('Failed to fetch auth users for metadata:', e);
-      }
-    }
-
     // 3. Aggregate
     const productMap = new Map<string, any>();
 
@@ -397,26 +350,6 @@ export const analyticsService = {
         .select('id, full_name, email, phone, avatar_url')
         .in('id', userIds);
       profilesMap = new Map(profiles?.map(p => [p.id, p]));
-
-      // Fetch auth metadata for Google avatars
-      if (admin) {
-        try {
-          const { data: { users: authUsers } } = await admin.auth.admin.listUsers();
-          authUsers.forEach(au => {
-            if (userIds.includes(au.id)) {
-              const existing = profilesMap.get(au.id);
-              const authAvatar = au.user_metadata?.avatar_url || au.user_metadata?.picture;
-              profilesMap.set(au.id, {
-                ...(existing || {}),
-                id: au.id,
-                avatar_url: existing?.avatar_url || authAvatar || ''
-              });
-            }
-          });
-        } catch (e) {
-          console.error('Failed to fetch auth users for abandoned checkouts metadata:', e);
-        }
-      }
     }
 
     // 3. Map and format

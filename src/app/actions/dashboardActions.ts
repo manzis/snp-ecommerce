@@ -1,7 +1,6 @@
 'use server';
 
 import { fetchFinanceDashboardDataAction } from './financeActions';
-import { getAnalyticsDataAction } from './analyticsActions';
 import { fetchAllOrdersAdminAction } from './orderActions';
 import { getProductStatsAction } from './productActions';
 import { analyticsService } from '@/services/analyticsService';
@@ -37,6 +36,9 @@ export interface DashboardData {
     recentViewsTable: any[];
 }
 
+import { createClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+
 export async function getDashboardDataAction(): Promise<{ success: boolean; data?: DashboardData; message?: string }> {
     try {
         const dateRange = {
@@ -44,13 +46,15 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
             end: new Date().toISOString().split('T')[0]
         };
 
-        const [financeResult, analyticsResult, ordersResult, productStatsResult, recentlyViewed, recentViewsTable] = await Promise.all([
+        const adminClient = getSupabaseAdmin() || await createClient();
+
+        const [financeResult, customerCountRes, ordersResult, productStatsResult, recentlyViewed, recentViewsTable] = await Promise.all([
             fetchFinanceDashboardDataAction(dateRange.start, dateRange.end),
-            getAnalyticsDataAction(),
+            adminClient.from('profiles').select('id', { count: 'exact', head: true }),
             fetchAllOrdersAdminAction(1, 10),
             getProductStatsAction(),
             analyticsService.getRecentlyViewedProducts(10),
-            analyticsService.getRecentProductViewsTable(50)
+            analyticsService.getRecentProductViewsTable(15)
         ]);
 
         if (!financeResult.success || !financeResult.data) {
@@ -60,7 +64,7 @@ export async function getDashboardDataAction(): Promise<{ success: boolean; data
         const stats = {
             totalOrders: financeResult.data.stats.totalOrders || 0,
             grossRevenue: financeResult.data.stats.totalGrossRevenue || 0,
-            totalCustomers: analyticsResult.success && analyticsResult.data ? analyticsResult.data.stats.customers || 0 : 0,
+            totalCustomers: customerCountRes.count || 0,
             avgOrderValue: financeResult.data.stats.avgOrderValue || 0
         };
 
