@@ -5,6 +5,24 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 let adminClient: SupabaseClient | null = null;
 
+const fetchWithRetry: typeof fetch = async (url, options) => {
+  let retries = 2;
+  let delay = 200;
+  while (true) {
+    try {
+      return await fetch(url, options);
+    } catch (err: any) {
+      if (retries > 0) {
+        retries--;
+        await new Promise((r) => setTimeout(r, delay));
+        delay *= 2;
+      } else {
+        throw err;
+      }
+    }
+  }
+};
+
 /**
  * Privileged Supabase client for administrative tasks.
  * Lazy initialization to prevent crashes if the key is missing at build/module evaluation.
@@ -21,8 +39,12 @@ export const getSupabaseAdmin = () => {
     auth: {
       autoRefreshToken: false,
       persistSession: false
+    },
+    global: {
+      fetch: fetchWithRetry
     }
   });
   
   return adminClient;
 };
+
