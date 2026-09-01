@@ -50,20 +50,16 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   return (
     <nav 
       aria-label="Pagination" 
-      className="flex w-full py-[24px] justify-center items-center bg-white px-[12px]"
+      className="flex w-full py-[16px] sm:py-[24px] justify-center items-center bg-white px-[8px] sm:px-[12px]"
     >
-      {/* 
-          Container: 
-          - w-fit: Hugs the content 
-          - max-w-[384px]: Mobile constraint
-      */}
-      <div className="flex w-fit max-w-[384px] md:max-w-none items-center rounded-[1px] border border-[#eaebf0] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] overflow-hidden">
+      <div className="flex w-fit max-w-full items-center rounded-[4px] border border-[#eaebf0] bg-white shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] overflow-hidden">
         
         {/* Prev Button - Disabled if page is 1 */}
         <button 
           onClick={() => handlePageClick(Math.max(1, currentPage - 1))}
           disabled={isFirstPage}
-          className="flex h-[40px] px-[16px] items-center gap-[6px] border-r border-[#eaebf0] hover:bg-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0 outline-none"
+          className="flex h-[40px] px-[12px] sm:px-[16px] items-center gap-[6px] border-r border-[#eaebf0] hover:bg-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0 outline-none"
+          aria-label="Previous Page"
         >
           <div className="w-[16px] h-[16px]">
             <ArrowLeftIcon className="w-full h-full text-[#68727d]" />
@@ -80,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
               key={idx}
               disabled={page === '...' || (typeof page === 'number' && totalPages <= 1)}
               onClick={() => typeof page === 'number' && handlePageClick(page)}
-              className={`flex w-[40px] h-[40px] items-center justify-center border-r border-[#eaebf0] font-inter text-[14px] font-medium transition-colors outline-none
+              className={`flex w-[36px] sm:w-[40px] h-[40px] items-center justify-center border-r border-[#eaebf0] font-inter text-[14px] font-medium transition-colors outline-none
                 ${currentPage === page 
                   ? 'text-[#3f9633] bg-[#f9fdf9]' 
                   : 'text-[#68727d] hover:bg-[#fafafa]'
@@ -96,6 +92,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           onClick={() => handlePageClick(Math.min(totalPages, currentPage + 1))}
           disabled={isLastPage}
           className="flex h-[40px] px-[16px] items-center gap-[6px] hover:bg-[#fafafa] disabled:opacity-30 disabled:cursor-not-allowed transition-colors shrink-0 outline-none"
+          aria-label="Next Page"
         >
           <span className="font-inter text-[14px] font-medium leading-[20px] text-[#68727d]">
             Next

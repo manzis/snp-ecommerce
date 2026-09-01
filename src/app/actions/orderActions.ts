@@ -1131,6 +1131,7 @@ export async function syncExternalOrderTrackingAction(orderId: string) {
 
     await checkAndPersistDelayedStatus(order, supabase);
     await checkAndSyncExpoExpressStatus(order, supabase);
+    await checkAndSyncKourtierStatus(order, supabase);
     
     return { success: true };
   } catch (err) {
@@ -1167,20 +1168,22 @@ export async function syncMultipleExternalOrdersTrackingAction(orderIds: string[
 
     let updatedCount = 0;
 
-    // Process sequentially or in parallel depending on courier API limits
-    // For Expo Express, doing it sequentially to be safe
-    for (const order of orders) {
-      const originalStatus = order.status;
-      const originalLogsCount = order.status_updates?.length || 0;
+    // Process orders concurrently in parallel so background sync completes fast without blocking dev server
+    await Promise.allSettled(
+      orders.map(async (order) => {
+        const originalStatus = order.status;
+        const originalLogsCount = order.status_updates?.length || 0;
 
-      await checkAndPersistDelayedStatus(order, supabase);
-      await checkAndSyncExpoExpressStatus(order, supabase);
+        await checkAndPersistDelayedStatus(order, supabase);
+        await checkAndSyncExpoExpressStatus(order, supabase);
+        await checkAndSyncKourtierStatus(order, supabase);
 
-      const newLogsCount = order.status_updates?.length || 0;
-      if (order.status !== originalStatus || newLogsCount !== originalLogsCount) {
-        updatedCount++;
-      }
-    }
+        const newLogsCount = order.status_updates?.length || 0;
+        if (order.status !== originalStatus || newLogsCount !== originalLogsCount) {
+          updatedCount++;
+        }
+      })
+    );
 
     return { success: true, updatedCount };
   } catch (err) {
