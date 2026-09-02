@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import AddressSelector from './AddressSelector';
 import DeliveryMethodSelector from './DeliveryMethodSelector';
 import AddressModal from './AddressModal';
 
-import { UserAddress } from '@/services/addressService';
+import { UserAddress, fetchUserAddresses } from '@/services/addressService';
 import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions/addressActions';
 import { useToast } from '@/components/ui/ToastProvider';
 
@@ -22,6 +22,7 @@ interface DeliverySectionProps {
   homeDeliveryCost?: number;
   pickupCost?: number;
   freeThreshold?: number;
+  subtotal?: number;
 }
 
 export interface DeliverySectionHandle {
@@ -40,7 +41,8 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
   initialOption,
   homeDeliveryCost = 150,
   pickupCost = 100,
-  freeThreshold = 5000
+  freeThreshold = 5000,
+  subtotal,
 }, ref) => {
   const deliveryMethods = [
     { id: 'home', title: 'Home Delivery', price: `NPR ${homeDeliveryCost}`, desc: 'Deliver the parcel to home address, Doorstep' },
@@ -50,6 +52,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
   const [selectedAddressId, setSelectedAddressId] = useState(initialAddressId || '');
   const [deliveryOption, setDeliveryOption] = useState<string>(initialOption || '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
@@ -65,17 +68,35 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
     if (initialOption) setDeliveryOption(initialOption);
   }, [initialAddressId, initialOption]);
 
-  React.useEffect(() => {
-    fetchUserAddressesAction().then(res => {
-      if (res.data) {
-        setAddresses(res.data);
-        // Auto-select first address only if nothing is selected yet (not in store and not selected locally)
-        if (res.data.length > 0 && !initialAddressId && !selectedAddressId) {
-          setSelectedAddressId(res.data[0].id!);
-        }
+  const loadAddresses = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      let addrs: UserAddress[] = [];
+      if (userId) {
+        addrs = await fetchUserAddresses(userId);
       }
-    });
-  }, [initialAddressId, selectedAddressId]);
+      if (!addrs || addrs.length === 0) {
+        const res = await fetchUserAddressesAction();
+        if (res.data) addrs = res.data;
+      }
+      setAddresses(addrs);
+      if (addrs.length > 0) {
+        setSelectedAddressId(prev => {
+          if (prev && addrs.some(a => a.id === prev)) return prev;
+          if (initialAddressId && addrs.some(a => a.id === initialAddressId)) return initialAddressId;
+          return addrs[0].id!;
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching addresses:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, initialAddressId]);
+
+  useEffect(() => {
+    loadAddresses();
+  }, [loadAddresses]);
 
   const handleConfirm = () => {
     setErrorMessage(null);
@@ -100,12 +121,8 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
   }));
 
   const handleModalSuccess = (addr: UserAddress) => {
-    // Refresh addresses
-    fetchUserAddressesAction().then(res => {
-      if (res.data) {
-        setAddresses(res.data);
-        setSelectedAddressId(addr.id!);
-      }
+    loadAddresses().then(() => {
+      if (addr.id) setSelectedAddressId(addr.id);
     });
   };
 
@@ -115,14 +132,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
     const result = await deleteUserAddressAction(id);
     if (result.success) {
       showToast("Address removed successfully!", "success");
-      fetchUserAddressesAction().then(res => {
-        if (res.data) {
-          setAddresses(res.data);
-          if (selectedAddressId === id) {
-            setSelectedAddressId(res.data.length > 0 ? res.data[0].id! : '');
-          }
-        }
-      });
+      loadAddresses();
     } else {
       showToast(result.error || "Failed to remove address", "error");
     }
@@ -169,6 +179,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
               <AddressSelector
                 addresses={addresses}
                 selectedId={selectedAddressId}
+                isLoading={isLoading}
                 onSelect={setSelectedAddressId}
                 onDelete={handleDeleteAddress}
                 onEdit={(id) => {
@@ -189,6 +200,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
                 selectedMethodId={deliveryOption}
                 hasError={!!errorMessage && !deliveryOption}
                 freeThreshold={freeThreshold}
+                subtotal={subtotal}
                 onSelect={(id) => {
                   setDeliveryOption(id);
                   setErrorMessage(null);
@@ -212,13 +224,13 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
               {/* CONFIRM BUTTON */}
               <button
                 onClick={handleConfirm}
-                disabled={addresses.length === 0}
-                className={`w-full py-[14px] rounded-[12px] font-rajdhani text-[16px] font-semibold transition-all active:scale-[0.98] ${addresses.length === 0
+                disabled={isLoading || addresses.length === 0}
+                className={`w-full py-[14px] rounded-[12px] font-rajdhani text-[16px] font-semibold transition-all active:scale-[0.98] ${isLoading || addresses.length === 0
                   ? 'bg-[#ffe900] text-[#242424] opacity-50 cursor-not-allowed'
                   : 'bg-[#ffe900] active:bg-[#f5e000] text-[#242424]'
                   }`}
               >
-                Confirm Address
+                {isLoading ? 'Loading Addresses...' : 'Confirm Address'}
               </button>
             </div>
           </motion.div>

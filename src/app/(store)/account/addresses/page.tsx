@@ -5,7 +5,7 @@ import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import AddressSelector from '@/components/checkout/AddressSelector';
 import AddressModal from '@/components/checkout/AddressModal';
 import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions/addressActions';
-import { UserAddress } from '@/services/addressService';
+import { UserAddress, fetchUserAddresses } from '@/services/addressService';
 import { supabase } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/ToastProvider';
 
@@ -25,24 +25,37 @@ const AddressesPage = () => {
     useEffect(() => {
         const init = async () => {
             const { data } = await supabase.auth.getUser();
+            let currentUserId = '';
             if (data?.user) {
-                setUserId(data.user.id);
+                currentUserId = data.user.id;
+                setUserId(currentUserId);
             }
-            fetchAddresses();
+            fetchAddresses(currentUserId);
         };
         init();
     }, []);
 
-    const fetchAddresses = async () => {
+    const fetchAddresses = async (idToUse?: string) => {
         setLoading(true);
-        const { data, error } = await fetchUserAddressesAction();
-        if (!error && data) {
+        try {
+            const uid = idToUse || userId;
+            let data: UserAddress[] = [];
+            if (uid) {
+                data = await fetchUserAddresses(uid);
+            }
+            if (!data || data.length === 0) {
+                const res = await fetchUserAddressesAction();
+                if (res.data) data = res.data;
+            }
             setAddresses(data);
             if (data.length > 0 && !selectedAddressId) {
                 setSelectedAddressId(data[0].id || '');
             }
+        } catch (e) {
+            console.error('Error fetching addresses:', e);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleSelectAddress = (id: string) => {
@@ -90,32 +103,30 @@ const AddressesPage = () => {
             <DynamicPageNav title="Saved Addresses" />
             <main className="  w-full mx-auto min-h-screen max-w-[1280px] p-[24px] bg-white">
                 <div className=" md:p-[48px] w-full relative min-h-[400px]">
-                    {loading ? (
-                        <div className="flex items-center justify-center h-full min-h-[200px]">
-                            <p className="font-rajdhani text-[16px] text-[#838383]">Loading addresses...</p>
-                        </div>
-                    ) : addresses.length > 0 ? (
+                    {loading || addresses.length > 0 ? (
                         <div className="flex flex-col max-w-[800px] mx-auto gap-[32px]">
                             <AddressSelector
                                 addresses={addresses}
                                 selectedId={selectedAddressId}
+                                isLoading={loading}
                                 onSelect={handleSelectAddress}
                                 onEdit={handleEdit}
                                 onDelete={handleDelete}
                                 onAddNew={handleAddNew}
                             />
 
-                            {/* Prominent yellow button as requested by user below the address selector */}
-                            <button
-                                onClick={handleAddNew}
- className="w-full sm:w-[300px] mx-auto h-[52px] bg-[#ffe900] rounded-[12px] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                Add New Location
-                            </button>
+                            {!loading && (
+                                <button
+                                    onClick={handleAddNew}
+                                    className="w-full sm:w-[300px] mx-auto h-[52px] bg-[#ffe900] rounded-[12px] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    Add New Location
+                                </button>
+                            )}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center text-center h-full min-h-[300px] gap-[24px] pt-[100px]">
@@ -133,7 +144,7 @@ const AddressesPage = () => {
                             </div>
                             <button
                                 onClick={handleAddNew}
- className="mt-[8px] px-[32px] h-[52px] bg-[#ffe900] rounded-[12px] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
+                                className="mt-[8px] px-[32px] h-[52px] bg-[#ffe900] rounded-[12px] font-rajdhani font-bold text-[16px] text-[#242424] active:scale-[0.98] transition-transform flex items-center justify-center gap-[8px]"
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>

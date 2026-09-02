@@ -486,6 +486,7 @@ export default function CheckoutPage() {
                   homeDeliveryCost={storeSettings.homeDeliveryCost}
                   pickupCost={storeSettings.pickupCost}
                   freeThreshold={storeSettings.freeThreshold}
+                  subtotal={subtotal}
                 />
               </div>
 

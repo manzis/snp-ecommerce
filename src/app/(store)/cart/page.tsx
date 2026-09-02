@@ -14,7 +14,7 @@ import CheckoutPrompt from '@/components/checkout/CheckoutPrompt';
 import { useAuth } from '@/context/AuthContext';
 import { useAuthModal } from '@/context/AuthModalContext';
 import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions/addressActions';
-import { UserAddress } from '@/services/addressService';
+import { UserAddress, fetchUserAddresses } from '@/services/addressService';
 import AddressModal from '@/components/checkout/AddressModal';
 import AddressSelector from '@/components/checkout/AddressSelector';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -53,14 +53,24 @@ export default function CartPage() {
 
   const fetchAddresses = async () => {
     setIsAddressesLoading(true);
-    const { data, error } = await fetchUserAddressesAction();
-    if (!error && data) {
+    try {
+      let data: UserAddress[] = [];
+      if (user?.id) {
+        data = await fetchUserAddresses(user.id);
+      }
+      if (!data || data.length === 0) {
+        const res = await fetchUserAddressesAction();
+        if (res.data) data = res.data;
+      }
       setAddresses(data);
       if (data.length > 0 && !selectedAddressId) {
         setSelectedAddressId(data[0].id || '');
       }
+    } catch (e) {
+      console.error('Error fetching addresses:', e);
+    } finally {
+      setIsAddressesLoading(false);
     }
-    setIsAddressesLoading(false);
   };
 
   const selectedAddress = useMemo(() => {
@@ -148,7 +158,7 @@ export default function CartPage() {
           {items.length > 0 && (
             <DeliveryAddress
               isLoggedIn={!!user}
-              isLoading={isAuthLoading}
+              isLoading={isAuthLoading || isAddressesLoading}
               name={selectedAddress?.first_name}
               phoneSuffix={selectedAddress?.phone?.slice(-6)}
               address={`${selectedAddress?.address_line_1}, ${selectedAddress?.street}, ${selectedAddress?.city}`}
@@ -261,6 +271,7 @@ export default function CartPage() {
                 <AddressSelector
                   addresses={addresses}
                   selectedId={selectedAddressId}
+                  isLoading={isAddressesLoading}
                   onSelect={handleAddressSelect}
                   onEdit={handleEditAddress}
                   onDelete={handleDeleteAddress}

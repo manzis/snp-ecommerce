@@ -9,6 +9,7 @@ import { UserAddress } from '@/services/addressService';
 interface AddressSelectorProps {
   addresses: UserAddress[];
   selectedId: string;
+  isLoading?: boolean;
   onSelect: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -18,11 +19,38 @@ interface AddressSelectorProps {
 const AddressSelector: React.FC<AddressSelectorProps> = ({
   addresses,
   selectedId,
+  isLoading = false,
   onSelect,
   onEdit,
   onDelete,
   onAddNew,
 }) => {
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-full min-w-0 flex flex-col gap-[20px] animate-pulse">
+        <div className="flex justify-between items-center">
+          <div className="h-[22px] w-[170px] bg-[#eaebf0] rounded-[6px]" />
+          <div className="h-[28px] w-[80px] bg-[#eaebf0] rounded-[8px]" />
+        </div>
+        <div className="w-full max-w-full min-w-0 flex flex-col gap-[12px]">
+          {[1, 2].map((item) => (
+            <div
+              key={item}
+              className="w-full p-[16px] rounded-[12px] border border-[#eaebf0] bg-[#fafbfb] flex justify-between items-start"
+            >
+              <div className="flex flex-col gap-[8px] flex-1 max-w-[calc(100%-80px)]">
+                <div className="h-[18px] w-[160px] bg-[#eaebf0] rounded-[4px]" />
+                <div className="h-[14px] w-[220px] bg-[#eaebf0] rounded-[4px]" />
+                <div className="h-[12px] w-[180px] bg-[#eaebf0] rounded-[4px]" />
+              </div>
+              <div className="h-[30px] w-[54px] bg-[#eaebf0] rounded-[8px] shrink-0" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-full min-w-0 flex flex-col gap-[24px]">
       {addresses.length > 0 ? (

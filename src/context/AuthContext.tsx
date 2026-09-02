@@ -38,12 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false);
     };
 
-    // Defer auth check so it doesn't compete with initial rendering
-    const scheduleInit = typeof window !== 'undefined' && 'requestIdleCallback' in window
-      ? (cb: () => void) => (window as any).requestIdleCallback(cb, { timeout: 2000 })
-      : (cb: () => void) => setTimeout(cb, 100);
-
-    scheduleInit(initSession);
+    initSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {

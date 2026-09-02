@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCartStore } from '@/store/cartStore';
 
 interface DeliveryMethod {
   id: string;
   title: string;
   price: string;
   desc: string;
+  cost?: number;
 }
 
 interface DeliveryMethodSelectorProps {
@@ -16,6 +18,7 @@ interface DeliveryMethodSelectorProps {
   onSelect: (id: string) => void;
   hasError?: boolean;
   freeThreshold?: number;
+  subtotal?: number;
 }
 
 const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
@@ -24,7 +27,12 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
   onSelect,
   hasError = false,
   freeThreshold = 5000,
+  subtotal,
 }) => {
+  const cartItems = useCartStore((state) => state.items);
+  const currentSubtotal = subtotal ?? cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const isFreeShipping = freeThreshold > 0 && currentSubtotal >= freeThreshold;
+
   return (
     <div className="flex flex-col gap-[14px] w-full">
       {/* Title outside the border container */}
@@ -65,9 +73,20 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
                     <span className="font-rajdhani text-[16px] font-semibold text-[#242424]">
                       {opt.title}
                     </span>
-                    <span className="font-rajdhani text-[14px] font-semibold text-[#3f9633] tracking-[0.3px] whitespace-nowrap">
-                      {opt.price}
-                    </span>
+                    {isFreeShipping ? (
+                      <div className="flex items-center gap-[6px]">
+                        <span className="font-rajdhani text-[14px] font-medium text-[#8a8e91] line-through whitespace-nowrap">
+                          {opt.price}
+                        </span>
+                        <span className="font-rajdhani text-[14px] font-bold text-[#3f9633] tracking-[0.3px] whitespace-nowrap">
+                          Free
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="font-rajdhani text-[14px] font-semibold text-[#242424] tracking-[0.3px] whitespace-nowrap">
+                        {opt.price}
+                      </span>
+                    )}
                   </div>
 
                   {/* Show description details ONLY when selected */}
