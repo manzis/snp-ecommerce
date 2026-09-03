@@ -249,15 +249,18 @@ export default function OrderDetailsModal({
         <div className="flex w-full gap-3">
             <button
                 onClick={() => setIsCancelModalOpen(true)}
-                className="flex-1 px-4 py-3.5 text-[13px] font-medium text-[#71717a] bg-zinc-50 hover:bg-zinc-100 rounded-2xl transition-all active:scale-95"
+                className="flex-1 px-4 py-3.5 text-[13px] font-medium text-[#71717a] bg-zinc-50 hover:bg-zinc-100 rounded-xl transition-all active:scale-95"
             >
                 Cancel Order
             </button>
             <button
                 onClick={() => onUpdateStatus?.(order)}
-                className="flex-[2] px-4 py-3.5 text-[13px] font-medium text-white bg-[#242424] rounded-2xl hover:bg-black transition-all active:scale-95 shadow-lg shadow-black/10"
+                className="flex-1 px-4 py-3.5 text-[13px] font-medium text-white bg-[#242424] rounded-xl hover:bg-black transition-all active:scale-95 shadow-md shadow-black/10 flex items-center justify-center gap-2"
             >
-                Update Fulfillment Status
+                <span>Update Status</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                </svg>
             </button>
         </div>
     );
@@ -1023,10 +1026,10 @@ export default function OrderDetailsModal({
                 description="Provide a reason for cancelling this order. This message will be logged."
                 maxWidth="max-w-xl"
                 footerActions={
-                    <div className="flex w-full gap-4">
+                    <div className="flex w-full gap-3">
                         <button
                             onClick={() => setIsCancelModalOpen(false)}
-                            className="flex-1 px-8 py-3.5 text-[13px] font-medium text-[#71717a] hover:text-[#242424] bg-gray-50 rounded-2xl transition-all active:scale-95"
+                            className="flex-1 px-4 py-3.5 text-[13px] font-medium text-[#71717a] hover:text-[#242424] bg-gray-50 rounded-xl transition-all active:scale-95"
                         >
                             Keep Order
                         </button>
@@ -1037,7 +1040,7 @@ export default function OrderDetailsModal({
                                     setIsCancelModalOpen(false);
                                 }
                             }}
-                            className="flex-[2] md:flex-none md:px-12 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-[13px] font-medium transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                            className="flex-1 px-4 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[13px] font-medium transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md shadow-red-500/20"
                         >
                             Confirm Cancellation
                         </button>

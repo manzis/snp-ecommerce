@@ -53,6 +53,7 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
           flavour_id,
           original_price,
           discounted_price,
+          is_available,
           size:product_sizes(size_label),
           flavour:product_flavours(flavour_name)
         ),
@@ -92,8 +93,8 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
     if (product?.product_variants?.length > 0) {
       const matchingVariant = product.product_variants.find((v: any) => {
         // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
-        const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : v.size?.size_label;
-        const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : v.flavour?.flavour_name;
+        const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : (v.size?.size_label || product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label);
+        const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : (v.flavour?.flavour_name || product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name);
         
         const normalizedSize = (!selectedSize || selectedSize === 'none') ? null : selectedSize;
         const normalizedFlavor = (!selectedFlavor || selectedFlavor === 'Unflavoured' || selectedFlavor === 'none') ? null : selectedFlavor;
@@ -106,7 +107,7 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       if (matchingVariant) {
         livePrice = matchingVariant.discounted_price || livePrice;
         liveMrp = matchingVariant.original_price || liveMrp;
-        if (matchingVariant.is_available === false || (matchingVariant.stock_count !== undefined && matchingVariant.stock_count !== null && matchingVariant.stock_count <= 0)) {
+        if (matchingVariant.is_available === false) {
           variantStockStatus = 'out_of_stock';
         }
       }
@@ -350,8 +351,8 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
     if (product.product_variants?.length > 0) {
       const matchingVariant = product.product_variants.find((v: any) => {
         // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
-        const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : v.size?.size_label;
-        const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : v.flavour?.flavour_name;
+        const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : (v.size?.size_label || product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label);
+        const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : (v.flavour?.flavour_name || product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name);
         
         const normalizedSize = (!item.selected_size || item.selected_size === 'none') ? null : item.selected_size;
         const normalizedFlavor = (!item.selected_flavor || item.selected_flavor === 'Unflavoured' || item.selected_flavor === 'none') ? null : item.selected_flavor;
@@ -364,7 +365,7 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       if (matchingVariant) {
         livePrice = matchingVariant.discounted_price || livePrice;
         liveMrp = matchingVariant.original_price || liveMrp;
-        if (matchingVariant.is_available === false || (matchingVariant.stock_count !== undefined && matchingVariant.stock_count !== null && matchingVariant.stock_count <= 0)) {
+        if (matchingVariant.is_available === false) {
           variantStockStatus = 'out_of_stock';
         }
       }
