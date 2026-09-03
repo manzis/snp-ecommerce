@@ -5,7 +5,6 @@ import AdminModal from '@/components/admin/shared/AdminModal';
 import { OrderProps } from '@/components/orders/OrderCard';
 import { resendStatusEmailAction } from '@/app/actions/orderActions';
 import { useAdminToast } from '../ui/AdminToastProvider';
-import { resolveOrderPhone, openWhatsAppForOrder } from '@/lib/whatsappTemplates';
 
 interface StatusUpdateModalProps {
     isOpen: boolean;
@@ -84,21 +83,6 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
         setLoading(true);
         try {
             await onConfirm(order.id, targetStatus, statusMessage, trackingNumber, carrierName);
-
-            // Prompt for WhatsApp update
-            const phone = resolveOrderPhone(order);
-            if (phone) {
-                // Brief delay so the toast from parent doesn't overlap
-                setTimeout(() => {
-                    const shouldSend = window.confirm(
-                        `Status updated to ${targetStatus.toUpperCase()}.\n\nDo you want to send this update via WhatsApp to ${phone}?`
-                    );
-                    if (shouldSend) {
-                        openWhatsAppForOrder(order, targetStatus);
-                    }
-                }, 300);
-            }
-
             onClose();
         } catch (error) {
             console.error('Failed to update status:', error);

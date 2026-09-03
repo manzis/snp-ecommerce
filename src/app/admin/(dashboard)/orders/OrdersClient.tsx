@@ -331,7 +331,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[100px] relative">
         <AnimatePresence mode="wait">
-          {isLoading && orders.length === 0 ? (
+          {isLoading ? (
             <motion.div
               key="skeleton"
               initial={{ opacity: 0 }}

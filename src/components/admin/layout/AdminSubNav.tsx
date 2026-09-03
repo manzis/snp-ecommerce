@@ -42,11 +42,11 @@ export default function AdminSubNav({
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const query = e.target.value;
         setSearchQuery(query);
-        // Debounce the actual search callback by 300ms
+        // Debounce the actual search callback by 250ms
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => {
             onSearch(query);
-        }, 300);
+        }, 250);
     };
 
     const handleClearSearch = () => {
@@ -135,7 +135,11 @@ export default function AdminSubNav({
                     <>
                         <div className="relative flex-1 max-w-md group">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] group-focus-within:text-[#242424] transition-colors">
-                                <SearchIcon className="w-[16px] h-[16px]" />
+                                {refreshLoading ? (
+                                    <RefreshCcw className="w-[16px] h-[16px] animate-spin text-gray-400" />
+                                ) : (
+                                    <SearchIcon className="w-[16px] h-[16px]" />
+                                )}
                             </div>
                             <input
                                 type="text"
@@ -171,7 +175,11 @@ export default function AdminSubNav({
                 {!searchOnLeft && (
                     <div className="relative flex-1 md:w-64 max-w-sm group">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] group-focus-within:text-[#242424] transition-colors">
-                            <SearchIcon className="w-[16px] h-[16px]" />
+                            {refreshLoading ? (
+                                <RefreshCcw className="w-[16px] h-[16px] animate-spin text-gray-400" />
+                            ) : (
+                                <SearchIcon className="w-[16px] h-[16px]" />
+                            )}
                         </div>
                         <input
                             type="text"

@@ -975,7 +975,7 @@ export async function fetchProductsPaginatedAction(page: number, pageSize: numbe
       `, { count: 'estimated' });
 
     if (options?.search) {
-      query = query.or(`name.ilike.%${options.search}%,title.ilike.%${options.search}%`);
+      query = query.or(`name.ilike.%${options.search}%,title.ilike.%${options.search}%,slug.ilike.%${options.search}%`);
     }
 
     const { data, error, count } = await query

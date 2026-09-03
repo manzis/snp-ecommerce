@@ -162,7 +162,7 @@ export default function ProductsClient({ initialData }: { initialData?: any }) {
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[200px]">
         <AnimatePresence mode="wait">
-          {isLoading && products.length === 0 ? (
+          {isLoading ? (
             <motion.div
               key="skeleton"
               initial={{ opacity: 0 }}

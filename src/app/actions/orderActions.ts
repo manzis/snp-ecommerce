@@ -638,25 +638,57 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
         }
 
         try {
-          // 3. Check for Short ID or UUID prefix matches across all orders
-          const { data: allOrderIds } = await adminClient
-            .from('orders')
-            .select('id');
+          // 3. Check for Short ID or UUID prefix matches using indexed prefix bounds (only if search is valid hex)
+          const isPureHex = /^[0-9a-fA-F-]+$/.test(cleanSearch);
+          const hexOnly = cleanSearch.replace(/[^A-Fa-f0-9]/g, '').toLowerCase();
+          if (isPureHex && hexOnly.length >= 2) {
+            const lowerPrefix = hexOnly.slice(0, 8).padEnd(8, '0');
+            const upperPrefix = hexOnly.slice(0, 8).padEnd(8, 'f');
+            const lowerBound = `${lowerPrefix}-0000-0000-0000-000000000000`;
+            const upperBound = `${upperPrefix}-ffff-ffff-ffff-ffffffffffff`;
 
-          if (allOrderIds) {
-            const normalizedSearch = cleanSearch.toLowerCase().replace(/-/g, '');
-            matchingOrderUuid = allOrderIds
-              .filter(o => o.id.toLowerCase().replace(/-/g, '').startsWith(normalizedSearch))
-              .map(o => o.id);
+            const { data: matchedOrders } = await adminClient
+              .from('orders')
+              .select('id')
+              .gte('id', lowerBound)
+              .lte('id', upperBound)
+              .limit(50);
+
+            if (matchedOrders && matchedOrders.length > 0) {
+              matchingOrderUuid = matchedOrders.map(o => o.id);
+            }
           }
         } catch (idErr) {
           console.error('[Order Search] ID matching error:', idErr);
         }
 
-        // 4. Combine all order IDs matching items or ID prefix
+        // 3b. Support multi-word customer name search (e.g. "shiba kc" matching first_name="shiba" & last_name="kc")
+        let multiWordOrderIds: string[] = [];
+        const words = cleanSearch.split(/\s+/).filter(Boolean);
+        if (words.length > 1) {
+          try {
+            const w1 = words[0];
+            const w2 = words.slice(1).join(' ');
+            const { data: matchedNameOrders } = await adminClient
+              .from('orders')
+              .select('id')
+              .or(`shipping_address->>first_name.ilike.%${w1}%,contact_details->>full_name.ilike.%${w1}%,contact_details->>name.ilike.%${w1}%,shipping_address->addressDetails->>first_name.ilike.%${w1}%`)
+              .or(`shipping_address->>last_name.ilike.%${w2}%,contact_details->>full_name.ilike.%${w2}%,contact_details->>name.ilike.%${w2}%,shipping_address->addressDetails->>last_name.ilike.%${w2}%`)
+              .limit(100);
+
+            if (matchedNameOrders && matchedNameOrders.length > 0) {
+              multiWordOrderIds = matchedNameOrders.map(o => o.id);
+            }
+          } catch (mwErr) {
+            console.error('[Order Search] Multi-word name matching error:', mwErr);
+          }
+        }
+
+        // 4. Combine all order IDs matching items, ID prefix, or multi-word customer names
         const combinedOrderIds = Array.from(new Set([
           ...orderIdsFromItems,
-          ...matchingOrderUuid
+          ...matchingOrderUuid,
+          ...multiWordOrderIds
         ])).slice(0, 300);
 
         // 5. Build OR clauses for main orders query
@@ -668,6 +700,7 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
           `contact_details->>value.ilike.%${cleanSearch}%`,
           `shipping_address->>first_name.ilike.%${cleanSearch}%`,
           `shipping_address->>last_name.ilike.%${cleanSearch}%`,
+          `shipping_address->>phone.ilike.%${cleanSearch}%`,
           `shipping_address->addressDetails->>first_name.ilike.%${cleanSearch}%`,
           `shipping_address->addressDetails->>last_name.ilike.%${cleanSearch}%`,
           `shipping_address->addressDetails->>phone.ilike.%${cleanSearch}%`,
