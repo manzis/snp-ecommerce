@@ -113,10 +113,16 @@ export default function CartSidebar() {
     });
   }, [items]);
 
-  // 2. HANDLERS
   const handleCheckout = () => {
     if (outOfStockItems.length > 0) {
       setIsOutOfStockModalOpen(true);
+      return;
+    }
+    if (!user) {
+      openLogin(() => {
+        setCartOpen(false);
+        router.push('/checkout');
+      });
       return;
     }
     setCartOpen(false);

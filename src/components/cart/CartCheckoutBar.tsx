@@ -56,6 +56,10 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
     }
 
     if (pathname !== '/checkout') {
+      if (!user) {
+        openLogin(() => router.push('/checkout'));
+        return;
+      }
       router.push('/checkout');
     }
   };

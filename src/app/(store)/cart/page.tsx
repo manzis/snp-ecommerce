@@ -105,10 +105,13 @@ export default function CartPage() {
     });
   }, [items]);
 
-  // 2. HANDLERS
   const handleCheckout = () => {
     if (outOfStockItems.length > 0) {
       setIsOutOfStockModalOpen(true);
+      return;
+    }
+    if (!user) {
+      openLogin(() => router.push('/checkout'));
       return;
     }
     router.push('/checkout');
