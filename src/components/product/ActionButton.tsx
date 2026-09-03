@@ -14,7 +14,7 @@ const ActionButton = ({ icon, label, className, ...props }: ActionButtonProps) =
       onPointerUp={(e) => e.currentTarget.blur()}
       className={`
         flex h-[42px] w-[42px] items-center justify-center shrink-0 
-        rounded-[6px] border border-[#eaebf0] bg-[#ffffff] p-[8px] 
+        rounded-[10px] border border-[#eaebf0] bg-[#ffffff] p-[8px] 
         shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] overflow-hidden
         outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0
         select-none transition-all duration-150
