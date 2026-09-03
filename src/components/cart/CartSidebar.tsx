@@ -17,6 +17,7 @@ import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions
 import { UserAddress, fetchUserAddresses } from '@/services/addressService';
 import AddressModal from '@/components/checkout/AddressModal';
 import AddressSelector from '@/components/checkout/AddressSelector';
+import OutOfStockModal from '@/components/cart/OutOfStockModal';
 import { useToast } from '@/components/ui/ToastProvider';
 
 export default function CartSidebar() {
@@ -35,6 +36,7 @@ export default function CartSidebar() {
   const [addressModalMode, setAddressModalMode] = useState<'add' | 'edit'>('add');
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [isOutOfStockModalOpen, setIsOutOfStockModalOpen] = useState(false);
 
   // Lock body scroll when cart is open
   useEffect(() => {
@@ -103,8 +105,20 @@ export default function CartSidebar() {
     return Math.round(subtotal - bundleDiscount - couponDiscount);
   }, [subtotal, bundleDiscount, couponDiscount]);
 
+  const outOfStockItems = useMemo(() => {
+    return items.filter((item: any) => {
+      if (!item.stock_status) return false;
+      const status = item.stock_status.toLowerCase().replace(/[^a-z]/g, '');
+      return status === 'outofstock' || status === 'soldout' || status === 'out';
+    });
+  }, [items]);
+
   // 2. HANDLERS
   const handleCheckout = () => {
+    if (outOfStockItems.length > 0) {
+      setIsOutOfStockModalOpen(true);
+      return;
+    }
     setCartOpen(false);
     router.push('/checkout');
   };
@@ -306,6 +320,16 @@ export default function CartSidebar() {
             userId={user?.id || ''}
             initialAddress={editingAddress}
             onSuccess={handleAddressSuccess}
+          />
+
+          <OutOfStockModal
+            isOpen={isOutOfStockModalOpen}
+            onClose={() => setIsOutOfStockModalOpen(false)}
+            outOfStockItems={outOfStockItems}
+            onProceed={() => {
+              setCartOpen(false);
+              router.push('/checkout');
+            }}
           />
         </>
       )}

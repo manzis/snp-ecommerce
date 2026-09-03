@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 interface WalletPaymentDetailsProps {
   onPlaceOrder: (wallet: string) => void;
   totalAmount?: string;
+  isProcessing?: boolean;
 }
 
 const WALLETS = [
@@ -30,7 +31,7 @@ const WALLETS = [
   }
 ];
 
-const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrder, totalAmount }) => {
+const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrder, totalAmount, isProcessing = false }) => {
   const [selectedWallet, setSelectedWallet] = useState('esewa');
 
   const handleWalletSelect = (id: string) => {
@@ -104,14 +105,30 @@ const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrde
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onPlaceOrder(selectedWallet);
+            if (!isProcessing) {
+              onPlaceOrder(selectedWallet);
+            }
           }}
+          disabled={isProcessing}
           type="button"
-          className="flex w-full h-[48px] items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all active:scale-[0.98] outline-none "
+          className={`flex w-full h-[48px] items-center justify-center rounded-[12px] transition-all outline-none ${
+            isProcessing
+              ? 'bg-[#e2e8f0] cursor-not-allowed opacity-75'
+              : 'bg-[#ffe900] active:bg-[#f5e000] active:scale-[0.98]'
+          }`}
         >
-          <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-            Pay Via {WALLETS.find(w => w.id === selectedWallet)?.name} {totalAmount ? `(${totalAmount})` : ''}
-          </span>
+          {isProcessing ? (
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#242424] border-t-transparent" />
+              <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+                Processing Payment...
+              </span>
+            </div>
+          ) : (
+            <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+              Pay Via {WALLETS.find(w => w.id === selectedWallet)?.name} {totalAmount ? `(${totalAmount})` : ''}
+            </span>
+          )}
         </button>
       </div>
     </div>

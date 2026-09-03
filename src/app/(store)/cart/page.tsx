@@ -17,13 +17,14 @@ import { fetchUserAddressesAction, deleteUserAddressAction } from '@/app/actions
 import { UserAddress, fetchUserAddresses } from '@/services/addressService';
 import AddressModal from '@/components/checkout/AddressModal';
 import AddressSelector from '@/components/checkout/AddressSelector';
+import OutOfStockModal from '@/components/cart/OutOfStockModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/components/ui/ToastProvider';
 
 export default function CartPage() {
 
   const router = useRouter();
-  const { items, loadCart, getCouponDiscount } = useCartStore();
+  const { items, reverifyCartPrices, getCouponDiscount } = useCartStore();
   const { user, session, isLoading: isAuthLoading } = useAuth();
   const { openLogin } = useAuthModal();
   const { showToast } = useToast();
@@ -37,10 +38,11 @@ export default function CartPage() {
   const [addressModalMode, setAddressModalMode] = useState<'add' | 'edit'>('add');
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [isOutOfStockModalOpen, setIsOutOfStockModalOpen] = useState(false);
 
   useEffect(() => {
-    loadCart();
-  }, [loadCart]);
+    reverifyCartPrices(true);
+  }, [reverifyCartPrices]);
 
   useEffect(() => {
     if (user) {
@@ -91,14 +93,24 @@ export default function CartPage() {
   }, [items]);
 
   const couponDiscount = getCouponDiscount();
-
-  // Final total should be exactly what's shown in CartSummary
   const finalTotal = useMemo(() => {
     return Math.round(subtotal - bundleDiscount - couponDiscount);
   }, [subtotal, bundleDiscount, couponDiscount]);
 
+  const outOfStockItems = useMemo(() => {
+    return items.filter((item: any) => {
+      if (!item.stock_status) return false;
+      const status = item.stock_status.toLowerCase().replace(/[^a-z]/g, '');
+      return status === 'outofstock' || status === 'soldout' || status === 'out';
+    });
+  }, [items]);
+
   // 2. HANDLERS
   const handleCheckout = () => {
+    if (outOfStockItems.length > 0) {
+      setIsOutOfStockModalOpen(true);
+      return;
+    }
     router.push('/checkout');
   };
 
@@ -290,6 +302,15 @@ export default function CartPage() {
         userId={user?.id || ''}
         initialAddress={editingAddress}
         onSuccess={handleAddressSuccess}
+      />
+
+      <OutOfStockModal
+        isOpen={isOutOfStockModalOpen}
+        onClose={() => setIsOutOfStockModalOpen(false)}
+        outOfStockItems={outOfStockItems}
+        onProceed={() => {
+          router.push('/checkout');
+        }}
       />
     </div>
   );

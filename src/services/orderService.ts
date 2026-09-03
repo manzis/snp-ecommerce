@@ -18,6 +18,7 @@ export interface OrderData {
   payment_method: string;
   payment_screenshot_url?: string | null;
   payment_remarks?: string | null;
+  idempotency_key?: string | null;
 }
 
 export interface OrderItemData {
@@ -126,7 +127,7 @@ export async function createOrder(orderData: OrderData, items: any[], supabaseCl
     selected_flavor: item.selected_flavor
   }));
 
-  const { data, error } = await client.rpc('create_order_v3', {
+  const rpcParams: any = {
     p_user_id: orderData.user_id,
     p_total_amount: orderData.total_amount,
     p_mrp_amount: orderData.mrp_amount,
@@ -144,9 +145,25 @@ export async function createOrder(orderData: OrderData, items: any[], supabaseCl
     p_payment_screenshot_url: orderData.payment_screenshot_url || null,
     p_payment_remarks: orderData.payment_remarks || null,
     p_items: formattedItems
-  });
+  };
+
+  if (orderData.idempotency_key) {
+    rpcParams.p_idempotency_key = orderData.idempotency_key;
+  }
+
+  const { data, error } = await client.rpc('create_order_v3', rpcParams);
 
   if (error) {
+    // If the RPC error is because p_idempotency_key parameter isn't accepted by older DB schema yet, retry without it
+    if (orderData.idempotency_key && (error.message?.includes('p_idempotency_key') || error.code === '42883')) {
+      delete rpcParams.p_idempotency_key;
+      const { data: retryData, error: retryError } = await client.rpc('create_order_v3', rpcParams);
+      if (retryError) {
+        console.error('Error creating order via RPC (fallback retry):', retryError);
+        throw retryError;
+      }
+      return { id: retryData };
+    }
     console.error('Error creating order via RPC:', error);
     throw error;
   }

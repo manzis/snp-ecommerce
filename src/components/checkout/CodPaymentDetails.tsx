@@ -5,11 +5,13 @@ import React from 'react';
 interface CodPaymentDetailsProps {
   handlingFee?: number;
   onPlaceOrder: () => void;
+  isProcessing?: boolean;
 }
 
 const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({
   handlingFee = 23,
-  onPlaceOrder
+  onPlaceOrder,
+  isProcessing = false
 }) => {
   return (
     <div className="flex w-full flex-col gap-[15px] items-start transition-all duration-300">
@@ -24,14 +26,30 @@ const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({
       <button
         onClick={(e) => {
           e.stopPropagation();
-          onPlaceOrder();
+          if (!isProcessing) {
+            onPlaceOrder();
+          }
         }}
+        disabled={isProcessing}
         type="button"
-        className="flex w-full min-w-0 h-[48px] py-[12px] gap-[10px] justify-center items-center self-stretch bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all active:scale-[0.98] outline-none border-none "
+        className={`flex w-full min-w-0 h-[48px] py-[12px] gap-[10px] justify-center items-center self-stretch rounded-[12px] transition-all outline-none border-none ${
+          isProcessing
+            ? 'bg-[#e2e8f0] cursor-not-allowed opacity-75'
+            : 'bg-[#ffe900] active:bg-[#f5e000] active:scale-[0.98]'
+        }`}
       >
-        <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-          Place Order ( Pay on Delivery)
-        </span>
+        {isProcessing ? (
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#242424] border-t-transparent" />
+            <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+              Placing Order...
+            </span>
+          </div>
+        ) : (
+          <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+            Place Order ( Pay on Delivery)
+          </span>
+        )}
       </button>
     </div>
   );

@@ -88,6 +88,7 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
     let livePrice = product?.discounted_price;
     let liveMrp = product?.original_price;
 
+    let variantStockStatus: string | undefined = undefined;
     if (product?.product_variants?.length > 0) {
       const matchingVariant = product.product_variants.find((v: any) => {
         // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
@@ -105,6 +106,9 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       if (matchingVariant) {
         livePrice = matchingVariant.discounted_price || livePrice;
         liveMrp = matchingVariant.original_price || liveMrp;
+        if (matchingVariant.is_available === false || (matchingVariant.stock_count !== undefined && matchingVariant.stock_count !== null && matchingVariant.stock_count <= 0)) {
+          variantStockStatus = 'out_of_stock';
+        }
       }
     }
 
@@ -153,7 +157,7 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       quantity: row.quantity,
       selected_size: selectedSize,
       selected_flavor: selectedFlavor,
-      stock_status: product?.stock_status || 'in_stock',
+      stock_status: variantStockStatus || product?.stock_status || 'in_stock',
       bundle_id: row.bundle_id === 'standard' ? undefined : row.bundle_id,
       bundle_discount: row.bundle_discount || 0,
       is_sale: isSale,
@@ -309,6 +313,8 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
         flavour_id,
         original_price,
         discounted_price,
+        is_available,
+        stock_count,
         size:product_sizes(size_label),
         flavour:product_flavours(flavour_name)
       ),
@@ -340,6 +346,7 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
     let livePrice = product.discounted_price;
     let liveMrp = product.original_price;
 
+    let variantStockStatus: string | undefined = undefined;
     if (product.product_variants?.length > 0) {
       const matchingVariant = product.product_variants.find((v: any) => {
         // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
@@ -357,6 +364,9 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       if (matchingVariant) {
         livePrice = matchingVariant.discounted_price || livePrice;
         liveMrp = matchingVariant.original_price || liveMrp;
+        if (matchingVariant.is_available === false || (matchingVariant.stock_count !== undefined && matchingVariant.stock_count !== null && matchingVariant.stock_count <= 0)) {
+          variantStockStatus = 'out_of_stock';
+        }
       }
     }
 
@@ -391,7 +401,7 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       ...item,
       price: parsedPrice,
       mrp: parsedMrp,
-      stock_status: product.stock_status || item.stock_status,
+      stock_status: variantStockStatus || product.stock_status || item.stock_status || 'in_stock',
       is_sale: isSale,
       sale_end_date: saleEndDate
     };

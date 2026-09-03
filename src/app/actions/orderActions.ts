@@ -306,6 +306,9 @@ export async function trackOrderByIdAction(shortId: string) {
   }
 }
 
+// Global in-flight requests map for server action deduplication
+const inFlightOrderPromises = new Map<string, Promise<{ success: boolean; orderId?: string; message?: string; isDuplicate?: boolean }>>();
+
 /**
  * Server action to place an order
  */
@@ -323,47 +326,99 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
     return { success: false, message: 'User ID mismatch.' };
   }
 
-  try {
-    const result = await createOrder(orderData, items, supabase);
+  // Build a unique deduplication key for this checkout request
+  const dedupeKey = orderData.idempotency_key 
+    ? `idemp_${user.id}_${orderData.idempotency_key}`
+    : `user_${user.id}_${orderData.total_amount}_${items.length}`;
 
-    // Revalidate relevant paths
-    revalidatePath('/account/orders');
+  // 2. In-flight promise lock: if another request with the same idempotency key is already running, await it
+  if (inFlightOrderPromises.has(dedupeKey)) {
+    console.warn(`[placeOrderAction] In-flight order request detected for key ${dedupeKey}. Awaiting existing promise.`);
+    return await inFlightOrderPromises.get(dedupeKey)!;
+  }
 
-    // Fire-and-forget email confirmations (Asynchronous for instant feedback)
-    Promise.allSettled([
-      sendOrderConfirmationEmail(result.id),
-      sendAdminOrderReceivedEmail(result.id)
-    ]).then(results => {
-      results.forEach((res, i) => {
-        if (res.status === 'rejected') {
-          console.error(`[Email] ${i === 0 ? 'Confirmation' : 'Admin'} email failed:`, res.reason);
+  const executionPromise = (async () => {
+    try {
+      // 3. Database check: check if an order with this idempotency key was already created
+      if (orderData.idempotency_key) {
+        const { data: existingByKey } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('idempotency_key', orderData.idempotency_key)
+          .maybeSingle();
+
+        if (existingByKey?.id) {
+          console.warn('[placeOrderAction] Duplicate order blocked by idempotency_key:', orderData.idempotency_key);
+          return { success: true, orderId: existingByKey.id, isDuplicate: true };
+        }
+      }
+
+      // 4. Fallback check: block duplicate orders for the same user with exact total amount within the last 30 seconds
+      const thirtySecondsAgo = new Date(Date.now() - 30 * 1000).toISOString();
+      const { data: recentOrder } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('total_amount', orderData.total_amount)
+        .gte('created_at', thirtySecondsAgo)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (recentOrder?.id) {
+        console.warn('[placeOrderAction] Duplicate submission caught by 30s window check for user:', user.id);
+        return { success: true, orderId: recentOrder.id, isDuplicate: true };
+      }
+
+      // 5. Create Order via RPC
+      const result = await createOrder(orderData, items, supabase);
+
+      // Revalidate relevant paths
+      revalidatePath('/account/orders');
+
+      // Fire-and-forget email confirmations (Asynchronous for instant feedback)
+      Promise.allSettled([
+        sendOrderConfirmationEmail(result.id),
+        sendAdminOrderReceivedEmail(result.id)
+      ]).then(results => {
+        results.forEach((res, i) => {
+          if (res.status === 'rejected') {
+            console.error(`[Email] ${i === 0 ? 'Confirmation' : 'Admin'} email failed:`, res.reason);
+          }
+        });
+      });
+      
+      // Fire-and-forget initial status log for tracking
+      supabase.rpc('update_order_status_v2', {
+        p_order_id: result.id,
+        p_new_status: 'pending',
+        p_message: 'Order Recieved, We Have recieved your order.'
+      }).then(({ error }) => {
+        if (error) {
+          // Fallback to older RPC version if v2 is not available
+          supabase.rpc('update_order_status', {
+            p_order_id: result.id,
+            p_new_status: 'pending',
+            p_message: 'Order Recieved, We Have recieved your order.'
+          }).then((res) => {
+            if (res.error) console.error('[Async Log] Fallback log failed:', res.error);
+          });
         }
       });
-    });
-    
-    // Fire-and-forget initial status log for tracking
-    supabase.rpc('update_order_status_v2', {
-      p_order_id: result.id,
-      p_new_status: 'pending',
-      p_message: 'Order Recieved, We Have recieved your order.'
-    }).then(({ error }) => {
-      if (error) {
-        // Fallback to older RPC version if v2 is not available
-        supabase.rpc('update_order_status', {
-          p_order_id: result.id,
-          p_new_status: 'pending',
-          p_message: 'Order Recieved, We Have recieved your order.'
-        }).then((res) => {
-          if (res.error) console.error('[Async Log] Fallback log failed:', res.error);
-        });
-      }
-    });
 
-    return { success: true, orderId: result.id };
-  } catch (error: any) {
-    console.error('Action Error: placeOrderAction:', error);
-    return { success: false, message: error.message || 'Failed to place order.' };
-  }
+      return { success: true, orderId: result.id };
+    } catch (error: any) {
+      console.error('Action Error: placeOrderAction:', error);
+      return { success: false, message: error.message || 'Failed to place order.' };
+    } finally {
+      // Remove in-flight promise after completion
+      inFlightOrderPromises.delete(dedupeKey);
+    }
+  })();
+
+  inFlightOrderPromises.set(dedupeKey, executionPromise);
+  return await executionPromise;
 }
 
 /**

@@ -30,6 +30,7 @@ interface PaymentSectionProps {
   excludeOptions?: string[];
   totalAmount?: string;
   codFee?: number;
+  isProcessing?: boolean;
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({
@@ -46,7 +47,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   externalError,
   excludeOptions = [],
   totalAmount,
-  codFee = 23
+  codFee = 23,
+  isProcessing = false
 }) => {
   return (
     <div className={`main-container mx-auto flex w-full max-w-[412px] flex-col items-start border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
@@ -133,6 +135,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                     <WalletPaymentDetails 
                       onPlaceOrder={() => onPlaceOrder()} 
                       totalAmount={totalAmount}
+                      isProcessing={isProcessing}
                     />
                   </PaymentOption>
                 </div>
@@ -161,6 +164,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                         onPlaceOrder({ qrFile: data.file, qrRemarks: data.remarks });
                       }}
                       totalAmount={totalAmount}
+                      isProcessing={isProcessing}
                     />
                   </PaymentOption>
 
@@ -185,7 +189,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                       badge={`+ Rs ${codFee} Fee`}
                       badgeType="fee"
                     >
-                      <CodPaymentDetails handlingFee={codFee} onPlaceOrder={onPlaceOrder} />
+                      <CodPaymentDetails handlingFee={codFee} onPlaceOrder={onPlaceOrder} isProcessing={isProcessing} />
                     </PaymentOption>
                   )}
                 </div>

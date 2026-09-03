@@ -14,6 +14,7 @@ interface QrPaymentDetailsProps {
   initialRemarks?: string;
   hasError?: boolean;
   totalAmount?: string;
+  isProcessing?: boolean;
 }
 
 const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
@@ -22,7 +23,8 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
   initialFile = null,
   initialRemarks = 'Shopping Payment',
   hasError = false,
-  totalAmount
+  totalAmount,
+  isProcessing = false
 }) => {
   const [isRevealed, setIsRevealed] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
@@ -69,6 +71,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
   }, [remarks]);
 
   const handleVerify = () => {
+    if (isProcessing) return;
     if (!selectedFile) {
       setError("Please upload the payment receipt first.");
       return;
@@ -173,12 +176,13 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
       <div className="flex flex-col w-full gap-[8px]">
         <button
           onClick={() => fileInputRef.current?.click()}
+          disabled={isProcessing}
           className={`flex w-full h-[56px] items-center justify-between px-[16px] rounded-[12px] border-[1.5px] border-dashed transition-all duration-200 ${selectedFile
               ? 'border-[#308026] bg-[#f7faf6]'
               : (hasError || (!!error && !selectedFile))
                 ? 'border-[#e11717] bg-[#fff5f5]'
                 : 'border-[#e2e8f0] bg-white'
-            }`}
+            } ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
           <div className="flex items-center gap-[10px] overflow-hidden">
             <UploadIcon className="w-[18px] h-[18px] text-[#68727d] rotate-180" />
@@ -196,6 +200,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
           onChange={handleFileChange}
           className="hidden"
           accept="image/*,.pdf"
+          disabled={isProcessing}
         />
         <div className="flex justify-between items-center px-1">
           <p className="font-rajdhani text-[13px] text-[#838383]">
@@ -215,7 +220,8 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
             placeholder="Remarks Eg: Shopping Payment"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
-            className="w-full font-rajdhani text-[16px] text-[#242424] outline-none bg-transparent"
+            disabled={isProcessing}
+            className="w-full font-rajdhani text-[16px] text-[#242424] outline-none bg-transparent disabled:opacity-60"
           />
         </div>
       </div>
@@ -225,12 +231,26 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
         <div className="flex flex-col gap-[12px]">
           <button
             onClick={handleVerify}
+            disabled={isProcessing}
             type="button"
-            className="flex w-full h-[52px] items-center justify-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] transition-all active:scale-[0.98] outline-none  "
+            className={`flex w-full h-[52px] items-center justify-center rounded-[12px] transition-all outline-none ${
+              isProcessing
+                ? 'bg-[#e2e8f0] cursor-not-allowed opacity-75'
+                : 'bg-[#ffe900] active:bg-[#f5e000] active:scale-[0.98]'
+            }`}
           >
-            <span className="font-rajdhani text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
-              Verify payment via QR
-            </span>
+            {isProcessing ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#242424] border-t-transparent" />
+                <span className="font-rajdhani text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
+                  Verifying Payment...
+                </span>
+              </div>
+            ) : (
+              <span className="font-rajdhani text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
+                Verify payment via QR
+              </span>
+            )}
           </button>
 
           <AnimatePresence>

@@ -21,6 +21,7 @@ import CheckoutCancelModal from '@/components/checkout/CheckoutCancelModal';
 import { recordAbandonedCheckoutAction } from '@/app/actions/marketingActions';
 import { useUIStore } from '@/store/uiStore';
 import PickupCodWarningModal from '@/components/checkout/PickupCodWarningModal';
+import OutOfStockModal from '@/components/cart/OutOfStockModal';
 
 export default function CheckoutPage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -76,9 +77,18 @@ export default function CheckoutPage() {
   // ABANDONED CART RECOVERY
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showPickupCodWarning, setShowPickupCodWarning] = useState(false);
+  const [isOutOfStockModalOpen, setIsOutOfStockModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'pickup-warning' | 'cod-confirm'>('pickup-warning');
   const [isAbandoning, setIsAbandoning] = useState(false);
   const setHideBottomNav = useUIStore((state) => state.setHideBottomNav);
+
+  const outOfStockItems = useMemo(() => {
+    return items.filter((item: any) => {
+      if (!item.stock_status) return false;
+      const status = item.stock_status.toLowerCase().replace(/[^a-z]/g, '');
+      return status === 'outofstock' || status === 'soldout' || status === 'out';
+    });
+  }, [items]);
 
   // REFS
   const contactRef = useRef<ContactSectionHandle>(null);
@@ -122,6 +132,12 @@ export default function CheckoutPage() {
     }
   }, [items.length, isMounted, resetCheckout]);
 
+  useEffect(() => {
+    if (isMounted && outOfStockItems.length > 0) {
+      setIsOutOfStockModalOpen(true);
+    }
+  }, [isMounted, outOfStockItems.length]);
+
   // HANDLERS
   const handleContactConfirm = (data: { value: string; marketing: boolean }) => {
     setContactData(data);
@@ -157,14 +173,48 @@ export default function CheckoutPage() {
     setCouponError(null);
   };
 
+  const generateUUID = () => {
+    if (typeof window !== 'undefined' && typeof window.crypto !== 'undefined' && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
+  const isSubmittingRef = useRef(false);
+  const idempotencyKeyRef = useRef<string | null>(null);
+  const isRedirectingRef = useRef(false);
+
+  useEffect(() => {
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = generateUUID();
+    }
+  }, []);
+
   const handleToggle = (step: 'contact' | 'delivery' | 'payments') => {
     setActiveStep(activeStep === step ? null : step);
   };
 
   // SMART NEXT STEP DRIVER
   const handlePlaceOrder = async (overrideQrData?: { qrFile?: File | null; qrRemarks?: string }, skipCodConfirm: boolean = false) => {
+    if (isSubmittingRef.current || isProcessing) {
+      console.warn("[CheckoutPage] Order placement already in progress. Ignoring duplicate trigger.");
+      return;
+    }
+    isSubmittingRef.current = true;
+
     if (items.length === 0) {
       alert("Your cart is empty");
+      isSubmittingRef.current = false;
+      return;
+    }
+
+    if (outOfStockItems.length > 0) {
+      setIsOutOfStockModalOpen(true);
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -172,6 +222,7 @@ export default function CheckoutPage() {
     if (deliveryData?.option === 'pickup' && selectedPaymentId === 'cod') {
       setModalMode('pickup-warning');
       setShowPickupCodWarning(true);
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -179,6 +230,7 @@ export default function CheckoutPage() {
     if (selectedPaymentId === 'cod' && !skipCodConfirm) {
       setModalMode('cod-confirm');
       setShowPickupCodWarning(true);
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -190,8 +242,10 @@ export default function CheckoutPage() {
         setContactError("Required: Please confirm your contact details");
         setActiveStep('contact');
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        isSubmittingRef.current = false;
         return;
       }
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -203,8 +257,10 @@ export default function CheckoutPage() {
         setDeliveryError("Please complete delivery details to continue");
         setActiveStep('delivery');
         deliveryScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        isSubmittingRef.current = false;
         return;
       }
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -213,6 +269,7 @@ export default function CheckoutPage() {
       setPaymentError("Choose a payment method to continue");
       setActiveStep('payments');
       paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -220,6 +277,7 @@ export default function CheckoutPage() {
     if (unavailableMethods.includes(selectedPaymentId)) {
       alert("This payment method is currently undergoing maintenance. Please choose another method.");
       setActiveStep('payments');
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -228,6 +286,7 @@ export default function CheckoutPage() {
     if (!currentUserId) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        isSubmittingRef.current = false;
         router.push('/login?redirect=/checkout');
         return;
       }
@@ -245,6 +304,7 @@ export default function CheckoutPage() {
           setPaymentError("Please upload payment receipt to continue");
           setActiveStep('payments');
           setIsProcessing(false);
+          isSubmittingRef.current = false;
           paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           return;
         }
@@ -261,11 +321,16 @@ export default function CheckoutPage() {
         } else {
           setPaymentError("Screenshot upload failed. Please try again.");
           setIsProcessing(false);
+          isSubmittingRef.current = false;
           return;
         }
       }
 
       setProcessingMessage("Securing your order...");
+      if (!idempotencyKeyRef.current) {
+        idempotencyKeyRef.current = generateUUID();
+      }
+
       const result = await placeOrderAction({
         user_id: currentUserId,
         total_amount: finalTotal,
@@ -282,10 +347,12 @@ export default function CheckoutPage() {
         contact_details: contactData,
         payment_method: selectedPaymentId,
         payment_screenshot_url: paymentScreenshotUrl,
-        payment_remarks: finalQrData?.qrRemarks || null
+        payment_remarks: finalQrData?.qrRemarks || null,
+        idempotency_key: idempotencyKeyRef.current
       }, items);
 
       if (result.success) {
+        isRedirectingRef.current = true;
         setProcessingMessage("Finalizing...");
         await clearCart();
         resetCheckout();
@@ -293,12 +360,19 @@ export default function CheckoutPage() {
         router.push(`/checkout/success?orderId=${result.orderId}`);
       } else {
         alert(result.message || "Failed to place order. Please try again.");
+        setIsProcessing(false);
+        isSubmittingRef.current = false;
       }
     } catch (error) {
       console.error("Order processing failed:", error);
       alert("Something went wrong. Please try again.");
-    } finally {
       setIsProcessing(false);
+      isSubmittingRef.current = false;
+    } finally {
+      if (!isRedirectingRef.current) {
+        setIsProcessing(false);
+        isSubmittingRef.current = false;
+      }
     }
   };
 
@@ -551,6 +625,17 @@ export default function CheckoutPage() {
           onConfirmOrder={() => {
             setShowPickupCodWarning(false);
             handlePlaceOrder(undefined, true);
+          }}
+        />
+
+        <OutOfStockModal
+          isOpen={isOutOfStockModalOpen}
+          onClose={() => setIsOutOfStockModalOpen(false)}
+          outOfStockItems={outOfStockItems}
+          onProceed={() => {
+            if (items.length === 0) {
+              router.push('/cart');
+            }
           }}
         />
 

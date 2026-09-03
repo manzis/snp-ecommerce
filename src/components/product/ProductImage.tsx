@@ -27,7 +27,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   // ZUSTAND STORE
-  const { activeVariantImage } = useProductSelectionStore();
+  const { activeVariantImage, selectedSize, selectedFlavorId } = useProductSelectionStore();
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -39,17 +39,22 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
 
   const displayImages = React.useMemo(() => {
     if (!selectedFlavourImage) return images;
-    // Filter out the selected image if it happens to be in the images array
-    const filtered = images.filter(img => img !== selectedFlavourImage);
-    return [selectedFlavourImage, ...filtered];
+    // Replace the default main image (images[0]) with the selected variant image
+    // and keep the remaining secondary gallery images without showing the main image
+    const secondaryGallery = images.slice(1).filter(img => img !== selectedFlavourImage);
+    return [selectedFlavourImage, ...secondaryGallery];
   }, [images, selectedFlavourImage]);
 
+  // Auto-scroll back to slide 0 whenever user picks any size, flavour, or variant image
   useEffect(() => {
-    if (selectedFlavourImage) {
+    if (selectedSize || selectedFlavorId || selectedFlavourImage) {
       setIsTransitioning(false);
       setActiveIndex(0);
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+      }
     }
-  }, [selectedFlavourImage]);
+  }, [selectedSize, selectedFlavorId, selectedFlavourImage]);
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -185,7 +190,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
           - Now responsive: w-full (max-w-[362px] on mobile, 100% on desktop)
       */}
       <div className="flex w-full h-[2.5px] shrink-0 overflow-hidden rounded-full bg-[#E8E8E8]">
-        {images.map((_, idx) => (
+        {displayImages.map((_, idx) => (
           <button
             key={idx}
             type="button"

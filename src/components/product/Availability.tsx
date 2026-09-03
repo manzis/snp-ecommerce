@@ -74,7 +74,11 @@ const Availability: React.FC<AvailabilityProps> = ({ productSlug, stockStatus: p
     <div className="relative w-full max-w-[700px] lg:max-w-none mx-auto lg:mx-0 px-[24px]">
 
       <section
-        className={`flex w-full flex-col items-start rounded-[12px] overflow-hidden shrink-0 ${stockStatus === 'out_of_stock' ? 'bg-gray-100' : 'bg-[linear-gradient(95.13deg,#FFFDE7_30%,#ffe900_100%)]'}`}
+        className={`flex w-full flex-col items-start rounded-[12px] overflow-hidden shrink-0 transition-all ${
+          stockStatus === 'out_of_stock' 
+            ? 'bg-gradient-to-r from-[#fef2f2] via-white to-[#fee2e2]/40 opacity-85 border border-[#fee2e2]' 
+            : 'bg-[linear-gradient(95.13deg,#FFFDE7_30%,#ffe900_100%)]'
+        }`}
       >
         {/* FRAME 40: Status & Delivery Info (56px) */}
         <div className={`relative flex w-full flex-row items-start gap-[10px] rounded-[12px] p-[10px] shrink-0 ${getStatusColor()}`}>
