@@ -200,6 +200,10 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
                 const sRank = STATUS_RANK[s];
                 // Only fill if it's missing (any case) and rank is lower than current
                 if (sRank < currentRank && !allLogs.some(l => l.status === s)) {
+                    // Skip virtual PENDING if order has a CONFIRMED log (e.g. Online/QR payment orders)
+                    if (s === 'PENDING' && allLogs.some(l => l.status === 'CONFIRMED')) {
+                        return;
+                    }
 
                     // Find the timestamp of the actual log that 'triggered' this jump
                     // i.e., the chronologically earliest REAL log that has a rank greater than this virtual one

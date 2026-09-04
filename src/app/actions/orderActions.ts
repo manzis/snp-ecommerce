@@ -41,13 +41,18 @@ export async function checkAndSyncKourtierStatus(order: any, supabase: any) {
     // Skip initial 'shipped' updates from external API since shipped state is set manually by admin
     if (nu.status === 'shipped') continue;
 
-    const hasUpdate = statusUpdates.some((up: any) => {
+    const existingIndex = statusUpdates.findIndex((up: any) => {
       if (up.message !== nu.message) return false;
       if (!up.date || !nu.date) return true;
       return up.date.split(' ')[0] === nu.date.split(' ')[0];
     });
-    
-    if (!hasUpdate) {
+
+    if (existingIndex >= 0) {
+      if (statusUpdates[existingIndex].date !== nu.date) {
+        statusUpdates[existingIndex].date = nu.date;
+        didUpdate = true;
+      }
+    } else {
       statusUpdates.push(nu);
       didUpdate = true;
       latestStatus = nu.status;
@@ -108,14 +113,18 @@ export async function checkAndSyncExpoExpressStatus(order: any, supabase: any) {
     // Skip initial 'shipped' updates from external API since shipped state is set manually by admin
     if (nu.status === 'shipped') continue;
 
-    // Allow the same message (e.g. "Out for delivery.") if it happens on a different day (retry)
-    const hasUpdate = statusUpdates.some((up: any) => {
+    const existingIndex = statusUpdates.findIndex((up: any) => {
       if (up.message !== nu.message) return false;
-      if (!up.date || !nu.date) return true; // Fallback to strict dedupe if date is missing
+      if (!up.date || !nu.date) return true;
       return up.date.split(' ')[0] === nu.date.split(' ')[0];
     });
-    
-    if (!hasUpdate) {
+
+    if (existingIndex >= 0) {
+      if (statusUpdates[existingIndex].date !== nu.date) {
+        statusUpdates[existingIndex].date = nu.date;
+        didUpdate = true;
+      }
+    } else {
       statusUpdates.push(nu);
       didUpdate = true;
       latestStatus = nu.status;
@@ -389,23 +398,6 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
         });
       });
       
-      // Fire-and-forget initial status log for tracking
-      supabase.rpc('update_order_status_v2', {
-        p_order_id: result.id,
-        p_new_status: 'pending',
-        p_message: 'Order Recieved, We Have recieved your order.'
-      }).then(({ error }) => {
-        if (error) {
-          // Fallback to older RPC version if v2 is not available
-          supabase.rpc('update_order_status', {
-            p_order_id: result.id,
-            p_new_status: 'pending',
-            p_message: 'Order Recieved, We Have recieved your order.'
-          }).then((res) => {
-            if (res.error) console.error('[Async Log] Fallback log failed:', res.error);
-          });
-        }
-      });
 
       return { success: true, orderId: result.id };
     } catch (error: any) {

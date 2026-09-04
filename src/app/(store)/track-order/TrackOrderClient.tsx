@@ -104,6 +104,9 @@ function useTrackingReconciliation(statusUpdates: StatusUpdateLog[], currentStat
       standardSequence.forEach(s => {
         const sRank = STATUS_RANK[s];
         if (sRank < currentRank && !allLogs.some(l => l.status === s)) {
+          if (s === 'PENDING' && allLogs.some(l => l.status === 'CONFIRMED')) {
+            return;
+          }
           const triggeringLog = [...allLogs].filter(l => !l.isVirtual).sort((a, b) => new Date(a.data.date).getTime() - new Date(b.data.date).getTime()).find(l => (STATUS_RANK[l.status] || 0) > sRank);
           const virtualDate = triggeringLog ? triggeringLog.data.date : new Date().toISOString();
           allLogs.push({

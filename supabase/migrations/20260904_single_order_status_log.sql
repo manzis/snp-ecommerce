@@ -1,13 +1,6 @@
--- Migration script to add idempotency_key support to orders table for preventing duplicate orders
+-- Migration: Single order status logging upon order creation
+-- Eliminates duplicate initial status log entries and sets clear status/messages based on payment method.
 
--- 1. Add idempotency_key column to orders table if not exists
-ALTER TABLE orders 
-ADD COLUMN IF NOT EXISTS idempotency_key VARCHAR(255);
-
--- 2. Create index on idempotency_key for fast lookup and deduplication
-CREATE INDEX IF NOT EXISTS idx_orders_idempotency_key ON orders(idempotency_key) WHERE idempotency_key IS NOT NULL;
-
--- 3. Update create_order_v3 RPC function to accept p_idempotency_key and avoid duplicate creation
 CREATE OR REPLACE FUNCTION create_order_v3(
   p_user_id UUID,
   p_total_amount NUMERIC,
@@ -35,30 +28,31 @@ DECLARE
   v_initial_message TEXT;
   v_status_updates JSONB;
 BEGIN
-    -- Idempotency check: Return existing order ID if matching idempotency_key already exists
-    IF p_idempotency_key IS NOT NULL AND p_idempotency_key != '' THEN
-      SELECT id INTO v_order_id FROM orders WHERE idempotency_key = p_idempotency_key LIMIT 1;
-      IF v_order_id IS NOT NULL THEN
-        RETURN v_order_id;
-      END IF;
+  -- Idempotency check: Return existing order ID if matching idempotency_key already exists
+  IF p_idempotency_key IS NOT NULL AND p_idempotency_key != '' THEN
+    SELECT id INTO v_order_id FROM orders WHERE idempotency_key = p_idempotency_key LIMIT 1;
+    IF v_order_id IS NOT NULL THEN
+      RETURN v_order_id;
     END IF;
+  END IF;
 
-    IF LOWER(p_payment_method) = 'cod' THEN
-      v_initial_status := 'pending'::order_status;
-      v_initial_message := 'Order Placed successfully, We have received your order.';
-    ELSE
-      v_initial_status := 'confirmed'::order_status;
-      v_initial_message := 'Order Confirmed Successfully, We have received your order.';
-    END IF;
-    
-    -- Create the single initial status log
-    v_status_updates := jsonb_build_array(
-       jsonb_build_object(
-          'status', v_initial_status,
-          'message', v_initial_message,
-          'date', (now() AT TIME ZONE 'Asia/Kathmandu')::text
-       )
-    );
+  -- Determine initial status and clear message based on payment method
+  IF LOWER(p_payment_method) = 'cod' THEN
+    v_initial_status := 'pending'::order_status;
+    v_initial_message := 'Order Placed successfully, We have received your order.';
+  ELSE
+    v_initial_status := 'confirmed'::order_status;
+    v_initial_message := 'Order Confirmed Successfully, We have received your order.';
+  END IF;
+  
+  -- Create the single initial status log
+  v_status_updates := jsonb_build_array(
+     jsonb_build_object(
+        'status', v_initial_status,
+        'message', v_initial_message,
+        'date', (now() AT TIME ZONE 'Asia/Kathmandu')::text
+     )
+  );
 
   -- 1. Insert the order with pricing breakdowns, payment details, and idempotency key
   INSERT INTO orders (

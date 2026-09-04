@@ -641,7 +641,7 @@ export default function OrderDetailsModal({
                                     <span className="text-blue-600 font-medium">+ Rs. {order.shipping_amount}</span>
                                 </div>
                             )}
-                            {order.cod_fees && order.cod_fees > 0 && (
+                            {!!order.cod_fees && order.cod_fees > 0 && (
                                 <div className="flex justify-between items-center text-[12px]">
                                     <span className="text-[#a1a1aa]">COD Transaction Fee</span>
                                     <span className="text-blue-600 font-medium">+ Rs. {order.cod_fees}</span>
@@ -816,7 +816,7 @@ export default function OrderDetailsModal({
                         <div className="border border-dotted border-gray-300 rounded-[6px] divide-y divide-dotted divide-gray-300 overflow-hidden bg-zinc-50/10">
                             <div className="grid grid-cols-2 divide-x divide-dotted divide-gray-300">
                                 <div className="p-5 flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Contact Payload</label>
+                                    <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Customer Details</label>
                                     <div
                                         className="text-[13px] font-medium text-black flex items-center gap-1 group cursor-pointer w-fit"
                                         onClick={() => {
@@ -863,14 +863,18 @@ export default function OrderDetailsModal({
                                     <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Payment Architecture</label>
                                     <div className="flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
-                                        <p className="text-[13px] font-medium text-black uppercase">{order.paymentMethod?.replace(/_/g, ' ')}</p>
+                                        <p className="text-[13px] font-medium text-black">
+                                            {order.paymentMethod?.toUpperCase() === 'COD'
+                                                ? `COD (Rs. ${order.totalAmount})`
+                                                : order.paymentMethod?.replace(/_/g, ' ').toUpperCase() || 'COD'}
+                                        </p>
                                     </div>
                                     <span className="text-[10px] text-[#a1a1aa] mt-0.5">Automated settlement active</span>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 divide-x divide-gray-200 border-t border-gray-200">
                                 <div className="p-5 flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Destination Protocol</label>
+                                    <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Customer Address</label>
                                     {order.shippingAddress ? (
                                         <div className="text-[13px] leading-relaxed text-[#242424] space-y-1 max-w-sm">
                                             <div
@@ -901,12 +905,13 @@ export default function OrderDetailsModal({
                                                     <CopyIcon width="12" height="12" />
                                                 </button>
                                             </div>
-                                            <div className="text-[#71717a]">
-                                                {(() => {
+                                            <div
+                                                className="group cursor-pointer rounded hover:bg-zinc-100/60 -mx-1 px-1 py-0.5 transition-colors relative"
+                                                title="Click to copy full address"
+                                                onClick={() => {
                                                     const addr = order.shippingAddress;
+                                                    if (!addr) return;
                                                     const details = addr.addressDetails || {};
-
-                                                    // Extract all possible address parts
                                                     const parts = [
                                                         addr.address_line_1 || details.address_line_1,
                                                         addr.street || details.street,
@@ -914,10 +919,8 @@ export default function OrderDetailsModal({
                                                         addr.address_line_2 || details.address_line_2
                                                     ].filter(Boolean) as string[];
 
-                                                    // Deduplicate while preserving order (e.g. if street and area are same "Tokha")
                                                     const uniqueParts: string[] = [];
                                                     const seen = new Set<string>();
-
                                                     parts.forEach(p => {
                                                         const normalized = p.trim().toLowerCase();
                                                         if (!seen.has(normalized)) {
@@ -926,32 +929,83 @@ export default function OrderDetailsModal({
                                                         }
                                                     });
 
-                                                    return uniqueParts.length > 0 ? uniqueParts.join(', ') : 'No street details';
-                                                })()}
-                                            </div>
-                                            <p className="text-[#a1a1aa] text-[12px]">
-                                                {(() => {
-                                                    const addr = order.shippingAddress;
-                                                    const details = addr.addressDetails || {};
+                                                    const streetStr = uniqueParts.join(', ');
                                                     const city = addr.city || details.city || '';
                                                     const state = addr.state || details.state || '';
                                                     const pincode = addr.pincode || addr.postal_code || details.pincode || '';
                                                     const country = addr.country || details.country || '';
 
-                                                    const locationParts = [
-                                                        city,
-                                                        state,
-                                                        pincode
-                                                    ].filter(Boolean).join(', ');
+                                                    const locationParts = [city, state, pincode].filter(Boolean).join(', ');
+                                                    const fullLoc = locationParts + (country ? ` (${country})` : '');
 
-                                                    return (
-                                                        <>
-                                                            {locationParts}
-                                                            {country ? ` (${country})` : ''}
-                                                        </>
-                                                    );
-                                                })()}
-                                            </p>
+                                                    const fullAddr = [streetStr, fullLoc].filter(Boolean).join(', ');
+                                                    if (fullAddr) {
+                                                        if (navigator.clipboard) {
+                                                            navigator.clipboard.writeText(fullAddr);
+                                                        } else {
+                                                            fallbackCopyTextToClipboard(fullAddr);
+                                                        }
+                                                        showAdminToast('Address copied!', 'success');
+                                                    }
+                                                }}
+                                            >
+                                                <div className="flex items-center gap-1">
+                                                    <div className="text-[#71717a]">
+                                                        {(() => {
+                                                            const addr = order.shippingAddress;
+                                                            const details = addr.addressDetails || {};
+
+                                                            // Extract all possible address parts
+                                                            const parts = [
+                                                                addr.address_line_1 || details.address_line_1,
+                                                                addr.street || details.street,
+                                                                addr.area || details.area,
+                                                                addr.address_line_2 || details.address_line_2
+                                                            ].filter(Boolean) as string[];
+
+                                                            // Deduplicate while preserving order
+                                                            const uniqueParts: string[] = [];
+                                                            const seen = new Set<string>();
+
+                                                            parts.forEach(p => {
+                                                                const normalized = p.trim().toLowerCase();
+                                                                if (!seen.has(normalized)) {
+                                                                    uniqueParts.push(p.trim());
+                                                                    seen.add(normalized);
+                                                                }
+                                                            });
+
+                                                            return uniqueParts.length > 0 ? uniqueParts.join(', ') : 'No street details';
+                                                        })()}
+                                                    </div>
+                                                    <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all shrink-0" title="Copy Address">
+                                                        <CopyIcon width="12" height="12" />
+                                                    </button>
+                                                </div>
+                                                <p className="text-[#a1a1aa] text-[12px]">
+                                                    {(() => {
+                                                        const addr = order.shippingAddress;
+                                                        const details = addr.addressDetails || {};
+                                                        const city = addr.city || details.city || '';
+                                                        const state = addr.state || details.state || '';
+                                                        const pincode = addr.pincode || addr.postal_code || details.pincode || '';
+                                                        const country = addr.country || details.country || '';
+
+                                                        const locationParts = [
+                                                            city,
+                                                            state,
+                                                            pincode
+                                                        ].filter(Boolean).join(', ');
+
+                                                        return (
+                                                            <>
+                                                                {locationParts}
+                                                                {country ? ` (${country})` : ''}
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </p>
+                                            </div>
                                             {(() => {
                                                 const addr = order.shippingAddress;
                                                 const details = addr.addressDetails || {};

@@ -5,6 +5,7 @@ import { OrderProps } from '@/components/orders/OrderCard';
 import DashboardOrderCard from '@/components/admin/orders/OrderCard';
 import OrderActionMenu from '@/components/admin/orders/OrderActionMenu';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getOrderOverdueStatus, getSeenOverdueOrderIds, markOverdueOrderAsSeen } from '@/utils/orderOverdueUtils';
 
 interface AdminOrderListProps {
   initialOrders: OrderProps[];
@@ -50,11 +51,26 @@ export function AdminOrderList({
 }: AdminOrderListProps) {
   const [orders, setOrders] = useState<OrderProps[]>(initialOrders || []);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [seenOverdueIds, setSeenOverdueIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSeenOverdueIds(getSeenOverdueOrderIds());
+  }, []);
 
   // Sync when parent refreshes data (e.g. pagination)
   useEffect(() => {
     setOrders(initialOrders);
   }, [initialOrders]);
+
+  const handleViewOrderDetails = (order: OrderProps) => {
+    if (getOrderOverdueStatus(order).isOverdue) {
+      const updated = markOverdueOrderAsSeen(order.id);
+      setSeenOverdueIds(updated);
+    }
+    if (onViewDetails) {
+      onViewDetails(order);
+    }
+  };
 
   const isAllSelected = orders.length > 0 && selectedIds.length === orders.length;
 
@@ -109,15 +125,24 @@ export function AdminOrderList({
     }
   };
 
-  // 1. Split orders into Recently and All
+  // 1. Unseen overdue orders requiring action (>7 days unshipped or >10 days undelivered)
+  const actionRequiredOrders = orders.filter(o => {
+    const overdue = getOrderOverdueStatus(o);
+    return overdue.isOverdue && !seenOverdueIds.includes(o.id);
+  });
+
+  // 2. Recently placed/attempted orders (excluding actionRequiredOrders)
   const recentlyOrders = lastSeenAt ? orders.filter(o =>
-    (o.createdAt && new Date(o.createdAt) > new Date(lastSeenAt)) ||
-    (o.paymentAttemptedAt && new Date(o.paymentAttemptedAt) > new Date(lastSeenAt))
+    !actionRequiredOrders.some(ao => ao.id === o.id) &&
+    ((o.createdAt && new Date(o.createdAt) > new Date(lastSeenAt)) ||
+    (o.paymentAttemptedAt && new Date(o.paymentAttemptedAt) > new Date(lastSeenAt)))
   ) : [];
 
-  const otherOrders = recentlyOrders.length > 0
-    ? orders.filter(o => !recentlyOrders.some(ro => ro.id === o.id))
-    : orders;
+  // 3. All other orders (excluding actionRequired & recently)
+  const otherOrders = orders.filter(o =>
+    !actionRequiredOrders.some(ao => ao.id === o.id) &&
+    !recentlyOrders.some(ro => ro.id === o.id)
+  );
 
   const renderGrid = (orderList: OrderProps[]) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -126,7 +151,7 @@ export function AdminOrderList({
           key={order.id}
           order={order}
           isNew={lastSeenAt && order.createdAt ? new Date(order.createdAt) > new Date(lastSeenAt) : false}
-          onViewOrder={onViewDetails}
+          onViewOrder={handleViewOrderDetails}
           onUpdateStatus={onUpdateStatus || openUpdateModal}
           onUpdatePaymentStatus={onUpdatePaymentStatus}
           onDeleteOrder={onDeleteOrder}
@@ -288,8 +313,18 @@ export function AdminOrderList({
 
                   {/* STATUS */}
                   <td className="py-4 px-4 whitespace-nowrap">
-                    <div className={`inline-flex px-2.5 py-1 rounded-full border text-[12px] font-medium capitalize ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
-                      {order.status?.toLowerCase().replace('_', ' ')}
+                    <div className="flex items-center gap-1.5">
+                      <div className={`inline-flex px-2.5 py-1 rounded-full border text-[12px] font-medium capitalize ${statusColors.bg} ${statusColors.border} ${statusColors.text}`}>
+                        {order.status?.toLowerCase().replace('_', ' ')}
+                      </div>
+                      {getOrderOverdueStatus(order).isOverdue && (
+                        <span
+                          title={getOrderOverdueStatus(order).label}
+                          className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full bg-red-600 text-white text-[11px] font-bold shrink-0 shadow-sm animate-pulse"
+                        >
+                          !
+                        </span>
+                      )}
                     </div>
                     {order.paymentStatus === 'paid' && (
                       <div className="mt-1 flex items-center gap-1 ml-1 text-green-600">
@@ -316,7 +351,7 @@ export function AdminOrderList({
                     <div className="flex justify-center">
                       <OrderActionMenu
                         order={order}
-                        onViewOrder={onViewDetails}
+                        onViewOrder={handleViewOrderDetails}
                         onUpdateStatus={onUpdateStatus || openUpdateModal}
                         onUpdatePaymentStatus={onUpdatePaymentStatus}
                         onDeleteOrder={onDeleteOrder}
@@ -334,6 +369,21 @@ export function AdminOrderList({
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Needs Action Section */}
+      {actionRequiredOrders.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[12px] font-bold text-red-600 uppercase tracking-wider flex items-center gap-2">
+              Needs Action
+              <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full border border-red-200">
+                {actionRequiredOrders.length}
+              </span>
+            </h2>
+          </div>
+          {viewMode === 'grid' ? renderGrid(actionRequiredOrders) : renderTable(actionRequiredOrders)}
+        </div>
+      )}
+
       {/* Recently Section */}
       {recentlyOrders.length > 0 && (
         <div className="flex flex-col gap-4">

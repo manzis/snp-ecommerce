@@ -131,7 +131,6 @@ export async function fetchExpoExpressUpdate(trackingNumber: string): Promise<Ar
         let parsedDate = new Date().toISOString().replace('T', ' ').replace('Z', '');
         try {
           if (rawUpdate.UpdateDateTime) {
-            // Remove 'Z' and replace 'T' with space so frontend parses it as local time
             parsedDate = rawUpdate.UpdateDateTime.replace('Z', '').replace('T', ' ');
           }
         } catch (e) { }

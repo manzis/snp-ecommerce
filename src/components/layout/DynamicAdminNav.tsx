@@ -154,7 +154,7 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
                     primaryAction.type === 'link' ? (
                         <Link
                             href={primaryAction.href!}
-                            className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
+                            className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98] font-rubik tracking-tight"
                         >
                             <PlusIcon className="w-[16px] h-[16px]" />
                             {primaryAction.label}
@@ -162,7 +162,7 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
                     ) : (
                         <button
                             onClick={() => contextPrimaryAction?.()}
-                            className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98]"
+                            className="hidden md:flex items-center gap-[6px] bg-[#242424] text-white pl-[10px] pr-[14px] py-[8px] rounded-full text-[13px] font-medium hover:bg-[#27272a] transition-all active:scale-[0.98] font-rubik tracking-tight"
                         >
                             <PlusIcon className="w-[16px] h-[16px]" />
                             {primaryAction.label}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { OrderProps } from "@/components/orders/OrderCard";
 import OrderActionMenu from "./OrderActionMenu";
+import { getOrderOverdueStatus } from "@/utils/orderOverdueUtils";
 
 export interface AdminOrderCardProps {
     order: OrderProps;
@@ -126,13 +127,21 @@ export default function OrderCard({
                 {/* --- HEADER (Exceptions stay as is) --- */}
                 <header className={`flex px-[14px] py-[12px] justify-between items-center self-stretch shrink-0 ${isPaymentAttempted ? 'bg-[#f0f9eb]' : statusColors.bg} relative z-[20] rounded-t-[12px] transition-colors duration-300`}>
                     {/* Status Segment */}
-                    <div className="flex gap-[8px] items-center shrink-0 relative z-[2]">
+                    <div className="flex gap-[6px] items-center shrink-0 relative z-[2]">
                         <span className={`shrink-0 text-[13px] font-[400] ${statusValue ? 'opacity-70' : ''} text-[#71717a] whitespace-nowrap`}>
                             Status:
                         </span>
                         <span className={`text-[13px] font-medium whitespace-nowrap ${statusColors.text}`}>
                             {statusValue}
                         </span>
+                        {getOrderOverdueStatus(order).isOverdue && (
+                            <span
+                                title={getOrderOverdueStatus(order).label}
+                                className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full bg-red-600 text-white text-[11px] font-bold shrink-0 shadow-sm animate-pulse ml-1"
+                            >
+                                !
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-3">

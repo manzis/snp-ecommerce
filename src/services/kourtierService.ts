@@ -1,3 +1,5 @@
+import { formatToKathmanduTime } from '@/utils/dateUtils';
+
 export interface KourtierTrackingLog {
   date: string;
   message: string;
@@ -150,16 +152,7 @@ export async function fetchKourtierUpdate(trackingNumber: string): Promise<Array
       const rawMsg = item.message || item.status?.message || '';
       const mapped = mapKourtierStatus(rawStatus, rawMsg);
 
-      let parsedDate = item.date;
-      try {
-        if (parsedDate) {
-          parsedDate = parsedDate.replace('Z', '').replace('T', ' ');
-        } else {
-          parsedDate = new Date().toISOString().replace('T', ' ').replace('Z', '');
-        }
-      } catch (e) {
-        parsedDate = new Date().toISOString().replace('T', ' ').replace('Z', '');
-      }
+      let parsedDate = formatToKathmanduTime(item.date);
 
       mappedResults.push({
         status: mapped.status,
