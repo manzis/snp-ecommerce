@@ -5,7 +5,7 @@ import { useOrderNotifications } from '@/hooks/useOrderNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction, syncMultipleExternalOrdersTrackingAction } from '@/app/actions/orderActions';
-import { OrderProps } from '@/components/orders/OrderCard';
+import { OrderProps, OrderStatus } from '@/components/orders/OrderCard';
 import { AdminOrderList } from '@/components/admin/AdminOrderList';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
 import OrderFilters from '@/components/admin/orders/OrderFilters';
@@ -78,7 +78,6 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     setPrimaryAction(null);
   }, []);
 
-
   useEffect(() => {
     if (!isHydrated || hasEffectRun.current) return;
     lastSeenAtOnMount.current = lastSeenAt;
@@ -87,13 +86,14 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   }, [isHydrated, lastSeenAt, markAsSeen]);
 
   const loadOrders = async (
-    page: number,
+    page: number = currentPage,
     search: string = searchQuery,
     status: string = statusFilter,
     hide: boolean = hideCancelled,
-    mode: 'grid' | 'list' = viewMode
+    mode: 'grid' | 'list' = viewMode,
+    showSkeleton: boolean = true
   ) => {
-    setIsLoading(true);
+    if (showSkeleton) setIsLoading(true);
     const limit = mode === 'list' ? 30 : 12;
     try {
       const result = await fetchAllOrdersAdminAction(page, limit, { search, status, hideCancelled: hide });
@@ -106,7 +106,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     } catch (error) {
       console.error('Failed to load orders:', error);
     } finally {
-      setIsLoading(false);
+      if (showSkeleton) setIsLoading(false);
     }
   };
 
@@ -121,7 +121,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         return;
       }
     }
-    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode);
+    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
   }, [currentPage, searchQuery, statusFilter, hideCancelled, viewMode]);
 
   // Auto-sync external tracking for visible active orders
@@ -140,19 +140,13 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       syncMultipleExternalOrdersTrackingAction(activeIds)
         .then((res) => {
           if (res?.updatedCount && res.updatedCount > 0) {
-            // Silently refresh the list without triggering isLoading=true and hiding the current list
-            fetchAllOrdersAdminAction(currentPage, pageSize, { search: searchQuery, status: statusFilter, hideCancelled })
-              .then((result) => {
-                if (result && result.success) {
-                  setOrders(result.orders || []);
-                  setTotalCount(result.totalCount || 0);
-                }
-              });
+            // Silently refresh the list without triggering isLoading=true
+            loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
           }
         })
         .catch(err => console.error("Auto-sync failed:", err));
     }
-  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled, pageSize]);
+  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled, viewMode]);
 
   // Deep Link Logic
   useEffect(() => {
@@ -183,59 +177,83 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
 
   const handleCancelOrder = async (order: any, reason: string) => {
     try {
+      // Optimistically update status
+      const cancelledStatus = 'CANCELLED' as OrderStatus;
+      setOrders(prev => prev.map(o =>
+        o.id === order.id ? { ...o, status: cancelledStatus } : o
+      ));
+      if (selectedOrderForDetails?.id === order.id) {
+        setSelectedOrderForDetails((prev: any) => ({ ...prev, status: cancelledStatus }));
+      }
+
       const res = await updateOrderStatusAdminAction(order.id, 'cancelled', reason);
       if (res.success) {
         showAdminToast(`Order #${order.shortId} cancelled successfully.`, 'success');
-        loadOrders(currentPage);
         setIsDetailsModalOpen(false);
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
       } else {
         showAdminToast(res.message || 'Failed to cancel order.', 'error');
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
       }
     } catch (error) {
       showAdminToast('An error occurred while cancelling order.', 'error');
+      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
     }
   };
 
   const handleConfirmStatusUpdate = async (orderId: string, status: string, message: string, trackingNumber?: string, carrierName?: string) => {
     try {
+      const updatedStatus = status.toUpperCase() as OrderStatus;
+      // Optimistically update order state immediately without showing full page skeleton
+      setOrders(prev => prev.map(o =>
+        o.id === orderId ? { ...o, status: updatedStatus, trackingNumber: trackingNumber || o.trackingNumber, carrierName: carrierName || o.carrierName } : o
+      ));
+      if (selectedOrderForDetails?.id === orderId) {
+        setSelectedOrderForDetails((prev: any) => ({ ...prev, status: updatedStatus, trackingNumber: trackingNumber || prev.trackingNumber, carrierName: carrierName || prev.carrierName }));
+      }
+
+      setIsStatusModalOpen(false);
+      setOrderToUpdate(null);
+
       const res = await updateOrderStatusAdminAction(orderId, status, message, trackingNumber, carrierName);
       if (res.success) {
         showAdminToast(`Order status updated to ${status.toUpperCase()}.`, 'success');
-        loadOrders(currentPage);
-        setIsStatusModalOpen(false);
-        setOrderToUpdate(null);
+        // Silent reload in background to keep data consistent
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
       } else {
         showAdminToast(res.message || 'Failed to update order.', 'error');
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
       }
     } catch (err) {
       showAdminToast('An error occurred during update.', 'error');
+      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
     }
   };
 
   const handleConfirmPaymentUpdate = async (orderId: string, paymentStatus: string, amountPaid?: number) => {
     try {
+      setOrders(prev => prev.map(o =>
+        o.id === orderId ? { ...o, paymentStatus: paymentStatus, amountPaid: amountPaid } : o
+      ));
+      if (selectedOrderForDetails?.id === orderId) {
+        setSelectedOrderForDetails((prev: any) => ({ ...prev, paymentStatus: paymentStatus, amountPaid: amountPaid }));
+      }
+      setIsPaymentModalOpen(false);
+      setOrderToUpdate(null);
+
       const res = await updatePaymentStatusAdminAction(orderId, paymentStatus, amountPaid);
       if (res.success) {
         showAdminToast(`Payment status updated to ${paymentStatus.toUpperCase()}.`, 'success');
-        setOrders(prev => prev.map(o =>
-          o.id === orderId ? { ...o, paymentStatus: paymentStatus, amountPaid: amountPaid } : o
-        ));
-        if (selectedOrderForDetails?.id === orderId) {
-          setSelectedOrderForDetails((prev: any) => ({ ...prev, paymentStatus: paymentStatus, amountPaid: amountPaid }));
-        }
-        setIsPaymentModalOpen(false);
-        setOrderToUpdate(null);
-        loadOrders(currentPage);
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
       } else {
         showAdminToast(res.message || 'Failed to update payment.', 'error');
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
       }
     } catch (err) {
       showAdminToast('An error occurred during payment update.', 'error');
+      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
     }
   };
-
-  // Client-side filtering is no longer needed as we use server-side filtering
-  // const filteredOrders = useMemo(() => { ... }, [orders, searchQuery, statusFilter]);
 
   const handleDeleteOrder = async (order: OrderProps) => {
     if (confirm(`Are you sure you want to delete order #${order.shortId}? This action cannot be undone.`)) {
@@ -279,20 +297,18 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       }
       
       setSelectedIds([]);
-      loadOrders(currentPage);
+      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
     }
   };
 
   const handleResetPayment = async (order: OrderProps) => {
     if (confirm(`Are you sure you want to reset the payment state for Order #${order.shortId}? This will clear the uploaded proof and allow the customer to submit a new one.`)) {
-      setIsLoading(true);
       const res = await resetPaymentAdminAction(order.id);
       if (res.success) {
         showAdminToast('Payment state reset successfully.', 'success');
-        loadOrders(currentPage);
+        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
       } else {
         showAdminToast(res.message || 'Failed to reset payment.', 'error');
-        setIsLoading(false);
       }
     }
   };
@@ -311,7 +327,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
           setSearchQuery(query);
           setCurrentPage(1);
         }}
-        onRefresh={() => loadOrders(currentPage)}
+        onRefresh={() => loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true)}
         refreshLoading={isLoading}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -371,7 +387,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center h-[400px] gap-4 text-center"
             >
-              <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-[#71717a]">
+              <div className="w-16 h-16 bg-[#F4F4F5] rounded-2xl flex items-center justify-center text-[#71717a]">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
                 </svg>
@@ -385,7 +401,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
                     const res = await createDemoOrderAction();
                     if (res.success) {
                       showAdminToast('Demo order created successfully.', 'success');
-                      loadOrders(currentPage);
+                      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
                     } else {
                       showAdminToast(res.message || 'Failed to create demo order.', 'error');
                       setIsLoading(false);
