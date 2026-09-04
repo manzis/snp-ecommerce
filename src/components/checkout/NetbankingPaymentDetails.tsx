@@ -16,7 +16,7 @@ const NetbankingPaymentDetails: React.FC = () => {
         <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col gap-4 p-4 rounded-xl border border-[#eaebf0] bg-gray-50/50 mt-2 relative overflow-hidden"
+            className="flex flex-col gap-4 p-4 rounded-xl border border-[#eaebf0] bg-gray-50/50 relative overflow-hidden"
         >
             <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[1px] flex flex-col items-center justify-center p-6 text-center">
                 <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-2">

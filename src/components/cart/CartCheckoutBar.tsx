@@ -64,6 +64,22 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
     }
   };
 
+  const isCheckoutPage = pathname === '/checkout';
+  const numericMrp = parseFloat(mrpAmount.replace(/[^0-9.]/g, '')) || 0;
+  const numericTotal = parseFloat(totalAmount.replace(/[^0-9.]/g, '')) || 0;
+  const totalSavings = numericMrp > numericTotal ? Math.round(numericMrp - numericTotal) : 0;
+
+  const SavingsBanner = (isCheckoutPage && totalSavings > 0) ? (
+    <div className="w-full mx-auto max-w-[410px] lg:max-w-[1280px] px-[16px] pt-[8px] pb-[4px]">
+      <div className="flex items-center justify-center gap-[6px] py-[6px] px-[12px] bg-[#eaffcc] border border-[#d6f5a3] rounded-[10px] text-[#308026]">
+        <span className="text-[14px]">🎉</span>
+        <span className="font-rajdhani text-[13px] sm:text-[14px] font-bold tracking-[-0.2px]">
+          You have saved Rs. {totalSavings.toLocaleString()} in this order
+        </span>
+      </div>
+    </div>
+  ) : null;
+
   const Content = (
     <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row lg:items-center">
       {/* LEFT SECTION: Price Info */}
@@ -130,8 +146,11 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
 
   if (isStatic) {
     return (
-      <div className="relative w-full h-[88px] bg-[#fcfff8] border border-[#f1f5f9] rounded-[10px] overflow-hidden">
-        {Content}
+      <div className="relative w-full flex flex-col justify-center bg-white border border-[#f1f5f9] rounded-[10px] overflow-hidden py-[8px]">
+        {SavingsBanner}
+        <div className="h-[72px] w-full">
+          {Content}
+        </div>
       </div>
     );
   }
@@ -146,13 +165,16 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
-            className="pointer-events-auto relative w-full max-w-[410px] md:max-w-7xl bg-[#fcfff8] border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)]"
+            className="pointer-events-auto relative w-full max-w-[410px] md:max-w-7xl bg-white border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] flex flex-col"
             style={{
               paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
-              paddingTop: '10px',
+              paddingTop: '6px',
             }}
           >
-            {Content}
+            {SavingsBanner}
+            <div className="h-[72px] w-full">
+              {Content}
+            </div>
           </motion.div>
         </div>
       )}

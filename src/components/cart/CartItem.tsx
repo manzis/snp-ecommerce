@@ -106,19 +106,22 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     return status === 'outofstock' || status === 'soldout' || status === 'out';
   }, [item.stock_status]);
 
+  const hasBundleSavingsHeader = Boolean(item.bundle_id && bundleTotalDiscount > 0);
+  const badgeTopClass = hasBundleSavingsHeader ? 'top-[27px]' : 'top-0';
+
   return (
     <div className="flex w-full flex-col border-t border-[#f1f5f9] bg-white relative overflow-hidden">
       {/* Badge - Top Right Corner Straight Diagonal Cut Slice */}
       {isOutOfStock ? (
         <div 
-          className="absolute top-0 right-0 z-10 flex items-center justify-center bg-[#dc2626] text-white font-rajdhani text-[11px] font-bold uppercase tracking-[0.8px] pl-4 pr-2.5 py-1 shadow-sm"
+          className={`absolute ${badgeTopClass} right-0 z-10 flex items-center justify-center bg-[#dc2626] text-white font-rajdhani text-[11px] font-bold uppercase tracking-[0.8px] pl-4 pr-2.5 py-1 shadow-sm`}
           style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%)' }}
         >
           Out of Stock
         </div>
       ) : isPreOrder ? (
         <div 
-          className="absolute top-0 right-0 z-10 flex items-center justify-center bg-[#7c2d12] text-[#fffbeb] font-rajdhani text-[11px] font-bold uppercase tracking-[0.8px] pl-4 pr-2.5 py-1 shadow-sm"
+          className={`absolute ${badgeTopClass} right-0 z-10 flex items-center justify-center bg-[#7c2d12] text-[#fffbeb] font-rajdhani text-[11px] font-bold uppercase tracking-[0.8px] pl-4 pr-2.5 py-1 shadow-sm`}
           style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%)' }}
         >
           Pre-Order
@@ -126,7 +129,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       ) : null}
 
       {/* Savings Header - All Bundle Items */}
-      {item.bundle_id && bundleTotalDiscount > 0 ? (
+      {hasBundleSavingsHeader ? (
         <div className="w-full bg-[#f0fff4] border-b border-[#318126]/10 px-[24px] py-[6px] flex items-center justify-center">
           <span className="text-[10px] uppercase font-bold text-[#318126] tracking-[0.5px]">
             Congrats! You Saved Rs. {bundleTotalDiscount} with this bundle deal
@@ -189,7 +192,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               </div>
             </div>
 
-            <div className="flex flex-row gap-[13px] items-center font-rajdhani text-[14px] font-semibold text-[#71717a] whitespace-nowrap">
+            <div className="flex flex-row gap-[13px] items-center font-rajdhani text-[13px] font-medium text-[#71717a] whitespace-nowrap">
               {Boolean(item.selected_size || item.selected_flavor) && (
                 <span>{[item.selected_size, item.selected_flavor].filter(Boolean).join(', ')}</span>
               )}

@@ -125,7 +125,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
       {/* SAVINGS HIGHLIGHT */}
       <div className="px-[24px] pb-[16px]">
         <div className="flex items-center justify-center rounded-[12px] bg-[#eaffcc] py-[14px]">
-          <span className="font-rajdhani text-[16px] tracking-[-0.64px] text-[#242424]">
+          <span className="font-rajdhani text-[16px] font-semibold tracking-[-0.64px] text-[#166534]">
             You will save Rs. {totalDiscount.toLocaleString()} on this order
           </span>
         </div>
