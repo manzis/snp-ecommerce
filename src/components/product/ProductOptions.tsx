@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import FlavourSelection from './FalvourSelction';
 import SizeSelection from './SizeSelction';
@@ -13,6 +13,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useProductSelectionStore } from '@/store/productSelectionStore';
 import { getCartItemId } from '@/services/cartService';
 import { useVolatileProductData } from '@/hooks/useVolatileProductData';
+import { useOrderCountdown } from '@/hooks/useOrderCountdown';
 
 interface ProductOptionsProps {
   product: Product;
@@ -33,64 +34,23 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
   ordersDisabledUntil,
   ordersDisabledReason,
 }) => {
-  const { volatileData } = useVolatileProductData(product.slug);
+  const {
+    isOrdersDisabled,
+    countdownText,
+    isUnlocked,
+  } = useOrderCountdown(
+    product.slug,
+    ordersDisabled,
+    ordersDisabledUntil,
+    ordersDisabledReason
+  );
 
-  const effectiveOrdersDisabled = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled
-    : ordersDisabled;
-
-  const effectiveOrdersUntil = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled_until
-    : ordersDisabledUntil;
-
-  const serverTimeOffset = volatileData?.server_time
-    ? volatileData.server_time - Date.now()
-    : 0;
+  const effectiveDisabled = isOrdersDisabled && !isUnlocked;
 
   const [isInCart, setIsInCart] = useState(false);
-  const [isOrdersDisabled, setIsOrdersDisabled] = useState(effectiveOrdersDisabled);
-  const [countdownText, setCountdownText] = useState<string | null>(null);
   const { showToast } = useToast();
   const router = useRouter();
 
-  useEffect(() => {
-    setIsOrdersDisabled(effectiveOrdersDisabled);
-  }, [effectiveOrdersDisabled]);
-
-  useEffect(() => {
-    if (!effectiveOrdersDisabled || !effectiveOrdersUntil) {
-      setCountdownText(null);
-      return;
-    }
-
-    const targetTime = new Date(effectiveOrdersUntil).getTime();
-    if (isNaN(targetTime)) {
-      setCountdownText(null);
-      return;
-    }
-
-    const tick = () => {
-      const now = Date.now() + serverTimeOffset;
-      const diff = targetTime - now;
-      if (diff <= 0) {
-        setIsOrdersDisabled(false);
-        setCountdownText(null);
-        return;
-      }
-
-      const totalSeconds = Math.floor(diff / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      const pad = (n: number) => String(n).padStart(2, '0');
-
-      setCountdownText(`${pad(hours)}h : ${pad(minutes)}m : ${pad(seconds)}s`);
-    };
-
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [effectiveOrdersDisabled, effectiveOrdersUntil, serverTimeOffset]);
 
   const {
     selectedSize,
@@ -379,7 +339,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       <SizeSelection sizes={mappedSizes} />
       {/* Inline CTA (Mobile + Desktop) */}
       <div id="inline-cta-container" className="flex w-full flex-col gap-2 mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
-        {isOrdersDisabled && countdownText && (
+        {effectiveDisabled && countdownText && (
           <div className="w-full flex items-center justify-between py-2 px-3.5 bg-gradient-to-r from-red-50 to-orange-50 rounded-[10px] text-red-800">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
@@ -399,16 +359,16 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
           <button
             type="button"
             onClick={handleAddToCart}
-            disabled={product.stock_status === 'out_of_stock' || isOrdersDisabled}
-            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || isOrdersDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
+            disabled={product.stock_status === 'out_of_stock' || effectiveDisabled}
+            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || effectiveDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
           >
             {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
           </button>
           <button
             type="button"
             onClick={handleDesktopBuyNow}
-            disabled={product.stock_status === 'out_of_stock' || isOrdersDisabled}
-            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || isOrdersDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
+            disabled={product.stock_status === 'out_of_stock' || effectiveDisabled}
+            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || effectiveDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
           >
             {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
           </button>
@@ -421,9 +381,10 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
         <BundleDealCard
           mainProduct={product}
           currentProductImage={flavours.find(f => f.id === selectedFlavorId)?.image_url || product.images?.[0]}
-          ordersDisabled={isOrdersDisabled}
+          ordersDisabled={effectiveDisabled}
         />
       )}
+
 
       <DeliveryDetails seller={seller} stockStatus={product.stock_status} />
     </section>

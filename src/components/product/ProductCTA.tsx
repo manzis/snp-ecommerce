@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import { useVolatileProductData } from '@/hooks/useVolatileProductData';
+import { useOrderCountdown } from '@/hooks/useOrderCountdown';
 
 /**
  * ProductCTA - Final Stable Version
@@ -22,66 +23,20 @@ const ProductCTA = ({
   ordersDisabledUntil?: string | null;
 }) => {
   const { volatileData } = useVolatileProductData(productSlug || '');
-
-  const effectiveOrdersDisabled = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled
-    : ordersDisabled;
-
-  const effectiveOrdersUntil = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled_until
-    : ordersDisabledUntil;
-
-  const serverTimeOffset = volatileData?.server_time
-    ? volatileData.server_time - Date.now()
-    : 0;
+  const { isOrdersDisabled, countdownText, isUnlocked } = useOrderCountdown(
+    productSlug || '',
+    ordersDisabled,
+    ordersDisabledUntil
+  );
 
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isOrdersDisabled, setIsOrdersDisabled] = useState(effectiveOrdersDisabled);
-  const [countdownText, setCountdownText] = useState<string | null>(null);
   const router = useRouter();
   
   const stockStatus = volatileData ? volatileData.stock_status : propsStockStatus;
   const isOutOfStock = stockStatus === 'out_of_stock';
+  const effectiveDisabled = isOrdersDisabled && !isUnlocked;
 
-  useEffect(() => {
-    setIsOrdersDisabled(effectiveOrdersDisabled);
-  }, [effectiveOrdersDisabled]);
-
-  useEffect(() => {
-    if (!effectiveOrdersDisabled || !effectiveOrdersUntil) {
-      setCountdownText(null);
-      return;
-    }
-
-    const targetTime = new Date(effectiveOrdersUntil).getTime();
-    if (isNaN(targetTime)) {
-      setCountdownText(null);
-      return;
-    }
-
-    const tick = () => {
-      const now = Date.now() + serverTimeOffset;
-      const diff = targetTime - now;
-      if (diff <= 0) {
-        setIsOrdersDisabled(false);
-        setCountdownText(null);
-        return;
-      }
-
-      const totalSeconds = Math.floor(diff / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      const pad = (n: number) => String(n).padStart(2, '0');
-
-      setCountdownText(`${pad(hours)}h : ${pad(minutes)}m : ${pad(seconds)}s`);
-    };
-
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [effectiveOrdersDisabled, effectiveOrdersUntil, serverTimeOffset]);
 
   useEffect(() => {
     if (isPreview) {
@@ -199,7 +154,7 @@ const ProductCTA = ({
         opacity: isVisible ? 1 : 0,
       }}
     >
-      {isOrdersDisabled && countdownText && (
+      {effectiveDisabled && countdownText && (
         <div className="w-full bg-red-600 text-white text-[11px] font-rajdhani font-semibold px-4 py-1 flex items-center justify-between tracking-wide shadow-md">
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
@@ -220,8 +175,8 @@ const ProductCTA = ({
           type="button"
           onClick={handleAddToCart}
           onPointerUp={blurButton}
-          disabled={isOutOfStock || isOrdersDisabled}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || isOrdersDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
+          disabled={isOutOfStock || effectiveDisabled}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || effectiveDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
         >
           <span className="uppercase relative z-[1] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#4d4d4d] whitespace-nowrap">
             {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
@@ -233,8 +188,8 @@ const ProductCTA = ({
           type="button"
           onClick={handleBuyNow}
           onPointerUp={blurButton}
-          disabled={isOutOfStock || isOrdersDisabled}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || isOrdersDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
+          disabled={isOutOfStock || effectiveDisabled}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || effectiveDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
         >
           <span className="uppercase relative z-[3] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#1e1e1e] whitespace-nowrap">
             {isOutOfStock ? "Unavailable" : "Buy Now"}

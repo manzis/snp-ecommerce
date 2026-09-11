@@ -38,6 +38,28 @@ export const getSiteSetting = cache(async (key: string) => {
 });
 
 /**
+ * Fetch a specific setting by key directly from database without unstable_cache (Live)
+ */
+export async function getLiveSiteSetting(key: string) {
+  const adminClient = getSupabaseAdmin();
+  const client = adminClient || supabase;
+  const { data, error } = await client
+    .from('site_settings')
+    .select('value')
+    .eq('key', key)
+    .single();
+
+  if (error) {
+    if (error.code !== 'PGRST116') {
+      console.error(`[settingsService] Error fetching live setting ${key}:`, error);
+    }
+    return null;
+  }
+
+  return data?.value || null;
+}
+
+/**
  * Upsert a setting by key
  */
 export async function updateSiteSetting(
@@ -63,10 +85,8 @@ export async function updateSiteSetting(
   // Clear Next.js cache so changes reflect immediately (only when safe and outside render)
   if (options?.revalidate !== false) {
     try {
-      // @ts-expect-error - Next.js 16 canary changed revalidateTag signature
-      revalidateTag('settings');
-      // @ts-expect-error
-      revalidateTag(`setting-${key}`);
+      revalidateTag('settings', 'max');
+      revalidateTag(`setting-${key}`, 'max');
     } catch (revalError) {
       // Gracefully handle if called in a context where revalidateTag is unsupported (e.g. during render)
       console.warn(`[settingsService] revalidateTag skipped for ${key}:`, (revalError as Error)?.message);

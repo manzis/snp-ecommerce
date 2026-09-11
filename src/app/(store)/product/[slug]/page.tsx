@@ -172,9 +172,16 @@ async function ProductContent({ slug }: { slug: string }) {
   ]);
 
   const storeSettings = settingsRes?.data;
-  const ordersDisabled = storeSettings?.orders_disabled === true;
-  const ordersDisabledUntil = storeSettings?.orders_disabled_until || null;
+  const rawOrdersDisabled = storeSettings?.orders_disabled === true;
+  const rawOrdersDisabledUntil = storeSettings?.orders_disabled_until || null;
   const ordersDisabledReason = storeSettings?.orders_disabled_reason || '';
+
+  // Server-side guard: If orders are marked disabled but the expiration timestamp has already passed, treat as open
+  const isExpired = rawOrdersDisabledUntil
+    ? !isNaN(new Date(rawOrdersDisabledUntil).getTime()) && Date.now() >= new Date(rawOrdersDisabledUntil).getTime()
+    : false;
+  const ordersDisabled = rawOrdersDisabled && !isExpired;
+  const ordersDisabledUntil = isExpired ? null : rawOrdersDisabledUntil;
 
   if (!product) {
     notFound();

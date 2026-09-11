@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, CheckCircle2, MessageCircle, X, Clock } from 'lucide-react';
-import { useVolatileProductData } from '@/hooks/useVolatileProductData';
+import { useOrderCountdown } from '@/hooks/useOrderCountdown';
 
 interface OrderDisabledBannerProps {
   ordersDisabled: boolean;
@@ -22,92 +22,41 @@ export default function OrderDisabledBanner({
   defaultOpen = true,
   productSlug,
 }: OrderDisabledBannerProps) {
-  const { volatileData } = useVolatileProductData(productSlug || '');
+  const {
+    isOrdersDisabled,
+    ordersDisabledUntil,
+    ordersDisabledReason,
+    remainingTime,
+    isUnlocked,
+    serverTimeOffset,
+  } = useOrderCountdown(
+    productSlug || '',
+    propsOrdersDisabled,
+    propsOrdersDisabledUntil,
+    propsOrdersDisabledReason,
+    onUnlock
+  );
 
-  // Live reconciled state from volatile data or SSR fallback props
-  const ordersDisabled = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled
-    : propsOrdersDisabled;
-
-  const ordersDisabledUntil = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled_until
-    : propsOrdersDisabledUntil;
-
-  const ordersDisabledReason = volatileData?.storeSettings !== undefined
-    ? volatileData.storeSettings.orders_disabled_reason
-    : propsOrdersDisabledReason;
-
-  // Server time offset for clock drift correction
-  const serverTimeOffset = volatileData?.server_time
-    ? volatileData.server_time - Date.now()
-    : 0;
-
-  const [remainingTime, setRemainingTime] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-    totalSeconds: number;
-  } | null>(null);
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  // Automatically open customer support message popup on initial page load
+  // Automatically open customer support message popup on initial page load (only if actively disabled with valid future time)
   useEffect(() => {
-    if (!ordersDisabled || isUnlocked || !defaultOpen) return;
+    if (!isOrdersDisabled || isUnlocked || !defaultOpen) return;
+
+    if (ordersDisabledUntil) {
+      const targetTimestamp = new Date(ordersDisabledUntil).getTime();
+      if (!isNaN(targetTimestamp) && targetTimestamp <= Date.now() + serverTimeOffset) {
+        return;
+      }
+    }
 
     const timer = setTimeout(() => {
       setIsPopupOpen(true);
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [ordersDisabled, isUnlocked, defaultOpen]);
-
-  useEffect(() => {
-    if (!ordersDisabled) {
-      setRemainingTime(null);
-      return;
-    }
-
-    if (!ordersDisabledUntil) {
-      setRemainingTime(null);
-      return;
-    }
-
-    const targetTimestamp = new Date(ordersDisabledUntil).getTime();
-    if (isNaN(targetTimestamp)) {
-      setRemainingTime(null);
-      return;
-    }
-
-    const updateTimer = () => {
-      const now = Date.now() + serverTimeOffset;
-      const diff = targetTimestamp - now;
-
-      if (diff <= 0) {
-        setRemainingTime({ days: 0, hours: 0, minutes: 0, seconds: 0, totalSeconds: 0 });
-        setIsUnlocked(true);
-        setIsPopupOpen(false);
-        if (onUnlock) onUnlock();
-        // Auto-dismiss after 5 seconds of showing the celebration
-        setTimeout(() => setDismissed(true), 5000);
-        return;
-      }
-
-      const totalSeconds = Math.floor(diff / 1000);
-      const days = Math.floor(totalSeconds / (3600 * 24));
-      const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      setRemainingTime({ days, hours, minutes, seconds, totalSeconds });
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [ordersDisabled, ordersDisabledUntil, onUnlock]);
+  }, [isOrdersDisabled, isUnlocked, defaultOpen, ordersDisabledUntil, serverTimeOffset]);
 
   // Handle outside click / touch to dismiss popup
   useEffect(() => {
@@ -126,13 +75,14 @@ export default function OrderDisabledBanner({
     };
   }, [isPopupOpen]);
 
-  if (!ordersDisabled && !isUnlocked) return null;
+  if (!isOrdersDisabled && !isUnlocked) return null;
   if (dismissed) return null;
 
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
     <div id="order-disabled-widget" className="fixed bottom-[130px] lg:bottom-6 right-4 sm:right-6 z-50 pointer-events-none flex flex-col items-end gap-2.5">
+
       {/* CUSTOMER SERVICE MESSAGE POPUP */}
       <AnimatePresence>
         {isPopupOpen && !isUnlocked && (
@@ -213,7 +163,7 @@ export default function OrderDisabledBanner({
 
       {/* FLOATING TIMER / LOCK BADGE */}
       <AnimatePresence mode="wait">
-        {isUnlocked ? (
+        {isUnlocked && !isOrdersDisabled ? (
           /* UNLOCKED STATE */
           <motion.div
             key="unlocked"
@@ -228,11 +178,12 @@ export default function OrderDisabledBanner({
               Orders are now open!
             </span>
           </motion.div>
-        ) : (
+        ) : isOrdersDisabled ? (
           /* ORDER DISABLED STATE: INTERACTIVE RIGHT-SIDE FLOATING TIMER BADGE */
           <motion.div
             key="disabled"
             onClick={() => setIsPopupOpen((prev) => !prev)}
+
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -307,8 +258,9 @@ export default function OrderDisabledBanner({
               </span>
             )}
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
+
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use server';
 
-import { getSiteSetting, updateSiteSetting } from '@/services/settingsService';
+import { getSiteSetting, getLiveSiteSetting, updateSiteSetting } from '@/services/settingsService';
 import { revalidatePath } from 'next/cache';
 import { uploadToCloudinary } from '@/services/cloudinary';
 import { Buffer } from 'buffer';
@@ -133,6 +133,8 @@ const DEFAULT_STORE_SETTINGS = {
   },
 };
 
+let lastAutoEnablePersistedAt = 0;
+
 export async function getStoreSettingsAction() {
   try {
     const data = await getSiteSetting('store_settings');
@@ -161,14 +163,55 @@ export async function getStoreSettingsAction() {
         merged.orders_disabled = false;
         merged.orders_disabled_until = null;
 
-        // Asynchronously persist the auto-enabled state in database without triggering revalidateTag during render
-        updateSiteSetting('store_settings', {
-          ...merged,
-          orders_disabled: false,
-          orders_disabled_until: null,
-        }, { revalidate: false }).catch((err) => {
-          console.error('[settingsActions] Failed to persist auto-enabled order status:', err);
-        });
+        // Persist only once every 60 seconds to prevent DB hammering on high-traffic or multiple SSR requests
+        if (Date.now() - lastAutoEnablePersistedAt > 60000) {
+          lastAutoEnablePersistedAt = Date.now();
+          updateSiteSetting('store_settings', {
+            ...merged,
+            orders_disabled: false,
+            orders_disabled_until: null,
+          }, { revalidate: false }).catch((err) => {
+            console.error('[settingsActions] Failed to persist auto-enabled order status:', err);
+          });
+        }
+      }
+    }
+
+    return { success: true, data: merged };
+  } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+}
+
+/**
+ * Fetch live real-time store settings directly from DB (uncached)
+ * Ideal for Route Handlers like /volatile where real-time accuracy is essential.
+ */
+export async function getLiveStoreSettingsAction() {
+  try {
+    const data = await getLiveSiteSetting('store_settings');
+    const merged = {
+      ...DEFAULT_STORE_SETTINGS,
+      ...(data || {}),
+      payment_methods: {
+        ...DEFAULT_STORE_SETTINGS.payment_methods,
+        ...((data || {}).payment_methods || {})
+      },
+      business_details: {
+        ...DEFAULT_STORE_SETTINGS.business_details,
+        ...((data || {}).business_details || {})
+      },
+      shipping: {
+        ...DEFAULT_STORE_SETTINGS.shipping,
+        ...((data || {}).shipping || {})
+      }
+    };
+
+    if (merged.orders_disabled && merged.orders_disabled_until) {
+      const expiryTime = new Date(merged.orders_disabled_until).getTime();
+      if (!isNaN(expiryTime) && Date.now() >= expiryTime) {
+        merged.orders_disabled = false;
+        merged.orders_disabled_until = null;
       }
     }
 
@@ -180,6 +223,7 @@ export async function getStoreSettingsAction() {
 
 export async function updateStoreSettingsAction(newSettings: any) {
   try {
+    lastAutoEnablePersistedAt = 0;
     const current = await getSiteSetting('store_settings') || {};
     const merged = { ...DEFAULT_STORE_SETTINGS, ...current, ...newSettings };
     
@@ -189,7 +233,7 @@ export async function updateStoreSettingsAction(newSettings: any) {
     if (success) {
       revalidatePath('/', 'layout'); // Revalidate root layout for maintenance mode
       revalidatePath('/admin/settings');
-      revalidatePath('/product/[slug]', 'page');
+      revalidatePath('/product/[slug]', 'layout');
       return { success: true, data: merged, message: 'Store settings updated successfully.' };
     }
     

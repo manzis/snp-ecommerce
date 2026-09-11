@@ -269,23 +269,15 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                       </button>
                     </div>
 
-                    <div className="mt-3 bg-gray-50/50 p-4 rounded-[14px] border border-gray-100 transition-all">
+                    <div className="mt-3 bg-gray-50/50 p-4 rounded-[12px] border border-gray-100 transition-all">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-[13px] font-medium text-[#242424]">Disable Orders (Catalog Mode)</h3>
-                            {settings.orders_disabled && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                Orders Disabled
-                              </span>
-                            )}
-                          </div>
+                          <h3 className="text-[13px] font-medium text-[#242424]">Disable Orders</h3>
                           <p className="text-[11px] text-[#71717a] mt-0.5">Prevent customers from placing new orders while keeping the store visible.</p>
                         </div>
                         <button 
                           onClick={handleToggleOrdersDisabled}
-                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${settings.orders_disabled ? 'bg-red-600' : 'bg-gray-300'}`}
+                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${settings.orders_disabled ? 'bg-[#242424]' : 'bg-gray-300'}`}
                         >
                           <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${settings.orders_disabled ? 'translate-x-5' : 'translate-x-0'}`} />
                         </button>
@@ -299,11 +291,11 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="overflow-hidden mt-4 pt-4 border-t border-gray-200/70 space-y-4"
+                            className="overflow-hidden mt-4 pt-4 border-t border-gray-100 space-y-4"
                           >
                             {/* Live Timer Status Card if timer is active */}
                             {settings.orders_disabled_until ? (
-                              <div className="p-3.5 bg-gradient-to-r from-red-50 to-orange-50/60 rounded-[12px] border border-red-200/80">
+                              <div className="p-3.5 bg-gradient-to-r from-red-50 to-orange-50/60 rounded-[12px] border border-red-200/80 shadow-xs flex flex-col gap-3">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                   <div className="flex items-center gap-2">
                                     <Timer className="w-4 h-4 text-red-600 shrink-0 animate-pulse" />
@@ -317,62 +309,63 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                                   </div>
                                 </div>
 
-                                <p className="text-[11px] text-red-800/80 mt-2">
+                                <p className="text-[11px] text-red-800/80">
                                   Orders will automatically re-enable on <span className="font-semibold text-red-900">{formatTargetTime(settings.orders_disabled_until)}</span> without requiring manual action.
                                 </p>
 
-                                {/* Quick Extend Buttons */}
-                                <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-2.5 border-t border-red-200/60">
-                                  <span className="text-[11px] font-medium text-red-800 mr-1">Extend:</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleAddMinutes(15)}
-                                    className="px-2 py-0.5 text-[11px] font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-md transition-all active:scale-95 flex items-center gap-0.5"
-                                  >
-                                    <Plus className="w-3 h-3" /> 15m
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleAddMinutes(30)}
-                                    className="px-2 py-0.5 text-[11px] font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-md transition-all active:scale-95 flex items-center gap-0.5"
-                                  >
-                                    <Plus className="w-3 h-3" /> 30m
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleAddMinutes(60)}
-                                    className="px-2 py-0.5 text-[11px] font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-md transition-all active:scale-95 flex items-center gap-0.5"
-                                  >
-                                    <Plus className="w-3 h-3" /> 1h
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={handleMakeIndefinite}
-                                    className="ml-auto text-[11px] text-gray-600 hover:text-gray-900 underline transition-colors"
-                                  >
-                                    Clear Timer (Indefinite)
-                                  </button>
+                                <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-red-200/60">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[11px] font-medium text-red-800 mr-0.5">Extend:</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddMinutes(15)}
+                                      className="px-2 py-0.5 text-[11px] font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-[6px] transition-all active:scale-95"
+                                    >
+                                      +15m
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddMinutes(30)}
+                                      className="px-2 py-0.5 text-[11px] font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-[6px] transition-all active:scale-95"
+                                    >
+                                      +30m
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddMinutes(60)}
+                                      className="px-2 py-0.5 text-[11px] font-medium bg-white hover:bg-red-50 text-red-700 border border-red-200 rounded-[6px] transition-all active:scale-95"
+                                    >
+                                      +1h
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={handleMakeIndefinite}
+                                      className="ml-2 text-[11px] text-red-700/80 hover:text-red-900 underline transition-colors"
+                                    >
+                                      Clear Timer (Indefinite)
+                                    </button>
+                                  </div>
                                   <button
                                     type="button"
                                     onClick={handleEnableOrdersNow}
-                                    className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-all active:scale-95 shadow-xs"
+                                    className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-[6px] transition-all active:scale-95 shadow-xs"
                                   >
                                     Enable Orders Now
                                   </button>
                                 </div>
                               </div>
                             ) : (
-                              <div className="p-3 bg-amber-50 rounded-[12px] border border-amber-200 flex items-center justify-between">
+                              <div className="p-3 bg-red-50/70 rounded-[12px] border border-red-200/80 shadow-xs flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-2">
-                                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                                  <span className="text-[12px] font-medium text-amber-900">
+                                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                                  <span className="text-[12px] font-medium text-red-900">
                                     Orders disabled indefinitely (No timer set). Select a duration below to enable auto-reopening.
                                   </span>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={handleEnableOrdersNow}
-                                  className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-all active:scale-95 shadow-xs shrink-0"
+                                  className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-[6px] transition-all active:scale-95 shadow-xs shrink-0"
                                 >
                                   Enable Orders Now
                                 </button>
@@ -380,15 +373,15 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                             )}
 
                             {/* Duration Presets */}
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
                                 <label className="text-[12px] font-medium text-[#242424]">
-                                  Choose Duration (Auto-enable when time runs out)
+                                  Auto-Enable Duration
                                 </label>
                                 <button
                                   type="button"
                                   onClick={() => setIsCustomDateOpen(!isCustomDateOpen)}
-                                  className="text-[11px] font-medium text-[#242424] hover:underline flex items-center gap-1"
+                                  className="text-[11px] text-[#71717a] hover:text-[#242424] transition-colors flex items-center gap-1"
                                 >
                                   <Calendar className="w-3.5 h-3.5" />
                                   {isCustomDateOpen ? 'Hide Custom Time' : 'Set Custom Date & Time'}
@@ -401,7 +394,7 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                                     key={preset.label}
                                     type="button"
                                     onClick={() => handleApplyPreset(preset.minutes)}
-                                    className="px-3 py-1.5 text-[12px] font-medium bg-white hover:bg-gray-100 text-[#242424] border border-gray-200 rounded-lg transition-all active:scale-95 hover:border-gray-300"
+                                    className="px-3 py-1.5 text-[12px] font-medium bg-white hover:bg-gray-50 text-[#242424] border border-gray-200 rounded-[8px] transition-all active:scale-95"
                                   >
                                     {preset.label}
                                   </button>
@@ -409,10 +402,10 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                                 <button
                                   type="button"
                                   onClick={handleMakeIndefinite}
-                                  className={`px-3 py-1.5 text-[12px] font-medium rounded-lg transition-all active:scale-95 border ${
+                                  className={`px-3 py-1.5 text-[12px] font-medium rounded-[8px] transition-all active:scale-95 border ${
                                     !settings.orders_disabled_until
-                                      ? 'bg-gray-900 text-white border-gray-900'
-                                      : 'bg-white hover:bg-gray-100 text-gray-600 border-gray-200'
+                                      ? 'bg-gray-100 text-[#242424] border-gray-300 font-semibold'
+                                      : 'bg-white hover:bg-gray-50 text-[#71717a] border-gray-200'
                                   }`}
                                 >
                                   Indefinite
@@ -420,8 +413,8 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                               </div>
 
                               {isCustomDateOpen && (
-                                <div className="mt-2.5 p-3 bg-white rounded-lg border border-gray-200">
-                                  <label className="text-[11px] text-gray-500 block mb-1">
+                                <div className="mt-2.5 p-3 bg-white rounded-[10px] border border-gray-100">
+                                  <label className="text-[11px] text-[#71717a] block mb-1">
                                     Select exact date & time orders should re-enable:
                                   </label>
                                   <input
@@ -438,7 +431,7 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                                         }
                                       }
                                     }}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-md py-1.5 px-3 text-[12px] text-gray-800 outline-none focus:border-gray-400 focus:bg-white"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-[8px] py-1.5 px-3 text-[12px] text-[#242424] outline-none focus:border-gray-300 focus:bg-white"
                                   />
                                 </div>
                               )}
@@ -446,19 +439,18 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
 
                             {/* Customer Announcement Notice Input */}
                             <div className="space-y-1.5">
-                              <label className="text-[12px] font-medium text-[#242424] flex items-center gap-1.5">
-                                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                                Customer Announcement / Notice (Optional)
+                              <label className="text-[12px] font-medium text-[#242424]">
+                                Customer Announcement Notice (Optional)
                               </label>
                               <input
                                 type="text"
                                 value={settings.orders_disabled_reason || ''}
                                 onChange={(e) => handleChange('', 'orders_disabled_reason', e.target.value)}
-                                placeholder="e.g. Taking a quick break for inventory restocking. Orders unlock shortly!"
-                                className="w-full bg-white border border-gray-200 rounded-[10px] py-2 px-3 text-[12px] focus:ring-1 focus:ring-gray-300 focus:border-gray-300 outline-none transition-all placeholder:text-gray-400"
+                                placeholder="e.g. Taking a short break for restocking. Checkout will reopen shortly!"
+                                className="w-full bg-gray-50 border-transparent rounded-[10px] py-[8px] px-4 text-[13px] focus:bg-white focus:ring-1 focus:ring-gray-200 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400"
                               />
-                              <p className="text-[10.5px] text-gray-400">
-                                This message will be displayed prominently alongside the live timer countdown on the product page.
+                              <p className="text-[11px] text-[#71717a]">
+                                Displayed to customers inside the storefront order notice popup alongside the live timer.
                               </p>
                             </div>
                           </motion.div>

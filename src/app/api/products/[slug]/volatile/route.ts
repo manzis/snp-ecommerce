@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import { getStoreSettingsAction } from '@/app/actions/settingsActions';
+import { getLiveStoreSettingsAction } from '@/app/actions/settingsActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,14 +14,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
     }
 
-    // 1. Fetch Product Price & Stock and Store Settings in parallel
+    // 1. Fetch Product Price & Stock and Store Settings in parallel (Direct live DB queries)
     const [productRes, settingsRes] = await Promise.all([
       supabase
         .from('products')
         .select('id, original_price, discounted_price, stock_status')
         .eq('slug', slug)
         .single(),
-      getStoreSettingsAction(),
+      getLiveStoreSettingsAction(),
     ]);
 
     const product = productRes.data;
@@ -50,6 +51,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const storeSettings = settingsRes?.data;
+    const rawOrdersDisabled = storeSettings?.orders_disabled === true;
+    const ordersDisabledUntil = storeSettings?.orders_disabled_until || null;
+    const ordersDisabledReason = storeSettings?.orders_disabled_reason || '';
+
+    const isExpired = ordersDisabledUntil
+      ? !isNaN(new Date(ordersDisabledUntil).getTime()) && Date.now() >= new Date(ordersDisabledUntil).getTime()
+      : false;
+    const ordersDisabled = rawOrdersDisabled && !isExpired;
+
+    if (rawOrdersDisabled && isExpired) {
+      try {
+        revalidateTag('settings', 'max');
+      } catch {}
+    }
 
     return NextResponse.json({
       success: true,
@@ -59,9 +74,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         stock_status: product.stock_status,
         activeSale: activeSale,
         storeSettings: {
-          orders_disabled: storeSettings?.orders_disabled === true,
-          orders_disabled_until: storeSettings?.orders_disabled_until || null,
-          orders_disabled_reason: storeSettings?.orders_disabled_reason || '',
+          orders_disabled: ordersDisabled,
+          orders_disabled_until: isExpired ? null : ordersDisabledUntil,
+          orders_disabled_reason: ordersDisabledReason,
         },
         server_time: Date.now(),
       }
