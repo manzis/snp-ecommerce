@@ -17,6 +17,7 @@ import {
 import { getExpectedDeliveryDetails } from '@/lib/deliveryHelper';
 import { fetchExpoExpressUpdate } from '@/services/expoExpressService';
 import { fetchKourtierUpdate } from '@/services/kourtierService';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
 
 export async function checkAndSyncKourtierStatus(order: any, supabase: any) {
   if (!order || !order.id || !order.tracking_number) return;
@@ -321,7 +322,7 @@ const inFlightOrderPromises = new Map<string, Promise<{ success: boolean; orderI
 /**
  * Server action to place an order
  */
-export async function placeOrderAction(orderData: OrderData, items: any[]) {
+export async function placeOrderAction(orderData: OrderData, items: any[]): Promise<{ success: boolean; orderId?: string; message?: string; isDuplicate?: boolean }> {
   const supabase = await createClient();
   
   // 1. Verify Authentication
@@ -333,6 +334,15 @@ export async function placeOrderAction(orderData: OrderData, items: any[]) {
   // Ensure user_id matches
   if (orderData.user_id !== user.id && process.env.NODE_ENV !== 'test') {
     return { success: false, message: 'User ID mismatch.' };
+  }
+
+  // 1.5 Check if store has disabled order placement
+  const settingsRes = await getStoreSettingsAction();
+  if (settingsRes?.data?.orders_disabled) {
+    return {
+      success: false,
+      message: settingsRes.data.orders_disabled_reason || 'Orders are temporarily disabled. Please try again later.'
+    };
   }
 
   // Build a unique deduplication key for this checkout request

@@ -14,18 +14,64 @@ import { useProductSelectionStore } from '@/store/productSelectionStore';
 import { getCartItemId } from '@/services/cartService';
 
 interface ProductOptionsProps {
-
   product: Product;
   sizes: ProductSize[];
   flavours: ProductFlavour[];
   seller: Seller | null;
   ordersDisabled?: boolean;
+  ordersDisabledUntil?: string | null;
+  ordersDisabledReason?: string;
 }
 
-const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavours, seller, ordersDisabled = false }) => {
+const ProductOptions: React.FC<ProductOptionsProps> = ({
+  product,
+  sizes,
+  flavours,
+  seller,
+  ordersDisabled = false,
+  ordersDisabledUntil,
+  ordersDisabledReason,
+}) => {
   const [isInCart, setIsInCart] = useState(false);
+  const [isOrdersDisabled, setIsOrdersDisabled] = useState(ordersDisabled);
+  const [countdownText, setCountdownText] = useState<string | null>(null);
   const { showToast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    setIsOrdersDisabled(ordersDisabled);
+  }, [ordersDisabled]);
+
+  useEffect(() => {
+    if (!ordersDisabled || !ordersDisabledUntil) {
+      setCountdownText(null);
+      return;
+    }
+
+    const targetTime = new Date(ordersDisabledUntil).getTime();
+    if (isNaN(targetTime)) return;
+
+    const tick = () => {
+      const diff = targetTime - Date.now();
+      if (diff <= 0) {
+        setIsOrdersDisabled(false);
+        setCountdownText(null);
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      const pad = (n: number) => String(n).padStart(2, '0');
+
+      setCountdownText(`${pad(hours)}h : ${pad(minutes)}m : ${pad(seconds)}s`);
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [ordersDisabled, ordersDisabledUntil]);
 
   const {
     selectedSize,
@@ -313,23 +359,41 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
       <FlavourSelection flavours={filteredFlavours} baseImage={product.images?.[0]} />
       <SizeSelection sizes={mappedSizes} />
       {/* Inline CTA (Mobile + Desktop) */}
-      <div id="inline-cta-container" className="flex w-full flex-row gap-[12px] lg:gap-[16px] mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={product.stock_status === 'out_of_stock' || ordersDisabled}
-          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || ordersDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
-        >
-          {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
-        </button>
-        <button
-          type="button"
-          onClick={handleDesktopBuyNow}
-          disabled={product.stock_status === 'out_of_stock' || ordersDisabled}
-          className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || ordersDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
-        >
-          {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
-        </button>
+      <div id="inline-cta-container" className="flex w-full flex-col gap-2 mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
+        {isOrdersDisabled && countdownText && (
+          <div className="w-full flex items-center justify-between py-2 px-3.5 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200/80 rounded-[10px] text-red-800">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+              </span>
+              <span className="font-rajdhani font-semibold text-[13px] uppercase tracking-wide">
+                Orders unlock in:
+              </span>
+            </div>
+            <span className="font-rajdhani font-bold text-[15px] tracking-wider text-red-600 bg-white/80 px-2 py-0.5 rounded border border-red-200/60 tabular-nums">
+              {countdownText}
+            </span>
+          </div>
+        )}
+        <div className="flex w-full flex-row gap-[12px] lg:gap-[16px]">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={product.stock_status === 'out_of_stock' || isOrdersDisabled}
+            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || isOrdersDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
+          >
+            {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
+          </button>
+          <button
+            type="button"
+            onClick={handleDesktopBuyNow}
+            disabled={product.stock_status === 'out_of_stock' || isOrdersDisabled}
+            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || isOrdersDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
+          >
+            {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
+          </button>
+        </div>
       </div>
 
       <OfferCard />
@@ -338,6 +402,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({ product, sizes, flavour
         <BundleDealCard
           mainProduct={product}
           currentProductImage={flavours.find(f => f.id === selectedFlavorId)?.image_url || product.images?.[0]}
+          ordersDisabled={isOrdersDisabled}
         />
       )}
 

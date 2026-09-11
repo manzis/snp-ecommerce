@@ -107,6 +107,8 @@ const DEFAULT_STORE_SETTINGS = {
   maintenance_message: "The store is currently not available!",
   mail_notifications: true,
   orders_disabled: false,
+  orders_disabled_until: null as string | null,
+  orders_disabled_reason: "",
   payment_methods: {
     cod: true,
     cod_fee: 23,
@@ -151,6 +153,25 @@ export async function getStoreSettingsAction() {
         ...((data || {}).shipping || {})
       }
     };
+
+    // Auto-enable logic: If orders are disabled with a timer and the timer has expired, auto-enable
+    if (merged.orders_disabled && merged.orders_disabled_until) {
+      const expiryTime = new Date(merged.orders_disabled_until).getTime();
+      if (!isNaN(expiryTime) && Date.now() >= expiryTime) {
+        merged.orders_disabled = false;
+        merged.orders_disabled_until = null;
+
+        // Asynchronously persist the auto-enabled state in database and bust cache
+        updateSiteSetting('store_settings', {
+          ...merged,
+          orders_disabled: false,
+          orders_disabled_until: null,
+        }).catch((err) => {
+          console.error('[settingsActions] Failed to persist auto-enabled order status:', err);
+        });
+      }
+    }
+
     return { success: true, data: merged };
   } catch (error: any) {
     return { success: false, message: error.message };
@@ -168,6 +189,7 @@ export async function updateStoreSettingsAction(newSettings: any) {
     if (success) {
       revalidatePath('/', 'layout'); // Revalidate root layout for maintenance mode
       revalidatePath('/admin/settings');
+      revalidatePath('/product/[slug]', 'page');
       return { success: true, data: merged, message: 'Store settings updated successfully.' };
     }
     

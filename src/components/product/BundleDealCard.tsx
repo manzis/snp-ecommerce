@@ -17,6 +17,7 @@ import { getCartItemId, CartItemType } from '@/services/cartService';
 interface BundleDealCardProps {
   mainProduct?: Product;
   currentProductImage?: string;
+  ordersDisabled?: boolean;
 }
 
 interface VariantInfo {
@@ -55,7 +56,7 @@ const SavingsBadge = ({ text, type = 'saved' }: { text: string, type?: 'saved' |
   );
 };
 
-const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentProductImage }) => {
+const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentProductImage, ordersDisabled = false }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pendingBulkQty, setPendingBulkQty] = useState<'buy2' | 'buy3' | null>(null);
@@ -381,13 +382,13 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
 
                 <button
                   onClick={() => handleAddBundleToCart('interactive')}
-                  disabled={loadingBundle !== null}
-                  className={`w-full h-[52px] rounded-[14px] border border-[#E8E8E8] flex items-center justify-center gap-2 group transition-all active:scale-[0.98] mt-2 overflow-hidden relative ${loadingBundle === 'interactive' ? 'bg-[#f0fff4] border-[#318126]' : 'bg-gradient-to-r from-white via-white to-[#f0fff4]/50 hover:border-[#318126]'}`}
+                  disabled={loadingBundle !== null || ordersDisabled}
+                  className={`w-full h-[52px] rounded-[14px] border border-[#E8E8E8] flex items-center justify-center gap-2 group transition-all active:scale-[0.98] mt-2 overflow-hidden relative ${loadingBundle === 'interactive' ? 'bg-[#f0fff4] border-[#318126]' : ordersDisabled ? 'bg-gray-100 opacity-60 cursor-not-allowed border-gray-200' : 'bg-gradient-to-r from-white via-white to-[#f0fff4]/50 hover:border-[#318126]'}`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shine-once" />
                   <CartIcon className={`w-5 h-5 transition-colors ${loadingBundle === 'interactive' ? 'text-[#318126]' : 'text-[#4d4d4d]'}`} />
                   <span className={`text-[15px] font-bold transition-colors ${loadingBundle === 'interactive' ? 'text-[#318126]' : 'text-[#4d4d4d]'}`}>
-                    {loadingBundle === 'interactive' ? 'Bundle Added!' : 'Add Bundle to Cart'}
+                    {loadingBundle === 'interactive' ? 'Bundle Added!' : ordersDisabled ? 'Orders Temporarily Paused' : 'Add Bundle to Cart'}
                   </span>
                 </button>
               </div>
@@ -414,8 +415,8 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       </div>
                       <button
                         onClick={() => handleAddBundleToCart('buy2')}
-                        disabled={loadingBundle !== null}
-                        className={`h-9 px-4 rounded-lg font-bold text-[12px] transition-all active:scale-95 ${loadingBundle === 'buy2' ? 'bg-[#318126] text-white' : 'bg-[#242424] text-white hover:bg-[#318126]'}`}
+                        disabled={loadingBundle !== null || ordersDisabled}
+                        className={`h-9 px-4 rounded-lg font-bold text-[12px] transition-all active:scale-95 ${loadingBundle === 'buy2' ? 'bg-[#318126] text-white' : ordersDisabled ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#242424] text-white hover:bg-[#318126]'}`}
                       >
                         {loadingBundle === 'buy2' ? 'Added' : 'Add'}
                       </button>
@@ -441,8 +442,8 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                       </div>
                       <button
                         onClick={() => handleAddBundleToCart('buy3')}
-                        disabled={loadingBundle !== null}
-                        className={`h-9 px-4 rounded-lg font-bold text-[12px] transition-all active:scale-95 ${loadingBundle === 'buy3' ? 'bg-[#318126] text-white' : 'bg-[#242424] text-white hover:bg-[#318126]'}`}
+                        disabled={loadingBundle !== null || ordersDisabled}
+                        className={`h-9 px-4 rounded-lg font-bold text-[12px] transition-all active:scale-95 ${loadingBundle === 'buy3' ? 'bg-[#318126] text-white' : ordersDisabled ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#242424] text-white hover:bg-[#318126]'}`}
                       >
                         {loadingBundle === 'buy3' ? 'Added' : 'Add'}
                       </button>

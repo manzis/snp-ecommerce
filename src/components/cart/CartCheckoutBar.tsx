@@ -15,6 +15,7 @@ interface CartCheckoutBarProps {
   isStatic?: boolean;
   buttonText?: string;
   onInfoClick?: () => void;
+  disabled?: boolean;
 }
 
 const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
@@ -23,7 +24,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   onCheckout,
   isStatic = false,
   buttonText = "Checkout",
-  onInfoClick
+  onInfoClick,
+  disabled = false,
 }) => {
   // FIXED: Moved the hook call inside the component body
   const { openLogin } = useAuthModal();
@@ -121,11 +123,14 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
       <div className="flex flex-1 basis-0 h-full items-center justify-center bg-transparent px-[16px]">
         <button
           onClick={handleAction}
-          disabled={isNavigating || buttonText === 'Processing...'}
-          className={`w-full h-[56px] lg:h-[52px] flex items-center justify-center rounded-[10px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${buttonText === 'Processing...' || isNavigating
-            ? 'bg-[#3f9633] text-white'
-            : 'bg-[#ffe900] active:bg-[#f5e000] text-[#1e1e1e]'
-            }`}
+          disabled={isNavigating || buttonText === 'Processing...' || disabled}
+          className={`w-full h-[56px] lg:h-[52px] flex items-center justify-center rounded-[10px] transition-all outline-none border-none shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] ${
+            disabled
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-75'
+              : buttonText === 'Processing...' || isNavigating
+              ? 'bg-[#3f9633] text-white'
+              : 'bg-[#ffe900] active:bg-[#f5e000] text-[#1e1e1e]'
+          }`}
         >
           {isNavigating ? (
             <div className="flex items-center gap-2">
@@ -135,8 +140,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
               </span>
             </div>
           ) : (
-            <span className={`uppercase font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] whitespace-nowrap ${buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
-              {buttonText}
+            <span className={`uppercase font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] whitespace-nowrap ${disabled ? 'text-gray-500' : buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
+              {disabled ? 'Orders Paused' : buttonText}
             </span>
           )}
         </button>

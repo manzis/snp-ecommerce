@@ -8,14 +8,63 @@ import { useVolatileProductData } from '@/hooks/useVolatileProductData';
 /**
  * ProductCTA - Final Stable Version
  */
-const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = false, ordersDisabled = false }: { productSlug?: string, stockStatus?: string, isPreview?: boolean, ordersDisabled?: boolean }) => {
+const ProductCTA = ({
+  productSlug,
+  stockStatus: propsStockStatus,
+  isPreview = false,
+  ordersDisabled = false,
+  ordersDisabledUntil,
+}: {
+  productSlug?: string;
+  stockStatus?: string;
+  isPreview?: boolean;
+  ordersDisabled?: boolean;
+  ordersDisabledUntil?: string | null;
+}) => {
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isOrdersDisabled, setIsOrdersDisabled] = useState(ordersDisabled);
+  const [countdownText, setCountdownText] = useState<string | null>(null);
   const router = useRouter();
   const { volatileData } = useVolatileProductData(productSlug || '');
   
   const stockStatus = volatileData ? volatileData.stock_status : propsStockStatus;
   const isOutOfStock = stockStatus === 'out_of_stock';
+
+  useEffect(() => {
+    setIsOrdersDisabled(ordersDisabled);
+  }, [ordersDisabled]);
+
+  useEffect(() => {
+    if (!ordersDisabled || !ordersDisabledUntil) {
+      setCountdownText(null);
+      return;
+    }
+
+    const targetTime = new Date(ordersDisabledUntil).getTime();
+    if (isNaN(targetTime)) return;
+
+    const tick = () => {
+      const diff = targetTime - Date.now();
+      if (diff <= 0) {
+        setIsOrdersDisabled(false);
+        setCountdownText(null);
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      const pad = (n: number) => String(n).padStart(2, '0');
+
+      setCountdownText(`${pad(hours)}h : ${pad(minutes)}m : ${pad(seconds)}s`);
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [ordersDisabled, ordersDisabledUntil]);
 
   useEffect(() => {
     if (isPreview) {
@@ -133,6 +182,15 @@ const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = fa
         opacity: isVisible ? 1 : 0,
       }}
     >
+      {isOrdersDisabled && countdownText && (
+        <div className="w-full bg-red-600 text-white text-[11px] font-rajdhani font-semibold px-4 py-1 flex items-center justify-between tracking-wide shadow-md">
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+            Orders unlock live in:
+          </span>
+          <span className="font-bold tracking-wider tabular-nums">{countdownText}</span>
+        </div>
+      )}
       <footer
         className="pointer-events-auto relative flex w-full items-center justify-between px-[16px] gap-[12px] bg-[#ffffff] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] border-t border-[#f1f5f9]"
         style={{
@@ -145,8 +203,8 @@ const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = fa
           type="button"
           onClick={handleAddToCart}
           onPointerUp={blurButton}
-          disabled={isOutOfStock || ordersDisabled}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || ordersDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
+          disabled={isOutOfStock || isOrdersDisabled}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || isOrdersDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
         >
           <span className="uppercase relative z-[1] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#4d4d4d] whitespace-nowrap">
             {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
@@ -158,8 +216,8 @@ const ProductCTA = ({ productSlug, stockStatus: propsStockStatus, isPreview = fa
           type="button"
           onClick={handleBuyNow}
           onPointerUp={blurButton}
-          disabled={isOutOfStock || ordersDisabled}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || ordersDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
+          disabled={isOutOfStock || isOrdersDisabled}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || isOrdersDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
         >
           <span className="uppercase relative z-[3] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#1e1e1e] whitespace-nowrap">
             {isOutOfStock ? "Unavailable" : "Buy Now"}

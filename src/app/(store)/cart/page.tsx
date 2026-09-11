@@ -20,6 +20,8 @@ import AddressSelector from '@/components/checkout/AddressSelector';
 import OutOfStockModal from '@/components/cart/OutOfStockModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/components/ui/ToastProvider';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
+import OrderDisabledBanner from '@/components/product/OrderDisabledBanner';
 
 export default function CartPage() {
 
@@ -39,6 +41,21 @@ export default function CartPage() {
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
   const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
   const [isOutOfStockModalOpen, setIsOutOfStockModalOpen] = useState(false);
+
+  // Order disable state
+  const [ordersDisabled, setOrdersDisabled] = useState(false);
+  const [ordersDisabledUntil, setOrdersDisabledUntil] = useState<string | null>(null);
+  const [ordersDisabledReason, setOrdersDisabledReason] = useState('');
+
+  useEffect(() => {
+    getStoreSettingsAction().then((res) => {
+      if (res?.data) {
+        setOrdersDisabled(res.data.orders_disabled === true);
+        setOrdersDisabledUntil(res.data.orders_disabled_until || null);
+        setOrdersDisabledReason(res.data.orders_disabled_reason || '');
+      }
+    });
+  }, []);
 
   useEffect(() => {
     reverifyCartPrices(true);
@@ -106,6 +123,10 @@ export default function CartPage() {
   }, [items]);
 
   const handleCheckout = () => {
+    if (ordersDisabled) {
+      showToast(ordersDisabledReason || 'Orders are temporarily paused. Please wait for the countdown to complete.', 'error');
+      return;
+    }
     if (outOfStockItems.length > 0) {
       setIsOutOfStockModalOpen(true);
       return;
@@ -241,6 +262,7 @@ export default function CartPage() {
                   totalAmount={`NPR ${finalTotal.toLocaleString()}`}
                   mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
                   onCheckout={handleCheckout}
+                  disabled={ordersDisabled}
                 />
               </div>
             </div>
@@ -257,6 +279,16 @@ export default function CartPage() {
           mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
           buttonText="Checkout"
           onCheckout={handleCheckout}
+          disabled={ordersDisabled}
+        />
+      )}
+
+      {ordersDisabled && (
+        <OrderDisabledBanner
+          ordersDisabled={ordersDisabled}
+          ordersDisabledUntil={ordersDisabledUntil}
+          ordersDisabledReason={ordersDisabledReason}
+          onUnlock={() => setOrdersDisabled(false)}
         />
       )}
 

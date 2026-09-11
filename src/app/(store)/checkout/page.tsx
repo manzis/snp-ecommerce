@@ -22,6 +22,7 @@ import { recordAbandonedCheckoutAction } from '@/app/actions/marketingActions';
 import { useUIStore } from '@/store/uiStore';
 import PickupCodWarningModal from '@/components/checkout/PickupCodWarningModal';
 import OutOfStockModal from '@/components/cart/OutOfStockModal';
+import OrderDisabledBanner from '@/components/product/OrderDisabledBanner';
 
 export default function CheckoutPage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -38,6 +39,29 @@ export default function CheckoutPage() {
     pickupCost: 100,
     freeThreshold: 5000,
   });
+
+  // ORDER DISABLED STATE
+  const [ordersDisabled, setOrdersDisabled] = useState(false);
+  const [ordersDisabledUntil, setOrdersDisabledUntil] = useState<string | null>(null);
+  const [ordersDisabledReason, setOrdersDisabledReason] = useState('');
+
+  useEffect(() => {
+    getStoreSettingsAction().then((res) => {
+      if (res?.data) {
+        setOrdersDisabled(res.data.orders_disabled === true);
+        setOrdersDisabledUntil(res.data.orders_disabled_until || null);
+        setOrdersDisabledReason(res.data.orders_disabled_reason || '');
+        if (res.data.shipping) {
+          setStoreSettings({
+            codFee: res.data.payment_methods?.cod_fee ?? 23,
+            homeDeliveryCost: res.data.shipping?.standard_cost ?? 150,
+            pickupCost: res.data.shipping?.pickup_cost ?? 100,
+            freeThreshold: res.data.shipping?.free_threshold ?? 5000,
+          });
+        }
+      }
+    });
+  }, []);
 
   // 1. STATE MANAGEMENT
   const activeStep = useCheckoutStore((state) => state.activeStep);
@@ -200,6 +224,11 @@ export default function CheckoutPage() {
 
   // SMART NEXT STEP DRIVER
   const handlePlaceOrder = async (overrideQrData?: { qrFile?: File | null; qrRemarks?: string }, skipCodConfirm: boolean = false) => {
+    if (ordersDisabled) {
+      alert(ordersDisabledReason || "Orders are currently disabled. Please wait until the countdown timer expires.");
+      return;
+    }
+
     if (isSubmittingRef.current || isProcessing) {
       console.warn("[CheckoutPage] Order placement already in progress. Ignoring duplicate trigger.");
       return;
@@ -599,6 +628,7 @@ export default function CheckoutPage() {
                   buttonText={mainButtonText}
                   onCheckout={handlePlaceOrder}
                   onInfoClick={handleInfoClick}
+                  disabled={ordersDisabled}
                 />
               </div>
             </div>
@@ -645,7 +675,17 @@ export default function CheckoutPage() {
           buttonText={mainButtonText}
           onCheckout={handlePlaceOrder}
           onInfoClick={handleInfoClick}
+          disabled={ordersDisabled}
         />
+
+        {ordersDisabled && (
+          <OrderDisabledBanner
+            ordersDisabled={ordersDisabled}
+            ordersDisabledUntil={ordersDisabledUntil}
+            ordersDisabledReason={ordersDisabledReason}
+            onUnlock={() => setOrdersDisabled(false)}
+          />
+        )}
       </div>
     </>
   );
