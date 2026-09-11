@@ -509,7 +509,7 @@ export default function OrderDetailsModal({
                                 type="button"
                                 disabled={isSyncingTracking}
                                 onClick={handleManualTrackingSync}
-                                className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium text-[#242424] bg-zinc-100 hover:bg-zinc-200 border border-gray-200/80 rounded-[6px] transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-2xs"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-medium text-[#242424] bg-white hover:bg-zinc-50 border border-gray-200 rounded-[6px] transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-2xs"
                                 title="Fetch latest API tracking updates and status"
                             >
                                 <svg
