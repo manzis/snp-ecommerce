@@ -143,7 +143,10 @@ export default function UpdatePaymentStatusModal({ isOpen, onClose, order, onCon
                         className="flex-[2] md:flex-none md:px-12 py-3.5 bg-[#242424] text-white rounded-2xl text-[13px] font-medium hover:bg-black transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-black/10"
                     >
                         {loading ? (
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Updating...</span>
+                            </>
                         ) : (
                             <span>Confirm Change</span>
                         )}

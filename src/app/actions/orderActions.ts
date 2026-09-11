@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { fetchUserOrders, createOrder, OrderData, mapToOrderProps } from '@/services/orderService';
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import {
   sendOrderConfirmationEmail,
@@ -726,14 +727,18 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
     if (error) throw error;
 
     if (data && data.length > 0) {
-      // Run internal checks in parallel
-      // Note: We skip checkAndSyncExpoExpressStatus here to prevent 429 Too Many Requests errors.
-      // Tracking sync is handled by cron jobs and individual order tracking endpoints.
-      await Promise.allSettled(
-        data.map(async (order) => {
-          await checkAndPersistDelayedStatus(order, adminClient);
-        })
-      );
+      // Run internal delayed status checks in background without blocking orders fetch
+      after(async () => {
+        try {
+          await Promise.allSettled(
+            data.map(async (order) => {
+              await checkAndPersistDelayedStatus(order, adminClient);
+            })
+          );
+        } catch (delayErr) {
+          console.error('[Orders] Background delayed status check failed:', delayErr);
+        }
+      });
     }
 
     return { 
@@ -810,43 +815,46 @@ export async function updateOrderStatusAdminAction(
           .from('orders')
           .update(updateData)
           .eq('id', orderId);
-
-        // Instantly trigger live courier tracking sync so database updates immediately
-        const { data: updatedOrder } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', orderId)
-          .single();
-
-        if (updatedOrder) {
-          await checkAndSyncExpoExpressStatus(updatedOrder, supabase);
-          await checkAndSyncKourtierStatus(updatedOrder, supabase);
-        }
       }
     }
 
-    revalidatePath('/admin/orders');
     revalidatePath('/account/orders');
 
-    // Await status-specific email (Production fix)
-    const normalizedStatus = newStatus.toLowerCase();
-    if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit') {
-      await sendOrderShippedEmail(orderId, message).catch(err =>
-        console.error('[Email] Shipped email failed:', err)
-      );
-    } else if (normalizedStatus === 'out_for_delivery') {
-      await sendOutForDeliveryEmail(orderId).catch(err =>
-        console.error('[Email] OFD email failed:', err)
-      );
-    } else if (normalizedStatus === 'failed') {
-      await sendDeliveryFailedEmail(orderId, message).catch(err =>
-        console.error('[Email] Failed delivery email failed:', err)
-      );
-    } else if (normalizedStatus === 'cancelled') {
-      await sendOrderCancelledEmail(orderId, message).catch(err =>
-        console.error('[Email] Admin cancellation email failed:', err)
-      );
-    }
+    // Run courier tracking sync and email dispatching in background without holding up the admin update
+    after(async () => {
+      if (trackingNumber || carrierName) {
+        try {
+          const adminSupabase = getSupabaseAdmin() || supabase;
+          const { data: updatedOrder } = await adminSupabase
+            .from('orders')
+            .select('*')
+            .eq('id', orderId)
+            .single();
+
+          if (updatedOrder) {
+            await checkAndSyncExpoExpressStatus(updatedOrder, adminSupabase);
+            await checkAndSyncKourtierStatus(updatedOrder, adminSupabase);
+          }
+        } catch (syncErr) {
+          console.error('[Courier] Background tracking sync error:', syncErr);
+        }
+      }
+
+      try {
+        const normalizedStatus = newStatus.toLowerCase();
+        if (normalizedStatus === 'shipped' || normalizedStatus === 'in_transit') {
+          await sendOrderShippedEmail(orderId, message);
+        } else if (normalizedStatus === 'out_for_delivery') {
+          await sendOutForDeliveryEmail(orderId);
+        } else if (normalizedStatus === 'failed') {
+          await sendDeliveryFailedEmail(orderId, message);
+        } else if (normalizedStatus === 'cancelled') {
+          await sendOrderCancelledEmail(orderId, message);
+        }
+      } catch (emailErr) {
+        console.error('[Email] Background status email failed:', emailErr);
+      }
+    });
     
     return { success: true };
   } catch (error: any) {
@@ -887,15 +895,17 @@ export async function updatePaymentStatusAdminAction(orderId: string, paymentSta
       
     if (updateError) throw updateError;
 
-    // Wait 200ms to allow Supabase triggers or caching to settle
-    // Trigger customer email if payment is marked as paid
+    // Trigger customer email in background if payment is marked as paid
     if (paymentStatus.toLowerCase() === 'paid') {
-      sendCustomerPaymentConfirmedEmail(orderId).catch(err => 
-        console.error('[Email] Customer payment confirmation email failed:', err)
-      );
+      after(async () => {
+        try {
+          await sendCustomerPaymentConfirmedEmail(orderId);
+        } catch (err) {
+          console.error('[Email] Customer payment confirmation email failed:', err);
+        }
+      });
     }
 
-    revalidatePath('/admin/orders');
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: updatePaymentStatusAdminAction:', error);

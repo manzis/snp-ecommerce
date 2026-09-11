@@ -85,6 +85,34 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     hasEffectRun.current = true;
   }, [isHydrated, lastSeenAt, markAsSeen]);
 
+  // In-memory page cache for instant pagination & zero-latency back/forward navigation
+  const pageCacheRef = useRef<Map<string, { orders: OrderProps[]; totalCount: number }>>(new Map());
+
+  const prefetchNextPage = (
+    page: number,
+    limit: number,
+    search: string,
+    status: string,
+    hide: boolean,
+    mode: 'grid' | 'list'
+  ) => {
+    const nextPage = page + 1;
+    const nextKey = `${nextPage}_${limit}_${search}_${status}_${hide}_${mode}`;
+    if (pageCacheRef.current.has(nextKey)) return;
+
+    // Use a short delay so current page render is completely unblocked
+    setTimeout(async () => {
+      try {
+        const result = await fetchAllOrdersAdminAction(nextPage, limit, { search, status, hideCancelled: hide });
+        if (result && result.success && result.orders && result.orders.length > 0) {
+          pageCacheRef.current.set(nextKey, { orders: result.orders, totalCount: result.totalCount || 0 });
+        }
+      } catch (err) {
+        // Silent prefetch failure
+      }
+    }, 250);
+  };
+
   const loadOrders = async (
     page: number = currentPage,
     search: string = searchQuery,
@@ -93,13 +121,29 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     mode: 'grid' | 'list' = viewMode,
     showSkeleton: boolean = true
   ) => {
-    if (showSkeleton) setIsLoading(true);
     const limit = mode === 'list' ? 30 : 12;
+    const cacheKey = `${page}_${limit}_${search}_${status}_${hide}_${mode}`;
+
+    // Instant load from cache if available
+    if (pageCacheRef.current.has(cacheKey)) {
+      const cached = pageCacheRef.current.get(cacheKey)!;
+      setOrders(cached.orders);
+      setTotalCount(cached.totalCount);
+      setIsLoading(false);
+      prefetchNextPage(page, limit, search, status, hide, mode);
+      return;
+    }
+
+    if (showSkeleton) setIsLoading(true);
     try {
       const result = await fetchAllOrdersAdminAction(page, limit, { search, status, hideCancelled: hide });
       if (result && result.success) {
-        setOrders(result.orders || []);
-        setTotalCount(result.totalCount || 0);
+        const fetchedOrders = result.orders || [];
+        const count = result.totalCount || 0;
+        setOrders(fetchedOrders);
+        setTotalCount(count);
+        pageCacheRef.current.set(cacheKey, { orders: fetchedOrders, totalCount: count });
+        prefetchNextPage(page, limit, search, status, hide, mode);
       } else {
         showAdminToast(result?.message || 'Failed to fetch orders', 'error');
       }
@@ -115,8 +159,11 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-      // If we have SSR data, and we are on page 1 with default filters in grid view, skip initial fetch
+      // If we have SSR data, and we are on page 1 with default filters in grid view, populate cache and skip initial fetch
       if (initialOrdersData?.success && currentPage === 1 && searchQuery === '' && statusFilter === 'all' && !hideCancelled && viewMode === 'grid') {
+        const initKey = `1_12___all_false_grid`;
+        pageCacheRef.current.set(initKey, { orders: initialOrdersData.orders || [], totalCount: initialOrdersData.totalCount || 0 });
+        prefetchNextPage(1, 12, '', 'all', false, 'grid');
         setIsLoading(false);
         return;
       }
@@ -141,6 +188,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         .then((res) => {
           if (res?.updatedCount && res.updatedCount > 0) {
             // Silently refresh the list without triggering isLoading=true
+            pageCacheRef.current.clear();
             loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
           }
         })
@@ -164,94 +212,126 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   };
 
   const handleUpdateStatusTrigger = (order: any) => {
-    setIsDetailsModalOpen(false);
+    // Keep isDetailsModalOpen so AdminModal is layered gracefully over AdminSheet
     setOrderToUpdate(order);
     setIsStatusModalOpen(true);
   };
 
   const handleUpdatePaymentTrigger = (order: any) => {
-    setIsDetailsModalOpen(false);
+    // Keep isDetailsModalOpen so AdminModal is layered gracefully over AdminSheet
     setOrderToUpdate(order);
     setIsPaymentModalOpen(true);
   };
 
   const handleCancelOrder = async (order: any, reason: string) => {
     try {
-      // Optimistically update status
-      const cancelledStatus = 'CANCELLED' as OrderStatus;
-      setOrders(prev => prev.map(o =>
-        o.id === order.id ? { ...o, status: cancelledStatus } : o
-      ));
-      if (selectedOrderForDetails?.id === order.id) {
-        setSelectedOrderForDetails((prev: any) => ({ ...prev, status: cancelledStatus }));
-      }
-
       const res = await updateOrderStatusAdminAction(order.id, 'cancelled', reason);
       if (res.success) {
+        const cancelledStatus = 'CANCELLED' as OrderStatus;
+        setOrders(prev => prev.map(o =>
+          o.id === order.id ? { ...o, status: cancelledStatus } : o
+        ));
+        if (selectedOrderForDetails?.id === order.id) {
+          setSelectedOrderForDetails((prev: any) => ({
+            ...prev,
+            status: cancelledStatus,
+            statusUpdates: [
+              ...(prev?.statusUpdates || []),
+              {
+                status: 'cancelled',
+                message: reason || 'Order has been cancelled.',
+                date: new Date().toISOString()
+              }
+            ]
+          }));
+        }
+        pageCacheRef.current.clear();
         showAdminToast(`Order #${order.shortId} cancelled successfully.`, 'success');
         setIsDetailsModalOpen(false);
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
       } else {
         showAdminToast(res.message || 'Failed to cancel order.', 'error');
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
       }
     } catch (error) {
       showAdminToast('An error occurred while cancelling order.', 'error');
-      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
     }
   };
 
   const handleConfirmStatusUpdate = async (orderId: string, status: string, message: string, trackingNumber?: string, carrierName?: string) => {
     try {
-      const updatedStatus = status.toUpperCase() as OrderStatus;
-      // Optimistically update order state immediately without showing full page skeleton
-      setOrders(prev => prev.map(o =>
-        o.id === orderId ? { ...o, status: updatedStatus, trackingNumber: trackingNumber || o.trackingNumber, carrierName: carrierName || o.carrierName } : o
-      ));
-      if (selectedOrderForDetails?.id === orderId) {
-        setSelectedOrderForDetails((prev: any) => ({ ...prev, status: updatedStatus, trackingNumber: trackingNumber || prev.trackingNumber, carrierName: carrierName || prev.carrierName }));
-      }
-
-      setIsStatusModalOpen(false);
-      setOrderToUpdate(null);
-
       const res = await updateOrderStatusAdminAction(orderId, status, message, trackingNumber, carrierName);
       if (res.success) {
+        const updatedStatus = status.toUpperCase() as OrderStatus;
+
+        // 1. Instantly update table/grid row in state
+        setOrders(prev => prev.map(o =>
+          o.id === orderId ? { ...o, status: updatedStatus, trackingNumber: trackingNumber || o.trackingNumber, carrierName: carrierName || o.carrierName } : o
+        ));
+
+        // 2. Instantly update drawer details and append tracking log
+        if (selectedOrderForDetails?.id === orderId) {
+          setSelectedOrderForDetails((prev: any) => {
+            const currentUpdates = prev?.statusUpdates || [];
+            const newLog = {
+              status: status.toLowerCase(),
+              message: message || `Order status updated to ${status}.`,
+              date: new Date().toISOString()
+            };
+            return {
+              ...prev,
+              status: updatedStatus,
+              trackingNumber: trackingNumber || prev.trackingNumber,
+              carrierName: carrierName || prev.carrierName,
+              statusUpdates: [...currentUpdates, newLog]
+            };
+          });
+        }
+
+        // 3. Invalidate page cache so next fresh navigation fetches latest
+        pageCacheRef.current.clear();
+
+        // 4. Show success toast and close update modal
         showAdminToast(`Order status updated to ${status.toUpperCase()}.`, 'success');
-        // Silent reload in background to keep data consistent
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
+        setIsStatusModalOpen(false);
+        setOrderToUpdate(null);
       } else {
         showAdminToast(res.message || 'Failed to update order.', 'error');
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+        throw new Error(res.message || 'Failed to update order.');
       }
-    } catch (err) {
-      showAdminToast('An error occurred during update.', 'error');
-      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+    } catch (err: any) {
+      if (!err?.message?.includes('Failed to update order')) {
+        showAdminToast('An error occurred during update.', 'error');
+      }
+      throw err;
     }
   };
 
   const handleConfirmPaymentUpdate = async (orderId: string, paymentStatus: string, amountPaid?: number) => {
     try {
-      setOrders(prev => prev.map(o =>
-        o.id === orderId ? { ...o, paymentStatus: paymentStatus, amountPaid: amountPaid } : o
-      ));
-      if (selectedOrderForDetails?.id === orderId) {
-        setSelectedOrderForDetails((prev: any) => ({ ...prev, paymentStatus: paymentStatus, amountPaid: amountPaid }));
-      }
-      setIsPaymentModalOpen(false);
-      setOrderToUpdate(null);
-
       const res = await updatePaymentStatusAdminAction(orderId, paymentStatus, amountPaid);
       if (res.success) {
+        // 1. Instantly update list state
+        setOrders(prev => prev.map(o =>
+          o.id === orderId ? { ...o, paymentStatus: paymentStatus, amountPaid: amountPaid } : o
+        ));
+
+        // 2. Instantly update drawer details
+        if (selectedOrderForDetails?.id === orderId) {
+          setSelectedOrderForDetails((prev: any) => ({ ...prev, paymentStatus: paymentStatus, amountPaid: amountPaid }));
+        }
+
+        pageCacheRef.current.clear();
         showAdminToast(`Payment status updated to ${paymentStatus.toUpperCase()}.`, 'success');
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
+        setIsPaymentModalOpen(false);
+        setOrderToUpdate(null);
       } else {
         showAdminToast(res.message || 'Failed to update payment.', 'error');
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+        throw new Error(res.message || 'Failed to update payment.');
       }
-    } catch (err) {
-      showAdminToast('An error occurred during payment update.', 'error');
-      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+    } catch (err: any) {
+      if (!err?.message?.includes('Failed to update payment')) {
+        showAdminToast('An error occurred during payment update.', 'error');
+      }
+      throw err;
     }
   };
 
@@ -264,6 +344,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       const res = await deleteOrderAction(order.id);
 
       if (res.success) {
+        pageCacheRef.current.clear();
         showAdminToast(`Order #${order.shortId} deleted successfully.`, 'success');
       } else {
         setOrders(previousOrders);
@@ -289,6 +370,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         }
       }));
       
+      pageCacheRef.current.clear();
       if (successCount > 0) {
         showAdminToast(`${successCount} order(s) deleted successfully.`, 'success');
       }
@@ -305,6 +387,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     if (confirm(`Are you sure you want to reset the payment state for Order #${order.shortId}? This will clear the uploaded proof and allow the customer to submit a new one.`)) {
       const res = await resetPaymentAdminAction(order.id);
       if (res.success) {
+        pageCacheRef.current.clear();
         showAdminToast('Payment state reset successfully.', 'success');
         loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
       } else {
@@ -324,10 +407,14 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         onViewModeChange={setViewMode}
         searchPlaceholder="Search by ID or Name..."
         onSearch={(query) => {
+          pageCacheRef.current.clear();
           setSearchQuery(query);
           setCurrentPage(1);
         }}
-        onRefresh={() => loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true)}
+        onRefresh={() => {
+          pageCacheRef.current.clear();
+          loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+        }}
         refreshLoading={isLoading}
         currentPage={currentPage}
         totalPages={totalPages}
@@ -336,9 +423,11 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         filterDropdown={<OrderFilters status={statusFilter} setStatus={(s) => {
+          pageCacheRef.current.clear();
           setStatusFilter(s);
           setCurrentPage(1);
         }} hideCancelled={hideCancelled} setHideCancelled={(val) => {
+          pageCacheRef.current.clear();
           setHideCancelled(val);
           sessionStorage.setItem('admin_orders_hide_cancelled', String(val));
           setCurrentPage(1);

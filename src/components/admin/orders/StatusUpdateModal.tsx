@@ -126,7 +126,10 @@ export default function StatusUpdateModal({ isOpen, onClose, order, onConfirm }:
                 className="flex-1 px-4 py-3.5 bg-[#242424] text-white rounded-xl text-[13px] font-medium hover:bg-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-black/10"
             >
                 {loading ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Updating...</span>
+                    </>
                 ) : (
                     <span>Confirm Status</span>
                 )}
