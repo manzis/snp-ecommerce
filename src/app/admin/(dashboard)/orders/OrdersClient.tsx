@@ -430,6 +430,17 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     }
   };
 
+  const handleOrderUpdated = (updatedOrder: OrderProps) => {
+    setSelectedOrderForDetails(updatedOrder);
+    setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
+    pageCacheRef.current.forEach((val) => {
+      const idx = val.orders.findIndex(o => o.id === updatedOrder.id);
+      if (idx !== -1) {
+        val.orders[idx] = updatedOrder;
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
       {/* DynamicAdminNav is now in Layout */}
@@ -549,6 +560,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         onUpdatePaymentStatus={handleUpdatePaymentTrigger}
         onResetPayment={handleResetPayment}
         onCancelOrder={handleCancelOrder}
+        onOrderUpdated={handleOrderUpdated}
       />
 
       <StatusUpdateModal

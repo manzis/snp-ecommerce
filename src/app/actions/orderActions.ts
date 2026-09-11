@@ -1215,13 +1215,16 @@ export async function resendStatusEmailAction(orderId: string, status: string, m
 export async function syncExternalOrderTrackingAction(orderId: string) {
   try {
     const supabase = getSupabaseAdmin();
-    if (!supabase) return { success: false };
+    if (!supabase) return { success: false, message: 'Admin client unavailable' };
     const { data: order, error } = await supabase
       .from('orders')
       .select(`
         id, total_amount, mrp_amount, status, payment_method, created_at,
         status_updates, carrier_name, tracking_number,
         shipping_address, contact_details,
+        discount_amount, shipping_amount, discount_on_mrp, coupon_discount, 
+        bundle_discount, coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        payment_screenshot_url, payment_remarks, payment_attempted_at, updated_at,
         order_items (
           id, quantity, price, mrp, selected_size, selected_flavor,
           products (name, images, stock_status, brands (name))
@@ -1230,16 +1233,48 @@ export async function syncExternalOrderTrackingAction(orderId: string) {
       .eq('id', orderId)
       .single();
 
-    if (error || !order) return { success: false };
+    if (error || !order) return { success: false, message: 'Order not found' };
+
+    const initialStatus = order.status;
+    const initialCount = (order.status_updates || []).length;
 
     await checkAndPersistDelayedStatus(order, supabase);
     await checkAndSyncExpoExpressStatus(order, supabase);
     await checkAndSyncKourtierStatus(order, supabase);
-    
-    return { success: true };
-  } catch (err) {
+
+    // Fetch refreshed order to guarantee fresh DB state
+    const { data: updatedOrder } = await supabase
+      .from('orders')
+      .select(`
+        id, total_amount, mrp_amount, status, payment_method, created_at,
+        status_updates, carrier_name, tracking_number,
+        shipping_address, contact_details,
+        discount_amount, shipping_amount, discount_on_mrp, coupon_discount, 
+        bundle_discount, coupon_code, cod_fees, tax_amount, payment_status, amount_paid,
+        payment_screenshot_url, payment_remarks, payment_attempted_at, updated_at,
+        order_items (
+          id, quantity, price, mrp, selected_size, selected_flavor,
+          products (name, images, stock_status, brands (name))
+        )
+      `)
+      .eq('id', orderId)
+      .single();
+
+    const finalOrder = updatedOrder || order;
+    const mapped = mapToOrderProps(finalOrder);
+    const hasChanged = finalOrder.status !== initialStatus || (finalOrder.status_updates || []).length !== initialCount;
+
+    return { 
+      success: true, 
+      order: mapped, 
+      hasChanged,
+      message: hasChanged 
+        ? `Tracking updated! Status: ${mapped.status.toUpperCase()}`
+        : 'Tracking is already up to date.'
+    };
+  } catch (err: any) {
     console.error('syncExternalOrderTrackingAction Error:', err);
-    return { success: false };
+    return { success: false, message: err?.message || 'Tracking sync failed.' };
   }
 }
 

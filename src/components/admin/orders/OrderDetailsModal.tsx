@@ -26,6 +26,7 @@ interface OrderDetailsModalProps {
     onUpdatePaymentStatus?: (order: OrderProps) => void;
     onResetPayment?: (order: OrderProps) => void;
     onCancelOrder?: (order: OrderProps, reason: string) => void;
+    onOrderUpdated?: (order: OrderProps) => void;
 }
 
 // Timeline Rank Configuration
@@ -49,19 +50,55 @@ const MILESTONES = [
 export default function OrderDetailsModal({
     isOpen,
     onClose,
-    order,
+    order: propOrder,
     onUpdateStatus,
     onUpdatePaymentStatus,
     onResetPayment,
-    onCancelOrder
+    onCancelOrder,
+    onOrderUpdated
 }: OrderDetailsModalProps) {
     const { showAdminToast } = useAdminToast();
+    const [localOrder, setLocalOrder] = useState<OrderDetailsModalProps['order']>(propOrder);
+    const [isSyncingTracking, setIsSyncingTracking] = useState(false);
     const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set(['ORDERED']));
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState("Order Cancelled By the seller. This might be a technical default , Try Ordering it again!");
 
     const invoiceRef = React.useRef<HTMLDivElement>(null);
     const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+
+    // Keep local order updated when propOrder changes
+    React.useEffect(() => {
+        setLocalOrder(propOrder);
+    }, [propOrder]);
+
+    const order = localOrder || propOrder;
+
+    // Manual tracking sync handler
+    const handleManualTrackingSync = async () => {
+        if (!order?.id || isSyncingTracking) return;
+        setIsSyncingTracking(true);
+        try {
+            const res = await syncExternalOrderTrackingAction(order.id);
+            if (res.success && res.order) {
+                setLocalOrder(res.order as any);
+                onOrderUpdated?.(res.order);
+                showAdminToast(
+                    res.hasChanged
+                        ? `Tracking updated! Status: ${res.order.status.toUpperCase()}`
+                        : `Tracking is up to date (${res.order.carrierName || 'Courier'}).`,
+                    'success'
+                );
+            } else {
+                showAdminToast(res.message || 'Failed to sync tracking updates.', 'error');
+            }
+        } catch (err: any) {
+            console.error('Manual tracking sync error:', err);
+            showAdminToast('Failed to sync tracking updates.', 'error');
+        } finally {
+            setIsSyncingTracking(false);
+        }
+    };
 
     // Auto-expand the active milestone on mount or status change
     React.useEffect(() => {
@@ -74,10 +111,15 @@ export default function OrderDetailsModal({
         }
     }, [order]);
 
-    // Trigger Expo Express background sync when modal opens
+    // Trigger Expo Express/Kourtier background sync when modal opens and reflect any new updates
     React.useEffect(() => {
         if (isOpen && order?.id) {
-            syncExternalOrderTrackingAction(order.id).catch(err => console.error("Sync error:", err));
+            syncExternalOrderTrackingAction(order.id).then(res => {
+                if (res?.success && res.order && res.hasChanged) {
+                    setLocalOrder(res.order as any);
+                    onOrderUpdated?.(res.order);
+                }
+            }).catch(err => console.error("Sync error:", err));
         }
     }, [isOpen, order?.id]);
 
@@ -401,9 +443,31 @@ export default function OrderDetailsModal({
                     {/* Section 1.5: Shipping & Logistics (Visible if info exists) */}
                     {(order.carrierName || order.trackingNumber) && (
                         <section className="space-y-6">
-                            <div className="flex items-center gap-3">
-                                <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Shipping & Logistics</h4>
-                                <div className="h-px flex-1 bg-gray-100" />
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 flex-1 mr-3">
+                                    <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Shipping & Logistics</h4>
+                                    <div className="h-px flex-1 bg-gray-100" />
+                                </div>
+                                <button
+                                    type="button"
+                                    disabled={isSyncingTracking}
+                                    onClick={handleManualTrackingSync}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-black bg-white hover:bg-zinc-50 border border-gray-200 rounded-lg shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                                    title="Fetch latest API tracking updates"
+                                >
+                                    <svg
+                                        className={`w-3.5 h-3.5 ${isSyncingTracking ? 'animate-spin text-black' : 'text-gray-500'}`}
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                                    </svg>
+                                    <span>{isSyncingTracking ? 'Syncing...' : 'Sync Courier'}</span>
+                                </button>
                             </div>
                             <div className="border border-dotted border-gray-300 rounded-[6px] overflow-hidden bg-zinc-50/10">
                                 <div className="flex divide-x divide-dotted divide-gray-300">
@@ -461,9 +525,31 @@ export default function OrderDetailsModal({
 
                     {/* Section 2: Fulfillment Lifecycle */}
                     <section className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Fulfillment Lifecycle</h4>
-                            <div className="h-px flex-1 bg-gray-100" />
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1 mr-3">
+                                <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Fulfillment Lifecycle</h4>
+                                <div className="h-px flex-1 bg-gray-100" />
+                            </div>
+                            <button
+                                type="button"
+                                disabled={isSyncingTracking}
+                                onClick={handleManualTrackingSync}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-black bg-white hover:bg-zinc-50 border border-gray-200 rounded-lg shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                                title="Fetch latest API tracking updates and status"
+                            >
+                                <svg
+                                    className={`w-3.5 h-3.5 ${isSyncingTracking ? 'animate-spin text-black' : 'text-gray-500'}`}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                                </svg>
+                                <span>{isSyncingTracking ? 'Syncing...' : 'Refresh Tracking'}</span>
+                            </button>
                         </div>
 
                         <div className="space-y-4">
@@ -522,7 +608,7 @@ export default function OrderDetailsModal({
                                         </div>
 
                                         <AnimatePresence>
-                                            {isExpanded && (milestoneLogs.length > 0 || (m.id === 'SHIPPING' && (order.carrierName || order.trackingNumber))) && (
+                                            {isExpanded && (milestoneLogs.length > 0 || ((m.id === 'SHIPPED' || m.id === 'SHIPPING') && (order.carrierName || order.trackingNumber))) && (
                                                 <motion.div
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: 'auto', opacity: 1 }}
@@ -534,7 +620,7 @@ export default function OrderDetailsModal({
 
                                                     <div className="pl-6 space-y-4">
                                                         {/* Tracking Info for Shipping Milestone */}
-                                                        {m.id === 'SHIPPING' && (order.carrierName || order.trackingNumber) && (
+                                                        {(m.id === 'SHIPPED' || m.id === 'SHIPPING') && (order.carrierName || order.trackingNumber) && (
                                                             <div className="mr-5 p-3.5 bg-zinc-50 rounded-[10px] border border-gray-100 flex items-center justify-between">
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
@@ -558,20 +644,44 @@ export default function OrderDetailsModal({
                                                                                     );
                                                                                 }
                                                                                 return order.carrierName || 'Standard';
-                                                                            })()} · {order.trackingNumber || 'Pending'}
+                                                                            })()} · #{order.trackingNumber || 'Pending'}
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                                {order.trackingNumber && (
+                                                                <div className="flex items-center gap-2">
                                                                     <button
-                                                                        onClick={() => {
-                                                                            navigator.clipboard.writeText(order.trackingNumber || '');
-                                                                        }}
-                                                                        className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95"
+                                                                        type="button"
+                                                                        disabled={isSyncingTracking}
+                                                                        onClick={handleManualTrackingSync}
+                                                                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-gray-100 text-[10px] font-medium text-black rounded border border-gray-200 transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
+                                                                        title="Fetch latest tracking and status from courier API"
                                                                     >
-                                                                        <span className="text-[9px] uppercase font-bold text-[#71717a] hover:text-black">Copy</span>
+                                                                        <svg
+                                                                            className={`w-3 h-3 ${isSyncingTracking ? 'animate-spin text-[#308026]' : 'text-gray-500'}`}
+                                                                            viewBox="0 0 24 24"
+                                                                            fill="none"
+                                                                            stroke="currentColor"
+                                                                            strokeWidth="2.5"
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                        >
+                                                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                                                                        </svg>
+                                                                        <span>{isSyncingTracking ? 'Syncing...' : 'Refresh Status'}</span>
                                                                     </button>
-                                                                )}
+                                                                    {order.trackingNumber && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                navigator.clipboard.writeText(order.trackingNumber || '');
+                                                                                showAdminToast('Tracking ID copied!', 'success');
+                                                                            }}
+                                                                            className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95 text-[9px] uppercase font-bold text-[#71717a] hover:text-black cursor-pointer"
+                                                                        >
+                                                                            Copy
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         )}
 
