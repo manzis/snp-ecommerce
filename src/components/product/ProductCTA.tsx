@@ -21,31 +21,48 @@ const ProductCTA = ({
   ordersDisabled?: boolean;
   ordersDisabledUntil?: string | null;
 }) => {
+  const { volatileData } = useVolatileProductData(productSlug || '');
+
+  const effectiveOrdersDisabled = volatileData?.storeSettings !== undefined
+    ? volatileData.storeSettings.orders_disabled
+    : ordersDisabled;
+
+  const effectiveOrdersUntil = volatileData?.storeSettings !== undefined
+    ? volatileData.storeSettings.orders_disabled_until
+    : ordersDisabledUntil;
+
+  const serverTimeOffset = volatileData?.server_time
+    ? volatileData.server_time - Date.now()
+    : 0;
+
   const [isInCart, setIsInCart] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isOrdersDisabled, setIsOrdersDisabled] = useState(ordersDisabled);
+  const [isOrdersDisabled, setIsOrdersDisabled] = useState(effectiveOrdersDisabled);
   const [countdownText, setCountdownText] = useState<string | null>(null);
   const router = useRouter();
-  const { volatileData } = useVolatileProductData(productSlug || '');
   
   const stockStatus = volatileData ? volatileData.stock_status : propsStockStatus;
   const isOutOfStock = stockStatus === 'out_of_stock';
 
   useEffect(() => {
-    setIsOrdersDisabled(ordersDisabled);
-  }, [ordersDisabled]);
+    setIsOrdersDisabled(effectiveOrdersDisabled);
+  }, [effectiveOrdersDisabled]);
 
   useEffect(() => {
-    if (!ordersDisabled || !ordersDisabledUntil) {
+    if (!effectiveOrdersDisabled || !effectiveOrdersUntil) {
       setCountdownText(null);
       return;
     }
 
-    const targetTime = new Date(ordersDisabledUntil).getTime();
-    if (isNaN(targetTime)) return;
+    const targetTime = new Date(effectiveOrdersUntil).getTime();
+    if (isNaN(targetTime)) {
+      setCountdownText(null);
+      return;
+    }
 
     const tick = () => {
-      const diff = targetTime - Date.now();
+      const now = Date.now() + serverTimeOffset;
+      const diff = targetTime - now;
       if (diff <= 0) {
         setIsOrdersDisabled(false);
         setCountdownText(null);
@@ -64,7 +81,7 @@ const ProductCTA = ({
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [ordersDisabled, ordersDisabledUntil]);
+  }, [effectiveOrdersDisabled, effectiveOrdersUntil, serverTimeOffset]);
 
   useEffect(() => {
     if (isPreview) {

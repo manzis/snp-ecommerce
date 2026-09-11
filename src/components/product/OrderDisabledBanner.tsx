@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, CheckCircle2, MessageCircle, X, Clock } from 'lucide-react';
+import { useVolatileProductData } from '@/hooks/useVolatileProductData';
 
 interface OrderDisabledBannerProps {
   ordersDisabled: boolean;
@@ -10,15 +11,37 @@ interface OrderDisabledBannerProps {
   ordersDisabledReason?: string;
   onUnlock?: () => void;
   defaultOpen?: boolean;
+  productSlug?: string;
 }
 
 export default function OrderDisabledBanner({
-  ordersDisabled,
-  ordersDisabledUntil,
-  ordersDisabledReason,
+  ordersDisabled: propsOrdersDisabled,
+  ordersDisabledUntil: propsOrdersDisabledUntil,
+  ordersDisabledReason: propsOrdersDisabledReason,
   onUnlock,
   defaultOpen = true,
+  productSlug,
 }: OrderDisabledBannerProps) {
+  const { volatileData } = useVolatileProductData(productSlug || '');
+
+  // Live reconciled state from volatile data or SSR fallback props
+  const ordersDisabled = volatileData?.storeSettings !== undefined
+    ? volatileData.storeSettings.orders_disabled
+    : propsOrdersDisabled;
+
+  const ordersDisabledUntil = volatileData?.storeSettings !== undefined
+    ? volatileData.storeSettings.orders_disabled_until
+    : propsOrdersDisabledUntil;
+
+  const ordersDisabledReason = volatileData?.storeSettings !== undefined
+    ? volatileData.storeSettings.orders_disabled_reason
+    : propsOrdersDisabledReason;
+
+  // Server time offset for clock drift correction
+  const serverTimeOffset = volatileData?.server_time
+    ? volatileData.server_time - Date.now()
+    : 0;
+
   const [remainingTime, setRemainingTime] = useState<{
     days: number;
     hours: number;
@@ -59,7 +82,7 @@ export default function OrderDisabledBanner({
     }
 
     const updateTimer = () => {
-      const now = Date.now();
+      const now = Date.now() + serverTimeOffset;
       const diff = targetTimestamp - now;
 
       if (diff <= 0) {

@@ -12,6 +12,12 @@ export interface VolatileProductData {
     ends_at: string;
     max_discount_percentage?: number;
   } | null;
+  storeSettings?: {
+    orders_disabled: boolean;
+    orders_disabled_until: string | null;
+    orders_disabled_reason: string;
+  };
+  server_time?: number;
 }
 
 const promiseCache: Record<string, Promise<any>> = {};

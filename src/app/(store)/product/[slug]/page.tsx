@@ -377,13 +377,12 @@ async function ProductContent({ slug }: { slug: string }) {
           </Suspense>
         </div>
 
-        {ordersDisabled && (
-          <OrderDisabledBanner
-            ordersDisabled={ordersDisabled}
-            ordersDisabledUntil={ordersDisabledUntil}
-            ordersDisabledReason={ordersDisabledReason}
-          />
-        )}
+        <OrderDisabledBanner
+          productSlug={product.slug}
+          ordersDisabled={ordersDisabled}
+          ordersDisabledUntil={ordersDisabledUntil}
+          ordersDisabledReason={ordersDisabledReason}
+        />
       </main>
       <ProductCTA
         productSlug={product.slug}

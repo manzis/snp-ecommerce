@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,14 +13,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
     }
 
-    // 1. Fetch Product Price & Stock
-    const { data: product, error: productError } = await supabase
-      .from('products')
-      .select('id, original_price, discounted_price, stock_status')
-      .eq('slug', slug)
-      .single();
+    // 1. Fetch Product Price & Stock and Store Settings in parallel
+    const [productRes, settingsRes] = await Promise.all([
+      supabase
+        .from('products')
+        .select('id, original_price, discounted_price, stock_status')
+        .eq('slug', slug)
+        .single(),
+      getStoreSettingsAction(),
+    ]);
 
-    if (productError || !product) {
+    const product = productRes.data;
+    if (productRes.error || !product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
@@ -44,13 +49,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       }
     }
 
+    const storeSettings = settingsRes?.data;
+
     return NextResponse.json({
       success: true,
       data: {
         original_price: product.original_price,
         discounted_price: product.discounted_price,
         stock_status: product.stock_status,
-        activeSale: activeSale
+        activeSale: activeSale,
+        storeSettings: {
+          orders_disabled: storeSettings?.orders_disabled === true,
+          orders_disabled_until: storeSettings?.orders_disabled_until || null,
+          orders_disabled_reason: storeSettings?.orders_disabled_reason || '',
+        },
+        server_time: Date.now(),
       }
     }, {
       headers: {
