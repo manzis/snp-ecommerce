@@ -443,31 +443,9 @@ export default function OrderDetailsModal({
                     {/* Section 1.5: Shipping & Logistics (Visible if info exists) */}
                     {(order.carrierName || order.trackingNumber) && (
                         <section className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3 flex-1 mr-3">
-                                    <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Shipping & Logistics</h4>
-                                    <div className="h-px flex-1 bg-gray-100" />
-                                </div>
-                                <button
-                                    type="button"
-                                    disabled={isSyncingTracking}
-                                    onClick={handleManualTrackingSync}
-                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-black bg-white hover:bg-zinc-50 border border-gray-200 rounded-lg shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-                                    title="Fetch latest API tracking updates"
-                                >
-                                    <svg
-                                        className={`w-3.5 h-3.5 ${isSyncingTracking ? 'animate-spin text-black' : 'text-gray-500'}`}
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2.5"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-                                    </svg>
-                                    <span>{isSyncingTracking ? 'Syncing...' : 'Sync Courier'}</span>
-                                </button>
+                            <div className="flex items-center gap-3">
+                                <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Shipping & Logistics</h4>
+                                <div className="h-px flex-1 bg-gray-100" />
                             </div>
                             <div className="border border-dotted border-gray-300 rounded-[6px] overflow-hidden bg-zinc-50/10">
                                 <div className="flex divide-x divide-dotted divide-gray-300">
@@ -525,20 +503,17 @@ export default function OrderDetailsModal({
 
                     {/* Section 2: Fulfillment Lifecycle */}
                     <section className="space-y-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3 flex-1 mr-3">
-                                <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Fulfillment Lifecycle</h4>
-                                <div className="h-px flex-1 bg-gray-100" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Fulfillment Lifecycle</h4>
                             <button
                                 type="button"
                                 disabled={isSyncingTracking}
                                 onClick={handleManualTrackingSync}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-black bg-white hover:bg-zinc-50 border border-gray-200 rounded-lg shadow-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[11px] font-medium text-[#242424] bg-zinc-100 hover:bg-zinc-200 border border-gray-200/80 rounded-[6px] transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-2xs"
                                 title="Fetch latest API tracking updates and status"
                             >
                                 <svg
-                                    className={`w-3.5 h-3.5 ${isSyncingTracking ? 'animate-spin text-black' : 'text-gray-500'}`}
+                                    className={`w-3 h-3 ${isSyncingTracking ? 'animate-spin text-black' : 'text-gray-500'}`}
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
@@ -548,8 +523,9 @@ export default function OrderDetailsModal({
                                 >
                                     <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                                 </svg>
-                                <span>{isSyncingTracking ? 'Syncing...' : 'Refresh Tracking'}</span>
+                                <span>{isSyncingTracking ? 'Syncing...' : 'Refresh'}</span>
                             </button>
+                            <div className="h-px flex-1 bg-gray-100" />
                         </div>
 
                         <div className="space-y-4">
