@@ -597,32 +597,26 @@ export default function OrderDetailsModal({
                                                     <div className="pl-6 space-y-4">
                                                         {/* Tracking Info for Shipping Milestone */}
                                                         {(m.id === 'SHIPPED' || m.id === 'SHIPPING') && (order.carrierName || order.trackingNumber) && (
-                                                            <div className="mr-5 p-3.5 bg-zinc-50 rounded-[10px] border border-gray-100 flex items-center justify-between">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
-                                                                        <span className="text-xs">🚚</span>
-                                                                    </div>
-                                                                    <div>
-                                                                        <p className="text-[9px] text-[#a1a1aa] uppercase font-bold tracking-wider">Carrier & Tracking</p>
-                                                                        <p className="text-[12px] font-medium text-black">
-                                                                            {(() => {
-                                                                                const trackingUrl = getCarrierTrackingUrl(order.carrierName, order.trackingNumber);
-                                                                                if (trackingUrl) {
-                                                                                    return (
-                                                                                        <a
-                                                                                            href={trackingUrl}
-                                                                                            target="_blank"
-                                                                                            rel="noopener noreferrer"
-                                                                                            className="hover:underline hover:text-[#3f9733] inline-flex items-center gap-1 transition-colors"
-                                                                                        >
-                                                                                            {order.carrierName || 'Standard'} ↗
-                                                                                        </a>
-                                                                                    );
-                                                                                }
-                                                                                return order.carrierName || 'Standard';
-                                                                            })()} · #{order.trackingNumber || 'Pending'}
-                                                                        </p>
-                                                                    </div>
+                                                            <div className="mr-5 p-3 bg-zinc-50 rounded-[10px] border border-gray-100 flex items-center justify-between">
+                                                                <div>
+                                                                    <p className="text-[12px] font-medium text-black">
+                                                                        {(() => {
+                                                                            const trackingUrl = getCarrierTrackingUrl(order.carrierName, order.trackingNumber);
+                                                                            if (trackingUrl) {
+                                                                                return (
+                                                                                    <a
+                                                                                        href={trackingUrl}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                        className="hover:underline hover:text-[#3f9733] inline-flex items-center gap-1 transition-colors"
+                                                                                    >
+                                                                                        {order.carrierName || 'Standard'} ↗
+                                                                                    </a>
+                                                                                );
+                                                                            }
+                                                                            return order.carrierName || 'Standard';
+                                                                        })()} · #{order.trackingNumber || 'Pending'}
+                                                                    </p>
                                                                 </div>
                                                                 {order.trackingNumber && (
                                                                     <button
