@@ -22,7 +22,6 @@ import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaym
 
 export default function OrdersClient({ initialOrdersData }: { initialOrdersData?: any }) {
   const [isLoading, setIsLoading] = useState(!initialOrdersData?.success && (!initialOrdersData?.orders || initialOrdersData.orders.length === 0));
-  const [isPageFetching, setIsPageFetching] = useState(false);
   const [orders, setOrders] = useState<OrderProps[]>(initialOrdersData?.orders || []);
   const [totalCount, setTotalCount] = useState<number>(initialOrdersData?.totalCount || 0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -156,17 +155,12 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       setOrders(cached.orders);
       setTotalCount(cached.totalCount);
       setIsLoading(false);
-      setIsPageFetching(false);
       const pages = Math.ceil(cached.totalCount / limit);
       prefetchAdjacentPages(page, limit, search, status, hide, mode, pages);
       return;
     }
 
-    if (forceSkeleton || orders.length === 0) {
-      setIsLoading(true);
-    } else {
-      setIsPageFetching(true);
-    }
+    setIsLoading(true);
 
     try {
       const result = await fetchAllOrdersAdminAction(page, limit, { search, status, hideCancelled: hide });
@@ -185,7 +179,6 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       console.error('Failed to load orders:', error);
     } finally {
       setIsLoading(false);
-      setIsPageFetching(false);
     }
   };
 
@@ -206,7 +199,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   // Auto-sync external tracking for visible active orders (idle non-blocking)
   const syncedPageRef = useRef<number | null>(null);
   useEffect(() => {
-    if (orders.length === 0 || isLoading || isPageFetching) return;
+    if (orders.length === 0 || isLoading) return;
     if (syncedPageRef.current === currentPage) return;
 
     const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery'];
@@ -235,7 +228,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
 
       return () => clearTimeout(timer);
     }
-  }, [orders, currentPage, isLoading, isPageFetching, searchQuery, statusFilter, hideCancelled, viewMode, totalCount]);
+  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled, viewMode, totalCount]);
 
   // Deep Link Logic
   useEffect(() => {
@@ -454,7 +447,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
           pageCacheRef.current.clear();
           loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
         }}
-        refreshLoading={isLoading || isPageFetching}
+        refreshLoading={isLoading}
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={(page) => {
@@ -474,33 +467,24 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[100px] relative">
-        {/* Subtle non-blocking progress indicator on page switch */}
-        {isPageFetching && (
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-neutral-100 overflow-hidden z-20">
-            <div className="h-full bg-blue-600 animate-pulse w-full" />
-          </div>
-        )}
-
-        {isLoading && orders.length === 0 ? (
+        {isLoading ? (
           <div className="w-full max-w-full">
             {viewMode === 'list' ? <OrderTableSkeleton rows={15} /> : <OrderGridSkeleton count={12} />}
           </div>
         ) : orders.length > 0 ? (
-          <div className={`transition-opacity duration-150 ${isPageFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-            <AdminOrderList
-              initialOrders={orders}
-              lastSeenAt={lastSeenAtOnMount.current || undefined}
-              viewMode={viewMode}
-              selectedIds={selectedIds}
-              totalCount={totalCount}
-              onToggleSelect={handleToggleSelect}
-              onToggleSelectAll={handleToggleSelectAll}
-              onViewDetails={handleOpenDetails}
-              onUpdateStatus={handleUpdateStatusTrigger}
-              onUpdatePaymentStatus={handleUpdatePaymentTrigger}
-              onDeleteOrder={handleDeleteOrder}
-            />
-          </div>
+          <AdminOrderList
+            initialOrders={orders}
+            lastSeenAt={lastSeenAtOnMount.current || undefined}
+            viewMode={viewMode}
+            selectedIds={selectedIds}
+            totalCount={totalCount}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            onViewDetails={handleOpenDetails}
+            onUpdateStatus={handleUpdateStatusTrigger}
+            onUpdatePaymentStatus={handleUpdatePaymentTrigger}
+            onDeleteOrder={handleDeleteOrder}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center h-[400px] gap-4 text-center">
             <div className="w-16 h-16 bg-[#F4F4F5] rounded-2xl flex items-center justify-center text-[#71717a]">
