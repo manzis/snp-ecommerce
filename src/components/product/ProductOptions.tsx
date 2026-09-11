@@ -361,7 +361,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       {/* Inline CTA (Mobile + Desktop) */}
       <div id="inline-cta-container" className="flex w-full flex-col gap-2 mt-[-4px] mb-0 lg:mt-[-8px] lg:mb-[-4px]">
         {isOrdersDisabled && countdownText && (
-          <div className="w-full flex items-center justify-between py-2 px-3.5 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200/80 rounded-[10px] text-red-800">
+          <div className="w-full flex items-center justify-between py-2 px-3.5 bg-gradient-to-r from-red-50 to-orange-50 rounded-[10px] text-red-800">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -371,7 +371,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
                 Orders unlock in:
               </span>
             </div>
-            <span className="font-rajdhani font-bold text-[15px] tracking-wider text-red-600 bg-white/80 px-2 py-0.5 rounded border border-red-200/60 tabular-nums">
+            <span className="font-rajdhani font-bold text-[15px] tracking-wider text-red-600 bg-white/80 px-2 py-0.5 rounded tabular-nums">
               {countdownText}
             </span>
           </div>

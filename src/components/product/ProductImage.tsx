@@ -244,8 +244,15 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
               <h2 className="font-rajdhani font-bold text-[22px] lg:text-[30px] tracking-[-0.02em] uppercase leading-none text-red-600">
                 Out of Stock
               </h2>
-              <p className="font-rajdhani text-[12px] lg:text-[14px] font-medium text-[#797979] mt-2 tracking-wide text-center">
-                The product is not currently available , Restocking soon
+              <p className="font-rajdhani text-[12px] sm:text-[13.5px] lg:text-[14.5px] font-medium text-[#707070] mt-2 tracking-wide text-center flex items-center justify-center gap-1.5 whitespace-nowrap">
+                <span>The product is not currently available</span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 font-rajdhani font-semibold text-[11.5px] sm:text-[13px] lg:text-[13.5px] shrink-0">
+                  <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-emerald-500" />
+                  </span>
+                  <span>Restocking soon</span>
+                </span>
               </p>
             </div>
           </div>
