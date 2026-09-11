@@ -40,7 +40,11 @@ export const getSiteSetting = cache(async (key: string) => {
 /**
  * Upsert a setting by key
  */
-export async function updateSiteSetting(key: string, value: any): Promise<boolean> {
+export async function updateSiteSetting(
+  key: string, 
+  value: any, 
+  options?: { revalidate?: boolean }
+): Promise<boolean> {
   const adminClient = getSupabaseAdmin();
   if (!adminClient) {
     console.error('[settingsService] Admin client could not be initialized.');
@@ -56,11 +60,18 @@ export async function updateSiteSetting(key: string, value: any): Promise<boolea
     return false;
   }
 
-  // Clear Next.js cache so changes reflect immediately
-  // @ts-expect-error - Next.js 16 canary changed revalidateTag signature
-  revalidateTag('settings');
-  // @ts-expect-error
-  revalidateTag(`setting-${key}`);
+  // Clear Next.js cache so changes reflect immediately (only when safe and outside render)
+  if (options?.revalidate !== false) {
+    try {
+      // @ts-expect-error - Next.js 16 canary changed revalidateTag signature
+      revalidateTag('settings');
+      // @ts-expect-error
+      revalidateTag(`setting-${key}`);
+    } catch (revalError) {
+      // Gracefully handle if called in a context where revalidateTag is unsupported (e.g. during render)
+      console.warn(`[settingsService] revalidateTag skipped for ${key}:`, (revalError as Error)?.message);
+    }
+  }
 
   return true;
 }

@@ -161,12 +161,12 @@ export async function getStoreSettingsAction() {
         merged.orders_disabled = false;
         merged.orders_disabled_until = null;
 
-        // Asynchronously persist the auto-enabled state in database and bust cache
+        // Asynchronously persist the auto-enabled state in database without triggering revalidateTag during render
         updateSiteSetting('store_settings', {
           ...merged,
           orders_disabled: false,
           orders_disabled_until: null,
-        }).catch((err) => {
+        }, { revalidate: false }).catch((err) => {
           console.error('[settingsActions] Failed to persist auto-enabled order status:', err);
         });
       }
