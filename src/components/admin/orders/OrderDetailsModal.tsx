@@ -584,7 +584,7 @@ export default function OrderDetailsModal({
                                         </div>
 
                                         <AnimatePresence>
-                                            {isExpanded && (milestoneLogs.length > 0 || ((m.id === 'SHIPPED' || m.id === 'SHIPPING') && (order.carrierName || order.trackingNumber))) && (
+                                            {isExpanded && milestoneLogs.length > 0 && (
                                                 <motion.div
                                                     initial={{ height: 0, opacity: 0 }}
                                                     animate={{ height: 'auto', opacity: 1 }}
@@ -595,44 +595,6 @@ export default function OrderDetailsModal({
                                                     <div className={`absolute left-[2px] top-0 bottom-0 border-l border-dotted ${isCompleted || isActive ? 'border-[#308026]' : 'border-gray-300'}`} />
 
                                                     <div className="pl-6 space-y-4">
-                                                        {/* Tracking Info for Shipping Milestone */}
-                                                        {(m.id === 'SHIPPED' || m.id === 'SHIPPING') && (order.carrierName || order.trackingNumber) && (
-                                                            <div className="mr-5 p-3 bg-zinc-50 rounded-[10px] border border-gray-100 flex items-center justify-between">
-                                                                <div>
-                                                                    <p className="text-[12px] font-medium text-black">
-                                                                        {(() => {
-                                                                            const trackingUrl = getCarrierTrackingUrl(order.carrierName, order.trackingNumber);
-                                                                            if (trackingUrl) {
-                                                                                return (
-                                                                                    <a
-                                                                                        href={trackingUrl}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                        className="hover:underline hover:text-[#3f9733] inline-flex items-center gap-1 transition-colors"
-                                                                                    >
-                                                                                        {order.carrierName || 'Standard'} ↗
-                                                                                    </a>
-                                                                                );
-                                                                            }
-                                                                            return order.carrierName || 'Standard';
-                                                                        })()} · #{order.trackingNumber || 'Pending'}
-                                                                    </p>
-                                                                </div>
-                                                                {order.trackingNumber && (
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            navigator.clipboard.writeText(order.trackingNumber || '');
-                                                                            showAdminToast('Tracking ID copied!', 'success');
-                                                                        }}
-                                                                        className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95 text-[9px] uppercase font-bold text-[#71717a] hover:text-black cursor-pointer"
-                                                                    >
-                                                                        Copy
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        )}
-
                                                         {milestoneLogs.map((log, idx) => {
                                                             const logRank = STATUS_RANK[log.status.toUpperCase()] || 0;
                                                             const isLogCompleted = currentRank > logRank || isTerminal;
