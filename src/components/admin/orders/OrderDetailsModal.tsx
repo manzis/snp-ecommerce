@@ -523,7 +523,7 @@ export default function OrderDetailsModal({
                                 >
                                     <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
                                 </svg>
-                                <span>{isSyncingTracking ? 'Syncing...' : 'Refresh'}</span>
+                                <span>{isSyncingTracking ? 'Syncing...' : 'Sync'}</span>
                             </button>
                             <div className="h-px flex-1 bg-gray-100" />
                         </div>
@@ -624,40 +624,18 @@ export default function OrderDetailsModal({
                                                                         </p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="flex items-center gap-2">
+                                                                {order.trackingNumber && (
                                                                     <button
                                                                         type="button"
-                                                                        disabled={isSyncingTracking}
-                                                                        onClick={handleManualTrackingSync}
-                                                                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-gray-100 text-[10px] font-medium text-black rounded border border-gray-200 transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
-                                                                        title="Fetch latest tracking and status from courier API"
+                                                                        onClick={() => {
+                                                                            navigator.clipboard.writeText(order.trackingNumber || '');
+                                                                            showAdminToast('Tracking ID copied!', 'success');
+                                                                        }}
+                                                                        className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95 text-[9px] uppercase font-bold text-[#71717a] hover:text-black cursor-pointer"
                                                                     >
-                                                                        <svg
-                                                                            className={`w-3 h-3 ${isSyncingTracking ? 'animate-spin text-[#308026]' : 'text-gray-500'}`}
-                                                                            viewBox="0 0 24 24"
-                                                                            fill="none"
-                                                                            stroke="currentColor"
-                                                                            strokeWidth="2.5"
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                        >
-                                                                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-                                                                        </svg>
-                                                                        <span>{isSyncingTracking ? 'Syncing...' : 'Refresh Status'}</span>
+                                                                        Copy
                                                                     </button>
-                                                                    {order.trackingNumber && (
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => {
-                                                                                navigator.clipboard.writeText(order.trackingNumber || '');
-                                                                                showAdminToast('Tracking ID copied!', 'success');
-                                                                            }}
-                                                                            className="px-2 py-1 hover:bg-white rounded border border-transparent hover:border-gray-200 transition-all active:scale-95 text-[9px] uppercase font-bold text-[#71717a] hover:text-black cursor-pointer"
-                                                                        >
-                                                                            Copy
-                                                                        </button>
-                                                                    )}
-                                                                </div>
+                                                                )}
                                                             </div>
                                                         )}
 
