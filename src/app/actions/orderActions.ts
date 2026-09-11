@@ -545,15 +545,12 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return { success: false, message: 'Unauthorized.' };
 
-  const { data: profile } = await supabase
+  // Run profile role check concurrently with query preparation and execution
+  const profilePromise = supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single();
-
-  if (profile?.role !== 'admin') {
-    return { success: false, message: 'Forbidden. Admin access required.' };
-  }
 
   // 2. Use the service-role admin client for the actual data fetch
   const adminClient = getSupabaseAdmin() || supabase;
@@ -720,9 +717,15 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
       }
     }
 
-    const { data, error, count } = await query
-      .order('created_at', { ascending: false })
-      .range(from, to);
+    // Execute admin role check and orders query concurrently for maximum speed
+    const [profileRes, { data, error, count }] = await Promise.all([
+      profilePromise,
+      query.order('created_at', { ascending: false }).range(from, to)
+    ]);
+
+    if (profileRes.data?.role !== 'admin') {
+      return { success: false, message: 'Forbidden. Admin access required.' };
+    }
 
     if (error) throw error;
 

@@ -21,20 +21,15 @@ import { useAdminUI } from '@/context/AdminUIContext';
 import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaymentAdminAction } from '@/app/actions/orderActions';
 
 export default function OrdersClient({ initialOrdersData }: { initialOrdersData?: any }) {
-  const [isMounted, setIsMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(!initialOrdersData?.success);
+  const [isLoading, setIsLoading] = useState(!initialOrdersData?.success && (!initialOrdersData?.orders || initialOrdersData.orders.length === 0));
+  const [isPageFetching, setIsPageFetching] = useState(false);
   const [orders, setOrders] = useState<OrderProps[]>(initialOrdersData?.orders || []);
   const [totalCount, setTotalCount] = useState<number>(initialOrdersData?.totalCount || 0);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [hideCancelled, setHideCancelled] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('admin_orders_hide_cancelled') === 'true';
-    }
-    return false;
-  });
+  const [hideCancelled, setHideCancelled] = useState<boolean>(false);
 
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<any | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -73,9 +68,14 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   const { setPrimaryAction, setOverrideTitle } = useAdminUI();
 
   useEffect(() => {
-    setIsMounted(true);
     setOverrideTitle(null);
     setPrimaryAction(null);
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('admin_orders_hide_cancelled');
+      if (saved === 'true') {
+        setHideCancelled(true);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -88,29 +88,55 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   // In-memory page cache for instant pagination & zero-latency back/forward navigation
   const pageCacheRef = useRef<Map<string, { orders: OrderProps[]; totalCount: number }>>(new Map());
 
-  const prefetchNextPage = (
+  // Prime page 1 in cache immediately so subsequent clicks to page 1 are 0ms
+  if (pageCacheRef.current.size === 0 && initialOrdersData?.success && initialOrdersData.orders?.length > 0) {
+    pageCacheRef.current.set(`1_12___all_false_grid`, {
+      orders: initialOrdersData.orders,
+      totalCount: initialOrdersData.totalCount || 0
+    });
+  }
+
+  // Pre-fetch both next and previous pages in background
+  const prefetchAdjacentPages = (
     page: number,
     limit: number,
     search: string,
     status: string,
     hide: boolean,
-    mode: 'grid' | 'list'
+    mode: 'grid' | 'list',
+    maxPages: number
   ) => {
-    const nextPage = page + 1;
-    const nextKey = `${nextPage}_${limit}_${search}_${status}_${hide}_${mode}`;
-    if (pageCacheRef.current.has(nextKey)) return;
-
-    // Use a short delay so current page render is completely unblocked
-    setTimeout(async () => {
-      try {
-        const result = await fetchAllOrdersAdminAction(nextPage, limit, { search, status, hideCancelled: hide });
-        if (result && result.success && result.orders && result.orders.length > 0) {
-          pageCacheRef.current.set(nextKey, { orders: result.orders, totalCount: result.totalCount || 0 });
-        }
-      } catch (err) {
-        // Silent prefetch failure
+    // Next page prefetch
+    if (page < maxPages) {
+      const nextPage = page + 1;
+      const nextKey = `${nextPage}_${limit}_${search}_${status}_${hide}_${mode}`;
+      if (!pageCacheRef.current.has(nextKey)) {
+        setTimeout(async () => {
+          try {
+            const result = await fetchAllOrdersAdminAction(nextPage, limit, { search, status, hideCancelled: hide });
+            if (result && result.success && result.orders && result.orders.length > 0) {
+              pageCacheRef.current.set(nextKey, { orders: result.orders, totalCount: result.totalCount || 0 });
+            }
+          } catch {}
+        }, 150);
       }
-    }, 250);
+    }
+
+    // Previous page prefetch if not already cached
+    if (page > 1) {
+      const prevPage = page - 1;
+      const prevKey = `${prevPage}_${limit}_${search}_${status}_${hide}_${mode}`;
+      if (!pageCacheRef.current.has(prevKey)) {
+        setTimeout(async () => {
+          try {
+            const result = await fetchAllOrdersAdminAction(prevPage, limit, { search, status, hideCancelled: hide });
+            if (result && result.success && result.orders && result.orders.length > 0) {
+              pageCacheRef.current.set(prevKey, { orders: result.orders, totalCount: result.totalCount || 0 });
+            }
+          } catch {}
+        }, 250);
+      }
+    }
   };
 
   const loadOrders = async (
@@ -119,22 +145,29 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     status: string = statusFilter,
     hide: boolean = hideCancelled,
     mode: 'grid' | 'list' = viewMode,
-    showSkeleton: boolean = true
+    forceSkeleton: boolean = false
   ) => {
     const limit = mode === 'list' ? 30 : 12;
     const cacheKey = `${page}_${limit}_${search}_${status}_${hide}_${mode}`;
 
-    // Instant load from cache if available
+    // Instant load from cache if available (0ms!)
     if (pageCacheRef.current.has(cacheKey)) {
       const cached = pageCacheRef.current.get(cacheKey)!;
       setOrders(cached.orders);
       setTotalCount(cached.totalCount);
       setIsLoading(false);
-      prefetchNextPage(page, limit, search, status, hide, mode);
+      setIsPageFetching(false);
+      const pages = Math.ceil(cached.totalCount / limit);
+      prefetchAdjacentPages(page, limit, search, status, hide, mode, pages);
       return;
     }
 
-    if (showSkeleton) setIsLoading(true);
+    if (forceSkeleton || orders.length === 0) {
+      setIsLoading(true);
+    } else {
+      setIsPageFetching(true);
+    }
+
     try {
       const result = await fetchAllOrdersAdminAction(page, limit, { search, status, hideCancelled: hide });
       if (result && result.success) {
@@ -143,14 +176,16 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         setOrders(fetchedOrders);
         setTotalCount(count);
         pageCacheRef.current.set(cacheKey, { orders: fetchedOrders, totalCount: count });
-        prefetchNextPage(page, limit, search, status, hide, mode);
+        const pages = Math.ceil(count / limit);
+        prefetchAdjacentPages(page, limit, search, status, hide, mode, pages);
       } else {
         showAdminToast(result?.message || 'Failed to fetch orders', 'error');
       }
     } catch (error) {
       console.error('Failed to load orders:', error);
     } finally {
-      if (showSkeleton) setIsLoading(false);
+      setIsLoading(false);
+      setIsPageFetching(false);
     }
   };
 
@@ -159,22 +194,19 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-      // If we have SSR data, and we are on page 1 with default filters in grid view, populate cache and skip initial fetch
-      if (initialOrdersData?.success && currentPage === 1 && searchQuery === '' && statusFilter === 'all' && !hideCancelled && viewMode === 'grid') {
-        const initKey = `1_12___all_false_grid`;
-        pageCacheRef.current.set(initKey, { orders: initialOrdersData.orders || [], totalCount: initialOrdersData.totalCount || 0 });
-        prefetchNextPage(1, 12, '', 'all', false, 'grid');
-        setIsLoading(false);
+      if (initialOrdersData?.success && initialOrdersData.orders?.length > 0) {
+        const pages = Math.ceil((initialOrdersData.totalCount || 0) / 12);
+        prefetchAdjacentPages(1, 12, '', 'all', false, 'grid', pages);
         return;
       }
     }
-    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
   }, [currentPage, searchQuery, statusFilter, hideCancelled, viewMode]);
 
-  // Auto-sync external tracking for visible active orders
+  // Auto-sync external tracking for visible active orders (idle non-blocking)
   const syncedPageRef = useRef<number | null>(null);
   useEffect(() => {
-    if (orders.length === 0 || isLoading) return;
+    if (orders.length === 0 || isLoading || isPageFetching) return;
     if (syncedPageRef.current === currentPage) return;
 
     const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery'];
@@ -184,17 +216,26 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
 
     if (activeIds.length > 0) {
       syncedPageRef.current = currentPage;
-      syncMultipleExternalOrdersTrackingAction(activeIds)
-        .then((res) => {
-          if (res?.updatedCount && res.updatedCount > 0) {
-            // Silently refresh the list without triggering isLoading=true
-            pageCacheRef.current.clear();
-            loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
-          }
-        })
-        .catch(err => console.error("Auto-sync failed:", err));
+      const timer = setTimeout(() => {
+        syncMultipleExternalOrdersTrackingAction(activeIds)
+          .then((res) => {
+            if (res?.updatedCount && res.updatedCount > 0) {
+              const limit = viewMode === 'list' ? 30 : 12;
+              const cacheKey = `${currentPage}_${limit}_${searchQuery}_${statusFilter}_${hideCancelled}_${viewMode}`;
+              fetchAllOrdersAdminAction(currentPage, limit, { search: searchQuery, status: statusFilter, hideCancelled }).then(result => {
+                if (result?.success && result.orders) {
+                  setOrders(result.orders);
+                  pageCacheRef.current.set(cacheKey, { orders: result.orders, totalCount: result.totalCount || totalCount });
+                }
+              });
+            }
+          })
+          .catch(err => console.error("Auto-sync failed:", err));
+      }, 1500);
+
+      return () => clearTimeout(timer);
     }
-  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled, viewMode]);
+  }, [orders, currentPage, isLoading, isPageFetching, searchQuery, statusFilter, hideCancelled, viewMode, totalCount]);
 
   // Deep Link Logic
   useEffect(() => {
@@ -396,8 +437,6 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     }
   };
 
-  if (!isMounted) return null;
-
   return (
     <div className="flex flex-col h-full bg-white rounded-[12px] overflow-hidden font-rubik">
       {/* DynamicAdminNav is now in Layout */}
@@ -415,7 +454,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
           pageCacheRef.current.clear();
           loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
         }}
-        refreshLoading={isLoading}
+        refreshLoading={isLoading || isPageFetching}
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={(page) => {
@@ -435,84 +474,71 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[100px] relative">
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="skeleton"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="w-full max-w-full"
-            >
-              {viewMode === 'list' ? <OrderTableSkeleton rows={15} /> : <OrderGridSkeleton count={12} />}
-            </motion.div>
-          ) : orders.length > 0 ? (
-            <motion.div
-              key="list"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <AdminOrderList
-                initialOrders={orders}
-                lastSeenAt={lastSeenAtOnMount.current || undefined}
-                viewMode={viewMode}
-                selectedIds={selectedIds}
-                totalCount={totalCount}
-                onToggleSelect={handleToggleSelect}
-                onToggleSelectAll={handleToggleSelectAll}
-                onViewDetails={handleOpenDetails}
-                onUpdateStatus={handleUpdateStatusTrigger}
-                onUpdatePaymentStatus={handleUpdatePaymentTrigger}
-                onDeleteOrder={handleDeleteOrder}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center h-[400px] gap-4 text-center"
-            >
-              <div className="w-16 h-16 bg-[#F4F4F5] rounded-2xl flex items-center justify-center text-[#71717a]">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-                </svg>
-              </div>
-              <h2 className="text-[#242424] text-[18px] font-semibold">No orders found</h2>
-              <p className="text-[#71717a] text-[14px] max-w-xs">We couldn't find any orders matching your criteria. Try adjusting your filters or create a demo order.</p>
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={async () => {
-                    setIsLoading(true);
-                    const res = await createDemoOrderAction();
-                    if (res.success) {
-                      showAdminToast('Demo order created successfully.', 'success');
-                      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
-                    } else {
-                      showAdminToast(res.message || 'Failed to create demo order.', 'error');
-                      setIsLoading(false);
-                    }
-                  }}
-                  className="bg-[#242424] text-white px-6 py-2.5 rounded-xl font-medium text-[14px] hover:bg-black transition-all active:scale-95"
-                >
-                  Create Demo Order
-                </button>
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setStatusFilter('all');
-                  }}
-                  className="text-[#242424] font-medium text-[14px] underline underline-offset-4"
-                >
-                  Clear all filters
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Subtle non-blocking progress indicator on page switch */}
+        {isPageFetching && (
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-neutral-100 overflow-hidden z-20">
+            <div className="h-full bg-blue-600 animate-pulse w-full" />
+          </div>
+        )}
+
+        {isLoading && orders.length === 0 ? (
+          <div className="w-full max-w-full">
+            {viewMode === 'list' ? <OrderTableSkeleton rows={15} /> : <OrderGridSkeleton count={12} />}
+          </div>
+        ) : orders.length > 0 ? (
+          <div className={`transition-opacity duration-150 ${isPageFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+            <AdminOrderList
+              initialOrders={orders}
+              lastSeenAt={lastSeenAtOnMount.current || undefined}
+              viewMode={viewMode}
+              selectedIds={selectedIds}
+              totalCount={totalCount}
+              onToggleSelect={handleToggleSelect}
+              onToggleSelectAll={handleToggleSelectAll}
+              onViewDetails={handleOpenDetails}
+              onUpdateStatus={handleUpdateStatusTrigger}
+              onUpdatePaymentStatus={handleUpdatePaymentTrigger}
+              onDeleteOrder={handleDeleteOrder}
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-[400px] gap-4 text-center">
+            <div className="w-16 h-16 bg-[#F4F4F5] rounded-2xl flex items-center justify-center text-[#71717a]">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+            </div>
+            <h2 className="text-[#242424] text-[18px] font-semibold">No orders found</h2>
+            <p className="text-[#71717a] text-[14px] max-w-xs">We couldn't find any orders matching your criteria. Try adjusting your filters or create a demo order.</p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={async () => {
+                  setIsLoading(true);
+                  const res = await createDemoOrderAction();
+                  if (res.success) {
+                    showAdminToast('Demo order created successfully.', 'success');
+                    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+                  } else {
+                    showAdminToast(res.message || 'Failed to create demo order.', 'error');
+                    setIsLoading(false);
+                  }
+                }}
+                className="bg-[#242424] text-white px-6 py-2.5 rounded-xl font-medium text-[14px] hover:bg-black transition-all active:scale-95"
+              >
+                Create Demo Order
+              </button>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('all');
+                }}
+                className="text-[#242424] font-medium text-[14px] underline underline-offset-4"
+              >
+                Clear all filters
+              </button>
+            </div>
+          </div>
+        )}
 
         {totalPages > 1 && (
           <div className="mt-8">
