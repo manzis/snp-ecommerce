@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CloseIcon from '@/components/icons/CloseIcon';
 import CheckIcon from '@/components/icons/TickIcon2';
@@ -14,7 +15,10 @@ interface AdminToastProps {
 }
 
 export const AdminToast = ({ message, type, onClose }: AdminToastProps) => {
+    const [mounted, setMounted] = useState(false);
+
     useEffect(() => {
+        setMounted(true);
         const timer = setTimeout(onClose, 4000); // 4 seconds duration
         return () => clearTimeout(timer);
     }, [onClose]);
@@ -24,8 +28,8 @@ export const AdminToast = ({ message, type, onClose }: AdminToastProps) => {
     const borderTint = type === 'success' ? 'border-white/20' : type === 'error' ? 'border-red-500/40' : 'border-white/20';
     const iconColor = type === 'success' ? 'text-white' : type === 'error' ? 'text-red-400' : 'text-white';
 
-    return (
-        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
+    const toastContent = (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[200000] pointer-events-none">
             <AnimatePresence>
                 <motion.div
                     initial={{ y: -50, opacity: 0, scale: 0.95 }}
@@ -36,7 +40,7 @@ export const AdminToast = ({ message, type, onClose }: AdminToastProps) => {
                         pointer-events-auto flex items-center justify-between gap-4 
                         pl-4 pr-2 py-3 min-w-[300px] max-w-[450px]
                         bg-[#0a0a0a] border ${borderTint} rounded-xl
-                        shadow-[0_8px_35px_rgb(0,0,0,0.2)]
+                        shadow-[0_8px_35px_rgb(0,0,0,0.3)]
                         font-rubik
                     `}
                 >
@@ -66,4 +70,8 @@ export const AdminToast = ({ message, type, onClose }: AdminToastProps) => {
             </AnimatePresence>
         </div>
     );
+
+    if (!mounted || typeof document === 'undefined') return null;
+
+    return createPortal(toastContent, document.body);
 };
