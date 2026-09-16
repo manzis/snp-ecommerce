@@ -72,7 +72,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   const totalSavings = numericMrp > numericTotal ? Math.round(numericMrp - numericTotal) : 0;
 
   const SavingsBanner = (isCheckoutPage && totalSavings > 0) ? (
-    <div className="w-full mx-auto max-w-[410px] lg:max-w-[1280px] px-[16px] pt-[8px] pb-[4px]">
+    <div className="w-full mx-auto max-w-[410px] md:max-w-full lg:max-w-[1280px] px-[16px] pt-[8px] pb-[4px]">
       <div className="flex items-center justify-center gap-[6px] py-[6px] px-[12px] bg-[#eaffcc] border border-[#d6f5a3] rounded-[10px] text-[#308026]">
         <span className="text-[14px]">🎉</span>
         <span className="font-rajdhani text-[13px] sm:text-[14px] font-bold tracking-[-0.2px]">
@@ -83,7 +83,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   ) : null;
 
   const Content = (
-    <div className="mx-auto flex h-full w-full max-w-[410px] lg:max-w-[1280px] flex-row lg:items-center">
+    <div className="mx-auto flex h-full w-full max-w-[410px] md:max-w-full lg:max-w-[1280px] flex-row items-center">
       {/* LEFT SECTION: Price Info */}
       <div className="flex flex-1 basis-0 h-full items-center bg-transparent px-[24px]">
         <div className="flex items-start gap-[10px]">
@@ -170,7 +170,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
-            className="pointer-events-auto relative w-full max-w-[410px] md:max-w-7xl bg-white border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] flex flex-col"
+            className="pointer-events-auto relative w-full max-w-[410px] md:max-w-full lg:max-w-7xl bg-white border-t border-[#f1f5f9] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] flex flex-col"
             style={{
               paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
               paddingTop: '6px',

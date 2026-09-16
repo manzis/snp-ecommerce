@@ -326,7 +326,9 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
 
     const handleFinalSubmit = async () => {
         setIsSaving(true);
-        const cleanImages = formData.images.filter((img: string) => img && img.trim() !== '');
+        const cleanImages = Array.isArray(formData.images)
+            ? formData.images.filter((img: string) => typeof img === 'string' && img.trim() !== '')
+            : [];
         const { temp_sizes, temp_flavours, ...dataToSave } = { ...formData, images: cleanImages };
 
         try {
@@ -341,12 +343,12 @@ export default function ProductForm({ initialData, mode, onSave, storageKey }: P
                 showAdminToast(mode === 'edit' ? 'Product updated successfully.' : 'Product created successfully.', 'success');
                 router.push('/admin/products');
             } else {
-                showAdminToast(`Error: ${res.message}`, 'error');
+                showAdminToast(`Failed to save: ${res.message || 'Unknown error'}`, 'error');
             }
         } catch (error: any) {
             console.error('Submit Error:', error);
             setIsSaving(false);
-            showAdminToast(`Failed to save product due to an unexpected error.`, 'error');
+            showAdminToast(error?.message ? `Save error: ${error.message}` : 'Failed to save product due to an unexpected error.', 'error');
         }
     };
 

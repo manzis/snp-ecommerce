@@ -36,7 +36,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
 
 
   return (
-    <section className="main-container relative mx-auto flex w-full max-w-[410px] flex-col gap-[16px] overflow-hidden bg-white px-[12px] pb-[24px] py-[16px] lg:max-w-none">
+    <section className="main-container relative mx-auto flex w-full flex-col gap-[16px] overflow-hidden bg-white px-[12px] pb-[24px] py-[16px]">
 
       {/* Confetti Effect: Optimized with simple motion divs */}
       <AnimatePresence>

@@ -207,6 +207,7 @@ export function AdminOrderList({
                 switch (status?.toLowerCase()) {
                   case 'paid': return { bg: 'bg-green-500', label: 'Paid', text: 'text-green-600' };
                   case 'partially_paid': return { bg: 'bg-amber-500', label: 'Partial', text: 'text-amber-600' };
+                  case 'failed': return { bg: 'bg-rose-500', label: 'Failed', text: 'text-rose-600' };
                   default: return { bg: 'bg-gray-400', label: 'Pending', text: 'text-gray-500' };
                 }
               };

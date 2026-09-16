@@ -11,26 +11,26 @@ import RedirectIcon from '@/components/icons/SmileyFaceIcon';
  */
 const CheckoutPrompt: React.FC = () => {
     return (
-        <section className="mx-auto w-full max-w-[410px] bg-[#308026] p-[4px_4px_28px_4px] rounded-t-[24px] lg:max-w-[1280px] lg:rounded-[24px] lg:p-[4px]">
-            <div className="flex w-full flex-col items-center justify-center gap-[16px] rounded-[24px] border-b-[2px] border-[#e5e5e5] bg-[#164210] p-[28px_24px_32px_24px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] lg:flex-row lg:justify-between lg:p-[32px_48px]">
+        <section className="mx-auto w-full max-w-[410px] md:max-w-full lg:max-w-[1280px] bg-[#308026] p-[4px_4px_28px_4px] rounded-t-[24px] md:rounded-[24px] md:p-[4px]">
+            <div className="flex w-full flex-col items-center justify-center gap-[16px] rounded-[24px] border-b-[2px] border-[#e5e5e5] bg-[#164210] p-[28px_24px_32px_24px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] md:flex-row md:justify-between md:p-[28px_32px] lg:p-[32px_48px]">
 
                 {/* TEXT CONTENT */}
-                <div className="flex flex-col gap-[16px] items-center lg:items-start">
-                    <p className="w-full text-center font-rajdhani text-[16px] leading-[24px] text-white lg:text-left">
+                <div className="flex flex-col gap-[16px] items-center md:items-start">
+                    <p className="w-full text-center font-rajdhani text-[16px] leading-[24px] text-white md:text-left">
                         <span className="font-[500]">You are heading towards the </span>
                         <span className="font-[600]">Best Decision!</span>
                     </p>
 
-                    <div className="flex flex-col items-center justify-center gap-[14px] lg:items-start">
- <h2 className="w-full text-center font-rajdhani font-bold text-[24px] font-[500] leading-[32px] tracking-[-0.24px] text-white lg:text-left lg:text-[32px] lg:leading-[40px]">
-                            We are excited for <br className="lg:hidden" />
+                    <div className="flex flex-col items-center justify-center gap-[14px] md:items-start">
+                        <h2 className="w-full text-center font-rajdhani font-bold text-[24px] font-[500] leading-[32px] tracking-[-0.24px] text-white md:text-left md:text-[28px] md:leading-[36px] lg:text-[32px] lg:leading-[40px]">
+                            We are excited for <br className="md:hidden" />
                             <span className="text-[#94ff00]"> your order</span>
                         </h2>
                     </div>
                 </div>
 
                 {/* CTA BUTTON */}
-                <button className="flex h-[34px] w-[162px] items-center justify-center gap-[2px] rounded-[10px_0_10px_10px] bg-[#ffe900] px-[8px] py-[3px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] transition-transform active:scale-95 lg:h-[48px] lg:w-[200px]">
+                <button className="flex h-[36px] w-[170px] md:h-[44px] md:w-[190px] items-center justify-center gap-[2px] rounded-[10px_0_10px_10px] bg-[#ffe900] px-[8px] py-[3px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] transition-transform active:scale-95 lg:h-[48px] lg:w-[200px]">
                     <span className="font-rajdhani text-[16px] font-[500] leading-[24px] tracking-[-0.64px] text-[#242424] lg:text-[18px]">
                         Complete your order
                     </span>
@@ -39,11 +39,10 @@ const CheckoutPrompt: React.FC = () => {
                     </div>
                 </button>
 
-
-
             </div>
-            <p className="w-[full] text-center px-[24px] font-rajdhani  text-[12px]  leading-[24px] text-white lg:text-left mt-[12px]" >
-                <span className="font-regular italic">We never ask OTP through phone calls or messages. Such activities are supposed to be fraudulent. </span></p>
+            <p className="w-full text-center px-[24px] font-rajdhani text-[12px] leading-[24px] text-white md:text-left mt-[12px]">
+                <span className="font-regular italic">We never ask OTP through phone calls or messages. Such activities are supposed to be fraudulent. </span>
+            </p>
         </section>
     );
 };

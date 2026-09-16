@@ -239,7 +239,7 @@ export default function CartPage() {
 
           {/* COUPONS SECTION: Placed between items and summary as requested */}
           {items.length > 0 && (
-            <div className="lg:hidden">
+            <div className="lg:hidden w-full">
               <CartCoupons onApply={() => { }} />
             </div>
           )}

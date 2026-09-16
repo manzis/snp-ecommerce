@@ -99,7 +99,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
   }));
 
   return (
-    <div className="main-container mx-auto flex w-full max-w-[410px] flex-col justify-center items-center  border-t border-[#f1f5f9] lg:max-w-none">
+    <div className="main-container mx-auto flex w-full flex-col items-start border-t border-[#f1f5f9] transition-all duration-300">
       <button
         onClick={onToggle}
         className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 ${isOpen ? 'bg-[#fafafb] py-[24px] pb-[16px]' : 'bg-white py-[24px]'
@@ -130,7 +130,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
             exit={{ height: 0, opacity: 0 }}
             className="w-full overflow-hidden"
           >
-            <div className="flex flex-col gap-[20px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
+            <div className="w-full max-w-full min-w-0 flex flex-col gap-[20px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
               <div className="flex flex-col gap-[10px] w-full">
 
                 {/* Input Container with Enhanced "Hard" Shake Animation */}

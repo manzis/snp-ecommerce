@@ -309,10 +309,11 @@ export async function createProductAction(productData: any) {
         product_id: productId,
         size_id: v.size_label ? sizeMap[v.size_label] : null,
         flavour_id: v.flavour_name ? flavourMap[v.flavour_name] : null,
-        original_price: v.original_price,
-        discounted_price: v.discounted_price,
-        stock_count: v.stock_count || 0,
-        is_available: v.is_available ?? true
+        original_price: Number(v.original_price) || oPrice,
+        discounted_price: Number(v.discounted_price) || dPrice,
+        stock_count: parseInt(String(v.stock_count || 0), 10) || 0,
+        is_available: v.is_available ?? true,
+        image_url: v.image_url ? String(v.image_url).trim() : null
       }));
 
       const { error: variantError } = await finalClient
@@ -627,218 +628,313 @@ export async function updateProductDeepAction(id: string, productData: any) {
     const adminClient = getSupabaseAdmin();
     const finalClient = adminClient || supabase;
 
-    // 2. Prepare product fields
+    // 2. Prepare & Whitelist product fields
     const { 
       product_variants, 
       product_info, 
-      categories, 
-      brands, 
-      sellers,
-      qa,
-      reviews,
-      tags,
-      slug: providedSlug,
-      name,
-      hasManuallyEditedSlug,
-      has_variants,
-      temp_sizes,
-      temp_flavours,
-      product_flavours,
-      product_sizes,
-      stock_count: providedStock,
-      id: productIdInData,
-      created_at,
-      roles,
-      linked_banner_ids,
-      product_banners, // Exclude relational field
-      product_review_mapping, // Exclude join table field
-      products_data, // Exclude join data
-      products: productsJoin, // Exclude join data
-      product_qa,
-      ...mainFields 
+      qa, 
+      reviews, 
+      linked_banner_ids 
     } = productData;
 
-    // 2a. Auto-calculate discount percentage
-    const oPrice = Number(mainFields.original_price) || 0;
-    const dPrice = Number(mainFields.discounted_price) || 0;
+    const oPrice = Number(productData.original_price) || 0;
+    const dPrice = Number(productData.discounted_price) || 0;
     const calculatedDiscount = (oPrice > 0 && oPrice > dPrice) 
         ? Math.round(((oPrice - dPrice) / oPrice) * 100).toString() 
         : '0';
 
+    const cleanImages = Array.isArray(productData.images)
+      ? productData.images.filter((img: any) => typeof img === 'string' && img.trim() !== '')
+      : [];
+
+    const cleanHighlights = Array.isArray(productData.highlights)
+      ? productData.highlights.filter((h: any) => h && (h.src || h.alt))
+      : [];
+
+    const cleanTags = Array.isArray(productData.tags)
+      ? productData.tags.filter((t: any) => typeof t === 'string' && t.trim() !== '')
+      : [];
+
+    const productUpdatePayload: Record<string, any> = {
+      name: (productData.name || '').trim(),
+      title: (productData.title || productData.name || '').trim(),
+      slug: (productData.slug || '').trim(),
+      category_id: productData.category_id || null,
+      brand_id: productData.brand_id || null,
+      seller_id: productData.seller_id || null,
+      original_price: oPrice.toString(),
+      discounted_price: dPrice.toString(),
+      discount_percentage: calculatedDiscount,
+      rating: Number(productData.rating) || 4.5,
+      images: cleanImages,
+      highlights: cleanHighlights,
+      tags: cleanTags,
+      stock_status: productData.stock_status || 'in_stock',
+      stock_count: parseInt(String(productData.stock_count || 0), 10) || 0,
+      is_published: Boolean(productData.is_published),
+      is_draft: Boolean(productData.is_draft),
+      updated_at: new Date().toISOString()
+    };
+
+    if (productData.banner_image1 !== undefined) productUpdatePayload.banner_image1 = productData.banner_image1 || null;
+    if (productData.banner_image2 !== undefined) productUpdatePayload.banner_image2 = productData.banner_image2 || null;
+    if (productData.banner_image3 !== undefined) productUpdatePayload.banner_image3 = productData.banner_image3 || null;
+    if (productData.banner_image4 !== undefined) productUpdatePayload.banner_image4 = productData.banner_image4 || null;
+
     // 3. Update Main Product
     const { data: updatedProduct, error: productError } = await finalClient
       .from('products')
-      .update({
-        ...mainFields,
-        discount_percentage: calculatedDiscount,
-        name,
-        slug: providedSlug,
-        stock_count: providedStock || 0,
-        tags: tags || []
-      })
+      .update(productUpdatePayload)
       .eq('id', id)
       .select()
       .single();
 
-    if (productError) throw productError;
+    if (productError) throw new Error(`Product update error: ${productError.message}`);
 
     const productId = id;
 
-    // 4. Sequential Deletion of existing relations to maintain clean state
-    // We moved info, qa, review deletions closer to their inserts to prevent data loss on error.
-    
-    // 5. Resolve and Insert/Update Variants
+    // 4. Resolve and Insert/Update Variants
     const variantsToProcess = (product_variants && product_variants.length > 0) 
       ? product_variants 
       : [{
           size_label: null,
           flavour_name: null,
-          original_price: mainFields.original_price,
-          discounted_price: mainFields.discounted_price,
-          stock_count: providedStock || 0,
-          is_available: true
+          original_price: oPrice,
+          discounted_price: dPrice,
+          stock_count: productUpdatePayload.stock_count || 0,
+          is_available: true,
+          image_url: null
         }];
 
     if (variantsToProcess.length > 0) {
-      // Upsert Sizes
+      // 4a. Fetch existing sizes & flavours & variants for this product in parallel
+      const [existingSizesRes, existingFlavoursRes, existingVariantsRes] = await Promise.all([
+        finalClient.from('product_sizes').select('id, size_label, image_url').eq('product_id', productId),
+        finalClient.from('product_flavours').select('id, flavour_name, image_url').eq('product_id', productId),
+        finalClient.from('product_variants').select('id').eq('product_id', productId)
+      ]);
+
+      if (existingSizesRes.error) throw new Error(`Fetch sizes error: ${existingSizesRes.error.message}`);
+      if (existingFlavoursRes.error) throw new Error(`Fetch flavours error: ${existingFlavoursRes.error.message}`);
+      if (existingVariantsRes.error) throw new Error(`Fetch variants error: ${existingVariantsRes.error.message}`);
+
+      const existingSizes = existingSizesRes.data || [];
+      const existingFlavours = existingFlavoursRes.data || [];
+      const existingVariantIds = new Set((existingVariantsRes.data || []).map(v => v.id));
+
+      // 4b. Map and Upsert Sizes
       const sizeMap: Record<string, string> = {};
-      const uniqueSizes = Array.from(new Set(variantsToProcess.map((v: any) => v.size_label || v.size?.size_label))).filter(Boolean) as string[];
-      if (uniqueSizes.length > 0) {
-        for (const label of uniqueSizes) {
-           const variantWithSize = variantsToProcess.find((v:any) => (v.size_label === label || v.size?.size_label === label));
-           const variantWithNewImage = variantsToProcess.find((v:any) => (v.size_label === label || v.size?.size_label === label) && v.image_url && v.image_url.trim() !== '');
-           const sId = variantWithSize?.size_id;
-           const sImage = variantWithNewImage ? variantWithNewImage.image_url : (variantWithSize?.size?.image_url || null);
-           
-           if (sId) {
-              const { error } = await finalClient.from('product_sizes').update({ size_label: label, image_url: sImage }).eq('id', sId);
-              if (error) throw new Error(`Size update error: ${error.message}`);
-              sizeMap[label] = sId;
-           } else {
-              const { data, error } = await finalClient.from('product_sizes').insert({ product_id: productId, size_label: label, image_url: sImage, is_available: true }).select('id').single();
-              if (error) throw new Error(`Size insert error: ${error.message}`);
-              if (data) sizeMap[label] = data.id;
-           }
-        }
-      }
+      const uniqueSizes = Array.from(new Set(
+        variantsToProcess
+          .map((v: any) => (v.size_label || v.size?.size_label || '').trim())
+          .filter(Boolean)
+      )) as string[];
 
-      // Upsert Flavours
-      const flavourMap: Record<string, string> = {};
-      const uniqueFlavours = Array.from(new Set(variantsToProcess.map((v: any) => v.flavour_name || v.flavour?.flavour_name))).filter(Boolean) as string[];
-      if (uniqueFlavours.length > 0) {
-        for (const name of uniqueFlavours) {
-           const variantWithFlavour = variantsToProcess.find((v:any) => (v.flavour_name === name || v.flavour?.flavour_name === name));
-           const variantWithNewImage = variantsToProcess.find((v:any) => (v.flavour_name === name || v.flavour?.flavour_name === name) && v.image_url && v.image_url.trim() !== '');
-           const fId = variantWithFlavour?.flavour_id;
-           const fImage = variantWithNewImage ? variantWithNewImage.image_url : (variantWithFlavour?.flavour?.image_url || null);
-           
-           if (fId) {
-              const { error } = await finalClient.from('product_flavours').update({ flavour_name: name, image_url: fImage }).eq('id', fId);
-              if (error) throw new Error(`Flavour update error: ${error.message}`);
-              flavourMap[name] = fId;
-           } else {
-              const { data, error } = await finalClient.from('product_flavours').insert({ product_id: productId, flavour_name: name, image_url: fImage, is_available: true }).select('id').single();
-              if (error) throw new Error(`Flavour insert error: ${error.message}`);
-              if (data) flavourMap[name] = data.id;
-           }
-        }
-      }
+      const sizesToInsert: any[] = [];
+      for (const label of uniqueSizes) {
+        const existing = existingSizes.find(s => s.size_label.trim().toLowerCase() === label.toLowerCase());
+        const variantWithImg = variantsToProcess.find((v: any) => 
+          (v.size_label?.trim().toLowerCase() === label.toLowerCase() || v.size?.size_label?.trim().toLowerCase() === label.toLowerCase()) && 
+          v.image_url?.trim()
+        );
+        const imgUrl = variantWithImg?.image_url?.trim() || null;
 
-      // Upsert Variants
-      const activeVariantIds: string[] = [];
-      for (const v of variantsToProcess) {
-          const sLabel = v.size_label || v.size?.size_label;
-          const fName = v.flavour_name || v.flavour?.flavour_name;
-          const sId = sLabel ? sizeMap[sLabel] : null;
-          const fId = fName ? flavourMap[fName] : null;
-          
-          if (v.id) {
-             const { error } = await finalClient.from('product_variants').update({
-                size_id: sId,
-                flavour_id: fId,
-                original_price: v.original_price,
-                discounted_price: v.discounted_price,
-                stock_count: v.stock_count || 0,
-                is_available: v.is_available ?? true
-             }).eq('id', v.id);
-             if (error) throw new Error(`Variant update error: ${error.message}`);
-             activeVariantIds.push(v.id);
-          } else {
-             const { data, error } = await finalClient.from('product_variants').insert({
-                product_id: productId,
-                size_id: sId,
-                flavour_id: fId,
-                original_price: v.original_price,
-                discounted_price: v.discounted_price,
-                stock_count: v.stock_count || 0,
-                is_available: v.is_available ?? true
-             }).select('id').single();
-             if (error) throw new Error(`Variant insert error: ${error.message}`);
-             if (data) activeVariantIds.push(data.id);
+        if (existing) {
+          sizeMap[label] = existing.id;
+          if (imgUrl && !existing.image_url) {
+            finalClient.from('product_sizes').update({ image_url: imgUrl }).eq('id', existing.id).then();
           }
+        } else {
+          sizesToInsert.push({
+            product_id: productId,
+            size_label: label,
+            image_url: imgUrl,
+            is_available: true
+          });
+        }
       }
 
-      // Cleanup removed Variants, Flavours, Sizes
+      if (sizesToInsert.length > 0) {
+        const { data: newSizes, error: sizeInsertError } = await finalClient
+          .from('product_sizes')
+          .insert(sizesToInsert)
+          .select('id, size_label');
+        if (sizeInsertError) throw new Error(`Size insert error: ${sizeInsertError.message}`);
+        newSizes?.forEach(s => { sizeMap[s.size_label] = s.id; });
+      }
+
+      // 4c. Map and Upsert Flavours
+      const flavourMap: Record<string, string> = {};
+      const uniqueFlavours = Array.from(new Set(
+        variantsToProcess
+          .map((v: any) => (v.flavour_name || v.flavour?.flavour_name || '').trim())
+          .filter(Boolean)
+      )) as string[];
+
+      const flavoursToInsert: any[] = [];
+      for (const name of uniqueFlavours) {
+        const existing = existingFlavours.find(f => f.flavour_name.trim().toLowerCase() === name.toLowerCase());
+        const variantWithImg = variantsToProcess.find((v: any) => 
+          (v.flavour_name?.trim().toLowerCase() === name.toLowerCase() || v.flavour?.flavour_name?.trim().toLowerCase() === name.toLowerCase()) && 
+          v.image_url?.trim()
+        );
+        const imgUrl = variantWithImg?.image_url?.trim() || null;
+
+        if (existing) {
+          flavourMap[name] = existing.id;
+          if (imgUrl && !existing.image_url) {
+            finalClient.from('product_flavours').update({ image_url: imgUrl }).eq('id', existing.id).then();
+          }
+        } else {
+          flavoursToInsert.push({
+            product_id: productId,
+            flavour_name: name,
+            image_url: imgUrl,
+            is_available: true
+          });
+        }
+      }
+
+      if (flavoursToInsert.length > 0) {
+        const { data: newFlavours, error: flavourInsertError } = await finalClient
+          .from('product_flavours')
+          .insert(flavoursToInsert)
+          .select('id, flavour_name');
+        if (flavourInsertError) throw new Error(`Flavour insert error: ${flavourInsertError.message}`);
+        newFlavours?.forEach(f => { flavourMap[f.flavour_name] = f.id; });
+      }
+
+      // 4d. Prepare Variants (Update existing vs Insert new)
+      const activeVariantIds: string[] = [];
+      const variantsToUpdate: Array<{ id: string; payload: any }> = [];
+      const variantsToInsert: any[] = [];
+
+      for (const v of variantsToProcess) {
+        const sLabel = (v.size_label || v.size?.size_label || '').trim();
+        const fName = (v.flavour_name || v.flavour?.flavour_name || '').trim();
+        const sId = sLabel ? (sizeMap[sLabel] || null) : null;
+        const fId = fName ? (flavourMap[fName] || null) : null;
+
+        const variantPayload = {
+          product_id: productId,
+          size_id: sId,
+          flavour_id: fId,
+          original_price: Number(v.original_price) || oPrice,
+          discounted_price: Number(v.discounted_price) || dPrice,
+          stock_count: parseInt(String(v.stock_count || 0), 10) || 0,
+          is_available: v.is_available !== false,
+          image_url: v.image_url ? String(v.image_url).trim() : null
+        };
+
+        if (v.id && existingVariantIds.has(v.id)) {
+          variantsToUpdate.push({ id: v.id, payload: variantPayload });
+          activeVariantIds.push(v.id);
+        } else {
+          variantsToInsert.push(variantPayload);
+        }
+      }
+
+      // Run variant updates concurrently with Promise.all
+      if (variantsToUpdate.length > 0) {
+        const updatePromises = variantsToUpdate.map(({ id: vId, payload }) => 
+          finalClient.from('product_variants').update(payload).eq('id', vId)
+        );
+        const updateResults = await Promise.all(updatePromises);
+        for (const res of updateResults) {
+          if (res.error) throw new Error(`Variant update error: ${res.error.message}`);
+        }
+      }
+
+      // Batch insert new variants
+      if (variantsToInsert.length > 0) {
+        const { data: insertedVariants, error: vInsertError } = await finalClient
+          .from('product_variants')
+          .insert(variantsToInsert)
+          .select('id');
+        if (vInsertError) throw new Error(`Variant insert error: ${vInsertError.message}`);
+        insertedVariants?.forEach(iv => activeVariantIds.push(iv.id));
+      }
+
+      // 4e. Delete removed variants
       if (activeVariantIds.length > 0) {
-         const { error } = await finalClient.from('product_variants').delete().eq('product_id', productId).not('id', 'in', `(${activeVariantIds.join(',')})`);
-         if (error) throw new Error(`Variant cleanup error: ${error.message}`);
-      } else {
-         const { error } = await finalClient.from('product_variants').delete().eq('product_id', productId);
-         if (error) throw new Error(`Variant cleanup error: ${error.message}`);
+        const { error: delVarError } = await finalClient
+          .from('product_variants')
+          .delete()
+          .eq('product_id', productId)
+          .not('id', 'in', `(${activeVariantIds.join(',')})`);
+        if (delVarError) console.warn('Variant cleanup warning:', delVarError.message);
       }
 
-      const currentSizeIds = Object.values(sizeMap);
-      if (currentSizeIds.length > 0) {
-         const { error } = await finalClient.from('product_sizes').delete().eq('product_id', productId).not('id', 'in', `(${currentSizeIds.join(',')})`);
-         if (error) throw new Error(`Size cleanup error: ${error.message}`);
-      } else {
-         const { error } = await finalClient.from('product_sizes').delete().eq('product_id', productId);
-         if (error) throw new Error(`Size cleanup error: ${error.message}`);
+      // 4f. Safely cleanup unreferenced sizes & flavours
+      const usedSizeIds = new Set(Object.values(sizeMap));
+      const unreferencedSizes = existingSizes.filter(s => !usedSizeIds.has(s.id)).map(s => s.id);
+      if (unreferencedSizes.length > 0) {
+        try {
+          await finalClient
+            .from('product_sizes')
+            .delete()
+            .eq('product_id', productId)
+            .in('id', unreferencedSizes);
+        } catch (e: any) {
+          console.warn('Orphaned sizes cleanup skipped (referenced elsewhere):', e.message);
+        }
       }
 
-      const currentFlavourIds = Object.values(flavourMap);
-      if (currentFlavourIds.length > 0) {
-         const { error } = await finalClient.from('product_flavours').delete().eq('product_id', productId).not('id', 'in', `(${currentFlavourIds.join(',')})`);
-         if (error) throw new Error(`Flavour cleanup error: ${error.message}`);
-      } else {
-         const { error } = await finalClient.from('product_flavours').delete().eq('product_id', productId);
-         if (error) throw new Error(`Flavour cleanup error: ${error.message}`);
+      const usedFlavourIds = new Set(Object.values(flavourMap));
+      const unreferencedFlavours = existingFlavours.filter(f => !usedFlavourIds.has(f.id)).map(f => f.id);
+      if (unreferencedFlavours.length > 0) {
+        try {
+          await finalClient
+            .from('product_flavours')
+            .delete()
+            .eq('product_id', productId)
+            .in('id', unreferencedFlavours);
+        } catch (e: any) {
+          console.warn('Orphaned flavours cleanup skipped (referenced elsewhere):', e.message);
+        }
       }
     }
 
-    // 6. Insert Product Info
+    // 5. Product Info
     if (product_info) {
-      await finalClient.from('product_info').delete().eq('product_id', productId);
       const infoData = Array.isArray(product_info) ? product_info[0] : product_info;
-      const { id: _, product_id: __, ...cleanInfo } = infoData;
-      const { error: infoError } = await finalClient
-        .from('product_info')
-        .insert([{ ...cleanInfo, product_id: productId }]);
-      if (infoError) throw new Error(`Info insert error: ${infoError.message}`);
+      if (infoData) {
+        await finalClient.from('product_info').delete().eq('product_id', productId);
+        const { error: infoError } = await finalClient
+          .from('product_info')
+          .insert([{
+            product_id: productId,
+            description: infoData.description || '',
+            ingredients_image: infoData.ingredients_image || null,
+            highlight_image: infoData.highlight_image || null,
+            manufacture_info: infoData.manufacture_info || {},
+            other_details: infoData.other_details || {}
+          }]);
+        if (infoError) throw new Error(`Info error: ${infoError.message}`);
+      }
     }
 
-    // 7. Insert QA
-    const validQa = (qa || []).filter((q: any) => q.question?.trim());
-    if (validQa.length > 0) {
+    // 6. QA
+    if (qa !== undefined) {
       await finalClient.from('product_qa').delete().eq('product_id', productId);
-      const qaToInsert = validQa.map((q: any) => ({
-        product_id: productId,
-        question: q.question.trim(),
-        answer: q.answer?.trim() || null,
-        author: q.author || 'Admin'
-      }));
-      const { error: qaError } = await finalClient.from('product_qa').insert(qaToInsert);
-      if (qaError) throw new Error(`QA insert error: ${qaError.message}`);
-    } else {
-      await finalClient.from('product_qa').delete().eq('product_id', productId);
+      const validQa = (qa || []).filter((q: any) => q.question?.trim());
+      if (validQa.length > 0) {
+        const qaToInsert = validQa.map((q: any) => ({
+          product_id: productId,
+          question: q.question.trim(),
+          answer: q.answer?.trim() || null,
+          author: q.author || 'Admin'
+        }));
+        const { error: qaError } = await finalClient.from('product_qa').insert(qaToInsert);
+        if (qaError) throw new Error(`QA error: ${qaError.message}`);
+      }
     }
 
-    // 8. Handle Reviews (Many-to-Many logic)
-    if (reviews && reviews.length > 0) {
+    // 7. Reviews
+    if (reviews !== undefined && Array.isArray(reviews)) {
       const newReviews = reviews.filter((r: any) => !r.id && !r.linked_from_id);
       const existingReviews = reviews.filter((r: any) => r.id || r.linked_from_id);
 
-      // 8a. Insert brand new reviews
       let newReviewIds: string[] = [];
       if (newReviews.length > 0) {
         const reviewsToInsert = newReviews.map((r: any) => ({
@@ -855,14 +951,13 @@ export async function updateProductDeepAction(id: string, productData: any) {
         if (inserted) newReviewIds = inserted.map(r => r.id);
       }
 
-      // 8b. Map both new and existing reviews to this product
       const allReviewIdsToLink = Array.from(new Set([
         ...newReviewIds,
         ...existingReviews.map((r: any) => r.id || r.linked_from_id)
-      ]));
+      ])).filter(Boolean);
 
+      await finalClient.from('product_review_mapping').delete().eq('product_id', productId);
       if (allReviewIdsToLink.length > 0) {
-        await finalClient.from('product_review_mapping').delete().eq('product_id', productId);
         const mappingRows = allReviewIdsToLink.map(rid => ({
           product_id: productId,
           review_id: rid
@@ -870,27 +965,32 @@ export async function updateProductDeepAction(id: string, productData: any) {
         const { error: mError } = await finalClient.from('product_review_mapping').insert(mappingRows);
         if (mError) throw new Error(`Review mapping error: ${mError.message}`);
       }
-    } else {
-        await finalClient.from('product_review_mapping').delete().eq('product_id', productId);
     }
 
-    // 8a. Sync Linked Banners
-    await finalClient.from('product_banners').delete().eq('product_id', productId);
-    if (linked_banner_ids && linked_banner_ids.length > 0) {
-      const bannerLinks = linked_banner_ids.map((bannerId: string) => ({
-        product_id: productId,
-        banner_id: bannerId
-      }));
-      await finalClient.from('product_banners').insert(bannerLinks);
+    // 8. Linked Banners
+    if (linked_banner_ids !== undefined) {
+      await finalClient.from('product_banners').delete().eq('product_id', productId);
+      if (Array.isArray(linked_banner_ids) && linked_banner_ids.length > 0) {
+        const bannerLinks = linked_banner_ids.map((bannerId: string) => ({
+          product_id: productId,
+          banner_id: bannerId
+        }));
+        const { error: bannerError } = await finalClient.from('product_banners').insert(bannerLinks);
+        if (bannerError) console.warn('Banner link warning:', bannerError.message);
+      }
     }
 
     // 9. Revalidate cache
-    revalidatePath('/admin/products');
-    revalidatePath(`/admin/products/edit/${id}`);
-    revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
-    revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/');
-    revalidateProduct(id, updatedProduct.slug);
+    try {
+      revalidatePath('/admin/products');
+      revalidatePath(`/admin/products/edit/${id}`);
+      revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
+      revalidatePath('/product/[slug]', 'page');
+      revalidatePath('/');
+      revalidateProduct(id, updatedProduct.slug);
+    } catch (revalErr) {
+      console.warn('Revalidation warning:', revalErr);
+    }
 
     return { success: true, data: updatedProduct };
   } catch (error: any) {

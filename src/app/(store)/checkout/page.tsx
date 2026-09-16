@@ -560,7 +560,7 @@ export default function CheckoutPage() {
               couponError={couponError}
             />
 
-            <div className="flex flex-col border-b border-[#f1f5f9]">
+            <div className="flex flex-col border-b border-[#f1f5f9] w-full">
               <ContactSection
                 ref={contactRef}
                 isOpen={activeStep === 'contact'}
@@ -572,7 +572,7 @@ export default function CheckoutPage() {
                 externalError={contactError}
               />
 
-              <div ref={deliveryScrollRef}>
+              <div ref={deliveryScrollRef} className="w-full">
                 <DeliverySection
                   ref={deliveryRef}
                   userId={userId!}
@@ -593,7 +593,7 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div ref={paymentsRef}>
+              <div ref={paymentsRef} className="w-full">
                 <PaymentSection
                   isOpen={activeStep === 'payments'}
                   isConfirmed={!!selectedPaymentId}

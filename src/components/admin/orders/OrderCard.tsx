@@ -102,6 +102,8 @@ export default function OrderCard({
                 return { bg: 'bg-green-100', label: 'Paid', text: 'text-green-800' };
             case 'partially_paid':
                 return { bg: 'bg-[#fef08a]', label: 'Part. Paid', text: 'text-[#854d0e]' };
+            case 'failed':
+                return { bg: 'bg-red-100', label: 'Failed', text: 'text-red-800' };
             case 'pending':
             default:
                 return { bg: 'bg-zinc-100', label: 'Pending', text: 'text-[#3f3f46]' };

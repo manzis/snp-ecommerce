@@ -50,31 +50,33 @@ export default function QuickLinksNav() {
   ];
 
   return (
-    <nav className="flex flex-col gap-[12px] items-start self-stretch shrink-0 px-[24px] pb-[16px] pt-[8px] md:px-0 md:w-[200px]">
+    <nav className="flex flex-col gap-[12px] items-start self-stretch shrink-0 px-[24px] pb-[16px] pt-[8px] md:px-0 md:grid md:grid-cols-2 md:gap-x-[24px] md:gap-y-[16px] md:flex-1 md:w-auto">
       {navSections.map((section, index) => {
         const isOpen = openIndex === index;
 
         return (
-          <div key={section.label} className="w-full  pb-[8px] md:border-none md:pb-0">
+          <div key={section.label} className="w-full pb-[8px] md:border-none md:pb-0">
             {/* 1. The Trigger Button */}
             <button
               onClick={() => toggleDropdown(index)}
-              className="flex justify-between items-center w-full self-stretch shrink-0 group focus:outline-none"
+              className="flex justify-between items-center w-full self-stretch shrink-0 group focus:outline-none md:pointer-events-none"
               aria-expanded={isOpen}
             >
- <span className="uppercase tracking-[-0.2px] font-rajdhani font-bold text-[22px] leading-[32px] text-white transition-colors hover:text-gray-300">
+              <span className="uppercase tracking-[-0.2px] font-rajdhani font-bold text-[22px] leading-[32px] text-white transition-colors hover:text-gray-300">
                 {section.label}
               </span>
               <ArrowDown
-                className={`w-[20px] h-[20px] text-white opacity-80 transition-transform duration-300 ease-in-out ${isOpen ? 'rotate-180' : 'rotate-0'
-                  }`}
+                className={`w-[20px] h-[20px] text-white opacity-80 transition-transform duration-300 ease-in-out md:hidden ${
+                  isOpen ? 'rotate-180' : 'rotate-0'
+                }`}
               />
             </button>
 
-            {/* 2. The Smooth Animated Dropdown Container */}
+            {/* 2. The Smooth Animated Dropdown Container (Always visible on md+ for desktop/tablet UX) */}
             <div
-              className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-[8px]' : 'grid-rows-[0fr] opacity-0'
-                }`}
+              className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out md:grid-rows-[1fr] md:opacity-100 md:mt-[10px] ${
+                isOpen ? 'grid-rows-[1fr] opacity-100 mt-[8px]' : 'grid-rows-[0fr] opacity-0'
+              }`}
             >
               <div className="overflow-hidden flex flex-col gap-[10px] pl-[4px]">
                 {/* 3. Dropdown Content Mapping */}

@@ -132,7 +132,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
         </div>
 
         {/* QR CODE CONTENT AREA */}
-        <div className="relative w-full aspect-square pt-[24px] pb-[16px] flex items-center justify-center overflow-hidden bg-white border-t  border-[#eaebf0] ">
+        <div className="relative w-full max-w-[360px] mx-auto aspect-square pt-[24px] pb-[16px] flex items-center justify-center overflow-hidden bg-white border-t border-[#eaebf0] rounded-b-[16px]">
           {/* QR Image */}
           <div className={`relative w-full h-full transition-all duration-1000 ease-out ${!isRevealed ? 'blur-[20px] scale-90 opacity-30' : 'blur-0 scale-100 opacity-100'}`}>
             <Image
@@ -140,7 +140,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
               alt="Payment QR"
               fill
               className="object-contain"
-              sizes="(max-width: 412px) 100vw, 350px"
+              sizes="(max-width: 768px) 100vw, 360px"
             />
           </div>
 

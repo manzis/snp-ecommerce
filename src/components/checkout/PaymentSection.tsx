@@ -51,7 +51,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   isProcessing = false
 }) => {
   return (
-    <div className={`main-container mx-auto flex w-full max-w-[412px] flex-col items-start border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
+    <div className={`main-container mx-auto flex w-full flex-col items-start border-t border-[#f1f5f9] transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
       }`}>
 
       {/* SECTION HEADER */}
@@ -90,9 +90,9 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-            className="w-full  overflow-hidden"
+            className="w-full overflow-hidden"
           >
-            <div className="flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
+            <div className="w-full max-w-full min-w-0 flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
 
               {/* ONLINE PAYMENTS GROUP */}
               <div className="flex flex-col gap-[24px]">

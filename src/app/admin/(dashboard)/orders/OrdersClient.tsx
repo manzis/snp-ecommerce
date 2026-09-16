@@ -28,6 +28,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [paymentFilter, setPaymentFilter] = useState<string>('all');
   const [hideCancelled, setHideCancelled] = useState<boolean>(false);
 
   const [selectedOrderForDetails, setSelectedOrderForDetails] = useState<any | null>(null);
@@ -89,7 +90,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
 
   // Prime page 1 in cache immediately so subsequent clicks to page 1 are 0ms
   if (pageCacheRef.current.size === 0 && initialOrdersData?.success && initialOrdersData.orders?.length > 0) {
-    pageCacheRef.current.set(`1_12___all_false_grid`, {
+    pageCacheRef.current.set(`1_12___all_all_false_grid`, {
       orders: initialOrdersData.orders,
       totalCount: initialOrdersData.totalCount || 0
     });
@@ -101,6 +102,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     limit: number,
     search: string,
     status: string,
+    payment: string,
     hide: boolean,
     mode: 'grid' | 'list',
     maxPages: number
@@ -108,11 +110,11 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     // Next page prefetch
     if (page < maxPages) {
       const nextPage = page + 1;
-      const nextKey = `${nextPage}_${limit}_${search}_${status}_${hide}_${mode}`;
+      const nextKey = `${nextPage}_${limit}_${search}_${status}_${payment}_${hide}_${mode}`;
       if (!pageCacheRef.current.has(nextKey)) {
         setTimeout(async () => {
           try {
-            const result = await fetchAllOrdersAdminAction(nextPage, limit, { search, status, hideCancelled: hide });
+            const result = await fetchAllOrdersAdminAction(nextPage, limit, { search, status, paymentStatus: payment, hideCancelled: hide });
             if (result && result.success && result.orders && result.orders.length > 0) {
               pageCacheRef.current.set(nextKey, { orders: result.orders, totalCount: result.totalCount || 0 });
             }
@@ -124,11 +126,11 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     // Previous page prefetch if not already cached
     if (page > 1) {
       const prevPage = page - 1;
-      const prevKey = `${prevPage}_${limit}_${search}_${status}_${hide}_${mode}`;
+      const prevKey = `${prevPage}_${limit}_${search}_${status}_${payment}_${hide}_${mode}`;
       if (!pageCacheRef.current.has(prevKey)) {
         setTimeout(async () => {
           try {
-            const result = await fetchAllOrdersAdminAction(prevPage, limit, { search, status, hideCancelled: hide });
+            const result = await fetchAllOrdersAdminAction(prevPage, limit, { search, status, paymentStatus: payment, hideCancelled: hide });
             if (result && result.success && result.orders && result.orders.length > 0) {
               pageCacheRef.current.set(prevKey, { orders: result.orders, totalCount: result.totalCount || 0 });
             }
@@ -142,12 +144,13 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
     page: number = currentPage,
     search: string = searchQuery,
     status: string = statusFilter,
+    payment: string = paymentFilter,
     hide: boolean = hideCancelled,
     mode: 'grid' | 'list' = viewMode,
     forceSkeleton: boolean = false
   ) => {
     const limit = mode === 'list' ? 30 : 12;
-    const cacheKey = `${page}_${limit}_${search}_${status}_${hide}_${mode}`;
+    const cacheKey = `${page}_${limit}_${search}_${status}_${payment}_${hide}_${mode}`;
 
     // Instant load from cache if available (0ms!)
     if (pageCacheRef.current.has(cacheKey)) {
@@ -156,14 +159,14 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       setTotalCount(cached.totalCount);
       setIsLoading(false);
       const pages = Math.ceil(cached.totalCount / limit);
-      prefetchAdjacentPages(page, limit, search, status, hide, mode, pages);
+      prefetchAdjacentPages(page, limit, search, status, payment, hide, mode, pages);
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const result = await fetchAllOrdersAdminAction(page, limit, { search, status, hideCancelled: hide });
+      const result = await fetchAllOrdersAdminAction(page, limit, { search, status, paymentStatus: payment, hideCancelled: hide });
       if (result && result.success) {
         const fetchedOrders = result.orders || [];
         const count = result.totalCount || 0;
@@ -171,7 +174,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         setTotalCount(count);
         pageCacheRef.current.set(cacheKey, { orders: fetchedOrders, totalCount: count });
         const pages = Math.ceil(count / limit);
-        prefetchAdjacentPages(page, limit, search, status, hide, mode, pages);
+        prefetchAdjacentPages(page, limit, search, status, payment, hide, mode, pages);
       } else {
         showAdminToast(result?.message || 'Failed to fetch orders', 'error');
       }
@@ -189,12 +192,12 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       isInitialMount.current = false;
       if (initialOrdersData?.success && initialOrdersData.orders?.length > 0) {
         const pages = Math.ceil((initialOrdersData.totalCount || 0) / 12);
-        prefetchAdjacentPages(1, 12, '', 'all', false, 'grid', pages);
+        prefetchAdjacentPages(1, 12, '', 'all', 'all', false, 'grid', pages);
         return;
       }
     }
-    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
-  }, [currentPage, searchQuery, statusFilter, hideCancelled, viewMode]);
+    loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, false);
+  }, [currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode]);
 
   // Auto-sync external tracking for visible active orders (idle non-blocking)
   const syncedPageRef = useRef<number | null>(null);
@@ -214,8 +217,8 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
           .then((res) => {
             if (res?.updatedCount && res.updatedCount > 0) {
               const limit = viewMode === 'list' ? 30 : 12;
-              const cacheKey = `${currentPage}_${limit}_${searchQuery}_${statusFilter}_${hideCancelled}_${viewMode}`;
-              fetchAllOrdersAdminAction(currentPage, limit, { search: searchQuery, status: statusFilter, hideCancelled }).then(result => {
+              const cacheKey = `${currentPage}_${limit}_${searchQuery}_${statusFilter}_${paymentFilter}_${hideCancelled}_${viewMode}`;
+              fetchAllOrdersAdminAction(currentPage, limit, { search: searchQuery, status: statusFilter, paymentStatus: paymentFilter, hideCancelled }).then(result => {
                 if (result?.success && result.orders) {
                   setOrders(result.orders);
                   pageCacheRef.current.set(cacheKey, { orders: result.orders, totalCount: result.totalCount || totalCount });
@@ -228,7 +231,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
 
       return () => clearTimeout(timer);
     }
-  }, [orders, currentPage, isLoading, searchQuery, statusFilter, hideCancelled, viewMode, totalCount]);
+  }, [orders, currentPage, isLoading, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, totalCount]);
 
   // Deep Link Logic
   useEffect(() => {
@@ -413,7 +416,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       }
       
       setSelectedIds([]);
-      loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+      loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, true);
     }
   };
 
@@ -423,7 +426,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       if (res.success) {
         pageCacheRef.current.clear();
         showAdminToast('Payment state reset successfully.', 'success');
-        loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, false);
+        loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, false);
       } else {
         showAdminToast(res.message || 'Failed to reset payment.', 'error');
       }
@@ -456,7 +459,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         }}
         onRefresh={() => {
           pageCacheRef.current.clear();
-          loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+          loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, true);
         }}
         refreshLoading={isLoading}
         currentPage={currentPage}
@@ -465,16 +468,27 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
           setCurrentPage(page);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
-        filterDropdown={<OrderFilters status={statusFilter} setStatus={(s) => {
-          pageCacheRef.current.clear();
-          setStatusFilter(s);
-          setCurrentPage(1);
-        }} hideCancelled={hideCancelled} setHideCancelled={(val) => {
-          pageCacheRef.current.clear();
-          setHideCancelled(val);
-          sessionStorage.setItem('admin_orders_hide_cancelled', String(val));
-          setCurrentPage(1);
-        }} />}
+        filterDropdown={<OrderFilters 
+          status={statusFilter} 
+          setStatus={(s) => {
+            pageCacheRef.current.clear();
+            setStatusFilter(s);
+            setCurrentPage(1);
+          }} 
+          paymentStatus={paymentFilter}
+          setPaymentStatus={(p) => {
+            pageCacheRef.current.clear();
+            setPaymentFilter(p);
+            setCurrentPage(1);
+          }}
+          hideCancelled={hideCancelled} 
+          setHideCancelled={(val) => {
+            pageCacheRef.current.clear();
+            setHideCancelled(val);
+            sessionStorage.setItem('admin_orders_hide_cancelled', String(val));
+            setCurrentPage(1);
+          }} 
+        />}
       />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[100px] relative">
@@ -512,7 +526,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
                   const res = await createDemoOrderAction();
                   if (res.success) {
                     showAdminToast('Demo order created successfully.', 'success');
-                    loadOrders(currentPage, searchQuery, statusFilter, hideCancelled, viewMode, true);
+                    loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, true);
                   } else {
                     showAdminToast(res.message || 'Failed to create demo order.', 'error');
                     setIsLoading(false);
@@ -524,8 +538,11 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
               </button>
               <button
                 onClick={() => {
+                  pageCacheRef.current.clear();
                   setSearchQuery('');
                   setStatusFilter('all');
+                  setPaymentFilter('all');
+                  setHideCancelled(false);
                 }}
                 className="text-[#242424] font-medium text-[14px] underline underline-offset-4"
               >

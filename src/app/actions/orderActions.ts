@@ -538,7 +538,7 @@ export async function cancelOrderAction(orderId: string, reason: string) {
 /**
  * Server action to fetch all orders for admin dashboard
  */
-export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20, options?: { search?: string, status?: string, hideCancelled?: boolean }) {
+export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20, options?: { search?: string, status?: string, hideCancelled?: boolean, paymentStatus?: string }) {
   const supabase = await createClient();
   
   // 1. Verify Admin Role using the session client
@@ -577,8 +577,29 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
     // Apply Status Filter
     if (options?.status && options.status !== 'all') {
       query = query.eq('status', options.status.toLowerCase());
+    } else if (options?.paymentStatus && options.paymentStatus !== 'all') {
+      // Do not count/include Cancelled or Returned orders for payment status filtration
+      query = query.not('status', 'in', '(cancelled,returned)');
     } else if (options?.hideCancelled) {
       query = query.neq('status', 'cancelled');
+    }
+
+    // Apply Payment Status Filter
+    if (options?.paymentStatus && options.paymentStatus !== 'all') {
+      const normPay = options.paymentStatus.toLowerCase();
+      if (normPay === 'paid') {
+        query = query.eq('payment_status', 'paid');
+      } else if (normPay === 'unpaid') {
+        query = query.or('payment_status.neq.paid,payment_status.is.null');
+      } else if (normPay === 'pending') {
+        query = query.or('payment_status.eq.pending,payment_status.is.null');
+      } else if (normPay === 'partially_paid') {
+        query = query.eq('payment_status', 'partially_paid');
+      } else if (normPay === 'failed') {
+        query = query.eq('payment_status', 'failed');
+      } else {
+        query = query.eq('payment_status', normPay);
+      }
     }
 
     // Apply Comprehensive Search Filter
@@ -1329,3 +1350,82 @@ export async function syncMultipleExternalOrdersTrackingAction(orderIds: string[
     return { success: false, message: 'An error occurred during sync' };
   }
 }
+
+export interface OrderPaymentCounts {
+  all: number;
+  unpaid: number;
+  pending: number;
+  paid: number;
+  partially_paid: number;
+  failed: number;
+}
+
+/**
+ * Server action to fetch quick counts of orders by payment status
+ */
+export async function fetchOrderPaymentCountsAction(): Promise<{ success: boolean; counts?: OrderPaymentCounts; message?: string }> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return { success: false, message: 'Forbidden. Admin access required.' };
+  }
+
+  const adminClient = getSupabaseAdmin() || supabase;
+
+  try {
+    const { data, error } = await adminClient
+      .from('orders')
+      .select('payment_status, status')
+      .not('status', 'in', '(cancelled,returned)');
+
+    if (error) throw error;
+
+    const counts: OrderPaymentCounts = {
+      all: 0,
+      unpaid: 0,
+      pending: 0,
+      paid: 0,
+      partially_paid: 0,
+      failed: 0,
+    };
+
+    if (data) {
+      for (const order of data) {
+        const orderStatus = order.status?.toLowerCase();
+        if (orderStatus === 'cancelled' || orderStatus === 'returned') {
+          continue;
+        }
+
+        counts.all++;
+        const s = order.payment_status?.toLowerCase();
+        if (s === 'paid') {
+          counts.paid++;
+        } else if (s === 'partially_paid') {
+          counts.partially_paid++;
+          counts.unpaid++;
+        } else if (s === 'failed') {
+          counts.failed++;
+          counts.unpaid++;
+        } else {
+          // pending or null
+          counts.pending++;
+          counts.unpaid++;
+        }
+      }
+    }
+
+    return { success: true, counts };
+  } catch (error: any) {
+    console.error('Action Error: fetchOrderPaymentCountsAction:', error);
+    return { success: false, message: error.message || 'Failed to fetch payment counts.' };
+  }
+}
+
