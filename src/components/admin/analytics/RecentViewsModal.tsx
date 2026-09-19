@@ -16,7 +16,7 @@ export const RecentViewsModal = ({ isOpen, onClose, views, onCustomerClick }: Re
     const groupedViews = React.useMemo(() => {
         if (!views) return [];
         const grouped = views.reduce((acc: any, view: any) => {
-            const key = view.session_id || view.user_id || view.customer_name;
+            const key = view.user_id || view.session_id || `guest_${view.id}`;
             if (!acc[key]) {
                 acc[key] = {
                     id: key,
@@ -89,7 +89,7 @@ export const RecentViewsModal = ({ isOpen, onClose, views, onCustomerClick }: Re
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-semibold text-[#242424]">Recent Product Views</h2>
-                                    <p className="text-sm text-[#71717a] font-normal mt-0.5">Showing the 50 most recent product interactions</p>
+                                    <p className="text-sm text-[#71717a] font-normal mt-0.5">Showing the 100 most recent product interactions</p>
                                 </div>
                             </div>
                             <button

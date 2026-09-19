@@ -45,6 +45,7 @@ export default function FinanceFilters({
     const paymentStatuses = [
         { id: 'all', name: 'All' },
         { id: 'paid', name: 'Paid' },
+        { id: 'partially_paid', name: 'Part. Paid' },
         { id: 'pending', name: 'Pending' },
         { id: 'failed', name: 'Failed' }
     ];

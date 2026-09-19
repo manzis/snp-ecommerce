@@ -31,6 +31,8 @@ export interface FinanceDashboardData {
         id: string;
         customer: string;
         amount: number;
+        amountPaid?: number;
+        dueAmount?: number;
         date: string;
         status: string;
         method: string;
@@ -88,11 +90,13 @@ export async function fetchFinanceDashboardDataAction(
             }
         }
 
-        // Payment Status Filter (paid, pending, failed)
+        // Payment Status Filter (paid, partially_paid, pending, failed)
         if (paymentStatus && paymentStatus !== 'all') {
             const normPay = paymentStatus.toLowerCase();
             if (normPay === 'paid') {
                 query = query.eq('payment_status', 'paid');
+            } else if (normPay === 'partially_paid') {
+                query = query.eq('payment_status', 'partially_paid');
             } else if (normPay === 'pending') {
                 query = query.or('payment_status.eq.pending,payment_status.eq.unpaid,payment_status.is.null');
             } else if (normPay === 'failed') {
@@ -130,7 +134,21 @@ export async function fetchFinanceDashboardDataAction(
                 const cod = Number(order.cod_fees) || 0;
                 const status = order.status?.toLowerCase() || 'pending';
                 const rawPayStatus = order.payment_status?.toLowerCase();
-                const payStatus = rawPayStatus === 'paid' ? 'paid' : 'pending';
+                const rawPaid = Number(order.amount_paid) || 0;
+
+                // Reconcile paid and due amounts accurately
+                let paidAmount = 0;
+                if (rawPayStatus === 'paid') {
+                    paidAmount = amount;
+                } else if (rawPayStatus === 'partially_paid') {
+                    paidAmount = Math.max(0, Math.min(amount, rawPaid));
+                } else {
+                    paidAmount = Math.max(0, Math.min(amount, rawPaid));
+                }
+
+                // Balance due is strictly the uncollected balance
+                const dueAmount = Math.max(0, amount - paidAmount);
+
                 let method = order.payment_method || 'Unknown';
 
                 if (method.toLowerCase() === 'qr') {
@@ -151,18 +169,33 @@ export async function fetchFinanceDashboardDataAction(
                     totalCouponDiscount += coupon;
                     totalCodFees += cod;
 
-                    if (payStatus === 'paid') {
-                        totalNetRevenue += (amount - shipping - cod);
-                    } else {
-                        totalPendingRevenue += amount;
+                    // Overall receivables counts ONLY the actual unpaid/due balance
+                    totalPendingRevenue += dueAmount;
+
+                    // Net revenue accounts for collected portion after fees
+                    if (paidAmount > 0) {
+                        if (paidAmount >= amount) {
+                            totalNetRevenue += Math.max(0, amount - shipping - cod);
+                        } else {
+                            const netOrderValue = Math.max(0, amount - shipping - cod);
+                            const ratio = amount > 0 ? paidAmount / amount : 0;
+                            totalNetRevenue += Math.round(netOrderValue * ratio);
+                        }
                     }
 
                     if (status === 'delivered') {
                         deliveredGrossRevenue += amount;
-                        if (payStatus === 'paid') {
-                            deliveredNetRevenue += (amount - shipping - cod);
-                        } else {
-                            deliveredPendingRevenue += amount;
+                        // Pending collection on delivered orders only counts the balance due
+                        deliveredPendingRevenue += dueAmount;
+
+                        if (paidAmount > 0) {
+                            if (paidAmount >= amount) {
+                                deliveredNetRevenue += Math.max(0, amount - shipping - cod);
+                            } else {
+                                const netOrderValue = Math.max(0, amount - shipping - cod);
+                                const ratio = amount > 0 ? paidAmount / amount : 0;
+                                deliveredNetRevenue += Math.round(netOrderValue * ratio);
+                            }
                         }
                     }
 
@@ -197,14 +230,24 @@ export async function fetchFinanceDashboardDataAction(
             }))
             .sort((a, b) => a.date.localeCompare(b.date));
 
-        const recentTransactions = (orders || []).slice(0, 15).map(order => ({
-            id: order.id,
-            customer: order.contact_details?.name || order.contact_details?.full_name || 'Guest',
-            amount: Number(order.total_amount) || 0,
-            date: new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            status: order.payment_status || 'Pending',
-            method: order.payment_method || 'Unknown'
-        }));
+        const recentTransactions = (orders || []).slice(0, 15).map(order => {
+            const amt = Number(order.total_amount) || 0;
+            const rawPaid = Number(order.amount_paid) || 0;
+            const pStatus = order.payment_status?.toLowerCase() || 'pending';
+            const effectivePaid = pStatus === 'paid' ? amt : (pStatus === 'partially_paid' ? Math.min(amt, rawPaid) : rawPaid);
+            const due = Math.max(0, amt - effectivePaid);
+
+            return {
+                id: order.id,
+                customer: order.contact_details?.name || order.contact_details?.full_name || 'Guest',
+                amount: amt,
+                amountPaid: effectivePaid,
+                dueAmount: due,
+                date: new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                status: order.payment_status || 'Pending',
+                method: order.payment_method || 'Unknown'
+            };
+        });
 
         return {
             success: true,

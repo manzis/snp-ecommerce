@@ -764,14 +764,22 @@ export default function FinanceClient({ initialData, serverDateRange }: { initia
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-semibold uppercase tracking-widest ${tx.status.toLowerCase() === 'paid' ? 'bg-green-50 text-green-600' :
+                                                            (tx.status.toLowerCase() === 'partially_paid' || tx.status.toLowerCase() === 'part. paid') ? 'bg-[#fef08a] text-[#854d0e]' :
                                                             tx.status.toLowerCase() === 'pending' ? 'bg-amber-50 text-amber-600' :
                                                                 'bg-red-50 text-red-600'
                                                             }`}>
-                                                            {tx.status}
+                                                            {tx.status.replace(/_/g, ' ')}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-[11px] text-[#a1a1aa] font-semibold uppercase">{tx.date}</td>
-                                                    <td className="px-6 py-4 text-right text-[14px] font-semibold text-[#242424]">रु {tx.amount.toLocaleString()}</td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="text-[14px] font-semibold text-[#242424]">रु {tx.amount.toLocaleString()}</span>
+                                                            {tx.status.toLowerCase() === 'partially_paid' && tx.dueAmount !== undefined && (
+                                                                <span className="text-[10px] text-amber-700 font-medium tracking-tight">Due: रु {tx.dueAmount.toLocaleString()}</span>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>

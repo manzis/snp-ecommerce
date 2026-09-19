@@ -128,7 +128,7 @@ export const analyticsService = {
   /**
    * Fetches raw recent product views with user details for tabular display
    */
-  getRecentProductViewsTable: cache(async (limit = 10) => {
+  getRecentProductViewsTable: cache(async (limit = 100) => {
     const admin = getSupabaseAdmin();
     const supabase = admin || await createClient();
 

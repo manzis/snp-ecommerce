@@ -84,7 +84,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
         if (!data?.recentViewsTable) return [];
         
         const grouped = data.recentViewsTable.reduce((acc: any, view: any) => {
-            const key = view.session_id || view.user_id || view.customer_name;
+            const key = view.user_id || view.session_id || `guest_${view.id}`;
             if (!acc[key]) {
                 acc[key] = {
                     id: key,
@@ -119,7 +119,7 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
         return Object.values(grouped).sort((a: any, b: any) => new Date(b.last_viewed_at).getTime() - new Date(a.last_viewed_at).getTime());
     }, [data?.recentViewsTable]);
 
-    const stats = data?.stats || { totalOrders: 0, grossRevenue: 0, totalCustomers: 0, avgOrderValue: 0 };
+    const stats = data?.stats || { totalOrders: 0, grossRevenue: 0, totalCustomers: 0, avgOrderValue: 0, activeNow: 0, returnRate: 0, customerGrowthRate: 0 };
     const chartData = data?.revenueChart || [];
 
     // Simple max calculation for chart
@@ -294,30 +294,30 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                     </p>
                                                 </div>
 
-                                                {/* Active Sessions (Mock) */}
+                                                {/* Active Sessions */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Active Now</h3>
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate">
-                                                            24
+                                                            {stats.activeNow ?? 0}
                                                         </p>
                                                         <span className="w-2 h-2 bg-[#86efac] rounded-full animate-pulse shadow-[0_0_8px_0_#86efac]"></span>
                                                     </div>
                                                 </div>
 
-                                                {/* Returning Customers (Mock) */}
+                                                {/* Returning Customers (Repeat Customer Rate) */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Return Rate</h3>
-                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate">
-                                                        18<span className="text-base text-[#a1a1aa] ml-0.5">%</span>
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate" title={`${stats.returnRate ?? 0}% repeat customer rate`}>
+                                                        {stats.returnRate ?? 0}<span className="text-base text-[#a1a1aa] ml-0.5">%</span>
                                                     </p>
                                                 </div>
 
                                                 {/* Avg Order Value */}
                                                 <div>
                                                     <h3 className="text-sm font-normal text-[#71717a] mb-1">Avg Order</h3>
-                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate" title={`रु ${Math.round(data?.stats.avgOrderValue || 0).toLocaleString()}`}>
-                                                        रु {Math.round(data?.stats.avgOrderValue || 0).toLocaleString()}
+                                                    <p className="text-[22px] md:text-2xl font-semibold text-[#242424] font-rubik tracking-tight truncate" title={`रु ${Math.round(stats.avgOrderValue || 0).toLocaleString()}`}>
+                                                        रु {Math.round(stats.avgOrderValue || 0).toLocaleString()}
                                                     </p>
                                                 </div>
                                             </div>
@@ -328,7 +328,11 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 <div className="w-8 h-8 rounded-full bg-[#bef264]/20 flex items-center justify-center text-[#4d7c0f]">
                                                     <TrendingUp className="w-4 h-4" />
                                                 </div>
-                                                <span className="text-xs font-semibold text-[#71717a]">Customer growth up 12%</span>
+                                                <span className="text-xs font-semibold text-[#71717a]">
+                                                    {(stats.customerGrowthRate ?? 0) >= 0
+                                                        ? `Customer growth up ${stats.customerGrowthRate ?? 0}%`
+                                                        : `Customer growth down ${Math.abs(stats.customerGrowthRate ?? 0)}%`}
+                                                </span>
                                             </div>
                                             <ArrowDownRight className="w-5 h-5 text-gray-300" />
                                         </div>
@@ -485,7 +489,9 @@ export default function DashboardClient({ initialData }: { initialData?: Dashboa
                                                 animate={{ opacity: 1, scale: 1 }}
                                                 transition={{ delay: Math.min(index * 0.03, 0.3) }}
                                                 key={userGroup.id}
-                                                className="group flex flex-col bg-white rounded-[12px] border border-gray-100 hover:border-gray-200 transition-all p-4 shadow-none hover:shadow-none"
+                                                className={`group flex-col bg-white rounded-[12px] border border-gray-100 hover:border-gray-200 transition-all p-4 shadow-none hover:shadow-none ${
+                                                    index >= 4 ? 'hidden sm:flex' : 'flex'
+                                                }`}
                                             >
                                                 {/* Customer Header */}
                                                 <div 
