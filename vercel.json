@@ -49,5 +49,10 @@
       "path": "/api/cron/sync-tracking",
       "schedule": "15 7 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/**/*": {
+      "maxDuration": 60
+    }
+  }
 }

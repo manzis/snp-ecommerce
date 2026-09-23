@@ -30,11 +30,15 @@ export default function CheckoutPage() {
   // DYNAMIC STORE SETTINGS
   const [storeSettings, setStoreSettings] = useState<{
     codFee: number;
+    codPercentage: number;
+    codMaxFee: number;
     homeDeliveryCost: number;
     pickupCost: number;
     freeThreshold: number;
   }>({
-    codFee: 23,
+    codFee: 40,
+    codPercentage: 0.8,
+    codMaxFee: 120,
     homeDeliveryCost: 150,
     pickupCost: 100,
     freeThreshold: 5000,
@@ -51,14 +55,14 @@ export default function CheckoutPage() {
         setOrdersDisabled(res.data.orders_disabled === true);
         setOrdersDisabledUntil(res.data.orders_disabled_until || null);
         setOrdersDisabledReason(res.data.orders_disabled_reason || '');
-        if (res.data.shipping) {
-          setStoreSettings({
-            codFee: res.data.payment_methods?.cod_fee ?? 23,
-            homeDeliveryCost: res.data.shipping?.standard_cost ?? 150,
-            pickupCost: res.data.shipping?.pickup_cost ?? 100,
-            freeThreshold: res.data.shipping?.free_threshold ?? 5000,
-          });
-        }
+        setStoreSettings({
+          codFee: Number(res.data.payment_methods?.cod_fee ?? 40),
+          codPercentage: Number(res.data.payment_methods?.cod_percentage ?? 0.8),
+          codMaxFee: Number(res.data.payment_methods?.cod_max_fee ?? 120),
+          homeDeliveryCost: Number(res.data.shipping?.standard_cost ?? 150),
+          pickupCost: Number(res.data.shipping?.pickup_cost ?? 100),
+          freeThreshold: Number(res.data.shipping?.free_threshold ?? 5000),
+        });
       }
     });
   }, []);
@@ -140,7 +144,9 @@ export default function CheckoutPage() {
     getStoreSettingsAction().then((res) => {
       if (res.success && res.data) {
         setStoreSettings({
-          codFee: Number(res.data.payment_methods?.cod_fee ?? 23),
+          codFee: Number(res.data.payment_methods?.cod_fee ?? 40),
+          codPercentage: Number(res.data.payment_methods?.cod_percentage ?? 0.8),
+          codMaxFee: Number(res.data.payment_methods?.cod_max_fee ?? 120),
           homeDeliveryCost: Number(res.data.shipping?.standard_cost ?? 150),
           pickupCost: Number(res.data.shipping?.pickup_cost ?? 100),
           freeThreshold: Number(res.data.shipping?.free_threshold ?? 5000),
@@ -364,7 +370,7 @@ export default function CheckoutPage() {
         user_id: currentUserId,
         total_amount: finalTotal,
         mrp_amount: totalMRP,
-        discount_amount: totalMRP - subtotal + bundleDiscount + couponDiscountValue,
+        discount_amount: totalMRP - subtotal + bundleDiscount + couponDiscountValue + onlinePaymentDiscount,
         shipping_amount: shippingCharge,
         discount_on_mrp: totalMRP - subtotal,
         bundle_discount: bundleDiscount,
@@ -516,8 +522,42 @@ export default function CheckoutPage() {
     return rawShippingPrice;
   }, [subtotal, storeSettings.freeThreshold, rawShippingPrice]);
 
-  const codCharge = selectedPaymentId === 'cod' ? storeSettings.codFee : 0;
-  const finalTotal = useMemo(() => subtotal + shippingCharge + codCharge - bundleDiscount - couponDiscountValue, [subtotal, shippingCharge, codCharge, bundleDiscount, couponDiscountValue]);
+  // Total order value before COD handling fee (items + shipping - discounts)
+  const baseOrderValue = useMemo(() => {
+    return Math.max(0, subtotal + shippingCharge - bundleDiscount - couponDiscountValue);
+  }, [subtotal, shippingCharge, bundleDiscount, couponDiscountValue]);
+
+  // Dynamic COD fee: 0.8% of total order value, or the configured min charge, capped at max 120
+  const calculatedCodFee = useMemo(() => {
+    const minFee = Number(storeSettings.codFee) || 0;
+    const maxFee = Number(storeSettings.codMaxFee ?? 120) || 120;
+    const rate = (Number(storeSettings.codPercentage) || 0.8) / 100;
+    const percentageFee = Math.round(baseOrderValue * rate);
+    return Math.min(maxFee, Math.max(minFee, percentageFee));
+  }, [baseOrderValue, storeSettings.codFee, storeSettings.codPercentage, storeSettings.codMaxFee]);
+
+  const codCharge = selectedPaymentId === 'cod' ? calculatedCodFee : 0;
+
+  // Online payment discount: Rs. 25 off for QR or Wallets
+  const onlinePaymentDiscount = useMemo(() => {
+    return (selectedPaymentId === 'qr' || selectedPaymentId === 'wallets') ? 25 : 0;
+  }, [selectedPaymentId]);
+
+  const finalTotal = useMemo(() => {
+    return Math.max(0, baseOrderValue + codCharge - onlinePaymentDiscount);
+  }, [baseOrderValue, codCharge, onlinePaymentDiscount]);
+
+  // Saved amount includes ONLY discount amounts (MRP discounts, bundle discounts, coupons, online payment discounts)
+  // Delivery and COD fees do NOT reduce the saved amount.
+  const totalSavings = useMemo(() => {
+    const mrpDiscount = Math.max(0, totalMRP - subtotal);
+    return mrpDiscount + bundleDiscount + couponDiscountValue + onlinePaymentDiscount;
+  }, [totalMRP, subtotal, bundleDiscount, couponDiscountValue, onlinePaymentDiscount]);
+
+  // Method-specific fixed amount for QR payment option label
+  const qrTotalAmount = useMemo(() => {
+    return `Rs. ${Math.max(0, baseOrderValue - 25).toLocaleString()}`;
+  }, [baseOrderValue]);
 
   const mainButtonText = useMemo(() => {
     if (isProcessing) return "Processing...";
@@ -552,6 +592,7 @@ export default function CheckoutPage() {
               couponDiscount={couponDiscountValue}
               couponCode={couponCodeValue}
               bundleDiscount={bundleDiscount}
+              paymentDiscount={onlinePaymentDiscount}
               shippingCharge={shippingCharge}
               codCharge={codCharge}
               onApplyCoupon={handleApplyCoupon}
@@ -611,8 +652,8 @@ export default function CheckoutPage() {
                   initialQrData={{ file: qrData.qrFile, remarks: qrData.qrRemarks }}
                   hasQrError={selectedPaymentId === 'qr' && !!paymentError}
                   externalError={paymentError}
-                  totalAmount={`Rs. ${Math.max(0, finalTotal - 25).toLocaleString()}`}
-                  codFee={storeSettings.codFee}
+                  totalAmount={qrTotalAmount}
+                  codFee={calculatedCodFee}
                 />
               </div>
             </div>
@@ -629,6 +670,7 @@ export default function CheckoutPage() {
                   onCheckout={handlePlaceOrder}
                   onInfoClick={handleInfoClick}
                   disabled={ordersDisabled}
+                  savingsAmount={totalSavings}
                 />
               </div>
             </div>
@@ -641,7 +683,7 @@ export default function CheckoutPage() {
           isOpen={showPickupCodWarning}
           mode={modalMode}
           onClose={() => setShowPickupCodWarning(false)}
-          codFee={storeSettings.codFee}
+          codFee={calculatedCodFee}
           onSwitchToHomeDelivery={() => {
             if (deliveryData) {
               setDeliveryData({ ...deliveryData, option: 'home', shippingPrice: storeSettings.homeDeliveryCost });
@@ -676,6 +718,7 @@ export default function CheckoutPage() {
           onCheckout={handlePlaceOrder}
           onInfoClick={handleInfoClick}
           disabled={ordersDisabled}
+          savingsAmount={totalSavings}
         />
 
         {ordersDisabled && (

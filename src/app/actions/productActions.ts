@@ -62,8 +62,9 @@ export async function updateProductAction(id: string, updates: any) {
     // 4. Revalidate cache
     revalidatePath('/admin/products');
     revalidatePath(`/admin/products/${id}`);
-    revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/');
+    if (data[0]?.slug) {
+      revalidatePath(`/product/${data[0].slug}`);
+    }
     revalidateProduct(id, data[0]?.slug);
     
     return { success: true, data: data[0] };
@@ -131,8 +132,9 @@ export async function updateProductVariantPricesAction(productId: string, varian
 
     // 4. Revalidate cache
     revalidatePath('/admin/products');
-    revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/');
+    if (pData?.slug) {
+      revalidatePath(`/product/${pData.slug}`);
+    }
     revalidateProduct(productId, pData?.slug);
     
     return { success: true };
@@ -411,8 +413,9 @@ export async function createProductAction(productData: any) {
 
     // 9. Revalidate cache
     revalidatePath('/admin/products');
-    revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/');
+    if (newProduct?.slug) {
+      revalidatePath(`/product/${newProduct.slug}`);
+    }
     revalidateProduct(productId, newProduct.slug);
 
     return { success: true, data: newProduct };
@@ -507,8 +510,9 @@ export async function deleteProductAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/products');
-    revalidatePath('/product/[slug]', 'page');
-    revalidatePath('/');
+    if (product?.slug) {
+      revalidatePath(`/product/${product.slug}`);
+    }
     revalidateProduct(id, product?.slug);
     return { success: true };
   } catch (error: any) {
@@ -741,8 +745,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
 
         if (existing) {
           sizeMap[label] = existing.id;
-          if (imgUrl && !existing.image_url) {
-            finalClient.from('product_sizes').update({ image_url: imgUrl }).eq('id', existing.id).then();
+          if (imgUrl && imgUrl !== existing.image_url) {
+            await finalClient.from('product_sizes').update({ image_url: imgUrl }).eq('id', existing.id);
           }
         } else {
           sizesToInsert.push({
@@ -782,8 +786,8 @@ export async function updateProductDeepAction(id: string, productData: any) {
 
         if (existing) {
           flavourMap[name] = existing.id;
-          if (imgUrl && !existing.image_url) {
-            finalClient.from('product_flavours').update({ image_url: imgUrl }).eq('id', existing.id).then();
+          if (imgUrl && imgUrl !== existing.image_url) {
+            await finalClient.from('product_flavours').update({ image_url: imgUrl }).eq('id', existing.id);
           }
         } else {
           flavoursToInsert.push({
@@ -895,99 +899,103 @@ export async function updateProductDeepAction(id: string, productData: any) {
       }
     }
 
-    // 5. Product Info
-    if (product_info) {
-      const infoData = Array.isArray(product_info) ? product_info[0] : product_info;
-      if (infoData) {
-        await finalClient.from('product_info').delete().eq('product_id', productId);
+    // 5-8. Parallelize relational updates (Info, QA, Reviews, Banners)
+    await Promise.all([
+      // 5. Product Info
+      (async () => {
+        if (!product_info) return;
+        const infoData = Array.isArray(product_info) ? product_info[0] : product_info;
+        if (!infoData) return;
         const { error: infoError } = await finalClient
           .from('product_info')
-          .insert([{
+          .upsert([{
             product_id: productId,
             description: infoData.description || '',
             ingredients_image: infoData.ingredients_image || null,
             highlight_image: infoData.highlight_image || null,
             manufacture_info: infoData.manufacture_info || {},
             other_details: infoData.other_details || {}
-          }]);
+          }], { onConflict: 'product_id' });
         if (infoError) throw new Error(`Info error: ${infoError.message}`);
-      }
-    }
+      })(),
 
-    // 6. QA
-    if (qa !== undefined) {
-      await finalClient.from('product_qa').delete().eq('product_id', productId);
-      const validQa = (qa || []).filter((q: any) => q.question?.trim());
-      if (validQa.length > 0) {
-        const qaToInsert = validQa.map((q: any) => ({
-          product_id: productId,
-          question: q.question.trim(),
-          answer: q.answer?.trim() || null,
-          author: q.author || 'Admin'
-        }));
-        const { error: qaError } = await finalClient.from('product_qa').insert(qaToInsert);
-        if (qaError) throw new Error(`QA error: ${qaError.message}`);
-      }
-    }
+      // 6. QA
+      (async () => {
+        if (qa === undefined) return;
+        await finalClient.from('product_qa').delete().eq('product_id', productId);
+        const validQa = (qa || []).filter((q: any) => q.question?.trim());
+        if (validQa.length > 0) {
+          const qaToInsert = validQa.map((q: any) => ({
+            product_id: productId,
+            question: q.question.trim(),
+            answer: q.answer?.trim() || null,
+            author: q.author || 'Admin'
+          }));
+          const { error: qaError } = await finalClient.from('product_qa').insert(qaToInsert);
+          if (qaError) throw new Error(`QA error: ${qaError.message}`);
+        }
+      })(),
 
-    // 7. Reviews
-    if (reviews !== undefined && Array.isArray(reviews)) {
-      const newReviews = reviews.filter((r: any) => !r.id && !r.linked_from_id);
-      const existingReviews = reviews.filter((r: any) => r.id || r.linked_from_id);
+      // 7. Reviews
+      (async () => {
+        if (reviews === undefined || !Array.isArray(reviews)) return;
+        const newReviews = reviews.filter((r: any) => !r.id && !r.linked_from_id);
+        const existingReviews = reviews.filter((r: any) => r.id || r.linked_from_id);
 
-      let newReviewIds: string[] = [];
-      if (newReviews.length > 0) {
-        const reviewsToInsert = newReviews.map((r: any) => ({
-          author: r.author,
-          author_avatar: r.author_avatar,
-          role: r.role || 'Verified Buyer',
-          text: r.text,
-          rating: r.rating || 5,
-          image: r.image,
-          is_verified: true
-        }));
-        const { data: inserted, error: rError } = await finalClient.from('reviews').insert(reviewsToInsert).select('id');
-        if (rError) throw new Error(`Review insert error: ${rError.message}`);
-        if (inserted) newReviewIds = inserted.map(r => r.id);
-      }
+        let newReviewIds: string[] = [];
+        if (newReviews.length > 0) {
+          const reviewsToInsert = newReviews.map((r: any) => ({
+            author: r.author,
+            author_avatar: r.author_avatar,
+            role: r.role || 'Verified Buyer',
+            text: r.text,
+            rating: r.rating || 5,
+            image: r.image,
+            is_verified: true
+          }));
+          const { data: inserted, error: rError } = await finalClient.from('reviews').insert(reviewsToInsert).select('id');
+          if (rError) throw new Error(`Review insert error: ${rError.message}`);
+          if (inserted) newReviewIds = inserted.map(r => r.id);
+        }
 
-      const allReviewIdsToLink = Array.from(new Set([
-        ...newReviewIds,
-        ...existingReviews.map((r: any) => r.id || r.linked_from_id)
-      ])).filter(Boolean);
+        const allReviewIdsToLink = Array.from(new Set([
+          ...newReviewIds,
+          ...existingReviews.map((r: any) => r.id || r.linked_from_id)
+        ])).filter(Boolean);
 
-      await finalClient.from('product_review_mapping').delete().eq('product_id', productId);
-      if (allReviewIdsToLink.length > 0) {
-        const mappingRows = allReviewIdsToLink.map(rid => ({
-          product_id: productId,
-          review_id: rid
-        }));
-        const { error: mError } = await finalClient.from('product_review_mapping').insert(mappingRows);
-        if (mError) throw new Error(`Review mapping error: ${mError.message}`);
-      }
-    }
+        await finalClient.from('product_review_mapping').delete().eq('product_id', productId);
+        if (allReviewIdsToLink.length > 0) {
+          const mappingRows = allReviewIdsToLink.map(rid => ({
+            product_id: productId,
+            review_id: rid
+          }));
+          const { error: mError } = await finalClient.from('product_review_mapping').insert(mappingRows);
+          if (mError) throw new Error(`Review mapping error: ${mError.message}`);
+        }
+      })(),
 
-    // 8. Linked Banners
-    if (linked_banner_ids !== undefined) {
-      await finalClient.from('product_banners').delete().eq('product_id', productId);
-      if (Array.isArray(linked_banner_ids) && linked_banner_ids.length > 0) {
-        const bannerLinks = linked_banner_ids.map((bannerId: string) => ({
-          product_id: productId,
-          banner_id: bannerId
-        }));
-        const { error: bannerError } = await finalClient.from('product_banners').insert(bannerLinks);
-        if (bannerError) console.warn('Banner link warning:', bannerError.message);
-      }
-    }
+      // 8. Linked Banners
+      (async () => {
+        if (linked_banner_ids === undefined) return;
+        await finalClient.from('product_banners').delete().eq('product_id', productId);
+        if (Array.isArray(linked_banner_ids) && linked_banner_ids.length > 0) {
+          const bannerLinks = linked_banner_ids.map((bannerId: string) => ({
+            product_id: productId,
+            banner_id: bannerId
+          }));
+          const { error: bannerError } = await finalClient.from('product_banners').insert(bannerLinks);
+          if (bannerError) console.warn('Banner link warning:', bannerError.message);
+        }
+      })()
+    ]);
 
-    // 9. Revalidate cache
+    // 9. Revalidate cache surgically
     try {
       revalidatePath('/admin/products');
-      revalidatePath(`/admin/products/edit/${id}`);
-      revalidatePath(`/admin/products/preview/${updatedProduct.slug}`);
-      revalidatePath('/product/[slug]', 'page');
-      revalidatePath('/');
-      revalidateProduct(id, updatedProduct.slug);
+      if (updatedProduct?.slug) {
+        revalidatePath(`/product/${updatedProduct.slug}`);
+      }
+      revalidateProduct(id, updatedProduct?.slug);
     } catch (revalErr) {
       console.warn('Revalidation warning:', revalErr);
     }

@@ -9,7 +9,7 @@ interface CodPaymentDetailsProps {
 }
 
 const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({
-  handlingFee = 23,
+  handlingFee = 40,
   onPlaceOrder,
   isProcessing = false
 }) => {

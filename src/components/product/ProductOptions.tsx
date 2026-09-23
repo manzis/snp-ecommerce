@@ -75,6 +75,15 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       return;
     }
 
+    // If neither size nor flavor is selected yet, maintain default product gallery
+    if (!selectedSize && !selectedFlavorId) {
+      const discount = parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10);
+      const original = parseInt((product.original_price || '0').replace(/\D/g, ''), 10);
+      setPrice(discount, original);
+      setActiveVariantImage(null);
+      return;
+    }
+
     const matchingVariant = product.product_variants.find(v => {
       const vSizeLabel = product.product_sizes?.find(s => s.id === v.size_id)?.size_label;
       const matchSize = !selectedSize || vSizeLabel === selectedSize;
@@ -101,6 +110,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       const discount = parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10);
       const original = parseInt((product.original_price || '0').replace(/\D/g, ''), 10);
       setPrice(discount, original);
+      setActiveVariantImage(null);
     }
   }, [selectedSize, selectedFlavorId, product, setPrice, setActiveVariantImage]);
 
@@ -126,7 +136,21 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
 
   const filteredFlavours = React.useMemo(() => {
     if (!product.product_variants || product.product_variants.length === 0) return flavours;
-    if (!selectedSize) return flavours; // Without a size, we leave flavours purely available
+
+    // Without a size selected yet, still attach each flavour's representative variant image
+    if (!selectedSize) {
+      return flavours.map(f => {
+        const variantsForFlavour = product.product_variants!.filter(v => v.flavour_id === f.id);
+        const variantWithImg = variantsForFlavour.find(v => (v as any).image_url && (v as any).image_url.trim() !== '');
+        const isAvailable = variantsForFlavour.length === 0 || variantsForFlavour.some(v => v.is_available !== false);
+
+        return {
+          ...f,
+          is_available: isAvailable && f.is_available !== false,
+          image_url: (variantWithImg as any)?.image_url || f.image_url || null
+        };
+      });
+    }
 
     const selectedSizeObj = sizes.find(s => s.size_label === selectedSize);
     if (!selectedSizeObj) return flavours;

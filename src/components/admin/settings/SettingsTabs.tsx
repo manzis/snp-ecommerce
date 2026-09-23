@@ -597,20 +597,71 @@ export default function SettingsTabs({ initialSettings }: { initialSettings: any
                         </div>
 
                         {settings.payment_methods?.cod && (
-                          <div className="mt-2 pt-3 border-t border-gray-100 flex items-center justify-between gap-4">
-                            <div>
-                              <label className="text-[12px] font-medium text-[#242424]">COD Extra Charge / Handling Fee (NPR)</label>
-                              <p className="text-[11px] text-[#71717a]">Additional fee applied to orders when customer selects COD payment.</p>
+                          <div className="mt-2 pt-3 border-t border-gray-100 flex flex-col gap-3">
+                            <div className="flex items-center justify-between gap-4">
+                              <div>
+                                <label className="text-[12px] font-medium text-[#242424]">Minimum COD Charge (NPR)</label>
+                                <p className="text-[11px] text-[#71717a]">Baseline minimum fee. The actual charge is calculated as 0.8% of the order value, or this minimum (whichever is greater).</p>
+                              </div>
+                              <div className="w-32 flex-none">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={settings.payment_methods?.cod_fee ?? 40}
+                                  onChange={(e) => handleChange('payment_methods', 'cod_fee', Math.max(0, Number(e.target.value)))}
+                                  placeholder="e.g. 40"
+                                  className="w-full bg-white border border-gray-200 rounded-[8px] py-[6px] px-3 text-[13px] font-medium focus:ring-1 focus:ring-gray-300 outline-none"
+                                />
+                              </div>
                             </div>
-                            <div className="w-32 flex-none">
-                              <input
-                                type="number"
-                                min="0"
-                                value={settings.payment_methods?.cod_fee ?? 0}
-                                onChange={(e) => handleChange('payment_methods', 'cod_fee', Math.max(0, Number(e.target.value)))}
-                                placeholder="e.g. 23"
-                                className="w-full bg-white border border-gray-200 rounded-[8px] py-[6px] px-3 text-[13px] font-medium focus:ring-1 focus:ring-gray-300 outline-none"
-                              />
+                            <div className="flex items-center justify-between gap-4 pt-2 border-t border-gray-50">
+                              <div>
+                                <label className="text-[12px] font-medium text-[#242424]">COD Calculation Rate (%)</label>
+                                <p className="text-[11px] text-[#71717a]">Percentage rate applied to total order value (default: 0.8%).</p>
+                              </div>
+                              <div className="w-32 flex-none">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  value={settings.payment_methods?.cod_percentage ?? 0.8}
+                                  onChange={(e) => handleChange('payment_methods', 'cod_percentage', Math.max(0, Number(e.target.value)))}
+                                  placeholder="0.8"
+                                  className="w-full bg-white border border-gray-200 rounded-[8px] py-[6px] px-3 text-[13px] font-medium focus:ring-1 focus:ring-gray-300 outline-none"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between gap-4 pt-2 border-t border-gray-50">
+                              <div>
+                                <label className="text-[12px] font-medium text-[#242424]">Maximum COD Charge (NPR)</label>
+                                <p className="text-[11px] text-[#71717a]">Maximum upper cap for Cash on Delivery charge (default: 120).</p>
+                              </div>
+                              <div className="w-32 flex-none">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={settings.payment_methods?.cod_max_fee ?? 120}
+                                  onChange={(e) => handleChange('payment_methods', 'cod_max_fee', Math.max(0, Number(e.target.value)))}
+                                  placeholder="120"
+                                  className="w-full bg-white border border-gray-200 rounded-[8px] py-[6px] px-3 text-[13px] font-medium focus:ring-1 focus:ring-gray-300 outline-none"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Live Calculation Preview Card */}
+                            <div className="mt-1 p-3 bg-gray-50/80 rounded-[10px] border border-gray-100 flex flex-col gap-1.5">
+                              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#242424]">
+                                <Sparkles className="w-3.5 h-3.5 text-[#308026]" />
+                                <span>Dynamic COD Fee Calculation Preview</span>
+                              </div>
+                              <p className="font-mono text-[11.5px] font-medium text-[#308026]">
+                                COD Fee = min({settings.payment_methods?.cod_max_fee ?? 120}, max({settings.payment_methods?.cod_fee ?? 40}, Order Value × {settings.payment_methods?.cod_percentage ?? 0.8}%))
+                              </p>
+                              <div className="text-[11px] text-[#52525b] flex flex-col gap-0.5 pt-1 border-t border-gray-100">
+                                <div>• Rs. 4,000 order → <strong>Rs. {Math.min(Number(settings.payment_methods?.cod_max_fee ?? 120), Math.max(Number(settings.payment_methods?.cod_fee ?? 40), Math.round(4000 * (Number(settings.payment_methods?.cod_percentage ?? 0.8) / 100))))}</strong> (Minimum Fee applies)</div>
+                                <div>• Rs. 10,000 order → <strong>Rs. {Math.min(Number(settings.payment_methods?.cod_max_fee ?? 120), Math.max(Number(settings.payment_methods?.cod_fee ?? 40), Math.round(10000 * (Number(settings.payment_methods?.cod_percentage ?? 0.8) / 100))))}</strong> (Exact Rate applies)</div>
+                                <div>• Rs. 20,000 order → <strong>Rs. {Math.min(Number(settings.payment_methods?.cod_max_fee ?? 120), Math.max(Number(settings.payment_methods?.cod_fee ?? 40), Math.round(20000 * (Number(settings.payment_methods?.cod_percentage ?? 0.8) / 100))))}</strong> (Maximum Cap applies)</div>
+                              </div>
                             </div>
                           </div>
                         )}

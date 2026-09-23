@@ -16,6 +16,7 @@ interface CartCheckoutBarProps {
   buttonText?: string;
   onInfoClick?: () => void;
   disabled?: boolean;
+  savingsAmount?: number;
 }
 
 const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
@@ -26,6 +27,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   buttonText = "Checkout",
   onInfoClick,
   disabled = false,
+  savingsAmount,
 }) => {
   // FIXED: Moved the hook call inside the component body
   const { openLogin } = useAuthModal();
@@ -69,7 +71,8 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   const isCheckoutPage = pathname === '/checkout';
   const numericMrp = parseFloat(mrpAmount.replace(/[^0-9.]/g, '')) || 0;
   const numericTotal = parseFloat(totalAmount.replace(/[^0-9.]/g, '')) || 0;
-  const totalSavings = numericMrp > numericTotal ? Math.round(numericMrp - numericTotal) : 0;
+  const fallbackSavings = numericMrp > numericTotal ? Math.round(numericMrp - numericTotal) : 0;
+  const totalSavings = typeof savingsAmount === 'number' ? savingsAmount : fallbackSavings;
 
   const SavingsBanner = (isCheckoutPage && totalSavings > 0) ? (
     <div className="w-full mx-auto max-w-[410px] md:max-w-full lg:max-w-[1280px] px-[16px] pt-[8px] pb-[4px]">

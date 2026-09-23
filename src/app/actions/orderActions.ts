@@ -1159,7 +1159,8 @@ export async function createManualOrderAction(orderData: any, items: any[]) {
       },
       payment_method: orderData.payment_method || 'COD',
       payment_screenshot_url: orderData.payment_screenshot_url || null,
-      payment_remarks: orderData.payment_remarks || 'Manually created by Admin'
+      payment_remarks: orderData.payment_remarks || 'Manually created by Admin',
+      idempotency_key: orderData.idempotency_key || `manual_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
     };
 
     // 4. Create Order using existing service, passing the admin client

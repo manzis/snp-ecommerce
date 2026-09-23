@@ -20,7 +20,7 @@ const PickupCodWarningModal: React.FC<PickupCodWarningModalProps> = ({
   onSwitchToHomeDelivery,
   onPayOnline,
   onConfirmOrder,
-  codFee = 23
+  codFee = 40
 }) => {
   if (!isOpen) return null;
 

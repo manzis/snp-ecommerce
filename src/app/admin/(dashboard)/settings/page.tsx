@@ -1,6 +1,8 @@
 import { getStoreSettingsAction } from '@/app/actions/settingsActions';
 import SettingsTabs from '@/components/admin/settings/SettingsTabs';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
   const settingsResult = await getStoreSettingsAction();
   const initialSettings = settingsResult.data || {};

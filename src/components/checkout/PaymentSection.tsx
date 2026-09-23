@@ -47,7 +47,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   externalError,
   excludeOptions = [],
   totalAmount,
-  codFee = 23,
+  codFee = 40,
   isProcessing = false
 }) => {
   return (
@@ -149,7 +149,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
                 <div className="flex flex-col gap-[12px]">
                   <PaymentOption
                     id="qr"
-                    label="Pay Via QR"
+                    label={totalAmount ? `Pay via QR ( ${totalAmount} )` : "Pay via QR"}
                     icon={<QRIcon />}
                     isActive={selectedId === 'qr'}
                     onSelect={onSelect}

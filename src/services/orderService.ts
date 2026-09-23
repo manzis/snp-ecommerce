@@ -144,18 +144,16 @@ export async function createOrder(orderData: OrderData, items: any[], supabaseCl
     p_payment_method: orderData.payment_method,
     p_payment_screenshot_url: orderData.payment_screenshot_url || null,
     p_payment_remarks: orderData.payment_remarks || null,
-    p_items: formattedItems
+    p_items: formattedItems,
+    // Always supply p_idempotency_key so PostgreSQL unambiguously matches the 18-parameter create_order_v3 overload
+    p_idempotency_key: orderData.idempotency_key || `ord_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
   };
-
-  if (orderData.idempotency_key) {
-    rpcParams.p_idempotency_key = orderData.idempotency_key;
-  }
 
   const { data, error } = await client.rpc('create_order_v3', rpcParams);
 
   if (error) {
     // If the RPC error is because p_idempotency_key parameter isn't accepted by older DB schema yet, retry without it
-    if (orderData.idempotency_key && (error.message?.includes('p_idempotency_key') || error.code === '42883')) {
+    if (error.message?.includes('p_idempotency_key') || error.code === '42883') {
       delete rpcParams.p_idempotency_key;
       const { data: retryData, error: retryError } = await client.rpc('create_order_v3', rpcParams);
       if (retryError) {

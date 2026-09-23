@@ -15,6 +15,7 @@ interface CheckoutPriceHeaderProps {
   shippingCharge: number;
   codCharge?: number;
   bundleDiscount?: number;
+  paymentDiscount?: number;
   onApplyCoupon: (code: string) => void;
   onRemoveCoupon: () => void;
   isValidating?: boolean;
@@ -33,6 +34,7 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
   shippingCharge,
   codCharge = 0,
   bundleDiscount,
+  paymentDiscount = 0,
   onApplyCoupon,
   onRemoveCoupon,
   isValidating = false,
@@ -122,6 +124,12 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
                   <div className="flex justify-between items-center">
                     <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">Coupon ({couponCode})</span>
                     <span className="font-rajdhani text-[14px] text-[#308026]">- NPR {couponDiscount.toLocaleString()}</span>
+                  </div>
+                )}
+                {paymentDiscount > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="font-rajdhani text-[14px] text-[#242424] opacity-60">Online Payment Discount</span>
+                    <span className="font-rajdhani text-[14px] text-[#308026]">- NPR {paymentDiscount.toLocaleString()}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center">

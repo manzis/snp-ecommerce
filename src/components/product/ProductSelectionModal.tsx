@@ -94,10 +94,12 @@ function ProductVariantSelector({
     if (!selectedSize) {
       return flavours.map(f => {
         const variantsForFlavour = variants.filter(v => v.flavour_id === f.id);
+        const variantWithImg = variantsForFlavour.find(v => (v as any).image_url && (v as any).image_url.trim() !== '');
         const isAvailable = variantsForFlavour.some(v => v.is_available !== false);
         return {
           ...f,
-          is_available: isAvailable && f.is_available !== false
+          is_available: isAvailable && f.is_available !== false,
+          image_url: (variantWithImg as any)?.image_url || f.image_url || null
         };
       });
     }

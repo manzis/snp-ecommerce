@@ -111,7 +111,9 @@ const DEFAULT_STORE_SETTINGS = {
   orders_disabled_reason: "",
   payment_methods: {
     cod: true,
-    cod_fee: 23,
+    cod_fee: 40,
+    cod_percentage: 0.8,
+    cod_max_fee: 120,
     esewa: false,
     khalti: false,
     fonepay: false,
@@ -137,7 +139,7 @@ let lastAutoEnablePersistedAt = 0;
 
 export async function getStoreSettingsAction() {
   try {
-    const data = await getSiteSetting('store_settings');
+    const data = await getLiveSiteSetting('store_settings') || await getSiteSetting('store_settings');
     // Merge with defaults so we always have a complete object, including payment_methods subfields
     const merged = {
       ...DEFAULT_STORE_SETTINGS,
@@ -224,14 +226,34 @@ export async function getLiveStoreSettingsAction() {
 export async function updateStoreSettingsAction(newSettings: any) {
   try {
     lastAutoEnablePersistedAt = 0;
-    const current = await getSiteSetting('store_settings') || {};
-    const merged = { ...DEFAULT_STORE_SETTINGS, ...current, ...newSettings };
+    const current = await getLiveSiteSetting('store_settings') || {};
+    const merged = {
+      ...DEFAULT_STORE_SETTINGS,
+      ...current,
+      ...newSettings,
+      payment_methods: {
+        ...DEFAULT_STORE_SETTINGS.payment_methods,
+        ...(current.payment_methods || {}),
+        ...(newSettings.payment_methods || {})
+      },
+      shipping: {
+        ...DEFAULT_STORE_SETTINGS.shipping,
+        ...(current.shipping || {}),
+        ...(newSettings.shipping || {})
+      },
+      business_details: {
+        ...DEFAULT_STORE_SETTINGS.business_details,
+        ...(current.business_details || {}),
+        ...(newSettings.business_details || {})
+      }
+    };
     
     console.log('[settingsActions] Updating store_settings with:', merged);
     const success = await updateSiteSetting('store_settings', merged);
 
     if (success) {
       revalidatePath('/', 'layout'); // Revalidate root layout for maintenance mode
+      revalidatePath('/checkout');
       revalidatePath('/admin/settings');
       revalidatePath('/product/[slug]', 'layout');
       return { success: true, data: merged, message: 'Store settings updated successfully.' };

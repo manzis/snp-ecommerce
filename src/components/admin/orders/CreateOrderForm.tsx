@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createManualOrderAction } from '@/app/actions/orderActions';
+import { getStoreSettingsAction } from '@/app/actions/settingsActions';
 import { fetchAllCustomersAction } from '@/app/actions/profile';
 import { fetchAllProductsAction } from '@/app/actions/productActions';
 import AdminDropdown from '@/components/admin/shared/AdminDropdown';
@@ -133,19 +134,29 @@ export default function CreateOrderForm() {
     // Modal states
     const [showCreateCustomerModal, setShowCreateCustomerModal] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [activeVariantPickerItemId, setActiveVariantPickerItemId] = useState<string | null>(null);
+    const [storeCodSettings, setStoreCodSettings] = useState({ minFee: 40, rate: 0.8, maxFee: 120 });
 
     // Load initial data
     useEffect(() => {
         async function loadData() {
             setInitialLoading(true);
             try {
-                const [custRes, prodRes] = await Promise.all([
+                const [custRes, prodRes, settingsRes] = await Promise.all([
                     fetchAllCustomersAction(),
-                    fetchAllProductsAction()
+                    fetchAllProductsAction(),
+                    getStoreSettingsAction()
                 ]);
 
                 if (custRes.success && custRes.customers) setCustomers(custRes.customers as Customer[]);
                 if (prodRes.success && prodRes.data) setProducts(prodRes.data as any);
+                if (settingsRes?.data?.payment_methods) {
+                    setStoreCodSettings({
+                        minFee: Number(settingsRes.data.payment_methods.cod_fee ?? 40),
+                        rate: Number(settingsRes.data.payment_methods.cod_percentage ?? 0.8),
+                        maxFee: Number(settingsRes.data.payment_methods.cod_max_fee ?? 120),
+                    });
+                }
             } catch (err) {
                 console.error("Failed to load form data", err);
             } finally {
@@ -267,12 +278,16 @@ export default function CreateOrderForm() {
         
         const discountOnMRP = mrpSubtotal - salesSubtotal;
         
-        // COD Fee: 13 if COD selected
-        const codFees = paymentMethod === 'COD' ? 13 : 0;
-        
         // Shipping Logic: Home Delivery = 150, Pickup = 100
         const autoShipping = shippingAddress.option === 'home_delivery' ? 150 : 100;
         const currentShipping = shippingFeeManual !== null ? shippingFeeManual : autoShipping;
+
+        // COD Fee: configured rate% of order value (min. minFee, max. maxFee) if COD selected
+        const baseOrderValue = Math.max(0, salesSubtotal - couponDiscount - bundleDiscount + currentShipping);
+        const rateFactor = (storeCodSettings.rate || 0.8) / 100;
+        const codFees = paymentMethod === 'COD' 
+            ? Math.min(storeCodSettings.maxFee, Math.max(storeCodSettings.minFee, Math.round(baseOrderValue * rateFactor))) 
+            : 0;
         
         const grandTotal = salesSubtotal - couponDiscount - bundleDiscount + currentShipping + codFees + taxAmount;
 
@@ -287,7 +302,7 @@ export default function CreateOrderForm() {
             taxAmount,
             grandTotal 
         };
-    }, [selectedItems, couponDiscount, bundleDiscount, taxAmount, shippingFeeManual, paymentMethod, shippingAddress.option]);
+    }, [selectedItems, couponDiscount, bundleDiscount, taxAmount, shippingFeeManual, paymentMethod, shippingAddress.option, storeCodSettings]);
 
     const handleCreateOrderClick = () => {
         if (!customerInfo.email || !customerInfo.full_name) {
@@ -342,7 +357,8 @@ export default function CreateOrderForm() {
                 cod_fees: totals.codFees,
                 tax_amount: totals.taxAmount,
                 payment_method: paymentMethod,
-                payment_remarks: paymentRemarks
+                payment_remarks: paymentRemarks,
+                idempotency_key: `manual_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
             };
 
             const items = selectedItems.map(item => ({
@@ -663,24 +679,15 @@ export default function CreateOrderForm() {
                                                         {/* Desktop Variant Indicator */}
                                                         <div className="hidden sm:flex mt-1 items-center gap-2">
                                                             {product && product.product_variants.length > 0 && (
-                                                                <div className="relative group/menu">
-                                                                    <button className="flex items-center gap-1.5 px-2 py-0.5 bg-zinc-50 border border-zinc-200 text-[10px] font-medium text-zinc-500 hover:text-zinc-900 transition-all rounded">
-                                                                        {item.selected_size || 'Size'} / {item.selected_flavor || 'Flavor'}
-                                                                        <HorizontalDotsIcon className="w-3 h-3 ml-1" />
-                                                                    </button>
-                                                                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-zinc-200 shadow-2xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-[100] py-2 rounded-xl">
-                                                                        {product.product_variants.map(v => (
-                                                                            <button 
-                                                                                key={v.id}
-                                                                                onClick={() => updateItemVariant(item.id, v.id)}
-                                                                                className={`w-full text-left px-4 py-2.5 text-[11px] hover:bg-zinc-50 transition-colors ${item.variant_id === v.id ? 'bg-zinc-100 font-medium' : ''}`}
-                                                                            >
-                                                                                {v.size?.size_label || 'Default'} — {v.flavour?.flavour_name || 'Standard'}
-                                                                                <span className="block text-[10px] text-zinc-400 font-normal mt-0.5">Rs. {v.discounted_price}</span>
-                                                                            </button>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
+                                                                <button 
+                                                                    type="button"
+                                                                    onClick={() => setActiveVariantPickerItemId(item.id)}
+                                                                    className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-50 border border-zinc-200 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 hover:border-zinc-300 hover:bg-zinc-100 transition-all rounded-lg cursor-pointer"
+                                                                    title="Change variant"
+                                                                >
+                                                                    <span>{item.selected_size || 'Size'} / {item.selected_flavor || 'Flavor'}</span>
+                                                                    <HorizontalDotsIcon className="w-3 h-3 text-zinc-400" />
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </div>
@@ -693,27 +700,14 @@ export default function CreateOrderForm() {
                                                 <div className="flex items-center justify-between w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-dashed border-zinc-100 sm:border-0 gap-2">
                                                     <div className="flex sm:hidden">
                                                         {product && product.product_variants.length > 0 && (
-                                                            <div className="relative group/menu-mobile">
-                                                                <button className="flex items-center gap-1.5 h-9 px-3 bg-zinc-50 border border-zinc-200 text-[11px] font-medium text-zinc-500 hover:text-zinc-900 transition-all rounded">
-                                                                    {item.selected_size || 'Size'} / {item.selected_flavor || 'Flavor'}
-                                                                    <HorizontalDotsIcon className="w-3 h-3 ml-1" />
-                                                                </button>
-                                                                <div className="fixed inset-x-4 bottom-4 bg-white border border-zinc-200 shadow-2xl opacity-0 invisible group-hover/menu-mobile:opacity-100 group-hover/menu-mobile:visible transition-all z-[1100] py-4 rounded-2xl max-h-[60vh] overflow-y-auto">
-                                                                    <div className="px-6 pb-4 border-b border-zinc-100 mb-2">
-                                                                        <h3 className="text-[13px] font-medium">Select Variant</h3>
-                                                                    </div>
-                                                                    {product.product_variants.map(v => (
-                                                                        <button 
-                                                                            key={v.id}
-                                                                            onClick={() => updateItemVariant(item.id, v.id)}
-                                                                            className={`w-full text-left px-6 py-4 text-[12px] hover:bg-zinc-50 transition-colors ${item.variant_id === v.id ? 'bg-zinc-100 font-medium' : ''}`}
-                                                                        >
-                                                                            {v.size?.size_label || 'Default'} — {v.flavour?.flavour_name || 'Standard'}
-                                                                            <span className="block text-[11px] text-zinc-400 font-normal mt-1">Rs. {v.discounted_price}</span>
-                                                                        </button>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => setActiveVariantPickerItemId(item.id)}
+                                                                className="flex items-center gap-1.5 h-9 px-3 bg-zinc-50 border border-zinc-200 text-[11px] font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100 transition-all rounded-lg cursor-pointer active:scale-95"
+                                                            >
+                                                                <span className="truncate max-w-[130px]">{item.selected_size || 'Size'} / {item.selected_flavor || 'Flavor'}</span>
+                                                                <HorizontalDotsIcon className="w-3 h-3 text-zinc-400 shrink-0" />
+                                                            </button>
                                                         )}
                                                     </div>
 
@@ -1048,6 +1042,76 @@ export default function CreateOrderForm() {
                     </div>
                 </div>
             </AdminModal>
+
+            {/* Interactive Variant Picker Modal / Bottom Sheet (Works seamlessly on Mobile & Desktop) */}
+            {activeVariantPickerItemId && (() => {
+                const activeItem = selectedItems.find(i => i.id === activeVariantPickerItemId);
+                const activeProduct = activeItem ? products.find(p => p.id === activeItem.product_id) : null;
+                if (!activeItem || !activeProduct) return null;
+
+                return (
+                    <div className="fixed inset-0 z-[1200] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div 
+                            className="fixed inset-0"
+                            onClick={() => setActiveVariantPickerItemId(null)}
+                        />
+                        <div className="relative w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl z-10 max-h-[85vh] sm:max-h-[80vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200">
+                            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-100">
+                                <div className="min-w-0 pr-4">
+                                    <h3 className="text-[14px] sm:text-[15px] font-semibold text-zinc-900">Choose Variant</h3>
+                                    <p className="text-[11px] text-zinc-500 truncate">{activeProduct.name}</p>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onClick={() => setActiveVariantPickerItemId(null)}
+                                    className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100 transition-colors shrink-0"
+                                >
+                                    <CloseIcon className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <div className="p-3 sm:p-4 space-y-2 overflow-y-auto max-h-[60vh]">
+                                {activeProduct.product_variants.map(v => {
+                                    const isSelected = activeItem.variant_id === v.id;
+                                    return (
+                                        <button
+                                            key={v.id}
+                                            type="button"
+                                            onClick={() => {
+                                                updateItemVariant(activeItem.id, v.id);
+                                                setActiveVariantPickerItemId(null);
+                                            }}
+                                            className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all ${
+                                                isSelected 
+                                                    ? 'border-zinc-900 bg-zinc-900 text-white shadow-sm' 
+                                                    : 'border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 text-zinc-800'
+                                            }`}
+                                        >
+                                            <div className="min-w-0 flex-1 pr-3">
+                                                <div className={`text-[13px] font-medium truncate ${isSelected ? 'text-white' : 'text-zinc-900'}`}>
+                                                    {v.size?.size_label || 'Default Size'} — {v.flavour?.flavour_name || 'Standard Flavor'}
+                                                </div>
+                                                <div className={`text-[11px] mt-0.5 ${isSelected ? 'text-zinc-300' : 'text-zinc-400'}`}>
+                                                    Stock: {v.stock_count ?? 'Available'}
+                                                </div>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <div className={`text-[13px] font-semibold ${isSelected ? 'text-white' : 'text-zinc-900'}`}>
+                                                    Rs. {v.discounted_price}
+                                                </div>
+                                                {v.original_price > v.discounted_price && (
+                                                    <div className={`text-[10px] line-through ${isSelected ? 'text-zinc-400' : 'text-zinc-400'}`}>
+                                                        Rs. {v.original_price}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Mobile Sticky Footer Actions */}
             <div className="md:hidden fixed bottom-[70px] left-0 right-0 z-[150] bg-white border-t border-zinc-100 p-4 pb-[calc(11px+env(safe-area-inset-bottom))] flex gap-3 shadow-[0_-8px_20px_-10px_rgba(0,0,0,0.05)]">
