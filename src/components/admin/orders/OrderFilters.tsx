@@ -25,14 +25,20 @@ export default function OrderFilters({
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const statuses = [
-        'all', 'pending', 'confirmed', 'processing', 'shipped', 
-        'delivered', 'cancelled', 'returned'
+        { id: 'all', label: 'All' },
+        { id: 'not_shipped', label: 'Not Shipped' },
+        { id: 'in_transit', label: 'In Transit' },
+        { id: 'pending', label: 'Pending' },
+        { id: 'confirmed', label: 'Confirmed' },
+        { id: 'shipped', label: 'Shipped' },
+        { id: 'delivered', label: 'Delivered' },
+        { id: 'cancelled', label: 'Cancelled' },
+        { id: 'returned', label: 'Returned' },
     ];
 
     const paymentStatuses = [
         { id: 'all', label: 'All' },
         { id: 'unpaid', label: 'Unpaid' },
-        { id: 'pending', label: 'Pending' },
         { id: 'paid', label: 'Paid' },
         { id: 'partially_paid', label: 'Part. Paid' },
         { id: 'failed', label: 'Failed' },
@@ -63,7 +69,7 @@ export default function OrderFilters({
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                             transition={{ duration: 0.15, ease: "easeOut" }}
-                            className="absolute right-0 top-[calc(100%+8px)] w-72 bg-white border border-gray-200 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.12),0_4px_12px_-4px_rgba(0,0,0,0.08)] z-[60] p-4 flex flex-col gap-4 font-rubik"
+                            className="absolute right-0 top-[calc(100%+8px)] w-80 max-w-[calc(100vw-32px)] bg-white border border-gray-200 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.12),0_4px_12px_-4px_rgba(0,0,0,0.08)] z-[60] p-4 flex flex-col gap-4 font-rubik"
                         >
                             {/* Order Status Section */}
                             <div>
@@ -71,11 +77,11 @@ export default function OrderFilters({
                                 <div className="flex flex-wrap gap-1.5">
                                     {statuses.map((s) => (
                                         <button 
-                                            key={s} 
-                                            onClick={() => setStatus(s)}
-                                            className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${activeStatus === s ? 'bg-[#242424] text-white' : 'bg-gray-50 text-[#71717a] hover:bg-zinc-100 hover:text-[#242424]'}`}
+                                            key={s.id} 
+                                            onClick={() => setStatus(s.id)}
+                                            className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${activeStatus === s.id ? 'bg-[#242424] text-white' : 'bg-gray-50 text-[#71717a] hover:bg-zinc-100 hover:text-[#242424]'}`}
                                         >
-                                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                                            {s.label}
                                         </button>
                                     ))}
                                 </div>

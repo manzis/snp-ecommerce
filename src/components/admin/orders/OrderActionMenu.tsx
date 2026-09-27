@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OrderProps } from '@/components/orders/OrderCard';
 import HorizontalDotsIcon from '@/components/icons/DotsHorizontalIcon';
+import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
+import { generateAndOpenInvoice } from '@/utils/invoiceGenerator';
 
 interface OrderActionMenuProps {
     order: OrderProps;
@@ -58,13 +60,17 @@ export default function OrderActionMenu({
     onDeleteOrder,
     onOpenChange,
 }: OrderActionMenuProps) {
+    const { showAdminToast } = useAdminToast();
     const [isOpen, setIsOpen] = useState(false);
+    const [showInvoiceOptions, setShowInvoiceOptions] = useState(false);
+    const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
     const menuRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
+                setShowInvoiceOptions(false);
                 onOpenChange?.(false);
             }
         };
@@ -77,6 +83,7 @@ export default function OrderActionMenu({
         e.preventDefault();
         const next = !isOpen;
         setIsOpen(next);
+        if (!next) setShowInvoiceOptions(false);
         onOpenChange?.(next);
     };
 
@@ -85,7 +92,26 @@ export default function OrderActionMenu({
         e.preventDefault();
         action?.();
         setIsOpen(false);
+        setShowInvoiceOptions(false);
         onOpenChange?.(false);
+    };
+
+    const handleGenerateInvoiceWithMode = async (e: React.MouseEvent, withPan: boolean) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setIsGeneratingInvoice(true);
+        showAdminToast(withPan ? 'Generating Invoice (With PAN)...' : 'Generating Invoice...', 'success');
+        try {
+            await generateAndOpenInvoice(order, withPan);
+            setIsOpen(false);
+            setShowInvoiceOptions(false);
+            onOpenChange?.(false);
+        } catch (err) {
+            console.error('Invoice generation failed:', err);
+            showAdminToast('Failed to generate invoice. Please try again.', 'error');
+        } finally {
+            setIsGeneratingInvoice(false);
+        }
     };
 
     const fallbackCopy = (text: string) => {
@@ -120,7 +146,7 @@ export default function OrderActionMenu({
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                        className="absolute right-0 top-[calc(100%+8px)] w-[180px] bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_1px_0_rgba(0,0,0,0.1)] z-[120] py-1.5 px-1.5"
+                        className="absolute right-0 top-[calc(100%+8px)] w-[210px] bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1),0_0_1px_0_rgba(0,0,0,0.1)] z-[120] py-1.5 px-1.5"
                     >
                         <button
                             onClick={(e) => handleAction(e, () => onViewOrder?.(order))}
@@ -146,13 +172,72 @@ export default function OrderActionMenu({
                             <span>Update Payment</span>
                         </button>
 
-                        <button
-                            onClick={(e) => handleAction(e, () => alert('System: Print Invoice initiated'))}
-                            className="w-full flex items-center gap-3 px-3 py-2 text-[14px] rounded-[6px] text-[#242424] hover:bg-zinc-100 transition-colors"
-                        >
-                            <PrintIcon className="w-4 h-4 text-[#71717a]" />
-                            <span>Print Invoice</span>
-                        </button>
+                        {/* Generate Invoice with Sub-Options (With PAN / Without PAN) */}
+                        <div className="relative">
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setShowInvoiceOptions((prev) => !prev);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-[14px] rounded-[6px] transition-colors cursor-pointer ${
+                                    showInvoiceOptions ? 'bg-zinc-100 text-[#242424]' : 'text-[#242424] hover:bg-zinc-100'
+                                }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <PrintIcon className="w-4 h-4 text-[#71717a]" />
+                                    <span>Generate Invoice</span>
+                                </div>
+                                <svg
+                                    className={`w-3.5 h-3.5 text-[#71717a] transition-transform duration-200 ${showInvoiceOptions ? 'rotate-180' : ''}`}
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="m6 9 6 6 6-6"/>
+                                </svg>
+                            </button>
+
+                            <AnimatePresence>
+                                {showInvoiceOptions && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="overflow-hidden pl-3 pr-1 py-1 space-y-1 bg-zinc-50 rounded-[8px] my-1 border border-zinc-100"
+                                    >
+                                        <button
+                                            type="button"
+                                            disabled={isGeneratingInvoice}
+                                            onClick={(e) => handleGenerateInvoiceWithMode(e, true)}
+                                            className="w-full flex items-center justify-between px-2.5 py-1.5 text-[13px] rounded-[6px] text-[#242424] hover:bg-white hover:shadow-xs transition-all text-left font-medium cursor-pointer disabled:opacity-50"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                                <span>With PAN</span>
+                                            </div>
+                                            <span className="text-[10px] text-zinc-500 font-mono bg-zinc-200/60 px-1 py-0.5 rounded">623440377</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            disabled={isGeneratingInvoice}
+                                            onClick={(e) => handleGenerateInvoiceWithMode(e, false)}
+                                            className="w-full flex items-center px-2.5 py-1.5 text-[13px] rounded-[6px] text-[#52525b] hover:bg-white hover:shadow-xs transition-all text-left cursor-pointer disabled:opacity-50"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                                                <span>Without PAN</span>
+                                            </div>
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
 
                         <button
                             onClick={(e) => handleAction(e, () => window.open(`/admin/labels/${order.id}`, '_blank'))}

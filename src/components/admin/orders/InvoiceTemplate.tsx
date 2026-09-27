@@ -1,11 +1,13 @@
 import React, { forwardRef } from 'react';
 import { OrderProps } from '@/components/orders/OrderCard';
+import { getFormattedCustomerAddress } from '@/utils/invoiceGenerator';
 
 interface InvoiceTemplateProps {
     order: OrderProps;
+    withPan?: boolean;
 }
 
-const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(({ order }, ref) => {
+const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(({ order, withPan }, ref) => {
     // Helper to format date
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return '';
@@ -29,14 +31,10 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(({ orde
     const remainingDue = Math.max(0, totalAmount - amountPaid);
     const totalSavings = (order.discount_on_mrp || 0) + (order.bundle_discount || 0) + (order.coupon_discount || 0);
 
-    const customerPhone = order.customerPhone || '';
-    const addressDetails = order.shippingAddress?.addressDetails || {};
-    const city = order.shippingAddress?.city || addressDetails.city || '';
-    const addressStr = [
-        order.shippingAddress?.address,
-        addressDetails.area,
-        city
-    ].filter(Boolean).join(', ');
+    const addressDetails = order.shippingAddress?.addressDetails || (typeof order.shippingAddress === 'object' ? order.shippingAddress : {});
+    const customerPhone = order.customerPhone || addressDetails.phone || '';
+    const customerName = order.customerName || [addressDetails.first_name, addressDetails.last_name].filter(Boolean).join(' ') || 'Customer';
+    const addressLines = getFormattedCustomerAddress(order.shippingAddress);
 
     return (
         <div 
@@ -80,17 +78,44 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(({ orde
                 <div className="w-1/3">
                     <h3 className="font-bold text-gray-900 mb-1 text-xs">Bill to:</h3>
                     <div className="text-gray-700 leading-relaxed text-[11px]">
-                        <p>{order.customerName}</p>
-                        {addressStr && <p className="capitalize">{addressStr}</p>}
-                        <p className="font-bold mt-1 text-gray-900">{customerPhone}</p>
+                        <p className="font-bold text-gray-900">{customerName}</p>
+                        {addressLines.length > 0 ? (
+                            addressLines.map((line, idx) => (
+                                <p key={idx} className="capitalize">{line}</p>
+                            ))
+                        ) : (
+                            <p className="italic text-gray-400">Address N/A</p>
+                        )}
+                        {customerPhone && <p className="font-bold mt-1 text-gray-900">{customerPhone}</p>}
                     </div>
                 </div>
 
                 <div className="w-1/3">
                     <h3 className="font-bold text-gray-900 mb-1 text-xs">Billed By:</h3>
                     <div className="text-gray-700 leading-relaxed text-[11px]">
-                        <p>Bright Nepcare Pvt Ltd</p>
+                        <p className="font-medium text-gray-900">Bright Nepcare Pvt Ltd</p>
                         <p>Kathmandu, Nepal</p>
+                        {withPan && (
+                            <div className="mt-2.5 flex items-center gap-1.5">
+                                <span className="font-bold text-gray-900 text-[10.5px] uppercase tracking-tight shrink-0">PAN No :</span>
+                                <div 
+                                    className="inline-flex items-center bg-white"
+                                    style={{ border: '1px solid #d1d5db' }}
+                                >
+                                    {"623440377".split('').map((digit, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="w-[16px] h-[20px] flex items-center justify-center text-[11px] font-bold font-mono text-gray-900 shrink-0"
+                                            style={{
+                                                borderRight: idx < 8 ? '1px solid #d1d5db' : 'none'
+                                            }}
+                                        >
+                                            {digit}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

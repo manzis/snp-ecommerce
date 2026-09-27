@@ -125,7 +125,7 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
     const pathname = usePathname();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { primaryAction: contextPrimaryAction, overrideTitle: contextOverrideTitle, headerActionNode } = useAdminUI();
+    const { primaryAction: contextPrimaryAction, overrideTitle: contextOverrideTitle, headerActionNode, showOrdersStats, toggleOrdersStats } = useAdminUI();
 
     // Auto-close menu on navigation
     React.useEffect(() => {
@@ -142,7 +142,19 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
     }
 
     // Get actions for the current page
-    const actions = MOBILE_ACTIONS[pathname] || MOBILE_ACTIONS['default'];
+    let actions: Array<{ label: string; icon: any; href?: string; triggerModal?: boolean; onClick?: () => void }> = MOBILE_ACTIONS[pathname] || MOBILE_ACTIONS['default'];
+    if (pathname === '/admin/orders') {
+        actions = [
+            { label: 'Create Order', icon: PlusIcon, href: '/admin/orders/create' },
+            { 
+                label: showOrdersStats ? 'Hide Stats' : 'Show Stats', 
+                icon: AnalyticsIcon, 
+                onClick: toggleOrdersStats 
+            },
+            { label: 'Export Orders', icon: SettingsIcon, href: '/admin/export/orders' },
+            { label: 'Notifications', icon: NotificationIcon, href: '/admin/notifications' },
+        ];
+    }
     const primaryAction = PRIMARY_ACTIONS[pathname];
 
     // Mapping for buttons based on path
@@ -222,12 +234,27 @@ const DynamicAdminNav = ({ children, overrideTitle: propOverrideTitle }: Dynamic
                                                 </button>
                                             );
                                         }
+                                        if (item.onClick) {
+                                            return (
+                                                <button
+                                                    key={item.label}
+                                                    onClick={() => {
+                                                        setIsMenuOpen(false);
+                                                        item.onClick!();
+                                                    }}
+                                                    className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-regular text-[#242424] hover:bg-zinc-100 transition-colors text-left"
+                                                >
+                                                    <Icon className="w-[18px] h-[18px] text-[#71717a]" />
+                                                    {item.label}
+                                                </button>
+                                            );
+                                        }
                                         return (
                                             <Link
                                                 key={item.label}
                                                 href={item.href!}
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl  text-[13.5px] font-regular text-[#242424] hover:bg-zinc-100 transition-colors"
+                                                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-regular text-[#242424] hover:bg-zinc-100 transition-colors"
                                             >
                                                 <Icon className="w-[18px] h-[18px] text-[#71717a]" />
                                                 {item.label}

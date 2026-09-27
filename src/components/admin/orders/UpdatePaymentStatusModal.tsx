@@ -12,7 +12,7 @@ interface UpdatePaymentStatusModalProps {
 }
 
 const paymentStatuses = [
-    { id: 'pending', label: 'PENDING', bgClass: 'bg-zinc-100 text-[#3f3f46]', activeBg: 'bg-[#3f3f46] text-white' },
+    { id: 'pending', label: 'UNPAID', bgClass: 'bg-zinc-100 text-[#3f3f46]', activeBg: 'bg-[#3f3f46] text-white' },
     { id: 'partially_paid', label: 'PART. PAID', bgClass: 'bg-[#fef08a] text-[#854d0e]', activeBg: 'bg-[#ca8a04] text-white' },
     { id: 'paid', label: 'PAID', bgClass: 'bg-green-100 text-green-800', activeBg: 'bg-green-600 text-white' },
     { id: 'failed', label: 'FAILED', bgClass: 'bg-red-100 text-red-800', activeBg: 'bg-red-600 text-white' }
@@ -139,7 +139,7 @@ export default function UpdatePaymentStatusModal({ isOpen, onClose, order, onCon
                     </button>
                     <button
                         onClick={handleConfirm}
-                        disabled={loading || targetStatus === order.paymentStatus?.toLowerCase()}
+                        disabled={loading || targetStatus === (order.paymentStatus?.toLowerCase() || 'pending')}
                         className="flex-[2] md:flex-none md:px-12 py-3.5 bg-[#242424] text-white rounded-2xl text-[13px] font-medium hover:bg-black transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-black/10"
                     >
                         {loading ? (

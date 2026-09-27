@@ -1,7 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import OrdersClient from './OrdersClient';
-import { fetchAllOrdersAdminAction } from '@/app/actions/orderActions';
+import { fetchAllOrdersAdminAction, fetchOrdersStatsAction } from '@/app/actions/orderActions';
 import { OrderGridSkeleton } from '@/components/admin/shared/AdminPageSkeletons';
 
 export const metadata: Metadata = {
@@ -10,8 +10,11 @@ export const metadata: Metadata = {
 };
 
 async function OrdersDataWrapper() {
-  const initialData = await fetchAllOrdersAdminAction(1, 12, { search: '', status: 'all', hideCancelled: false });
-  return <OrdersClient initialOrdersData={initialData} />;
+  const [initialData, statsResult] = await Promise.all([
+    fetchAllOrdersAdminAction(1, 12, { search: '', status: 'all', hideCancelled: false }),
+    fetchOrdersStatsAction()
+  ]);
+  return <OrdersClient initialOrdersData={initialData} initialStats={statsResult?.stats} />;
 }
 
 export default function OrdersPage() {

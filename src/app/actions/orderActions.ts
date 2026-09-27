@@ -536,6 +536,189 @@ export async function cancelOrderAction(orderId: string, reason: string) {
   }
 }
 /**
+ * Helper to apply common admin order filters (status, payment, hideCancelled, search)
+ * onto a Supabase orders query builder.
+ */
+export async function applyOrdersFilterToQuery(
+  baseQuery: any,
+  adminClient: any,
+  options?: { search?: string; status?: string; hideCancelled?: boolean; paymentStatus?: string }
+) {
+  let query = baseQuery;
+
+  // Apply Status Filter
+  if (options?.status && options.status !== 'all') {
+    const normStatus = options.status.toLowerCase();
+    if (normStatus === 'not_shipped') {
+      query = query.in('status', ['pending', 'confirmed', 'processing']);
+    } else if (normStatus === 'in_transit') {
+      query = query.in('status', ['shipped', 'in_transit', 'shipment_arrived']);
+    } else {
+      query = query.eq('status', normStatus);
+    }
+  } else if (options?.paymentStatus && options.paymentStatus !== 'all') {
+    // Do not count/include Cancelled or Returned orders for payment status filtration
+    query = query.not('status', 'in', '(cancelled,returned)');
+  } else if (options?.hideCancelled) {
+    query = query.neq('status', 'cancelled');
+  }
+
+  // Apply Payment Status Filter
+  if (options?.paymentStatus && options.paymentStatus !== 'all') {
+    const normPay = options.paymentStatus.toLowerCase();
+    if (normPay === 'paid') {
+      query = query.eq('payment_status', 'paid');
+    } else if (normPay === 'unpaid' || normPay === 'pending') {
+      query = query.or('payment_status.eq.pending,payment_status.is.null');
+    } else if (normPay === 'partially_paid') {
+      query = query.eq('payment_status', 'partially_paid');
+    } else if (normPay === 'failed') {
+      query = query.eq('payment_status', 'failed');
+    } else {
+      query = query.eq('payment_status', normPay);
+    }
+  }
+
+  // Apply Comprehensive Search Filter
+  if (options?.search && options.search.trim().length > 0) {
+    const rawSearch = options.search.trim();
+    const cleanSearch = rawSearch.replace(/^#/, '').replace(/[,()%\\]/g, '').trim();
+
+    if (cleanSearch.length > 0) {
+      let orderIdsFromItems: string[] = [];
+      let matchingOrderUuid: string[] = [];
+
+      try {
+        // 1. Find matching product IDs from products & brands tables
+        const { data: matchingProducts } = await adminClient
+          .from('products')
+          .select('id')
+          .or(`name.ilike.%${cleanSearch}%,title.ilike.%${cleanSearch}%,slug.ilike.%${cleanSearch}%`);
+
+        const { data: matchingBrands } = await adminClient
+          .from('brands')
+          .select('id')
+          .ilike('name', `%${cleanSearch}%`);
+
+        const brandIds = matchingBrands?.map((b: any) => b.id) || [];
+        let productIdsFromBrands: string[] = [];
+        if (brandIds.length > 0) {
+          const { data: brandProducts } = await adminClient
+            .from('products')
+            .select('id')
+            .in('brand_id', brandIds);
+          productIdsFromBrands = brandProducts?.map((p: any) => p.id) || [];
+        }
+
+        const allMatchingProductIds = Array.from(new Set([
+          ...(matchingProducts?.map((p: any) => p.id) || []),
+          ...productIdsFromBrands
+        ]));
+
+        // 2. Query order_items to find order IDs for matching products, flavors, or sizes
+        const itemFilters: string[] = [];
+        if (allMatchingProductIds.length > 0) {
+          itemFilters.push(`product_id.in.(${allMatchingProductIds.slice(0, 200).join(',')})`);
+        }
+        itemFilters.push(`selected_flavor.ilike.%${cleanSearch}%`);
+        itemFilters.push(`selected_size.ilike.%${cleanSearch}%`);
+
+        const { data: itemData } = await adminClient
+          .from('order_items')
+          .select('order_id')
+          .or(itemFilters.join(','));
+
+        if (itemData && itemData.length > 0) {
+          orderIdsFromItems = itemData.map((i: any) => i.order_id);
+        }
+      } catch (itemErr) {
+        console.error('[Order Search] Item matching error:', itemErr);
+      }
+
+      try {
+        // 3. Check for Short ID or UUID prefix matches using indexed prefix bounds (only if search is valid hex)
+        const isPureHex = /^[0-9a-fA-F-]+$/.test(cleanSearch);
+        const hexOnly = cleanSearch.replace(/[^A-Fa-f0-9]/g, '').toLowerCase();
+        if (isPureHex && hexOnly.length >= 2) {
+          const lowerPrefix = hexOnly.slice(0, 8).padEnd(8, '0');
+          const upperPrefix = hexOnly.slice(0, 8).padEnd(8, 'f');
+          const lowerBound = `${lowerPrefix}-0000-0000-0000-000000000000`;
+          const upperBound = `${upperPrefix}-ffff-ffff-ffff-ffffffffffff`;
+
+          const { data: matchedOrders } = await adminClient
+            .from('orders')
+            .select('id')
+            .gte('id', lowerBound)
+            .lte('id', upperBound)
+            .limit(50);
+
+          if (matchedOrders && matchedOrders.length > 0) {
+            matchingOrderUuid = matchedOrders.map((o: any) => o.id);
+          }
+        }
+      } catch (idErr) {
+        console.error('[Order Search] ID matching error:', idErr);
+      }
+
+      // 3b. Support multi-word customer name search (e.g. "shiba kc" matching first_name="shiba" & last_name="kc")
+      let multiWordOrderIds: string[] = [];
+      const words = cleanSearch.split(/\s+/).filter(Boolean);
+      if (words.length > 1) {
+        try {
+          const w1 = words[0];
+          const w2 = words.slice(1).join(' ');
+          const { data: matchedNameOrders } = await adminClient
+            .from('orders')
+            .select('id')
+            .or(`shipping_address->>first_name.ilike.%${w1}%,contact_details->>full_name.ilike.%${w1}%,contact_details->>name.ilike.%${w1}%,shipping_address->addressDetails->>first_name.ilike.%${w1}%`)
+            .or(`shipping_address->>last_name.ilike.%${w2}%,contact_details->>full_name.ilike.%${w2}%,contact_details->>name.ilike.%${w2}%,shipping_address->addressDetails->>last_name.ilike.%${w2}%`)
+            .limit(100);
+
+          if (matchedNameOrders && matchedNameOrders.length > 0) {
+            multiWordOrderIds = matchedNameOrders.map((o: any) => o.id);
+          }
+        } catch (mwErr) {
+          console.error('[Order Search] Multi-word name matching error:', mwErr);
+        }
+      }
+
+      // 4. Combine all order IDs matching items, ID prefix, or multi-word customer names
+      const combinedOrderIds = Array.from(new Set([
+        ...orderIdsFromItems,
+        ...matchingOrderUuid,
+        ...multiWordOrderIds
+      ])).slice(0, 300);
+
+      // 5. Build OR clauses for main orders query
+      let orClauses = [
+        `contact_details->>full_name.ilike.%${cleanSearch}%`,
+        `contact_details->>name.ilike.%${cleanSearch}%`,
+        `contact_details->>email.ilike.%${cleanSearch}%`,
+        `contact_details->>phone.ilike.%${cleanSearch}%`,
+        `contact_details->>value.ilike.%${cleanSearch}%`,
+        `shipping_address->>first_name.ilike.%${cleanSearch}%`,
+        `shipping_address->>last_name.ilike.%${cleanSearch}%`,
+        `shipping_address->>phone.ilike.%${cleanSearch}%`,
+        `shipping_address->addressDetails->>first_name.ilike.%${cleanSearch}%`,
+        `shipping_address->addressDetails->>last_name.ilike.%${cleanSearch}%`,
+        `shipping_address->addressDetails->>phone.ilike.%${cleanSearch}%`,
+        `coupon_code.ilike.%${cleanSearch}%`,
+        `tracking_number.ilike.%${cleanSearch}%`,
+        `carrier_name.ilike.%${cleanSearch}%`
+      ];
+
+      if (combinedOrderIds.length > 0) {
+        orClauses.push(`id.in.(${combinedOrderIds.join(',')})`);
+      }
+
+      query = query.or(orClauses.join(','));
+    }
+  }
+
+  return { query };
+}
+
+/**
  * Server action to fetch all orders for admin dashboard
  */
 export async function fetchAllOrdersAdminAction(page: number = 1, limit: number = 20, options?: { search?: string, status?: string, hideCancelled?: boolean, paymentStatus?: string }) {
@@ -574,169 +757,8 @@ export async function fetchAllOrdersAdminAction(page: number = 1, limit: number 
         )
       `, { count: 'estimated' });
 
-    // Apply Status Filter
-    if (options?.status && options.status !== 'all') {
-      query = query.eq('status', options.status.toLowerCase());
-    } else if (options?.paymentStatus && options.paymentStatus !== 'all') {
-      // Do not count/include Cancelled or Returned orders for payment status filtration
-      query = query.not('status', 'in', '(cancelled,returned)');
-    } else if (options?.hideCancelled) {
-      query = query.neq('status', 'cancelled');
-    }
-
-    // Apply Payment Status Filter
-    if (options?.paymentStatus && options.paymentStatus !== 'all') {
-      const normPay = options.paymentStatus.toLowerCase();
-      if (normPay === 'paid') {
-        query = query.eq('payment_status', 'paid');
-      } else if (normPay === 'unpaid') {
-        query = query.or('payment_status.neq.paid,payment_status.is.null');
-      } else if (normPay === 'pending') {
-        query = query.or('payment_status.eq.pending,payment_status.is.null');
-      } else if (normPay === 'partially_paid') {
-        query = query.eq('payment_status', 'partially_paid');
-      } else if (normPay === 'failed') {
-        query = query.eq('payment_status', 'failed');
-      } else {
-        query = query.eq('payment_status', normPay);
-      }
-    }
-
-    // Apply Comprehensive Search Filter
-    if (options?.search && options.search.trim().length > 0) {
-      const rawSearch = options.search.trim();
-      const cleanSearch = rawSearch.replace(/^#/, '').replace(/[,()%\\]/g, '').trim();
-
-      if (cleanSearch.length > 0) {
-        let orderIdsFromItems: string[] = [];
-        let matchingOrderUuid: string[] = [];
-
-        try {
-          // 1. Find matching product IDs from products & brands tables
-          const { data: matchingProducts } = await adminClient
-            .from('products')
-            .select('id')
-            .or(`name.ilike.%${cleanSearch}%,title.ilike.%${cleanSearch}%,slug.ilike.%${cleanSearch}%`);
-
-          const { data: matchingBrands } = await adminClient
-            .from('brands')
-            .select('id')
-            .ilike('name', `%${cleanSearch}%`);
-
-          const brandIds = matchingBrands?.map(b => b.id) || [];
-          let productIdsFromBrands: string[] = [];
-          if (brandIds.length > 0) {
-            const { data: brandProducts } = await adminClient
-              .from('products')
-              .select('id')
-              .in('brand_id', brandIds);
-            productIdsFromBrands = brandProducts?.map(p => p.id) || [];
-          }
-
-          const allMatchingProductIds = Array.from(new Set([
-            ...(matchingProducts?.map(p => p.id) || []),
-            ...productIdsFromBrands
-          ]));
-
-          // 2. Query order_items to find order IDs for matching products, flavors, or sizes
-          const itemFilters: string[] = [];
-          if (allMatchingProductIds.length > 0) {
-            itemFilters.push(`product_id.in.(${allMatchingProductIds.slice(0, 200).join(',')})`);
-          }
-          itemFilters.push(`selected_flavor.ilike.%${cleanSearch}%`);
-          itemFilters.push(`selected_size.ilike.%${cleanSearch}%`);
-
-          const { data: itemData } = await adminClient
-            .from('order_items')
-            .select('order_id')
-            .or(itemFilters.join(','));
-
-          if (itemData && itemData.length > 0) {
-            orderIdsFromItems = itemData.map(i => i.order_id);
-          }
-        } catch (itemErr) {
-          console.error('[Order Search] Item matching error:', itemErr);
-        }
-
-        try {
-          // 3. Check for Short ID or UUID prefix matches using indexed prefix bounds (only if search is valid hex)
-          const isPureHex = /^[0-9a-fA-F-]+$/.test(cleanSearch);
-          const hexOnly = cleanSearch.replace(/[^A-Fa-f0-9]/g, '').toLowerCase();
-          if (isPureHex && hexOnly.length >= 2) {
-            const lowerPrefix = hexOnly.slice(0, 8).padEnd(8, '0');
-            const upperPrefix = hexOnly.slice(0, 8).padEnd(8, 'f');
-            const lowerBound = `${lowerPrefix}-0000-0000-0000-000000000000`;
-            const upperBound = `${upperPrefix}-ffff-ffff-ffff-ffffffffffff`;
-
-            const { data: matchedOrders } = await adminClient
-              .from('orders')
-              .select('id')
-              .gte('id', lowerBound)
-              .lte('id', upperBound)
-              .limit(50);
-
-            if (matchedOrders && matchedOrders.length > 0) {
-              matchingOrderUuid = matchedOrders.map(o => o.id);
-            }
-          }
-        } catch (idErr) {
-          console.error('[Order Search] ID matching error:', idErr);
-        }
-
-        // 3b. Support multi-word customer name search (e.g. "shiba kc" matching first_name="shiba" & last_name="kc")
-        let multiWordOrderIds: string[] = [];
-        const words = cleanSearch.split(/\s+/).filter(Boolean);
-        if (words.length > 1) {
-          try {
-            const w1 = words[0];
-            const w2 = words.slice(1).join(' ');
-            const { data: matchedNameOrders } = await adminClient
-              .from('orders')
-              .select('id')
-              .or(`shipping_address->>first_name.ilike.%${w1}%,contact_details->>full_name.ilike.%${w1}%,contact_details->>name.ilike.%${w1}%,shipping_address->addressDetails->>first_name.ilike.%${w1}%`)
-              .or(`shipping_address->>last_name.ilike.%${w2}%,contact_details->>full_name.ilike.%${w2}%,contact_details->>name.ilike.%${w2}%,shipping_address->addressDetails->>last_name.ilike.%${w2}%`)
-              .limit(100);
-
-            if (matchedNameOrders && matchedNameOrders.length > 0) {
-              multiWordOrderIds = matchedNameOrders.map(o => o.id);
-            }
-          } catch (mwErr) {
-            console.error('[Order Search] Multi-word name matching error:', mwErr);
-          }
-        }
-
-        // 4. Combine all order IDs matching items, ID prefix, or multi-word customer names
-        const combinedOrderIds = Array.from(new Set([
-          ...orderIdsFromItems,
-          ...matchingOrderUuid,
-          ...multiWordOrderIds
-        ])).slice(0, 300);
-
-        // 5. Build OR clauses for main orders query
-        let orClauses = [
-          `contact_details->>full_name.ilike.%${cleanSearch}%`,
-          `contact_details->>name.ilike.%${cleanSearch}%`,
-          `contact_details->>email.ilike.%${cleanSearch}%`,
-          `contact_details->>phone.ilike.%${cleanSearch}%`,
-          `contact_details->>value.ilike.%${cleanSearch}%`,
-          `shipping_address->>first_name.ilike.%${cleanSearch}%`,
-          `shipping_address->>last_name.ilike.%${cleanSearch}%`,
-          `shipping_address->>phone.ilike.%${cleanSearch}%`,
-          `shipping_address->addressDetails->>first_name.ilike.%${cleanSearch}%`,
-          `shipping_address->addressDetails->>last_name.ilike.%${cleanSearch}%`,
-          `shipping_address->addressDetails->>phone.ilike.%${cleanSearch}%`,
-          `coupon_code.ilike.%${cleanSearch}%`,
-          `tracking_number.ilike.%${cleanSearch}%`,
-          `carrier_name.ilike.%${cleanSearch}%`
-        ];
-
-        if (combinedOrderIds.length > 0) {
-          orClauses.push(`id.in.(${combinedOrderIds.join(',')})`);
-        }
-
-        query = query.or(orClauses.join(','));
-      }
-    }
+    const filterResult = await applyOrdersFilterToQuery(query, adminClient, options);
+    query = filterResult.query;
 
     // Execute admin role check and orders query concurrently for maximum speed
     const [profileRes, { data, error, count }] = await Promise.all([
@@ -1427,6 +1449,109 @@ export async function fetchOrderPaymentCountsAction(): Promise<{ success: boolea
   } catch (error: any) {
     console.error('Action Error: fetchOrderPaymentCountsAction:', error);
     return { success: false, message: error.message || 'Failed to fetch payment counts.' };
+  }
+}
+
+export interface OrdersStats {
+  totalOrders: number;
+  totalItems: number;
+  totalValue: number;
+  avgOrderValue: number;
+}
+
+/**
+ * Server action to fetch high-level summary statistics for orders page.
+ * When filter options are provided, computes stats dynamically for the filtered set of orders.
+ */
+export async function fetchOrdersStatsAction(options?: {
+  search?: string;
+  status?: string;
+  hideCancelled?: boolean;
+  paymentStatus?: string;
+}): Promise<{ success: boolean; stats?: OrdersStats; message?: string }> {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const adminClient = getSupabaseAdmin() || supabase;
+
+  try {
+    const hasFilters = Boolean(
+      (options?.status && options.status !== 'all') ||
+      (options?.paymentStatus && options.paymentStatus !== 'all') ||
+      (options?.search && options.search.trim().length > 0) ||
+      options?.hideCancelled
+    );
+
+    if (!hasFilters) {
+      const [ordersRes, itemsRes] = await Promise.all([
+        adminClient
+          .from('orders')
+          .select('total_amount, status'),
+        adminClient
+          .from('order_items')
+          .select('quantity')
+      ]);
+
+      if (ordersRes.error) throw ordersRes.error;
+      if (itemsRes.error) throw itemsRes.error;
+
+      const orders = ordersRes.data || [];
+      const items = itemsRes.data || [];
+
+      const totalOrders = orders.length;
+      const nonCancelled = orders.filter(o => (o.status || '').toLowerCase() !== 'cancelled');
+      const totalValue = nonCancelled.reduce((acc, o) => acc + (Number(o.total_amount) || 0), 0);
+      const totalItems = items.reduce((acc, i) => acc + (Number(i.quantity) || 1), 0);
+      const avgOrderValue = nonCancelled.length > 0 ? Math.round(totalValue / nonCancelled.length) : 0;
+
+      return {
+        success: true,
+        stats: {
+          totalOrders,
+          totalItems,
+          totalValue,
+          avgOrderValue
+        }
+      };
+    }
+
+    let query = adminClient
+      .from('orders')
+      .select('id, total_amount, status, order_items (quantity)');
+
+    const filterResult = await applyOrdersFilterToQuery(query, adminClient, options);
+    query = filterResult.query;
+
+    const { data: orders, error } = await query.limit(10000);
+    if (error) throw error;
+
+    const list = (orders as any[]) || [];
+    const totalOrders = list.length;
+    const isStatusCancelled = options?.status?.toLowerCase() === 'cancelled';
+    const nonCancelled = isStatusCancelled ? list : list.filter(o => (o.status || '').toLowerCase() !== 'cancelled');
+
+    const totalValue = nonCancelled.reduce((acc, o) => acc + (Number(o.total_amount) || 0), 0);
+    const totalItems = list.reduce((acc, o) => {
+      const items = Array.isArray(o.order_items) ? o.order_items : [];
+      return acc + items.reduce((iAcc: number, item: any) => iAcc + (Number(item?.quantity) || 1), 0);
+    }, 0);
+
+    const avgDenominator = nonCancelled.length > 0 ? nonCancelled.length : (list.length > 0 ? list.length : 0);
+    const avgOrderValue = avgDenominator > 0 ? Math.round(totalValue / avgDenominator) : 0;
+
+    return {
+      success: true,
+      stats: {
+        totalOrders,
+        totalItems,
+        totalValue,
+        avgOrderValue
+      }
+    };
+  } catch (error: any) {
+    console.error('Action Error: fetchOrdersStatsAction:', error);
+    return { success: false, message: error.message || 'Failed to fetch order stats.' };
   }
 }
 

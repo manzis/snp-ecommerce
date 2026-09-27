@@ -14,9 +14,7 @@ import PhoneIcon from '@/components/icons/PhoneIcon';
 import CopyIcon from '@/components/icons/CopyIcon';
 import { syncExternalOrderTrackingAction } from '@/app/actions/orderActions';
 import { getCarrierTrackingUrl } from '@/lib/deliveryHelper';
-import InvoiceTemplate from './InvoiceTemplate';
-import html2canvas from 'html2canvas-pro';
-import jsPDF from 'jspdf';
+import { generateAndOpenInvoice } from '@/utils/invoiceGenerator';
 
 interface OrderDetailsModalProps {
     isOpen: boolean;
@@ -64,8 +62,8 @@ export default function OrderDetailsModal({
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState("Order Cancelled By the seller. This might be a technical default , Try Ordering it again!");
 
-    const invoiceRef = React.useRef<HTMLDivElement>(null);
     const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
+    const [showInvoiceOptions, setShowInvoiceOptions] = useState(false);
 
     // Keep local order updated when propOrder changes
     React.useEffect(() => {
@@ -214,36 +212,14 @@ export default function OrderDetailsModal({
         document.body.removeChild(textArea);
     };
 
-    const handleGenerateInvoice = async () => {
-        if (!invoiceRef.current || !order) return;
+    const handleGenerateInvoice = async (withPan: boolean) => {
+        if (!order) return;
         setIsGeneratingInvoice(true);
-        showAdminToast('Generating Invoice...', 'success');
+        setShowInvoiceOptions(false);
+        showAdminToast(withPan ? 'Generating Invoice (With PAN)...' : 'Generating Invoice...', 'success');
 
         try {
-            const element = invoiceRef.current;
-            // Temporarily show element for accurate capture if needed, though position fixed offscreen usually works.
-            const canvas = await html2canvas(element, {
-                scale: 3, // Optimal balance of crisp resolution and generation speed
-                useCORS: true,
-                logging: false,
-                width: 794,
-                height: 1123,
-                windowWidth: 794,
-                windowHeight: 1123,
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-            // Standard A4
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-            const pdfBlobUrl = pdf.output('bloburl');
-            window.open(pdfBlobUrl, '_blank');
-
+            await generateAndOpenInvoice(order, withPan);
             showAdminToast('Invoice opened in new tab!', 'success');
         } catch (error) {
             console.error('Failed to generate invoice', error);
@@ -675,7 +651,7 @@ export default function OrderDetailsModal({
                             <div className="flex justify-between items-center text-[12px] pt-3 mt-1 border-t border-dotted border-gray-200">
                                 <span className="text-[#a1a1aa] font-medium uppercase tracking-wider text-[10px]">Payment Status</span>
                                 <div className={`px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wider ${order.paymentStatus?.toLowerCase() === 'paid' ? 'bg-green-100 text-green-800' : order.paymentStatus?.toLowerCase() === 'partially_paid' ? 'bg-[#fef08a] text-[#854d0e]' : 'bg-zinc-100 text-[#3f3f46]'}`}>
-                                    {order.paymentStatus?.replace(/_/g, ' ') || 'Pending'}
+                                    {order.paymentStatus?.toLowerCase() === 'pending' ? 'Unpaid' : (order.paymentStatus?.replace(/_/g, ' ') || 'Unpaid')}
                                 </div>
                             </div>
                             {order.paymentStatus?.toLowerCase() === 'partially_paid' && (
@@ -700,20 +676,72 @@ export default function OrderDetailsModal({
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                                     Share Pay URL
                                 </button>
-                                <button
-                                    onClick={handleGenerateInvoice}
-                                    disabled={isGeneratingInvoice}
-                                    className={`flex-[2] flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98] ${isGeneratingInvoice ? 'opacity-70 cursor-wait' : ''}`}
-                                >
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                                        <polyline points="10 9 9 9 8 9"></polyline>
-                                    </svg>
-                                    {isGeneratingInvoice ? 'Generating...' : 'Generate Invoice'}
-                                </button>
+                                <div className="relative flex-[2]">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowInvoiceOptions(prev => !prev)}
+                                        disabled={isGeneratingInvoice}
+                                        className={`w-full flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-lg text-[12px] font-semibold text-[#242424] hover:bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.98] ${isGeneratingInvoice ? 'opacity-70 cursor-wait' : ''}`}
+                                    >
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            <polyline points="10 9 9 9 8 9"></polyline>
+                                        </svg>
+                                        <span>{isGeneratingInvoice ? 'Generating...' : 'Generate Invoice'}</span>
+                                        <svg
+                                            className={`w-3.5 h-3.5 text-[#71717a] transition-transform duration-200 ${showInvoiceOptions ? 'rotate-180' : ''}`}
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="m6 9 6 6 6-6"/>
+                                        </svg>
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {showInvoiceOptions && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                                                className="absolute right-0 bottom-[calc(100%+8px)] w-[220px] bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-1.5 space-y-1"
+                                            >
+                                                <div className="px-2.5 py-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                                                    Select Invoice Format
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    disabled={isGeneratingInvoice}
+                                                    onClick={() => handleGenerateInvoice(true)}
+                                                    className="w-full flex items-center justify-between px-2.5 py-2 text-[12px] font-medium rounded-lg text-gray-800 hover:bg-zinc-100 transition-colors text-left cursor-pointer"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                                        <span>With PAN</span>
+                                                    </div>
+                                                    <span className="text-[10px] text-zinc-500 font-mono bg-zinc-100 px-1 py-0.5 rounded">623440377</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={isGeneratingInvoice}
+                                                    onClick={() => handleGenerateInvoice(false)}
+                                                    className="w-full flex items-center px-2.5 py-2 text-[12px] font-medium rounded-lg text-gray-600 hover:bg-zinc-100 transition-colors text-left cursor-pointer"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                                                        <span>Without PAN</span>
+                                                    </div>
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -1136,10 +1164,7 @@ export default function OrderDetailsModal({
                 </div>
             </AdminModal>
 
-            {/* Hidden Invoice Template for PDF Generation */}
-            <div style={{ position: 'absolute', top: 0, left: 0, opacity: 0, pointerEvents: 'none', zIndex: -9999 }}>
-                <InvoiceTemplate ref={invoiceRef} order={order} />
-            </div>
+
         </>
     );
 }

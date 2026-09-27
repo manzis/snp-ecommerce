@@ -6,6 +6,7 @@ import DashboardOrderCard from '@/components/admin/orders/OrderCard';
 import OrderActionMenu from '@/components/admin/orders/OrderActionMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getOrderOverdueStatus, getSeenOverdueOrderIds, markOverdueOrderAsSeen } from '@/utils/orderOverdueUtils';
+import { getFormattedCustomerAddress } from '@/utils/invoiceGenerator';
 
 interface AdminOrderListProps {
   initialOrders: OrderProps[];
@@ -208,16 +209,17 @@ export function AdminOrderList({
                   case 'paid': return { bg: 'bg-green-500', label: 'Paid', text: 'text-green-600' };
                   case 'partially_paid': return { bg: 'bg-amber-500', label: 'Partial', text: 'text-amber-600' };
                   case 'failed': return { bg: 'bg-rose-500', label: 'Failed', text: 'text-rose-600' };
-                  default: return { bg: 'bg-gray-400', label: 'Pending', text: 'text-gray-500' };
+                  case 'unpaid':
+                  case 'pending':
+                  default: return { bg: 'bg-gray-400', label: 'Unpaid', text: 'text-gray-500' };
                 }
               };
 
               const statusColors = getStatusColors(order.status);
               const paymentColors = getPaymentStatusColors(order.paymentStatus);
 
-              const addr = order.shippingAddress;
-              const addressDetails = addr?.addressDetails || addr || {};
-              const addressSummary = [addressDetails.area, addressDetails.city].filter(Boolean).join(', ');
+              const addressLines = getFormattedCustomerAddress(order.shippingAddress);
+              const addressSummary = addressLines.join(', ') || 'Address N/A';
 
               const firstItem = order.order_items?.[0];
 

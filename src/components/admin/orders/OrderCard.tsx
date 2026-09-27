@@ -6,6 +6,7 @@ import Link from "next/link";
 import { OrderProps } from "@/components/orders/OrderCard";
 import OrderActionMenu from "./OrderActionMenu";
 import { getOrderOverdueStatus } from "@/utils/orderOverdueUtils";
+import { getFormattedCustomerAddress } from "@/utils/invoiceGenerator";
 
 export interface AdminOrderCardProps {
     order: OrderProps;
@@ -38,12 +39,8 @@ export default function OrderCard({
     const totalItemsCountValue = order.itemsCount;
     const customerNameValue = order.customerName;
     const customerAddressValue = (() => {
-        const addr = order.shippingAddress;
-        if (!addr) return 'N/A';
-        const details = addr.addressDetails || addr;
-        const city = details.city || '';
-        const area = details.area || details.address_line || details.street || '';
-        return [city, area].filter(Boolean).join(', ') || 'N/A';
+        const lines = getFormattedCustomerAddress(order.shippingAddress);
+        return lines.join(', ') || 'N/A';
     })();
     const totalAmountValue = `NPR ${order.totalAmount}`;
     const paymentMethodValue = order.paymentMethod?.toUpperCase();
@@ -104,9 +101,10 @@ export default function OrderCard({
                 return { bg: 'bg-[#fef08a]', label: 'Part. Paid', text: 'text-[#854d0e]' };
             case 'failed':
                 return { bg: 'bg-red-100', label: 'Failed', text: 'text-red-800' };
+            case 'unpaid':
             case 'pending':
             default:
-                return { bg: 'bg-zinc-100', label: 'Pending', text: 'text-[#3f3f46]' };
+                return { bg: 'bg-zinc-100', label: 'Unpaid', text: 'text-[#3f3f46]' };
         }
     };
 

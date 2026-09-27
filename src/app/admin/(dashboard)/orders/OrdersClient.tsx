@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useOrderNotifications } from '@/hooks/useOrderNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction, syncMultipleExternalOrdersTrackingAction } from '@/app/actions/orderActions';
+import { fetchAllOrdersAdminAction, createDemoOrderAction, deleteOrderAction, syncMultipleExternalOrdersTrackingAction, fetchOrdersStatsAction, OrdersStats } from '@/app/actions/orderActions';
 import { OrderProps, OrderStatus } from '@/components/orders/OrderCard';
 import { AdminOrderList } from '@/components/admin/AdminOrderList';
 import AdminSubNav from '@/components/admin/layout/AdminSubNav';
@@ -15,15 +15,17 @@ import OrderDetailsModal from '@/components/admin/orders/OrderDetailsModal';
 import StatusUpdateModal from '@/components/admin/orders/StatusUpdateModal';
 import UpdatePaymentStatusModal from '@/components/admin/orders/UpdatePaymentStatusModal';
 import LabelPrintModal from '@/components/admin/orders/LabelPrintModal';
-import { Printer } from 'lucide-react';
+import { Printer, ShoppingBag, Package, Wallet, TrendingUp } from 'lucide-react';
+import { MetricCard } from '@/components/admin/analytics/MetricCard';
 import { useAdminToast } from '@/components/admin/ui/AdminToastProvider';
 import { useAdminUI } from '@/context/AdminUIContext';
 import { updateOrderStatusAdminAction, updatePaymentStatusAdminAction, resetPaymentAdminAction } from '@/app/actions/orderActions';
 
-export default function OrdersClient({ initialOrdersData }: { initialOrdersData?: any }) {
+export default function OrdersClient({ initialOrdersData, initialStats }: { initialOrdersData?: any; initialStats?: OrdersStats }) {
   const [isLoading, setIsLoading] = useState(!initialOrdersData?.success && (!initialOrdersData?.orders || initialOrdersData.orders.length === 0));
   const [orders, setOrders] = useState<OrderProps[]>(initialOrdersData?.orders || []);
   const [totalCount, setTotalCount] = useState<number>(initialOrdersData?.totalCount || 0);
+  const [stats, setStats] = useState<OrdersStats | null>(initialStats || null);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +67,56 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
   const hasEffectRun = useRef(false); // Guard for notification effect
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const { setPrimaryAction, setOverrideTitle } = useAdminUI();
+  const { setPrimaryAction, setOverrideTitle, showOrdersStats } = useAdminUI();
+
+  const hasActiveFilters = Boolean(
+    (statusFilter && statusFilter !== 'all') ||
+    (paymentFilter && paymentFilter !== 'all') ||
+    (searchQuery && searchQuery.trim().length > 0) ||
+    hideCancelled
+  );
+
+  const refreshStats = (
+    search = searchQuery,
+    status = statusFilter,
+    payment = paymentFilter,
+    hide = hideCancelled
+  ) => {
+    fetchOrdersStatsAction({
+      search,
+      status,
+      paymentStatus: payment,
+      hideCancelled: hide
+    }).then(res => {
+      if (res.success && res.stats) setStats(res.stats);
+    });
+  };
+
+  const isStatsInitialMount = useRef(true);
+  useEffect(() => {
+    if (isStatsInitialMount.current) {
+      isStatsInitialMount.current = false;
+      if (!hasActiveFilters && initialStats) {
+        return;
+      }
+    }
+
+    let isMounted = true;
+    fetchOrdersStatsAction({
+      search: searchQuery,
+      status: statusFilter,
+      paymentStatus: paymentFilter,
+      hideCancelled
+    }).then(res => {
+      if (isMounted && res.success && res.stats) {
+        setStats(res.stats);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [searchQuery, statusFilter, paymentFilter, hideCancelled]);
 
   useEffect(() => {
     setOverrideTitle(null);
@@ -285,6 +336,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         pageCacheRef.current.clear();
         showAdminToast(`Order #${order.shortId} cancelled successfully.`, 'success');
         setIsDetailsModalOpen(false);
+        refreshStats();
       } else {
         showAdminToast(res.message || 'Failed to cancel order.', 'error');
       }
@@ -330,6 +382,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         showAdminToast(`Order status updated to ${status.toUpperCase()}.`, 'success');
         setIsStatusModalOpen(false);
         setOrderToUpdate(null);
+        refreshStats();
       } else {
         showAdminToast(res.message || 'Failed to update order.', 'error');
         throw new Error(res.message || 'Failed to update order.');
@@ -360,6 +413,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         showAdminToast(`Payment status updated to ${paymentStatus.toUpperCase()}.`, 'success');
         setIsPaymentModalOpen(false);
         setOrderToUpdate(null);
+        refreshStats();
       } else {
         showAdminToast(res.message || 'Failed to update payment.', 'error');
         throw new Error(res.message || 'Failed to update payment.');
@@ -383,6 +437,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       if (res.success) {
         pageCacheRef.current.clear();
         showAdminToast(`Order #${order.shortId} deleted successfully.`, 'success');
+        refreshStats();
       } else {
         setOrders(previousOrders);
         setTotalCount(previousOrders.length);
@@ -417,6 +472,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       
       setSelectedIds([]);
       loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, true);
+      refreshStats();
     }
   };
 
@@ -427,6 +483,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         pageCacheRef.current.clear();
         showAdminToast('Payment state reset successfully.', 'success');
         loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, false);
+        refreshStats();
       } else {
         showAdminToast(res.message || 'Failed to reset payment.', 'error');
       }
@@ -460,6 +517,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
         onRefresh={() => {
           pageCacheRef.current.clear();
           loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, true);
+          refreshStats();
         }}
         refreshLoading={isLoading}
         currentPage={currentPage}
@@ -492,6 +550,46 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
       />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-full pb-[100px] relative">
+        {/* Executive Summary Stats */}
+        <AnimatePresence>
+          {showOrdersStats && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <MetricCard
+                  title="Total Orders"
+                  value={stats ? stats.totalOrders.toLocaleString() : '...'}
+                  subtext={hasActiveFilters ? "Filtered orders count" : "All-time store orders"}
+                  icon={ShoppingBag}
+                />
+                <MetricCard
+                  title="Total Items"
+                  value={stats ? stats.totalItems.toLocaleString() : '...'}
+                  subtext={hasActiveFilters ? "Items in filtered orders" : "Items ordered across store"}
+                  icon={Package}
+                />
+                <MetricCard
+                  title="Total Value"
+                  value={stats ? `NPR ${stats.totalValue.toLocaleString()}` : '...'}
+                  subtext={hasActiveFilters ? "Filtered gross value" : "Gross store order value"}
+                  icon={Wallet}
+                />
+                <MetricCard
+                  title="Avg. Order Value"
+                  value={stats ? `NPR ${stats.avgOrderValue.toLocaleString()}` : '...'}
+                  subtext={hasActiveFilters ? "Filtered average spend" : "Average spend per order"}
+                  icon={TrendingUp}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {isLoading ? (
           <div className="w-full max-w-full">
             {viewMode === 'list' ? <OrderTableSkeleton rows={15} /> : <OrderGridSkeleton count={12} />}
@@ -527,6 +625,7 @@ export default function OrdersClient({ initialOrdersData }: { initialOrdersData?
                   if (res.success) {
                     showAdminToast('Demo order created successfully.', 'success');
                     loadOrders(currentPage, searchQuery, statusFilter, paymentFilter, hideCancelled, viewMode, true);
+                    refreshStats();
                   } else {
                     showAdminToast(res.message || 'Failed to create demo order.', 'error');
                     setIsLoading(false);
