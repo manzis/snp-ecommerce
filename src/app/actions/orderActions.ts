@@ -550,15 +550,15 @@ export async function applyOrdersFilterToQuery(
   if (options?.status && options.status !== 'all') {
     const normStatus = options.status.toLowerCase();
     if (normStatus === 'not_shipped') {
-      query = query.in('status', ['pending', 'PENDING', 'confirmed', 'CONFIRMED', 'processing', 'PROCESSING']);
+      query = query.in('status', ['pending', 'confirmed', 'processing']);
     } else if (normStatus === 'undelivered' || normStatus === 'in_transit') {
       query = query.in('status', [
-        'shipped', 'SHIPPED',
-        'in_transit', 'IN_TRANSIT',
-        'shipment_arrived', 'SHIPMENT_ARRIVED',
-        'out_for_delivery', 'OUT_FOR_DELIVERY',
-        'rescheduled', 'RESCHEDULED',
-        'failed', 'FAILED'
+        'shipped',
+        'in_transit',
+        'shipment_arrived',
+        'out_for_delivery',
+        'rescheduled',
+        'failed'
       ]);
     } else {
       query = query.eq('status', normStatus);

@@ -83,12 +83,12 @@ export async function fetchFinanceDashboardDataAction(
                 query = query.in('status', ['confirmed', 'processing']);
             } else if (normOrder === 'undelivered' || normOrder === 'in_transit') {
                 query = query.in('status', [
-                    'shipped', 'SHIPPED',
-                    'in_transit', 'IN_TRANSIT',
-                    'shipment_arrived', 'SHIPMENT_ARRIVED',
-                    'out_for_delivery', 'OUT_FOR_DELIVERY',
-                    'rescheduled', 'RESCHEDULED',
-                    'failed', 'FAILED'
+                    'shipped',
+                    'in_transit',
+                    'shipment_arrived',
+                    'out_for_delivery',
+                    'rescheduled',
+                    'failed'
                 ]);
             } else if (normOrder === 'shipped') {
                 query = query.in('status', ['shipped', 'in_transit', 'out_for_delivery']);
