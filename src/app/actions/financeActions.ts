@@ -76,11 +76,20 @@ export async function fetchFinanceDashboardDataAction(
             query = query.lte('created_at', end.toISOString());
         }
 
-        // Order Status Filter (confirmed, shipped, delivered)
+        // Order Status Filter (confirmed, undelivered, shipped, delivered)
         if (orderStatus && orderStatus !== 'all') {
             const normOrder = orderStatus.toLowerCase();
             if (normOrder === 'confirmed') {
                 query = query.in('status', ['confirmed', 'processing']);
+            } else if (normOrder === 'undelivered' || normOrder === 'in_transit') {
+                query = query.in('status', [
+                    'shipped', 'SHIPPED',
+                    'in_transit', 'IN_TRANSIT',
+                    'shipment_arrived', 'SHIPMENT_ARRIVED',
+                    'out_for_delivery', 'OUT_FOR_DELIVERY',
+                    'rescheduled', 'RESCHEDULED',
+                    'failed', 'FAILED'
+                ]);
             } else if (normOrder === 'shipped') {
                 query = query.in('status', ['shipped', 'in_transit', 'out_for_delivery']);
             } else if (normOrder === 'delivered') {
@@ -119,7 +128,7 @@ export async function fetchFinanceDashboardDataAction(
         let totalDeliveryCharges = 0;
         let totalCouponDiscount = 0;
         let totalCodFees = 0;
-        const totalOrdersCount = orders ? orders.length : 0;
+        let validOrdersCount = 0;
 
         const paymentMethodMap: Record<string, { amount: number; count: number }> = {};
         const timeSeriesMap: Record<string, { revenue: number; orders: number }> = {};
@@ -163,13 +172,26 @@ export async function fetchFinanceDashboardDataAction(
 
                 const date = new Date(order.created_at).toISOString().split('T')[0];
 
-                if (status !== 'cancelled') {
+                // Check if order is inactive / uncollectible
+                const isCancelled = status === 'cancelled';
+                const isReturned = status === 'returned';
+                const isFailedOrder = status === 'failed';
+                const isFailedPayment = rawPayStatus === 'failed';
+
+                // Unless admin explicitly filtered by failed payment status or undelivered, exclude failed/cancelled/returned orders
+                const normOrderFilter = orderStatus?.toLowerCase();
+                const isViewingUndelivered = normOrderFilter === 'undelivered' || normOrderFilter === 'in_transit';
+                const isViewingFailed = paymentStatus?.toLowerCase() === 'failed';
+                const isExcluded = isCancelled || isReturned || (!isViewingUndelivered && isFailedOrder) || (!isViewingFailed && isFailedPayment);
+
+                if (!isExcluded) {
+                    validOrdersCount++;
                     totalGrossRevenue += amount;
                     totalDeliveryCharges += shipping;
                     totalCouponDiscount += coupon;
                     totalCodFees += cod;
 
-                    // Overall receivables counts ONLY the actual unpaid/due balance
+                    // Overall receivables counts ONLY the actual unpaid/due balance of active collectible orders
                     totalPendingRevenue += dueAmount;
 
                     // Net revenue accounts for collected portion after fees
@@ -199,7 +221,7 @@ export async function fetchFinanceDashboardDataAction(
                         }
                     }
 
-                    // For chart: track revenue over time for all non-cancelled orders in dataset
+                    // For chart: track revenue over time for active orders in dataset
                     if (isFilteredByOrderStatus || status === 'delivered') {
                         if (!timeSeriesMap[date]) timeSeriesMap[date] = { revenue: 0, orders: 0 };
                         timeSeriesMap[date].revenue += amount;
@@ -214,7 +236,7 @@ export async function fetchFinanceDashboardDataAction(
             });
         }
 
-        const avgOrderValue = totalOrdersCount > 0 ? totalGrossRevenue / totalOrdersCount : 0;
+        const avgOrderValue = validOrdersCount > 0 ? totalGrossRevenue / validOrdersCount : 0;
 
         const paymentMethods = Object.entries(paymentMethodMap).map(([method, data]) => ({
             method,
@@ -260,7 +282,7 @@ export async function fetchFinanceDashboardDataAction(
                     totalPendingRevenue, 
                     totalDeliveryCharges,
                     totalCouponDiscount,
-                    totalOrders: totalOrdersCount,
+                    totalOrders: validOrdersCount,
                     avgOrderValue,
                     totalCodFees
                 },

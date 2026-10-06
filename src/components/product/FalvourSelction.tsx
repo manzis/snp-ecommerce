@@ -14,18 +14,84 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage
   const { selectedFlavorId: selectedId, setFlavorId: setSelectedId, setActiveVariantImage, flavorError } = useProductSelectionStore();
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
+  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
+  const [canScrollRight, setCanScrollRight] = React.useState(false);
+  const [hasOverflow, setHasOverflow] = React.useState(false);
+
+  const checkScroll = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const overflow = scrollWidth > clientWidth + 4;
+    setHasOverflow(overflow);
+    setCanScrollLeft(scrollLeft > 6);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 6);
+  }, []);
+
+  const centerElement = React.useCallback((el: HTMLElement) => {
+    const container = scrollRef.current;
+    if (!container || !el) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+
+    // Scroll so the element is centered, giving maximum visibility to upcoming items on the right
+    const scrollOffset = elRect.left - containerRect.left - (containerRect.width / 2) + (elRect.width / 2);
+
+    container.scrollBy({
+      left: scrollOffset,
+      behavior: 'smooth',
+    });
+  }, []);
+
+  const handleSlide = (direction: 'left' | 'right') => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = Math.max(180, Math.floor(el.clientWidth * 0.6));
+    el.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
+
   // Auto-selection of default flavour intentionally removed to enforce explicit user selection
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+
+    checkScroll();
+
     const handleWheel = (e: WheelEvent) => {
       if (e.deltaY === 0) return;
       e.preventDefault();
       el.scrollLeft += e.deltaY;
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
-    return () => el.removeEventListener('wheel', handleWheel);
-  }, []);
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('resize', checkScroll);
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(checkScroll);
+      ro.observe(el);
+    }
+
+    return () => {
+      el.removeEventListener('wheel', handleWheel);
+      el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+      ro?.disconnect();
+    };
+  }, [checkScroll, flavours]);
+
+  // Auto-scroll when selected flavour changes (e.g. initial select or auto-switched variant)
+  useEffect(() => {
+    if (!selectedId || !scrollRef.current) return;
+    const activeBtn = scrollRef.current.querySelector<HTMLElement>(`[data-flavour-id="${selectedId}"]`);
+    if (activeBtn) {
+      centerElement(activeBtn);
+    }
+  }, [selectedId, centerElement]);
 
   return (
     <div id="flavour-section" className="relative flex flex-col items-start gap-[15px] w-full ">
@@ -68,117 +134,160 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage
         }
       `}} />
 
-      {/* Header: Dynamic text based on selection */}
-      <h3 className="whitespace-nowrap text-left font-rajdhani text-[18px] font-semibold tracking-[-0.36px] text-[#242424]">
-        {selectedId || flavours.length === 0 ? 'Selected Flavour : ' : 'Select Flavour'} <span className="font-medium text-[#515151]">{flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || '')}</span>
-      </h3>
+      {/* Header: Dynamic text based on selection + Slider controls */}
+      <div className="flex items-center justify-between w-full gap-2">
+        <h3 className="whitespace-nowrap text-left font-rajdhani text-[18px] font-semibold tracking-[-0.36px] text-[#242424]">
+          {selectedId || flavours.length === 0 ? 'Selected Flavour : ' : 'Select Flavour'}{' '}
+          <span className="font-medium text-[#515151]">
+            {flavours.length === 0 ? 'No Flavour' : (flavours.find(f => f.id === selectedId)?.flavour_name || '')}
+          </span>
+        </h3>
+      </div>
 
       {/* 
           SCROLL CONTAINER 
+          - Wrapped in relative container with left/right fade arrows
           - pt-[2px] buffer to prevent 'Outside Border' clipping
           - custom-scrollbar for desktop scrolling support
       */}
-      <div
-        ref={scrollRef}
-        className="flex w-full flex-nowrap gap-[14px] overflow-x-auto overflow-y-hidden pt-[2px] pb-[6px] px-[2px] custom-scrollbar"
-      >
-        {flavours.length === 0 ? (
-          <button
-            type="button"
-            className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
-          >
-            <div className="flex h-[38px] flex-row items-center justify-center gap-[10px]">
-              <span className="whitespace-nowrap text-center font-rajdhani text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
-                No Flavour
-              </span>
-            </div>
-          </button>
-        ) : flavours.map((item) => {
-          const isSelected = selectedId === item.id;
-          const isLong = item.flavour_name.length > 10;
-
-          return (
+      <div className="relative w-full group">
+        {/* Left Arrow with Fade Gradient */}
+        {hasOverflow && canScrollLeft && (
+          <div className="absolute left-0 top-0 bottom-0 z-20 flex items-center pr-4 pl-1 bg-gradient-to-r from-white via-white/85 to-transparent pointer-events-none transition-all duration-200">
             <button
-              key={item.id}
               type="button"
-              disabled={!item.is_available}
-              onClick={() => {
-                setSelectedId(item.id);
-              }}
-              /* 
-                 FRAME 8: MAIN CARD
-                 - Locked at 85px x 105px
-                 - outline: Figma 'Outside' stroke logic
-                 - Smart Animate: 200ms ease-in
-              */
-              className={`
-                group relative flex h-[105px] w-[85px] flex-shrink-0 flex-col items-center justify-between rounded-[6px] transition-all duration-200 ease-in
-                outline-[1.5px] outline-offset-0 overflow-hidden
-                ${!item.is_available ? 'opacity-60 cursor-not-allowed bg-[#FAFAFA]' : 'cursor-pointer'}
-                ${isSelected
-                  ? 'outline-[#1D1D1D] p-[2px] selected-gradient'
-                  : 'outline-[#E8E8E8] bg-[#FFFFFF] p-[4px]'}
-              `}
+              onClick={() => handleSlide('left')}
+              aria-label="Previous flavours"
+              className="pointer-events-auto h-[32px] w-[32px] rounded-full bg-white border border-[#E8E8E8] shadow-[0_2px_10px_rgba(0,0,0,0.14)] flex items-center justify-center text-[#242424] hover:bg-[#FAFAFA] hover:border-[#1D1D1D] hover:scale-105 active:scale-95 transition-all duration-150"
             >
-              {!item.is_available && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/20 rounded-[6px] pointer-events-none">
-                  <div className="w-full bg-[#FAFAFA]/90 border-y border-gray-200 py-[4px] shadow-sm">
-                    <span className="block font-rajdhani text-[10px] font-bold tracking-[0.05em] text-red-400 text-center uppercase">
-                      Unavailable
-                    </span>
+              <svg className="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        <div
+          ref={scrollRef}
+          className="flex w-full flex-nowrap gap-[14px] overflow-x-auto overflow-y-hidden pt-[2px] pb-[6px] px-[2px] custom-scrollbar scroll-smooth"
+        >
+          {flavours.length === 0 ? (
+            <button
+              type="button"
+              className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
+            >
+              <div className="flex h-[38px] flex-row items-center justify-center gap-[10px]">
+                <span className="whitespace-nowrap text-center font-rajdhani text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
+                  No Flavour
+                </span>
+              </div>
+            </button>
+          ) : flavours.map((item) => {
+            const isSelected = selectedId === item.id;
+            const isLong = item.flavour_name.length > 10;
+
+            return (
+              <button
+                key={item.id}
+                data-flavour-id={item.id}
+                data-selected={isSelected}
+                type="button"
+                disabled={!item.is_available}
+                onClick={(e) => {
+                  setSelectedId(item.id);
+                  centerElement(e.currentTarget);
+                }}
+                /* 
+                   FRAME 8: MAIN CARD
+                   - Locked at 85px x 105px
+                   - outline: Figma 'Outside' stroke logic
+                   - Smart Animate: 200ms ease-in
+                */
+                className={`
+                  group relative flex h-[105px] w-[85px] flex-shrink-0 flex-col items-center justify-between rounded-[6px] transition-all duration-200 ease-in
+                  outline-[1.5px] outline-offset-0 overflow-hidden
+                  ${!item.is_available ? 'opacity-60 cursor-not-allowed bg-[#FAFAFA]' : 'cursor-pointer'}
+                  ${isSelected
+                    ? 'outline-[#1D1D1D] p-[2px] selected-gradient'
+                    : 'outline-[#E8E8E8] bg-[#FFFFFF] p-[4px]'}
+                `}
+              >
+                {!item.is_available && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/20 rounded-[6px] pointer-events-none">
+                    <div className="w-full bg-[#FAFAFA]/90 border-y border-gray-200 py-[4px] shadow-sm">
+                      <span className="block font-rajdhani text-[10px] font-bold tracking-[0.05em] text-red-400 text-center uppercase">
+                        Unavailable
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {/* 
+                    FRAME 11: IMAGE WRAPPER
+                    - Expands 77px -> 81px on selection due to padding reduction
+                */}
+                <div className={`
+                  relative flex flex-col items-start gap-[10px] py-[4px] transition-all duration-200 ease-in
+                  ${isSelected ? 'w-[81px] h-[75px]' : 'w-[77px] h-[71px]'}
+                `}>
+                  <div className={`relative w-full flex-grow transition-all duration-200 ease-in ${isSelected ? 'h-[67px]' : 'h-[63px]'}`}>
+                    <Image
+                      src={(item.image_url || baseImage || '/images/protein.webp').trim()}
+                      alt={item.flavour_name || 'flavour'}
+                      fill
+                      className="object-contain"
+                      sizes="81px"
+                      priority={false}
+                    />
                   </div>
                 </div>
-              )}
-              {/* 
-                  FRAME 11: IMAGE WRAPPER
-                  - Expands 77px -> 81px on selection due to padding reduction
-              */}
-              <div className={`
-                relative flex flex-col items-start gap-[10px] py-[4px] transition-all duration-200 ease-in
-                ${isSelected ? 'w-[81px] h-[75px]' : 'w-[77px] h-[71px]'}
-              `}>
-                <div className={`relative w-full flex-grow transition-all duration-200 ease-in ${isSelected ? 'h-[67px]' : 'h-[63px]'}`}>
-                  <Image
-                    src={(item.image_url || baseImage || '/images/protein.webp').trim()}
-                    alt={item.flavour_name || 'flavour'}
-                    fill
-                    className="object-contain"
-                    sizes="81px"
-                    priority={false}
-                  />
-                </div>
-              </div>
 
 
-              <div className={`
-                relative flex h-[26px] w-full flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
-                ${isSelected
-                  ? 'bg-[#3F9733] rounded-[5px]'
-                  : 'bg-[#EFEFEF] rounded-[3px]'}
-              `}>
-                <div className={`relative w-full overflow-hidden ${isLong ? 'marquee-mask' : ''}`}>
-                  <div className={isLong ? 'animate-marquee-continuous' : 'w-full text-center'}>
-                    {/* TEXT: #242424 -> #FFFFFF | tracking: -0.06em */}
-                    <span className={`
-                      px-[2px] font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.03em] transition-colors duration-200
-                      ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
-                    `}>
-                      {item.flavour_name}
-                    </span>
-                    {isLong && (
+                <div className={`
+                  relative flex h-[26px] w-full flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
+                  ${isSelected
+                    ? 'bg-[#3F9733] rounded-[5px]'
+                    : 'bg-[#EFEFEF] rounded-[3px]'}
+                `}>
+                  <div className={`relative w-full overflow-hidden ${isLong ? 'marquee-mask' : ''}`}>
+                    <div className={isLong ? 'animate-marquee-continuous' : 'w-full text-center'}>
+                      {/* TEXT: #242424 -> #FFFFFF | tracking: -0.06em */}
                       <span className={`
-                        pr-10 font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.03em]
+                        px-[2px] font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.03em] transition-colors duration-200
                         ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
                       `}>
                         {item.flavour_name}
                       </span>
-                    )}
+                      {isLong && (
+                        <span className={`
+                          pr-10 font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.03em]
+                          ${isSelected ? 'text-[#FFFFFF]' : 'text-[#242424]'}
+                        `}>
+                          {item.flavour_name}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right Arrow with Fade Gradient */}
+        {hasOverflow && canScrollRight && (
+          <div className="absolute right-0 top-0 bottom-0 z-20 flex items-center pl-4 pr-1 bg-gradient-to-l from-white via-white/85 to-transparent pointer-events-none transition-all duration-200">
+            <button
+              type="button"
+              onClick={() => handleSlide('right')}
+              aria-label="More flavours"
+              className="pointer-events-auto h-[32px] w-[32px] rounded-full bg-white border border-[#E8E8E8] shadow-[0_2px_10px_rgba(0,0,0,0.14)] flex items-center justify-center text-[#242424] hover:bg-[#FAFAFA] hover:border-[#1D1D1D] hover:scale-105 active:scale-95 transition-all duration-150"
+            >
+              <svg className="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
-          );
-        })}
+          </div>
+        )}
       </div>
       {flavorError && (
         <span data-error="true" className="text-[#FF3333] font-rajdhani text-[14px] font-semibold mt-[-8px]">

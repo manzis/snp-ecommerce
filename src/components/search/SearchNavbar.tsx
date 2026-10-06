@@ -82,6 +82,7 @@ const SearchNavbar: React.FC<SearchNavbarProps> = ({ onSearch, currentQuery, ini
   const handleAction = (term: string) => {
     setInputValue(term);
     setShowSuggestions(false);
+    inputRef.current?.blur();
     onSearch(term);
   };
 

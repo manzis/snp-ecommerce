@@ -177,7 +177,7 @@ export default function SearchPageClient({ initialProducts, initialBrands, initi
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[410px] lg:max-w-[1440px] lg:px-[36px]">
+      <main className="mx-auto w-full max-w-2xl lg:max-w-[1440px] lg:px-[36px]">
         {!isSearched ? (
           <div className="flex flex-col">
             <RecentSearches

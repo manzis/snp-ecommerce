@@ -471,8 +471,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 400 }}
-            className={`relative w-full max-w-[410px] lg:max-w-[900px] lg:h-[600px] bg-[#3f9633] flex flex-col lg:flex-row overflow-hidden lg:rounded-[32px] lg:border-4 lg:border-[#3f9633] lg:p-[4px] 
-        ${isPage ? 'h-[675px] rounded-none' : 'h-[600px] rounded-t-[24px]'} 
+            className={`relative w-full max-w-full md:max-w-[480px] lg:max-w-[900px] lg:h-[600px] bg-[#3f9633] flex flex-col lg:flex-row overflow-hidden md:rounded-[32px] lg:border-4 lg:border-[#3f9633] lg:p-[4px] 
+        ${isPage ? 'h-[675px] rounded-none md:rounded-[32px]' : 'h-[600px] rounded-t-[24px] md:rounded-[32px] md:mb-6 lg:mb-0'} 
     `}
         >
             <div className="absolute top-0 left-0 w-full h-[40%] lg:h-full opacity-40 pointer-events-none z-0">
@@ -670,7 +670,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isPage = false }) => {
     return (
         <AnimatePresence>
             {active && (
-                <div className="fixed inset-0 z-[999] flex items-end justify-start lg:justify-center lg:items-center">
+                <div className="fixed inset-0 z-[999] flex items-end justify-center lg:items-center">
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLogin} className="absolute inset-0 backdrop-blur-[5px]" style={{ background: `radial-gradient(circle at 0% 0%, rgba(23, 196, 0, 0.4) 0%, transparent 30%), radial-gradient(circle at 100% 0%, rgba(161, 179, 0, 0.88) 0%, transparent 30%), radial-gradient(circle at 100% 100%, rgba(187, 121, 0, 0.6) 0%, transparent 30%), radial-gradient(circle at 0% 100%, rgba(0, 98, 190, 0.62) 0%, transparent 30%), rgba(0, 0, 0, 0.3)` }} />
                     {Content}
                 </div>

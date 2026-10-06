@@ -48,14 +48,16 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
         images,
         brands (name),
         product_flavours (id, flavour_name, image_url),
+        product_sizes (id, size_label, image_url),
         product_variants (
           size_id,
           flavour_id,
           original_price,
           discounted_price,
           is_available,
-          size:product_sizes(size_label),
-          flavour:product_flavours(flavour_name)
+          image_url,
+          size:product_sizes(size_label, image_url),
+          flavour:product_flavours(flavour_name, image_url)
         ),
         sales_offers_products (
           sales_offers (
@@ -80,18 +82,14 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
     const product = row.product;
     const selectedFlavor = row.selected_flavor;
     const selectedSize = row.selected_size;
-    
-    // Resolve Flavour-Specific Image
-    const flavourImage = product?.product_flavours?.find(
-      (f: any) => f.flavour_name === selectedFlavor
-    )?.image_url;
 
+    let matchingVariant: any = null;
+    let variantStockStatus: string | undefined = undefined;
     let livePrice = product?.discounted_price;
     let liveMrp = product?.original_price;
 
-    let variantStockStatus: string | undefined = undefined;
     if (product?.product_variants?.length > 0) {
-      const matchingVariant = product.product_variants.find((v: any) => {
+      matchingVariant = product.product_variants.find((v: any) => {
         // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
         const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : (v.size?.size_label || product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label);
         const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : (v.flavour?.flavour_name || product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name);
@@ -112,6 +110,31 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
         }
       }
     }
+
+    // Resolve Flavour and Variant Specific Image
+    const variantDirectImage = matchingVariant?.image_url;
+    const flavourImage = product?.product_flavours?.find(
+      (f: any) => f.flavour_name === selectedFlavor
+    )?.image_url;
+    const sizeImage = product?.product_sizes?.find(
+      (s: any) => s.size_label === selectedSize
+    )?.image_url;
+    const variantFlavourImage = Array.isArray(matchingVariant?.flavour)
+      ? matchingVariant.flavour[0]?.image_url
+      : matchingVariant?.flavour?.image_url;
+    const variantSizeImage = Array.isArray(matchingVariant?.size)
+      ? matchingVariant.size[0]?.image_url
+      : matchingVariant?.size?.image_url;
+
+    const resolvedItemImage = (
+      variantDirectImage ||
+      variantFlavourImage ||
+      flavourImage ||
+      variantSizeImage ||
+      sizeImage ||
+      product?.images?.[0] ||
+      '/images/protein.webp'
+    ).trim();
 
     // Apply Active Sale Discount if any
     let parsedPrice = product ? parseInt(String(livePrice || '0').replace(/\D/g, ''), 10) : (row.price || 0);
@@ -154,7 +177,7 @@ export const fetchCart = async (userId: string): Promise<CartItemType[]> => {
       brand: product?.brands?.name || 'Store Product',
       price: parsedPrice,
       mrp: parsedMrp,
-      image: flavourImage || product?.images?.[0] || '',
+      image: resolvedItemImage,
       quantity: row.quantity,
       selected_size: selectedSize,
       selected_flavor: selectedFlavor,
@@ -309,6 +332,7 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       discounted_price,
       original_price,
       stock_status,
+      images,
       product_variants (
         size_id,
         flavour_id,
@@ -316,16 +340,19 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
         discounted_price,
         is_available,
         stock_count,
-        size:product_sizes(size_label),
-        flavour:product_flavours(flavour_name)
+        image_url,
+        size:product_sizes(size_label, image_url),
+        flavour:product_flavours(flavour_name, image_url)
       ),
       product_sizes (
         id,
-        size_label
+        size_label,
+        image_url
       ),
       product_flavours (
         id,
-        flavour_name
+        flavour_name,
+        image_url
       ),
       sales_offers_products (
         sales_offers (
@@ -347,9 +374,10 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
     let livePrice = product.discounted_price;
     let liveMrp = product.original_price;
 
+    let matchingVariant: any = null;
     let variantStockStatus: string | undefined = undefined;
     if (product.product_variants?.length > 0) {
-      const matchingVariant = product.product_variants.find((v: any) => {
+      matchingVariant = product.product_variants.find((v: any) => {
         // v.size and v.flavour might be arrays due to Supabase one-to-many returns, or single objects
         const vSizeLabel = Array.isArray(v.size) ? v.size[0]?.size_label : (v.size?.size_label || product.product_sizes?.find((s: any) => s.id === v.size_id)?.size_label);
         const vFlavorName = Array.isArray(v.flavour) ? v.flavour[0]?.flavour_name : (v.flavour?.flavour_name || product.product_flavours?.find((f: any) => f.id === v.flavour_id)?.flavour_name);
@@ -398,8 +426,34 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       }
     }
 
+    const variantDirectImage = matchingVariant?.image_url;
+    const flavourImage = product.product_flavours?.find(
+      (f: any) => f.flavour_name === item.selected_flavor
+    )?.image_url;
+    const sizeImage = product.product_sizes?.find(
+      (s: any) => s.size_label === item.selected_size
+    )?.image_url;
+    const variantFlavourImage = Array.isArray(matchingVariant?.flavour)
+      ? matchingVariant.flavour[0]?.image_url
+      : matchingVariant?.flavour?.image_url;
+    const variantSizeImage = Array.isArray(matchingVariant?.size)
+      ? matchingVariant.size[0]?.image_url
+      : matchingVariant?.size?.image_url;
+
+    const resolvedImage = (
+      variantDirectImage ||
+      variantFlavourImage ||
+      flavourImage ||
+      variantSizeImage ||
+      sizeImage ||
+      item.image ||
+      product.images?.[0] ||
+      '/images/protein.webp'
+    ).trim();
+
     return {
       ...item,
+      image: resolvedImage,
       price: parsedPrice,
       mrp: parsedMrp,
       stock_status: variantStockStatus || product.stock_status || item.stock_status || 'in_stock',

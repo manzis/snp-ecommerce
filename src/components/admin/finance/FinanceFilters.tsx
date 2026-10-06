@@ -38,6 +38,7 @@ export default function FinanceFilters({
     const orderStatuses = [
         { id: 'all', name: 'All' },
         { id: 'confirmed', name: 'Confirmed' },
+        { id: 'undelivered', name: 'Undelivered' },
         { id: 'shipped', name: 'Shipped' },
         { id: 'delivered', name: 'Delivered' }
     ];

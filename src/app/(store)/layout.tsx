@@ -94,22 +94,42 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* Preconnect Supabase — critical for image loading and auth */}
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL!} crossOrigin="anonymous" />
-        {/* Viewport scaling — Mobile shrinks the 410px layout to fit. NO MutationObserver to prevent CPU load. */}
+        {/* Viewport scaling & iOS anti-zoom lockdown — Mobile shrinks the 410px layout to fit and blocks Safari gestures */}
         <script
           id="viewport-scaler"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 var d = 410;
-                var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+                var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                var isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || isIOS;
                 var targetContent = '';
+                var isEnforcing = false;
 
                 function calculateViewport() {
-                  var w = isMobile ? (screen.width || window.innerWidth) : window.innerWidth;
-                  if (w > 600 && isMobile && window.devicePixelRatio > 1) {
-                    w = w / window.devicePixelRatio;
+                  var isLandscape = false;
+                  if (typeof window.orientation !== 'undefined') {
+                    isLandscape = Math.abs(window.orientation) === 90;
+                  } else if (window.screen && window.screen.orientation && window.screen.orientation.type) {
+                    isLandscape = window.screen.orientation.type.indexOf('landscape') !== -1;
                   }
-                  if (w < d && w > 0) {
+
+                  var w = window.innerWidth || (window.screen && window.screen.width) || 0;
+                  if (isMobile) {
+                    var screenNarrow = Math.min(
+                      (window.screen && window.screen.width) || window.innerWidth,
+                      (window.screen && window.screen.height) || window.innerHeight
+                    );
+                    w = isLandscape ? Math.max(window.screen.width, window.screen.height) : screenNarrow;
+                  }
+
+                  if (isIOS) {
+                    // iOS WebKit does not support fixed-width viewport scaling and resets scale to 1.0 on search/SPA navigation.
+                    // Standard device-width on iOS eliminates all horizontal sliding and keeps the layout perfectly fitted to 100% of the screen.
+                    targetContent = 'width=device-width, initial-scale=1, viewport-fit=cover';
+                  } else if (isMobile && !isLandscape && w < d && w > 0) {
+                    // Android Chrome fully supports user-scalable=no and fixed-width scaling.
                     var s = (w / d).toFixed(2);
                     targetContent = 'width=' + d + ', initial-scale=' + s + ', maximum-scale=' + s + ', minimum-scale=' + s + ', user-scalable=no, viewport-fit=cover';
                   } else {
@@ -118,18 +138,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 }
 
                 function enforceViewport() {
-                  var tags = document.querySelectorAll('meta[name="viewport"]');
-                  if (tags.length === 0) {
-                    var m = document.createElement('meta');
-                    m.name = 'viewport';
-                    m.content = targetContent;
-                    document.head.appendChild(m);
-                  } else {
-                    for (var i = 0; i < tags.length; i++) {
-                      if (tags[i].content !== targetContent) {
-                        tags[i].content = targetContent;
+                  if (isEnforcing) return;
+                  isEnforcing = true;
+                  try {
+                    var tags = document.querySelectorAll('meta[name="viewport"]');
+                    if (tags.length === 0) {
+                      var m = document.createElement('meta');
+                      m.name = 'viewport';
+                      m.content = targetContent;
+                      document.head.appendChild(m);
+                    } else {
+                      for (var i = 0; i < tags.length; i++) {
+                        if (tags[i].content !== targetContent) {
+                          tags[i].content = targetContent;
+                        }
                       }
                     }
+                  } finally {
+                    isEnforcing = false;
                   }
                 }
 
@@ -143,12 +169,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   }, 100); 
                 });
 
-                // Lightweight observer prevents Next.js hydration from destroying our tag
-                // Uses cached targetContent so it doesn't cause layout thrashing
                 var obs = new MutationObserver(function() {
                   enforceViewport();
                 });
-                obs.observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ['content'] });
+                obs.observe(document.head, { childList: true, attributes: true, attributeFilter: ['content'] });
+
+                // iOS Safari Gesture Lockdown: Block pinch-to-zoom (WebKit gesture events only)
+                document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+                document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+                document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+
+                // Reset iOS visual viewport alignment when keyboard closes
+                document.addEventListener('focusout', function(e) {
+                  var t = e.target;
+                  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) {
+                    window.scrollTo(0, window.pageYOffset);
+                  }
+                });
               })();
             `
           }}

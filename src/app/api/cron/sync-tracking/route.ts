@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
   try {
     // 2. Find active orders being shipped by Expo Express or Kourtier Courier
-    const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery'];
+    const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery', 'rescheduled', 'failed'];
     
     const { data: activeOrders, error } = await supabase
       .from('orders')

@@ -32,8 +32,10 @@ body {
     width: 100%;
     background-color: #ffffff;
     color: var(--foreground);
-    /* Essential for fixed-width 410px scaling behavior */
+    /* Essential for fixed-width 410px scaling behavior & preventing horizontal jitter */
     overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100vw;
     position: relative;
 
     /* Hardware Acceleration & Text Quality */
@@ -42,6 +44,19 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-text-size-adjust: 100%;
     touch-action: manipulation;
+  }
+
+  /* 
+     iOS SAFARI FIX:
+     Prevent automatic zoom on focus by ensuring all inputs, textareas,
+     and selects are at least 16px font-size on mobile viewports.
+  */
+  @media screen and (max-width: 768px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
   }
 
   /* Desktop View: Keep it clean and centered */

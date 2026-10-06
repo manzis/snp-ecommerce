@@ -27,6 +27,24 @@ export default function ProductVariantPicker({
   const flavorScrollRef = useRef<HTMLDivElement>(null);
   const sizeScrollRef = useRef<HTMLDivElement>(null);
 
+  const centerFlavor = (el: HTMLElement) => {
+    const container = flavorScrollRef.current;
+    if (!container || !el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const scrollOffset = elRect.left - containerRect.left - (containerRect.width / 2) + (elRect.width / 2);
+    container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
+  };
+
+  const centerSize = (el: HTMLElement) => {
+    const container = sizeScrollRef.current;
+    if (!container || !el) return;
+    const containerRect = container.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const scrollOffset = elRect.left - containerRect.left - (containerRect.width / 2) + (elRect.width / 2);
+    container.scrollBy({ left: scrollOffset, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     const el = flavorScrollRef.current;
     if (!el) return;
@@ -77,7 +95,7 @@ export default function ProductVariantPicker({
         </h4>
         <div 
           ref={flavorScrollRef}
-          className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 w-full flex-nowrap"
+          className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 w-full flex-nowrap scroll-smooth"
         >
           {flavours.length === 0 ? (
             <button
@@ -91,7 +109,10 @@ export default function ProductVariantPicker({
             return (
               <button
                 key={item.id}
-                onClick={() => onFlavorSelect(item.id)}
+                onClick={(e) => {
+                  onFlavorSelect(item.id);
+                  centerFlavor(e.currentTarget);
+                }}
                 disabled={!item.is_available}
                 className={`
                   relative flex items-center justify-center rounded-[8px] transition-all duration-200 overflow-hidden
@@ -122,7 +143,7 @@ export default function ProductVariantPicker({
         </h4>
         <div 
           ref={sizeScrollRef}
-          className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 w-full flex-nowrap"
+          className="flex gap-2 overflow-x-auto custom-scrollbar pb-2 w-full flex-nowrap scroll-smooth"
         >
           {sizes.length === 0 ? (
             <button
@@ -136,7 +157,10 @@ export default function ProductVariantPicker({
             return (
               <button
                 key={sizeObj.id}
-                onClick={() => onSizeSelect(sizeObj.size_label)}
+                onClick={(e) => {
+                  onSizeSelect(sizeObj.size_label);
+                  centerSize(e.currentTarget);
+                }}
                 disabled={!sizeObj.is_available}
                 className={`
                   relative h-[40px] px-4 rounded-[8px] border-[1.5px] font-bold text-[14px] transition-all shrink-0 overflow-hidden

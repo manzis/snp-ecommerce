@@ -89,9 +89,9 @@ export default function ProductPageSkeleton() {
       </main>
 
       {/* MOBILE CTA SKELETON */}
-      <div className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col items-center pointer-events-none lg:hidden animate-pulse">
+      <div className="fixed bottom-0 left-0 right-0 z-[100] flex flex-col w-full pointer-events-none lg:hidden animate-pulse">
         <footer
-          className="relative flex w-full max-w-[410px] items-center justify-between px-[16px] gap-[12px] bg-[#ffffff] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] border-t border-[#f1f5f9]"
+          className="relative flex w-full items-center justify-between px-[16px] gap-[12px] bg-[#ffffff] shadow-[0_-2px_5px_0_rgba(0,0,0,0.03)] border-t border-[#f1f5f9]"
           style={{
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 9px)',
             paddingTop: '11px',

@@ -11,7 +11,7 @@ import RedirectIcon from '@/components/icons/SmileyFaceIcon';
  */
 const CheckoutPrompt: React.FC = () => {
     return (
-        <section className="mx-auto w-full max-w-[410px] md:max-w-full lg:max-w-[1280px] bg-[#308026] p-[4px_4px_28px_4px] rounded-t-[24px] md:rounded-[24px] md:p-[4px]">
+        <section className="mx-auto w-full max-w-2xl lg:max-w-[1280px] bg-[#308026] p-[4px_4px_28px_4px] rounded-t-[24px] md:rounded-[24px] md:p-[4px]">
             <div className="flex w-full flex-col items-center justify-center gap-[16px] rounded-[24px] border-b-[2px] border-[#e5e5e5] bg-[#164210] p-[28px_24px_32px_24px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] md:flex-row md:justify-between md:p-[28px_32px] lg:p-[32px_48px]">
 
                 {/* TEXT CONTENT */}

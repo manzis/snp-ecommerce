@@ -345,12 +345,12 @@ const RevenueChart = ({ timeSeries, stats }: { timeSeries: FinanceDashboardData[
                 <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
                     <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Total Orders Value</span>
                     <span className="text-[22px] md:text-2xl font-semibold text-blue-600 tracking-tight truncate">रु {stats.totalGrossRevenue.toLocaleString()}</span>
-                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">All Orders (Excl. Cancelled)</p>
+                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Active Orders (Excl. Cancelled & Returned)</p>
                 </div>
                 <div className="flex flex-col border-l-0 sm:border-l border-gray-100 pl-0 sm:pl-6">
                     <span className="text-[9px] font-semibold text-[#a1a1aa] uppercase tracking-[0.15em] mb-2">Overall Receivables</span>
                     <span className="text-[22px] md:text-2xl font-semibold text-amber-600 tracking-tight truncate">रु {stats.totalPendingRevenue.toLocaleString()}</span>
-                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Pending Collection</p>
+                    <p className="text-[9px] text-[#a1a1aa] mt-1 uppercase font-semibold">Pending Collection (Active Orders)</p>
                 </div>
             </div>
         </div>

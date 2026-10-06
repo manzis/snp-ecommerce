@@ -143,7 +143,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         {/* Image Container - width remains 117px, height stretches to match content area */}
         <Link href={item.slug ? `/product/${item.slug}` : '#'} className={`relative w-[117px] shrink-0 rounded-[12px] border flex items-center justify-center overflow-hidden bg-white cursor-pointer ${isOutOfStock ? 'border-[#fee2e2]' : 'border-[#f1f5f9]'}`}>
           <Image
-            src={item.image}
+            src={item.image || '/images/protein.webp'}
             alt={item.name}
             fill
             className={`object-contain p-2 hover:scale-105 transition-transform ${isOutOfStock ? 'opacity-80' : ''}`}

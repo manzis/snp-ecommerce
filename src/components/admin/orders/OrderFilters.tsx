@@ -27,7 +27,7 @@ export default function OrderFilters({
     const statuses = [
         { id: 'all', label: 'All' },
         { id: 'not_shipped', label: 'Not Shipped' },
-        { id: 'in_transit', label: 'In Transit' },
+        { id: 'undelivered', label: 'Undelivered' },
         { id: 'pending', label: 'Pending' },
         { id: 'confirmed', label: 'Confirmed' },
         { id: 'shipped', label: 'Shipped' },
@@ -79,7 +79,7 @@ export default function OrderFilters({
                                         <button 
                                             key={s.id} 
                                             onClick={() => setStatus(s.id)}
-                                            className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${activeStatus === s.id ? 'bg-[#242424] text-white' : 'bg-gray-50 text-[#71717a] hover:bg-zinc-100 hover:text-[#242424]'}`}
+                                            className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${activeStatus === s.id || (s.id === 'undelivered' && activeStatus === 'in_transit') ? 'bg-[#242424] text-white' : 'bg-gray-50 text-[#71717a] hover:bg-zinc-100 hover:text-[#242424]'}`}
                                         >
                                             {s.label}
                                         </button>

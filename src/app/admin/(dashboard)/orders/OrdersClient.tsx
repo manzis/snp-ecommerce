@@ -256,7 +256,7 @@ export default function OrdersClient({ initialOrdersData, initialStats }: { init
     if (orders.length === 0 || isLoading) return;
     if (syncedPageRef.current === currentPage) return;
 
-    const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery'];
+    const activeTransitStatuses = ['shipped', 'in_transit', 'shipment_arrived', 'out_for_delivery', 'rescheduled', 'failed'];
     const activeIds = orders
       .filter(o => activeTransitStatuses.includes(o.status.toLowerCase()) && o.trackingNumber)
       .map(o => o.id);

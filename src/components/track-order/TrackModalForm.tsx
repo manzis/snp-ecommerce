@@ -56,7 +56,7 @@ export default function TrackModalForm({ onResult, initialOrderId }: TrackModalF
     };
 
     return (
-        <section className="flex flex-col w-full max-w-[410px] mx-auto pt-[36px] pb-[0px] gap-[30px] items-start bg-[#ffffff] rounded-t-[32px] sm:rounded-[32px]  relative font-['Rajdhani',sans-serif]">
+        <section className="flex flex-col w-full max-w-full md:max-w-[480px] mx-auto pt-[36px] pb-[0px] gap-[30px] items-start bg-[#ffffff] rounded-t-[32px] sm:rounded-[32px]  relative font-['Rajdhani',sans-serif]">
 
             {/* --- FORM SECTION --- */}
             <form

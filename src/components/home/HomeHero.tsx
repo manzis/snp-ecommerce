@@ -146,7 +146,7 @@ const HomeHero: React.FC<HomeHeroProps> = ({ deals = [], heroImages }) => {
             {/* Optimized: Removed heavy blur gradient corner and blob layers for performance */}
 
             {/* MOBILE & TABLET LAYOUT: 1:1 exact matching herosection.html coordinates */}
-            <div className="relative w-[410px] h-[810px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
+            <div className="relative w-full max-w-[410px] h-[810px] shrink-0 lg:hidden overflow-hidden bg-transparent mx-auto">
                 {/* Title & CTA Block */}
                 <div className="absolute top-[185px] left-[24px] flex w-[340px] h-auto p-[24px_20px] flex-col gap-[16px] justify-center items-start shrink-0 flex-nowrap z-[1]">
                     <h1 className={`w-full shrink-0 ${barlowFont.className} text-[32px] font-black leading-[44px] tracking-[1px] relative text-left z-[2] uppercase`}>

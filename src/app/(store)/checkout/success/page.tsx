@@ -94,7 +94,7 @@ function SuccessContent() {
       </motion.div>
 
       {/* --- TOP SECTION --- */}
-      <header className="flex flex-col w-full max-w-[410px] items-center justify-center pt-[70px] px-[20px] relative z-[16]">
+      <header className="flex flex-col w-full max-w-md items-center justify-center pt-[70px] px-[20px] relative z-[16]">
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -114,7 +114,7 @@ function SuccessContent() {
       </header>
 
       {/* --- MIDDLE SECTION --- */}
-      <section className="flex flex-1 w-full max-w-[410px] items-start justify-center relative z-[10] pt-[20px] pb-[60px]">
+      <section className="flex flex-1 w-full max-w-md items-start justify-center relative z-[10] pt-[20px] pb-[60px]">
         <div className="relative">
           {hasMounted && (
             <div className="flex items-center justify-center w-[200px] h-[200px]">
@@ -129,7 +129,7 @@ function SuccessContent() {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.7, duration: 0.5 }}
-        className="flex w-full max-w-[410px] px-[16px] py-[24px] items-center shrink-0 relative z-[1]"
+        className="flex w-full max-w-md px-[16px] py-[24px] items-center shrink-0 relative z-[1]"
       >
         <article className="flex w-full py-[24px] flex-col gap-[30px] items-start bg-[#ffffff] rounded-[16px] shadow-[0px_8px_24px_rgba(0,0,0,0.1)] relative z-[2]">
           <div className="flex flex-col gap-[24px] items-start self-stretch shrink-0 relative z-[3]">

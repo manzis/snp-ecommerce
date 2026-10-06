@@ -91,15 +91,26 @@ function ProductVariantSelector({
       }));
     }
 
-    if (!selectedSize) {
+    if (sizes.length > 0 && !selectedSize) {
       return flavours.map(f => {
         const variantsForFlavour = variants.filter(v => v.flavour_id === f.id);
         const variantWithImg = variantsForFlavour.find(v => (v as any).image_url && (v as any).image_url.trim() !== '');
-        const isAvailable = variantsForFlavour.some(v => v.is_available !== false);
         return {
           ...f,
-          is_available: isAvailable && f.is_available !== false,
+          is_available: true,
           image_url: (variantWithImg as any)?.image_url || f.image_url || null
+        };
+      });
+    }
+
+    if (sizes.length === 0) {
+      return flavours.map(f => {
+        const variant = variants.find(v => v.flavour_id === f.id);
+        const isAvailable = variant ? (variant.is_available !== false) : (f.is_available !== false);
+        return {
+          ...f,
+          is_available: isAvailable,
+          image_url: (variant as any)?.image_url || f.image_url || null
         };
       });
     }
@@ -109,19 +120,20 @@ function ProductVariantSelector({
 
     // Filter flavours to ONLY those that have a variant entry for this size
     const validVariantsForSize = variants.filter(v => v.size_id === selectedSizeObj.id);
-    const validFlavourIds = validVariantsForSize.map(v => v.flavour_id);
 
-    return flavours
-      .filter(f => validFlavourIds.includes(f.id))
-      .map(f => {
-        const variant = validVariantsForSize.find(v => v.flavour_id === f.id);
-        const isAvailable = variant ? (variant.is_available !== false) : false;
-        return {
-          ...f,
-          is_available: isAvailable && f.is_available !== false,
-          image_url: (variant as any)?.image_url || f.image_url
-        };
-      });
+    const sizeFlavours = flavours.filter(f =>
+      validVariantsForSize.some(v => v.flavour_id === f.id)
+    );
+
+    return sizeFlavours.map(f => {
+      const variant = validVariantsForSize.find(v => v.flavour_id === f.id);
+      const isAvailable = variant ? (variant.is_available !== false) : false;
+      return {
+        ...f,
+        is_available: isAvailable,
+        image_url: (variant as any)?.image_url || f.image_url || null
+      };
+    });
   }, [flavours, sizes, variants, selectedSize]);
 
   // Initial flavor selection
@@ -183,12 +195,21 @@ function ProductVariantSelector({
   const handleConfirm = () => {
     if (!isSelectionValid) return;
 
+    const matchedFlavourWithImg = filteredFlavours.find(f => f.id === selectedFlavorId);
     const flavorObj = flavours.find(f => f.id === selectedFlavorId);
     const flavorName = flavorObj?.flavour_name || null;
+    const resolvedImage = (
+      (matchingVariant as any)?.image_url ||
+      matchedFlavourWithImg?.image_url ||
+      flavorObj?.image_url ||
+      selectedSizeObj?.image_url ||
+      product.images?.[0] ||
+      null
+    );
     const variantInfo = {
       size: selectedSize,
       flavor: flavorName,
-      image_url: flavorObj?.image_url || null,
+      image_url: resolvedImage,
       price: currentPrice,
       mrp: originalPrice
     };

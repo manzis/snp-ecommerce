@@ -169,7 +169,7 @@ export default function PaymentPageView({ order }: { order: any }) {
             </motion.div>
 
             {/* Header */}
-            <header className="flex flex-col w-full max-w-[410px] items-center justify-center pt-[70px] px-[20px] relative z-10">
+            <header className="flex flex-col w-full max-w-md items-center justify-center pt-[70px] px-[20px] relative z-10">
                <motion.h1
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -192,7 +192,7 @@ export default function PaymentPageView({ order }: { order: any }) {
             </header>
 
             {/* Middle Section with Confetti */}
-            <section className="flex flex-1 w-full max-w-[410px] items-start justify-center relative z-10 pt-[40px]">
+            <section className="flex flex-1 w-full max-w-md items-start justify-center relative z-10 pt-[40px]">
                <div className="relative">
                   {isPaid && <ConfettiDoodles />}
                   <motion.div
@@ -221,7 +221,7 @@ export default function PaymentPageView({ order }: { order: any }) {
                initial={{ y: 100, opacity: 0 }}
                animate={{ y: 0, opacity: 1 }}
                transition={{ delay: 0.5, duration: 0.5 }}
-               className="flex w-full max-w-[410px] px-4 py-8 items-center relative z-10"
+               className="flex w-full max-w-md px-4 py-8 items-center relative z-10"
             >
                <div className="w-full p-6 flex flex-col gap-6 bg-white rounded-[24px] shadow-2xl">
                   <div className="flex flex-col gap-2">

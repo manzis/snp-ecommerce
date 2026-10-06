@@ -568,7 +568,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
       <motion.div
         initial={{}}
         animate={{ y: 0 }}
-        className="relative w-full max-w-[410px] lg:max-w-[1280px] lg:mx-auto lg:w-full lg:h-full lg:min-h-screen bg-[#3f9633] flex flex-col lg:flex-row lg:p-[48px] lg:pt-[160px] lg:pb-[48px] overflow-hidden"
+        className="relative w-full max-w-full md:max-w-[480px] lg:max-w-[1280px] lg:mx-auto lg:w-full lg:h-full lg:min-h-screen bg-[#3f9633] flex flex-col lg:flex-row lg:p-[48px] lg:pt-[160px] lg:pb-[48px] overflow-hidden"
       >
         {/* ── LEFT: GREEN BRANDING PANEL (identical to LoginModal) ── */}
         <div className="absolute top-0 left-0 w-full h-[40%] lg:w-full lg:h-full opacity-40 pointer-events-none z-0">
@@ -694,7 +694,7 @@ export default function TrackOrderClient({ initialOrderId }: { initialOrderId?: 
       </motion.div>
 
       {/* Mobile Only: Custom Page Footer with Fraud Warning */}
-      <div className="w-full max-w-[410px] mt-[80px] lg:hidden">
+      <div className="w-full max-w-full md:max-w-[480px] mt-[80px] lg:hidden">
         <div className="flex flex-col gap-[12px] bg-[#FCFFF3]  p-[16px] pt-[32px] rounded-t-[24px]">
           <div className="flex flex-col gap-[4px] text-center">
  <h3 className="font-rajdhani font-bold text-[18px] text-[#308026] leading-tight">Thank you for shopping with us!</h3>

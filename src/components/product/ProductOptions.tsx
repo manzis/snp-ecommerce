@@ -55,6 +55,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
   const {
     selectedSize,
     selectedFlavorId,
+    activeVariantImage,
     currentPrice,
     originalPrice,
     setSizeError,
@@ -135,19 +136,37 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
   }, [product.product_variants, sizes]);
 
   const filteredFlavours = React.useMemo(() => {
-    if (!product.product_variants || product.product_variants.length === 0) return flavours;
+    if (!product.product_variants || product.product_variants.length === 0) {
+      return flavours.map(f => ({
+        ...f,
+        is_available: f.is_available !== false
+      }));
+    }
 
-    // Without a size selected yet, still attach each flavour's representative variant image
-    if (!selectedSize) {
+    // Without a size selected yet, all flavours are selectable.
+    // Attach each flavour's representative variant image if available.
+    if (sizes.length > 0 && !selectedSize) {
       return flavours.map(f => {
         const variantsForFlavour = product.product_variants!.filter(v => v.flavour_id === f.id);
         const variantWithImg = variantsForFlavour.find(v => (v as any).image_url && (v as any).image_url.trim() !== '');
-        const isAvailable = variantsForFlavour.length === 0 || variantsForFlavour.some(v => v.is_available !== false);
 
         return {
           ...f,
-          is_available: isAvailable && f.is_available !== false,
+          is_available: true,
           image_url: (variantWithImg as any)?.image_url || f.image_url || null
+        };
+      });
+    }
+
+    // If the product has NO sizes at all, flavour availability is tied to its single variant
+    if (sizes.length === 0) {
+      return flavours.map(f => {
+        const variant = product.product_variants!.find(v => v.flavour_id === f.id);
+        const isAvailable = variant ? (variant.is_available !== false) : (f.is_available !== false);
+        return {
+          ...f,
+          is_available: isAvailable,
+          image_url: (variant as any)?.image_url || f.image_url || null
         };
       });
     }
@@ -156,25 +175,26 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     if (!selectedSizeObj) return flavours;
 
     // Scan variants mapped uniquely to this exact Size
-    // Do NOT filter out unavailable variants, so we can show them as disabled
     const validVariantRows = product.product_variants.filter(
       v => v.size_id === selectedSizeObj.id
     );
 
-    const validFlavourIds = validVariantRows.map(v => v.flavour_id);
+    // Only include flavours that actually exist as a variant for this selected size.
+    // If a flavour variant exists for this size but is out of stock (is_available === false),
+    // it will be included with is_available: false to display the "Unavailable" state.
+    const sizeFlavours = flavours.filter(f =>
+      validVariantRows.some(v => v.flavour_id === f.id)
+    );
 
-    // Limit down main flavours only to those represented in validVariantRows
-    // and explicitly set is_available based on the variant status
-    return flavours
-      .filter(f => validFlavourIds.includes(f.id))
-      .map(f => {
-        const variant = validVariantRows.find(v => v.flavour_id === f.id);
-        return {
-          ...f,
-          is_available: variant ? variant.is_available : f.is_available,
-          image_url: (variant as any)?.image_url || f.image_url
-        };
-      });
+    return sizeFlavours.map(f => {
+      const variant = validVariantRows.find(v => v.flavour_id === f.id);
+      const isAvailable = variant ? (variant.is_available !== false) : false;
+      return {
+        ...f,
+        is_available: isAvailable,
+        image_url: (variant as any)?.image_url || f.image_url || null
+      };
+    });
   }, [product.product_variants, flavours, sizes, selectedSize]);
 
   useEffect(() => {
@@ -193,6 +213,28 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       setFlavorId(null); // Size mapping dictates 'No Flavour'
     }
   }, [filteredFlavours, selectedFlavorId, setFlavorId]);
+
+  const resolveItemImage = () => {
+    const matchingVariant = product.product_variants?.find(v => {
+      const vSizeLabel = product.product_sizes?.find(s => s.id === v.size_id)?.size_label;
+      const matchSize = !selectedSize || vSizeLabel === selectedSize;
+      const matchFlavor = !selectedFlavorId || v.flavour_id === selectedFlavorId;
+      return matchSize && matchFlavor;
+    });
+    const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
+    const matchedFlavourWithImg = filteredFlavours.find(f => f.id === selectedFlavorId);
+    const selectedSizeObj = sizes.find(s => s.size_label === selectedSize);
+
+    return (
+      activeVariantImage ||
+      (matchingVariant as any)?.image_url ||
+      matchedFlavourWithImg?.image_url ||
+      selectedFlavour?.image_url ||
+      selectedSizeObj?.image_url ||
+      product.images?.[0] ||
+      '/images/protein.webp'
+    ).trim();
+  };
 
   const executeAddToCart = () => {
     let isValid = true;
@@ -220,8 +262,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       selected_flavor: flavours.find(f => f.id === selectedFlavorId)?.flavour_name || 'Unflavoured'
     };
 
-    const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
-    const itemImage = (selectedFlavour?.image_url || product.images?.[0] || '/images/protein.webp').trim();
+    const itemImage = resolveItemImage();
 
     addItem({
       id: getCartItemId(itemData),
@@ -246,7 +287,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     const handleCustomAddToCart = () => executeAddToCart();
     window.addEventListener('requestAddToCart', handleCustomAddToCart);
     return () => window.removeEventListener('requestAddToCart', handleCustomAddToCart);
-  }, [selectedSize, selectedFlavorId, product, sizes.length, flavours.length, setSizeError, setFlavorError, addItem, showToast]);
+  }, [selectedSize, selectedFlavorId, activeVariantImage, product, sizes, flavours, filteredFlavours, setSizeError, setFlavorError, addItem, showToast]);
 
   useEffect(() => {
     const handleBuyNow = () => {
@@ -269,8 +310,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
 
       if (!alreadyInCart) {
-        const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
-        const itemImage = (selectedFlavour?.image_url || product.images?.[0] || '/images/protein.webp').trim();
+        const itemImage = resolveItemImage();
 
         addItem({
           id: itemId,
@@ -291,7 +331,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     };
     window.addEventListener('requestBuyNow', handleBuyNow);
     return () => window.removeEventListener('requestBuyNow', handleBuyNow);
-  }, [selectedSize, selectedFlavorId, product, sizes.length, filteredFlavours.length, setSizeError, setFlavorError, addItem, flavours]);
+  }, [selectedSize, selectedFlavorId, activeVariantImage, product, sizes, filteredFlavours, setSizeError, setFlavorError, addItem, flavours]);
 
   // Prefetch /cart for snappy Buy Now navigation
   useEffect(() => {
@@ -331,8 +371,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     const alreadyInCart = useCartStore.getState().items.some(i => i.id === itemId);
 
     if (!alreadyInCart) {
-      const selectedFlavour = flavours.find(f => f.id === selectedFlavorId);
-      const itemImage = (selectedFlavour?.image_url || product.images?.[0] || '/images/protein.webp').trim();
+      const itemImage = resolveItemImage();
       addItem({
         id: itemId,
         ...itemData,
@@ -404,7 +443,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       {product.stock_status !== 'out_of_stock' && (
         <BundleDealCard
           mainProduct={product}
-          currentProductImage={flavours.find(f => f.id === selectedFlavorId)?.image_url || product.images?.[0]}
+          currentProductImage={resolveItemImage()}
           ordersDisabled={effectiveDisabled}
         />
       )}

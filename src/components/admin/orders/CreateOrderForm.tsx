@@ -669,7 +669,7 @@ export default function CreateOrderForm() {
                                                 {/* Row 1: Item Identity & Price (Mobile) */}
                                                 <div className="flex items-center gap-4 w-full sm:flex-1 min-w-0">
                                                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white border border-zinc-100 p-1 sm:p-2 shrink-0">
-                                                        <Image src={item.image} alt={item.name} width={64} height={64} className="object-contain w-full h-full" />
+                                                        <Image src={item.image || '/images/protein.webp'} alt={item.name} width={64} height={64} className="object-contain w-full h-full" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-[10px] font-medium text-zinc-400 mb-0.5">
