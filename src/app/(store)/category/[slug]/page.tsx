@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { fetchProducts, fetchCategoryBySlug } from '@/services/productService.server';
+import { fetchProducts, fetchCategoryBySlug, fetchCategories } from '@/services/productService.server';
 import ClientCategoryDetailLayout from './ClientCategoryDetailLayout';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -10,6 +10,20 @@ import CategoryJsonLd from '@/components/seo/CategoryJsonLd';
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+export async function generateStaticParams() {
+  try {
+    const categories = await fetchCategories(false);
+    return (categories || []).map((cat: any) => ({
+      slug: cat.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating category static params:', error);
+    return [];
+  }
+}
+
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

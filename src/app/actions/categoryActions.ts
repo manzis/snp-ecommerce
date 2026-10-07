@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 /**
  * Server action to delete a category
@@ -37,6 +37,8 @@ export async function deleteCategoryAction(id: string) {
     if (error) throw error;
 
     revalidatePath('/admin/categories');
+    revalidatePath('/category/[slug]', 'page');
+    revalidateTag('categories', 'max');
     return { success: true };
   } catch (error: any) {
     console.error('Action Error: deleteCategoryAction:', error);
@@ -77,6 +79,8 @@ export async function updateCategoryAction(id: string, updates: any) {
     if (error) throw error;
 
     revalidatePath('/admin/categories');
+    revalidatePath('/category/[slug]', 'page');
+    revalidateTag('categories', 'max');
     return { success: true, data: data[0] };
   } catch (error: any) {
     console.error('Action Error: updateCategoryAction:', error);
@@ -116,6 +120,8 @@ export async function createCategoryAction(categoryData: any) {
     if (error) throw error;
 
     revalidatePath('/admin/categories');
+    revalidatePath('/category/[slug]', 'page');
+    revalidateTag('categories', 'max');
     return { success: true, data: data[0] };
   } catch (error: any) {
     console.error('Action Error: createCategoryAction:', error);

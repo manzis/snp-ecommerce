@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { fetchBrandBySlug, fetchProducts } from '@/services/productService.server';
+import { fetchBrandBySlug, fetchProducts, fetchBrands } from '@/services/productService.server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
@@ -13,6 +13,20 @@ import BrandProductSection from './BrandProductSection';
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+export async function generateStaticParams() {
+  try {
+    const brands = await fetchBrands();
+    return (brands || []).map((brand: any) => ({
+      slug: brand.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating brand static params:', error);
+    return [];
+  }
+}
+
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

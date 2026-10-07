@@ -12,11 +12,8 @@ export default function HomeFeaturedProducts({ products, limit = 10 }: HomeFeatu
     return null;
   }
 
-  // Purely server-side shuffling to avoid hydration mismatch if this is run as an RSC.
-  // If it runs on client, we could use useEffect, but 'page.tsx' is an RSC.
-  const featuredProducts = [...products]
-    .sort(() => 0.5 - Math.random())
-    .slice(0, limit);
+  // Deterministic slice to ensure consistent ISR output across revalidations
+  const featuredProducts = products.slice(0, limit);
 
   return (
     <section className="mx-auto w-full max-w-[1440px] py-[32px] lg:px-[48px] lg:py-[48px] md:py-[64px] bg-white transition-colors duration-300">

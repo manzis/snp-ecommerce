@@ -33,7 +33,7 @@ export const getSiteSetting = cache(async (key: string) => {
       return data?.value || null;
     },
     ['site-setting', key],
-    { revalidate: 60, tags: ['settings', `setting-${key}`] }
+    { revalidate: 31536000, tags: ['settings', `setting-${key}`] }
   )(key);
 });
 
@@ -63,8 +63,8 @@ export async function getLiveSiteSetting(key: string) {
  * Upsert a setting by key
  */
 export async function updateSiteSetting(
-  key: string, 
-  value: any, 
+  key: string,
+  value: any,
   options?: { revalidate?: boolean }
 ): Promise<boolean> {
   const adminClient = getSupabaseAdmin();

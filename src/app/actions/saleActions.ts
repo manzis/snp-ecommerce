@@ -80,6 +80,10 @@ export async function createSaleAction(formData: {
 
         revalidatePath('/admin/offers');
         revalidatePath('/');
+        if (formData.slug) {
+            revalidatePath(`/sale/${formData.slug}`);
+        }
+        revalidatePath('/sale/[slug]', 'page');
         revalidateTag('sales', 'max');
         for (const pid of formData.product_ids) {
             revalidateProduct(pid);
@@ -167,6 +171,10 @@ export async function updateSaleAction(saleId: string, formData: {
 
         revalidatePath('/admin/offers');
         revalidatePath('/');
+        if (formData.slug) {
+            revalidatePath(`/sale/${formData.slug}`);
+        }
+        revalidatePath('/sale/[slug]', 'page');
         revalidateTag('sales', 'max');
         for (const pid of allAffectedProductIds) {
             revalidateProduct(pid);
@@ -242,6 +250,7 @@ export async function toggleSaleActiveAction(saleId: string, isActive: boolean) 
 
         revalidatePath('/admin/offers');
         revalidatePath('/');
+        revalidatePath('/sale/[slug]', 'page');
         revalidateTag('sales', 'max');
         for (const pid of productIds) {
             revalidateProduct(pid);
@@ -291,6 +300,7 @@ export async function deleteSaleAction(saleId: string) {
 
         revalidatePath('/admin/offers');
         revalidatePath('/');
+        revalidatePath('/sale/[slug]', 'page');
         revalidateTag('sales', 'max');
         for (const pid of productIds) {
             revalidateProduct(pid);

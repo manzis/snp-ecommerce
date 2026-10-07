@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidateTag } from 'next/cache';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { getLiveStoreSettingsAction } from '@/app/actions/settingsActions';
 
@@ -59,12 +58,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       ? !isNaN(new Date(ordersDisabledUntil).getTime()) && Date.now() >= new Date(ordersDisabledUntil).getTime()
       : false;
     const ordersDisabled = rawOrdersDisabled && !isExpired;
-
-    if (rawOrdersDisabled && isExpired) {
-      try {
-        revalidateTag('settings', 'max');
-      } catch {}
-    }
 
     return NextResponse.json({
       success: true,

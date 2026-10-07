@@ -18,10 +18,10 @@ export async function updateHeroImagesAction(formData: FormData) {
   try {
     const desktopImage = formData.get('desktopImage') as File | null;
     const mobileImage = formData.get('mobileImage') as File | null;
-    
+
     // We will keep existing URLs if new ones are not provided, so let's fetch current
     const current = await getSiteSetting('hero_images') || { desktopUrl: '', mobileUrl: '' };
-    
+
     let desktopUrl = current.desktopUrl;
     let mobileUrl = current.mobileUrl;
 
@@ -46,7 +46,7 @@ export async function updateHeroImagesAction(formData: FormData) {
       revalidatePath('/admin/layouts');
       return { success: true, data: value, message: 'Hero images updated successfully.' };
     }
-    
+
     console.error('[settingsActions] updateSiteSetting returned false');
     return { success: false, message: 'Failed to update database.' };
   } catch (error: any) {
@@ -67,10 +67,10 @@ export async function getWhyChooseUsBannerAction() {
 export async function updateWhyChooseUsBannerAction(formData: FormData) {
   try {
     const bannerImage = formData.get('bannerImage') as File | null;
-    
+
     // We will keep existing URLs if new ones are not provided, so let's fetch current
     const current = await getSiteSetting('why_choose_us_banner') || { imageUrl: '' };
-    
+
     let imageUrl = current.imageUrl;
 
     if (bannerImage && bannerImage.size > 0) {
@@ -85,11 +85,11 @@ export async function updateWhyChooseUsBannerAction(formData: FormData) {
 
     if (success) {
       // Revalidate all product pages so they fetch the new banner
-      revalidatePath('/product/[slug]', 'page'); 
+      revalidatePath('/product/[slug]', 'page');
       revalidatePath('/admin/layouts');
       return { success: true, data: value, message: 'Why Choose Us banner updated successfully.' };
     }
-    
+
     console.error('[settingsActions] updateSiteSetting returned false for why_choose_us_banner');
     return { success: false, message: 'Failed to update database.' };
   } catch (error: any) {
@@ -139,7 +139,7 @@ let lastAutoEnablePersistedAt = 0;
 
 export async function getStoreSettingsAction() {
   try {
-    const data = await getLiveSiteSetting('store_settings') || await getSiteSetting('store_settings');
+    const data = await getSiteSetting('store_settings');
     // Merge with defaults so we always have a complete object, including payment_methods subfields
     const merged = {
       ...DEFAULT_STORE_SETTINGS,
@@ -247,7 +247,7 @@ export async function updateStoreSettingsAction(newSettings: any) {
         ...(newSettings.business_details || {})
       }
     };
-    
+
     console.log('[settingsActions] Updating store_settings with:', merged);
     const success = await updateSiteSetting('store_settings', merged);
 
@@ -258,7 +258,7 @@ export async function updateStoreSettingsAction(newSettings: any) {
       revalidatePath('/product/[slug]', 'layout');
       return { success: true, data: merged, message: 'Store settings updated successfully.' };
     }
-    
+
     return { success: false, message: 'Failed to update store settings.' };
   } catch (error: any) {
     console.error('[settingsActions] Update store settings error:', error);

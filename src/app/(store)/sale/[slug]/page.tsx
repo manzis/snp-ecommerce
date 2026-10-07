@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { fetchSaleBySlugAction } from '@/app/actions/saleActions';
+import { fetchSaleBySlugAction, fetchActiveSalesAction } from '@/app/actions/saleActions';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
@@ -11,6 +11,21 @@ import { Tag, Clock } from 'lucide-react';
 interface Props {
   params: Promise<{ slug: string }>;
 }
+
+export async function generateStaticParams() {
+  try {
+    const res = await fetchActiveSalesAction();
+    if (!res?.success || !Array.isArray(res.data)) return [];
+    return res.data.map((sale: any) => ({
+      slug: sale.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating sale static params:', error);
+    return [];
+  }
+}
+
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -76,22 +91,8 @@ async function SaleDataWrapper({ slug }: { slug: string }) {
   
   const discountText = sale.discount_type === 'PERCENTAGE' ? `${sale.discount_value}% OFF` : `रु ${sale.discount_value} OFF`;
   const endsAtDate = new Date(sale.ends_at);
-  const now = new Date();
-  const isExpired = endsAtDate < now;
-  const isExpiringSoon = endsAtDate.getTime() - now.getTime() < 86400000;
-
-  let agoText = '';
-  if (isExpired) {
-      const diffMs = Math.abs(now.getTime() - endsAtDate.getTime());
-      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      const hours = Math.floor(diffMs / (1000 * 60 * 60));
-      const minutes = Math.floor(diffMs / (1000 * 60));
-      
-      if (days > 0) agoText = `${days} day${days > 1 ? 's' : ''}`;
-      else if (hours > 0) agoText = `${hours} hour${hours > 1 ? 's' : ''}`;
-      else if (minutes > 0) agoText = `${minutes} minute${minutes > 1 ? 's' : ''}`;
-      else agoText = 'a few seconds';
-  }
+  const isExpired = !sale.is_active || endsAtDate.getTime() < Date.now();
+  const formattedEndsDate = endsAtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   return (
     <div className="flex flex-col w-full lg:items-center bg-[#fcfcfc]">
@@ -114,9 +115,9 @@ async function SaleDataWrapper({ slug }: { slug: string }) {
                     <Tag className="w-3.5 h-3.5" />
                     {sale.max_discount_percentage > 0 ? `Up to ${sale.max_discount_percentage}% OFF` : discountText + ' Additional'}
                 </span>
-                <span className={`flex items-center gap-1.5 text-[10px] lg:text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-md ${isExpired ? 'bg-gray-500/80 text-white border border-gray-400' : isExpiringSoon ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-white/20 text-white border border-white/20'}`}>
+                <span className={`flex items-center gap-1.5 text-[10px] lg:text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-md ${isExpired ? 'bg-gray-500/80 text-white border border-gray-400' : 'bg-white/20 text-white border border-white/20'}`}>
                     <Clock className="w-3.5 h-3.5" />
-                    {isExpired ? `Ended ${agoText} ago` : isExpiringSoon ? 'Ending Soon!' : `Ends ${endsAtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                    {isExpired ? `Ended on ${formattedEndsDate}` : `Ends ${formattedEndsDate}`}
                 </span>
             </div>
             <h1 className="font-rajdhani text-3xl lg:text-5xl font-bold text-white tracking-tight uppercase">
@@ -134,7 +135,7 @@ async function SaleDataWrapper({ slug }: { slug: string }) {
               <Clock className="w-6 h-6 text-red-200 shrink-0" />
               <div className="flex flex-col">
                 <span className="font-rajdhani font-bold text-lg uppercase tracking-tight leading-tight">
-                  Sale Ended {agoText} ago !
+                  Sale Has Ended!
                 </span>
                 <span className="text-red-100 text-xs mt-0.5">
                   Products are now at their regular prices.
