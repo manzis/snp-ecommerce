@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DiscountIcon from '@/components/icons/DiscountIcon';
-import CouponAppliedIcon from '@/components/icons/DiscountIcon2';
-import StarIcon from '@/components/icons/StarIcon';
+import { ChevronRight } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { useCartStore } from '@/store/cartStore';
 import { validateCoupon } from '@/services/couponService';
 
@@ -17,15 +16,12 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
   const [inputValue, setInputValue] = useState(coupon?.code || '');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
-  const [shakeCount, setShakeCount] = useState(0);
-  const [showSparkles, setShowSparkles] = useState(false);
   const [lastDiscount, setLastDiscount] = useState(coupon ? getCouponDiscount() : 0);
-
+  const [showAvailableCoupons, setShowAvailableCoupons] = useState(false);
 
   const isApplied = !!coupon;
   const currentDiscount = getCouponDiscount();
 
-  // Sync internal input with global state when it changes (e.g. removed elsewhere)
   React.useEffect(() => {
     setInputValue(coupon?.code || '');
     if (!coupon) setLastDiscount(0);
@@ -34,185 +30,177 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
+  const handleApplyCoupon = async () => {
+    const trimmed = inputValue.trim().toUpperCase();
+    if (!trimmed) {
+      setErrorMessage("Please enter a coupon code");
+      return;
+    }
+
+    setIsValidating(true);
+    setErrorMessage(null);
+    const result = await validateCoupon(trimmed, subtotal, items);
+
+    if (result.isValid && result.coupon) {
+      setLastDiscount(result.discountAmount);
+      applyCoupon(result.coupon);
+      onApply(result.discountAmount, trimmed);
+      setIsValidating(false);
+
+      // Trigger celebratory confetti burst on successful application
+      try {
+        confetti({
+          particleCount: 50,
+          spread: 65,
+          origin: { y: 0.65 },
+          colors: ['#308026', '#eaffcc', '#ffea00', '#22c55e', '#f59e0b'],
+          disableForReducedMotion: true,
+        });
+      } catch (e) {
+        // Fallback silently if canvas not supported
+      }
+    } else {
+      setIsValidating(false);
+      setErrorMessage(result.message || "Invalid or ineligible coupon code");
+    }
+  };
 
   return (
-    <section className="main-container relative mx-auto flex w-full flex-col gap-[16px] overflow-hidden bg-white px-[12px] pb-[24px] py-[16px]">
-
-      {/* Confetti Effect: Optimized with simple motion divs */}
-      <AnimatePresence>
-        {showSparkles && [...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ scale: 0, x: 180, y: 60 }}
-            animate={{
-              scale: [0, 1.2, 0],
-              x: 180 + (Math.random() * 100 - 50),
-              y: -20 - (Math.random() * 50)
-            }}
-            transition={{ duration: 1, ease: "circOut" }}
-            className="absolute z-50 text-[#FFE900]"
-          >
-            <StarIcon className="h-4 w-4 fill-current" />
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      <div className="flex items-center px-[12px]">
-        <h2 className="font-rajdhani text-[18px] font-semibold tracking-[-0.4px] text-[#242424]">
-          Coupons and Discounts
+    <section className="w-full bg-[#edf6ec] rounded-[20px] shadow-none flex flex-col relative overflow-hidden transition-all">
+      
+      {/* Inner padded content for title and input (white section with bottom rounded corners) */}
+      <div className="p-[18px] pb-4 flex flex-col gap-3.5 w-full bg-white rounded-b-[20px]">
+        {/* Header Title */}
+        <h2 className="font-rajdhani font-bold text-[19px] text-[#18181b] tracking-tight">
+          Got a coupon?
         </h2>
-      </div>
 
-      <div className="flex w-full flex-col gap-[8px]">
-        <div className="px-[12px]">
+        {/* Input Row matching reference UI */}
+        <div className="flex flex-col gap-1.5 w-full">
           <motion.div
-            key={shakeCount}
-            animate={shakeCount > 0 ? { x: [0, -10, 10, -7, 7, -4, 4, 0] } : {}}
-            transition={{ duration: 0.4 }}
-            className={`flex items-center justify-between rounded-[12px] p-[12px] transition-all duration-300 focus-within:border-[1.5px] ${isApplied
-              ? 'border-[1.5px] border-[#308026] focus-within:border-[#308026]'
-              : errorMessage
-                ? 'border border-[#e11717] focus-within:border-[#e11717]'
-                : 'border border-transparent focus-within:border-[#3F9733]'
-              }`}
-            style={{
-              background: isApplied
-                ? '#fafff3'
+            animate={isApplied ? { scale: [1, 1.02, 0.99, 1] } : { scale: 1 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className={`w-full border rounded-[12px] h-[50px] px-4 flex items-center justify-between transition-all ${
+              isApplied
+                ? 'bg-[#f2f9f1] border-[#308026]'
                 : errorMessage
-                  ? '#fff5f5'
-                  : `linear-gradient(257.95deg, #fafff3, #ffffff) padding-box, 
-                       linear-gradient(30deg, #3F9733 10%, #8aaf85 30%, #E8F3E4 80%, #E8F3E4 100%) border-box`
-            }}
+                ? 'bg-[#fef2f2] border-[#ef4444]'
+                : 'bg-[#f7f8fa] border-transparent focus-within:bg-white focus-within:border-[#308026]'
+            }`}
           >
-            <div className="flex flex-1 items-center gap-[8px]">
-              <DiscountIcon
-                className={`h-[22px] w-[22px] transition-colors duration-200 ${isApplied ? 'text-[#308026]' : errorMessage ? 'text-[#e11717]' : 'text-[#68727d]'
-                  }`}
-              />
-              <input
-                type="text"
-                placeholder="Enter Coupon Code"
-                value={inputValue}
-                onChange={(e) => { setInputValue(e.target.value); if (errorMessage) setErrorMessage(null); }}
-                disabled={isApplied}
-                className={`w-full bg-transparent font-rajdhani text-[16px] outline-none transition-all ${isApplied
-                  ? 'font-bold uppercase tracking-[1.2px] text-[#308026]'
-                  : errorMessage ? 'text-[#e11717]' : 'text-[#242424]'
-                  }`}
-              />
-            </div>
-
-            <button
-              onClick={async () => {
-                const trimmed = inputValue.trim().toUpperCase();
-                if (!trimmed) {
-                  setErrorMessage("Please enter a code");
-                  setShakeCount(prev => prev + 1);
-                  return;
-                }
-
-                setIsValidating(true);
-                const result = await validateCoupon(trimmed, subtotal, items);
-
-                if (result.isValid && result.coupon) {
-                  setLastDiscount(result.discountAmount);
-                  applyCoupon(result.coupon);
-                  onApply(result.discountAmount, trimmed);
-                  setShowSparkles(true);
-                  setIsValidating(false);
-                  setTimeout(() => setShowSparkles(false), 2000);
-                } else {
-                  setIsValidating(false);
-                  setErrorMessage(result.message || "Invalid Coupon Code");
-                  setShakeCount(prev => prev + 1);
+            <input
+              type="text"
+              placeholder="Enter your coupon code here"
+              value={isApplied ? (coupon?.code || inputValue) : inputValue}
+              onChange={(e) => {
+                setInputValue(e.target.value.toUpperCase());
+                if (errorMessage) setErrorMessage(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !isApplied && inputValue.trim()) {
+                  handleApplyCoupon();
                 }
               }}
-
               disabled={isApplied || isValidating}
-              className={`font-rajdhani text-[14px] font-semibold tracking-[-0.2px] transition-colors active:scale-95 ${isApplied ? 'text-[#3F9733]' : errorMessage ? 'text-[#e11717]' : 'text-[#308026]'
-                }`}
-            >
-              <AnimatePresence mode="wait">
-                {isValidating ? (
-                  <motion.div
-                    key="loading"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="flex justify-center items-center py-1"
-                  >
-                    <div className="w-[18px] h-[18px] border-[2px] border-[#308026]/30 border-t-[#308026] rounded-full animate-spin" />
-                  </motion.div>
-                ) : isApplied ? (
-                  <motion.span
-                    key="applied"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="flex items-center gap-1"
-                  >
-                    Applied
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="apply"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                  >
-                    Apply
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-          </motion.div>
+              className={`w-full bg-transparent font-rajdhani outline-none placeholder:text-[#a1a1aa] ${
+                isApplied
+                  ? 'font-bold text-[17px] text-[#308026] tracking-wider uppercase'
+                  : 'font-medium text-[16px] text-[#18181b]'
+              }`}
+            />
 
-          <AnimatePresence>
-            {errorMessage && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-1 px-1 font-rajdhani text-[12px] font-medium text-[#e11717]"
-              >
-                {errorMessage}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <AnimatePresence mode="wait">
-          {isApplied && (
-            <motion.div
-              layout
-              initial={{ opacity: 0, height: 0, y: 10 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: 10 }}
-              transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-              className="flex items-center justify-between px-[12px] pt-1 overflow-hidden"
-              aria-live="polite"
-            >
-              <div className="flex items-center gap-[6px]">
-                <CouponAppliedIcon className="h-[15px] w-[15px] text-[#3F9733]" />
-                <p className="font-rajdhani text-[15px] font-medium text-[#308026]">
-                  Rs {lastDiscount || currentDiscount} Saved with <span className="font-bold uppercase tracking-[0.5px]">“{coupon?.code}”</span>
-                </p>
-              </div>
+            {isApplied ? (
               <button
+                type="button"
                 onClick={() => {
                   removeCoupon();
                   onApply(0, '');
                   setLastDiscount(0);
+                  setInputValue('');
                 }}
-                className="font-rajdhani text-[13px] text-[#8b8e92] underline underline-offset-2 hover:text-[#242424] transition-colors"
+                className="font-rajdhani font-bold text-[14px] text-[#ef4444] hover:text-[#dc2626] uppercase tracking-wider shrink-0 transition-colors ml-2 cursor-pointer"
               >
-                Remove
+                REMOVE
               </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={!inputValue.trim() || isValidating}
+                className={`font-rajdhani font-bold text-[14px] uppercase tracking-wider shrink-0 transition-colors ml-2 ${
+                  inputValue.trim() && !isValidating
+                    ? 'text-[#308026] hover:text-[#286e20] cursor-pointer'
+                    : 'text-[#a1a1aa] cursor-not-allowed'
+                }`}
+              >
+                {isValidating ? 'APPLYING...' : 'APPLY'}
+              </button>
+            )}
+          </motion.div>
+
+          {/* Status Feedback */}
+          {errorMessage && (
+            <p className="text-[13px] font-rajdhani font-medium text-[#ef4444] px-1">
+              {errorMessage}
+            </p>
+          )}
+          <AnimatePresence>
+            {isApplied && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.15 }}
+                className="text-[14px] font-rajdhani font-bold text-[#308026] px-1"
+              >
+                Rs. {lastDiscount || currentDiscount} saved with "{coupon?.code}"
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Available Coupons & Offers Clickable Row (Full Width edge-to-edge) */}
+      <div className="flex flex-col w-full bg-[#edf6ec] rounded-b-[20px] px-[18px] py-3.5 transition-colors">
+        <div
+          onClick={() => setShowAvailableCoupons(!showAvailableCoupons)}
+          className="flex items-center justify-between cursor-pointer group select-none"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-[24px] h-[24px] rounded-full bg-[#308026] text-white flex items-center justify-center font-rajdhani font-bold text-[13px] shrink-0 shadow-none">
+              %
+            </div>
+            <span className="font-rajdhani font-bold text-[15px] sm:text-[16px] text-[#18181b] group-hover:text-[#308026] transition-colors">
+              View available coupons & offers
+            </span>
+          </div>
+          <ChevronRight
+            className={`w-4 h-4 text-[#71717a] group-hover:text-[#18181b] transition-transform ${
+              showAvailableCoupons ? 'rotate-90' : ''
+            }`}
+          />
+        </div>
+
+        {/* Expandable drawer for available coupons */}
+        <AnimatePresence>
+          {showAvailableCoupons && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden pt-3 flex flex-col"
+            >
+              <div className="p-3.5 rounded-[12px] bg-white flex items-center justify-center text-center shadow-none">
+                <span className="font-rajdhani font-semibold text-[14px] text-[#71717a]">
+                  No offers and coupons currently available
+                </span>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
+
     </section>
   );
 };

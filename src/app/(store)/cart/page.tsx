@@ -187,11 +187,10 @@ export default function CartPage() {
         subtitle={`${items.length} Items`}
       />
 
-      <main className="mx-auto w-full max-w-[1280px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
-
-        {/* LEFT COLUMN: Items, Delivery, and Coupons */}
-        <div className="flex-1 flex flex-col gap-[12px]">
-          {items.length > 0 && (
+      {/* FULL WIDTH DELIVERY ADDRESS (No outside spacing / padding) */}
+      {items.length > 0 && (
+        <div className="w-full bg-white shadow-none">
+          <div className="mx-auto w-full max-w-[1280px]">
             <DeliveryAddress
               isLoggedIn={!!user}
               isLoading={isAuthLoading || isAddressesLoading}
@@ -204,10 +203,17 @@ export default function CartPage() {
               onLogin={openLogin}
               onCreate={handleCreateAddress}
             />
-          )}
+          </div>
+        </div>
+      )}
+
+      <main className="mx-auto w-full max-w-[1280px] px-[16px] sm:px-[20px] lg:px-[24px] pt-[14px] lg:flex lg:gap-[24px] lg:pt-[24px] mb-[48px] lg:mb-0">
+
+        {/* LEFT COLUMN: Items, Delivery, and Coupons */}
+        <div className="flex-1 flex flex-col gap-[14px]">
 
           {/* List of Cart Items */}
-          <div className="flex flex-col gap-[12px]">
+          <div className="flex flex-col gap-[14px]">
             {items.map((item: any) => (
               <CartItem key={item.id} item={item} />
             ))}

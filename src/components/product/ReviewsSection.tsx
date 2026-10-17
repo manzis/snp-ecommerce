@@ -50,7 +50,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
 
   return (
     <>
-      <section className="main-container  relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none border-t border-b border-[#F1F5F9] py-[24px] ">
+      <section className="main-container  relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none py-[24px] ">
 
         {/* HEADER ROW */}
         <div
@@ -192,13 +192,13 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
             </div>
 
             {/* POST REVIEW BUTTON */}
-            <div className="w-full pt-[10px] px-[24px]">
-              <button className="relative flex w-full items-center justify-center gap-[6px] rounded-[6px] border border-[#EAEBF0] bg-white p-[8px_12px] shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] active:scale-[0.98] transition-all outline-none">
+            <div className="w-full pt-[10px] px-[18px] lg:px-[24px]">
+              <button className="relative flex w-full h-[42px] items-center justify-center gap-[6px] rounded-[10px] border border-[#eaebf0] bg-white px-[16px] active:scale-[0.98] transition-all outline-none">
                 <PostIcon className="h-[20px] w-[20px] text-[#242424]" />
                 <span className="font-inter text-[14px] font-semibold leading-[20px] tracking-[0.1px] text-[#242424]">
                   Post your Review
                 </span>
-                <div className="absolute right-[12px] top-1/2 -translate-y-1/2 h-[18px] w-[18px] -rotate-90">
+                <div className="absolute right-[16px] top-1/2 -translate-y-1/2 h-[18px] w-[18px] -rotate-90">
                   <DropDownIcon className="h-full w-full text-black" />
                 </div>
               </button>

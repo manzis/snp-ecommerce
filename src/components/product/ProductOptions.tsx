@@ -270,7 +270,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       ...itemData,
       name: product.name,
       slug: product.slug,
-      brand: product.brands?.name || 'Store Product',
+      brand: Array.isArray(product.brands) ? product.brands[0]?.name : (product.brands?.name || 'Store Product'),
       price: currentPrice || parseInt((product.discounted_price || '0').replace(/\D/g, ''), 10),
       mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
       image: itemImage,

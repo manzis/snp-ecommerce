@@ -239,7 +239,7 @@ async function ProductContent({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[66px] lg:pt-[80px] pb-[32px] px-0 animate-page-enter">
+      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[66px] lg:pt-[80px] pb-0 px-0 animate-page-enter">
         {/* Sticky Breadcrumbs on Mobile */}
         <div className="sticky top-[66px] z-30 w-full bg-white/95 backdrop-blur-md lg:static lg:bg-transparent lg:z-auto">
           <Breadcrumbs path={breadcrumbPath} />
@@ -381,12 +381,12 @@ async function ProductContent({ slug }: { slug: string }) {
           <ProductBanners linkedBanners={product.product_banners} variant="white" />
         </div>
         <div className="relative z-20 bg-white w-full mt-[32px] lg:mt-[48px]">
-          <WhyChooseUs imageUrl={bannerSetting?.imageUrl} />
-        </div>
-        <div className="relative z-20 bg-white w-full mt-[32px] lg:mt-[48px] pb-[40px]">
           <Suspense fallback={<SectionSkeleton height="400px" />}>
             <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
           </Suspense>
+        </div>
+        <div className="relative z-20 w-full mt-[32px] lg:mt-[48px] lg:-mx-[36px] lg:w-[calc(100%+72px)]">
+          <WhyChooseUs imageUrl={bannerSetting?.imageUrl} />
         </div>
 
         <OrderDisabledBanner

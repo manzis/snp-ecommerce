@@ -133,8 +133,8 @@ const ProductHeader = ({
           className="group w-full flex items-center justify-between px-[18px] lg:px-[24px] pt-[12px] pb-[13px] hover:bg-black/[0.02] active:bg-black/[0.04] transition-colors duration-150 select-none rounded-t-[28px] sm:rounded-t-[32px] lg:rounded-t-[32px]"
         >
           <div className="flex items-center gap-[7.5px] min-w-0">
-            {/* Verified Scalloped Badge Icon - Optically centered & bolder checkmark */}
-            <svg className="w-[19px] h-[19px] shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            {/* Verified Scalloped Badge Icon - Optically centered with text midline */}
+            <svg className="w-[18px] h-[18px] shrink-0 -translate-y-[1.5px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <g transform="translate(12, 12) scale(0.85) translate(-12, -12)">
                 <path
                   fill="#318126"

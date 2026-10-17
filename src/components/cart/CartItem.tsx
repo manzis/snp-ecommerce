@@ -3,12 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import TrashIcon from '@/components/icons/TrashIcon';
-import HeartIcon from '@/components/icons/HeartIcon';
-import FlashIcon from '@/components/icons/FlashIcon';
-import PackageIcon from '@/components/icons/PackageIcon';
-import QtyDropDownIcon from '@/components/icons/QtyDropDownIcon';
-import ArrowDownSharp from '@/components/icons/ArrowDownSharp';
+import { Trash2, Plus, Minus, Heart, Check, CreditCard, Truck, ShieldCheck, ChevronRight } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { useToast } from '@/components/ui/ToastProvider';
 import type { CartItemType } from '@/services/cartService';
@@ -17,34 +12,22 @@ interface CartItemProps {
   item: CartItemType;
 }
 
-const getDeliveryString = (status?: string) => {
+const getDeliveryDates = (isPre: boolean) => {
   const today = new Date();
   const dateOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  const weekdayOptions: Intl.DateTimeFormatOptions = { weekday: 'short' };
-
-  const isPre = status && (status.toLowerCase() === 'pre_order' || status.toLowerCase() === 'preorder' || status.toLowerCase() === 'pre-order');
 
   if (isPre) {
     const start = new Date(today);
     start.setDate(today.getDate() + 4);
     const end = new Date(today);
     end.setDate(today.getDate() + 7);
-    const startStr = start.toLocaleDateString('en-US', dateOptions);
-    const endStr = end.toLocaleDateString('en-US', dateOptions);
-    return (
-      <>
-        Delivery between <span className="font-bold text-[#27272a]">{startStr} – {endStr}</span>
-      </>
-    );
+    return `${start.toLocaleDateString('en-US', dateOptions)} - ${end.toLocaleDateString('en-US', dateOptions)}`;
   } else {
-    const d = new Date(today);
-    d.setDate(today.getDate() + 3);
-    const dateStr = `${d.toLocaleDateString('en-US', dateOptions)}, ${d.toLocaleDateString('en-US', weekdayOptions)}`;
-    return (
-      <>
-        Delivery By <span className="font-bold text-[#27272a]">{dateStr}</span>
-      </>
-    );
+    const start = new Date(today);
+    start.setDate(today.getDate() + 2);
+    const end = new Date(today);
+    end.setDate(today.getDate() + 3);
+    return `${start.toLocaleDateString('en-US', dateOptions)} - ${end.toLocaleDateString('en-US', dateOptions)}`;
   }
 };
 
@@ -52,6 +35,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   const { items, updateQuantity, removeItem } = useCartStore();
   const { showToast } = useToast();
   const [isWishlisted, setIsWishlisted] = React.useState(false);
+  const [isSelected, setIsSelected] = React.useState(true);
 
   const bundleTotalDiscount = React.useMemo(() => {
     if (!item.bundle_id) return 0;
@@ -59,40 +43,6 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       .filter(i => i.bundle_id === item.bundle_id)
       .reduce((acc, i) => acc + ((i.bundle_discount || 0) * i.quantity), 0));
   }, [items, item.bundle_id]);
-
-  const [saleTimeLeft, setSaleTimeLeft] = React.useState('');
-
-  React.useEffect(() => {
-    if (!item.is_sale || !item.sale_end_date) return;
-    const endsAt = new Date(item.sale_end_date).getTime();
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const distance = endsAt - now;
-
-      if (distance < 0) {
-        setSaleTimeLeft('Ended');
-        return;
-      }
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      const parts = [];
-      if (days > 0) parts.push(`${days}d`);
-      if (hours > 0 || days > 0) parts.push(`${hours}h`);
-      parts.push(`${minutes}m`);
-      parts.push(`${seconds}s`);
-
-      setSaleTimeLeft(parts.join(' '));
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [item.is_sale, item.sale_end_date]);
 
   const isPreOrder = React.useMemo(() => {
     if (!item.stock_status) return false;
@@ -106,166 +56,256 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     return status === 'outofstock' || status === 'soldout' || status === 'out';
   }, [item.stock_status]);
 
-  const hasBundleSavingsHeader = Boolean(item.bundle_id && bundleTotalDiscount > 0);
-  const badgeTopClass = hasBundleSavingsHeader ? 'top-[27px]' : 'top-0';
+  const [resolvedBrand, setResolvedBrand] = React.useState<string | null>(
+    item.brand && item.brand !== 'Store Product' ? item.brand : null
+  );
+
+  React.useEffect(() => {
+    if (item.brand && item.brand !== 'Store Product') {
+      setResolvedBrand(item.brand);
+      return;
+    }
+    const productId = item.product_id || (item.id && item.id.length >= 36 ? item.id.slice(0, 36) : null);
+    if (productId) {
+      import('@/lib/supabase/client').then(({ supabase }) => {
+        supabase
+          .from('products')
+          .select('brands(name)')
+          .eq('id', productId)
+          .single()
+          .then(({ data }) => {
+            const b = (data as any)?.brands;
+            const name = Array.isArray(b) ? b[0]?.name : b?.name;
+            if (name) setResolvedBrand(name);
+          });
+      });
+    }
+  }, [item.product_id, item.brand, item.id]);
+
+  const displayTitle = React.useMemo(() => {
+    if (!resolvedBrand) return item.name;
+    const cleanBrand = resolvedBrand.trim();
+    if (item.name.toLowerCase().startsWith(cleanBrand.toLowerCase())) {
+      return item.name;
+    }
+    return `${cleanBrand} - ${item.name}`;
+  }, [item.name, resolvedBrand]);
+
+  const deliveryEstimateStr = React.useMemo(() => {
+    return getDeliveryDates(isPreOrder);
+  }, [isPreOrder]);
+
+  const effectivePrice = Math.round(item.price - (item.bundle_discount || 0));
+  const hasDiscount = item.mrp > effectivePrice;
+  const discountPercent = hasDiscount ? Math.round(((item.mrp - effectivePrice) / item.mrp) * 100) : 0;
+
+  const handleDecrease = () => {
+    if (item.quantity <= 1) {
+      removeItem(item);
+      showToast("Item Removed Successfully!", "success");
+    } else {
+      updateQuantity(item, item.quantity - 1);
+    }
+  };
+
+  const handleIncrease = () => {
+    updateQuantity(item, item.quantity + 1);
+  };
+
+  const badgeText = isOutOfStock ? 'Out of stock' : isPreOrder ? 'Pre order' : 'express';
 
   return (
-    <div className="flex w-full flex-col border-t border-[#f1f5f9] bg-white relative overflow-hidden">
-      {/* Badge - Top Right Corner Straight Diagonal Cut Slice */}
-      {isOutOfStock ? (
-        <div 
-          className={`absolute ${badgeTopClass} right-0 z-10 flex items-center justify-center bg-[#dc2626] text-white font-rajdhani text-[11px] font-bold uppercase tracking-[0.8px] pl-4 pr-2.5 py-1 shadow-sm`}
-          style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%)' }}
+    <div className={`w-full bg-white rounded-[20px] shadow-none overflow-hidden flex flex-col relative transition-all ${isOutOfStock ? 'opacity-85' : ''}`}>
+      
+      {/* Top Banner Tab: express / Pre order / Out of stock */}
+      <div className={`relative w-full h-[36px] overflow-hidden select-none transition-colors ${
+        isOutOfStock
+          ? 'bg-[#fff5f5]'
+          : isPreOrder
+          ? 'bg-[#fbf4eb]'
+          : 'bg-[#fffde7]'
+      }`}>
+        <svg
+          className="absolute top-0 left-0 h-full w-[210px] pointer-events-none"
+          viewBox="0 0 210 36"
+          preserveAspectRatio="none"
         >
-          Out of Stock
-        </div>
-      ) : isPreOrder ? (
-        <div 
-          className={`absolute ${badgeTopClass} right-0 z-10 flex items-center justify-center bg-[#7c2d12] text-[#fffbeb] font-rajdhani text-[11px] font-bold uppercase tracking-[0.8px] pl-4 pr-2.5 py-1 shadow-sm`}
-          style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%)' }}
-        >
-          Pre-Order
-        </div>
-      ) : null}
+          {/* Subtle under-wave accent */}
+          <path
+            d="M0,0 L165,0 C185,0 180,36 210,36 L0,36 Z"
+            fill={isPreOrder ? '#fed7aa' : isOutOfStock ? '#fecaca' : '#fff066'}
+            opacity="0.5"
+          />
+          {/* Main top wave */}
+          <path
+            d="M0,0 L145,0 C165,0 160,36 190,36 L0,36 Z"
+            fill={isPreOrder ? '#fdba74' : isOutOfStock ? '#fca5a5' : '#ffea00'}
+          />
+        </svg>
 
-      {/* Savings Header - All Bundle Items */}
-      {hasBundleSavingsHeader ? (
-        <div className="w-full bg-[#f0fff4] border-b border-[#318126]/10 px-[24px] py-[6px] flex items-center justify-center">
-          <span className="text-[10px] uppercase font-bold text-[#318126] tracking-[0.5px]">
-            Congrats! You Saved Rs. {bundleTotalDiscount} with this bundle deal
+        <div className="absolute top-0 left-0 h-full flex items-center pl-4 z-10">
+          <span className="font-rajdhani font-bold italic text-[15px] text-black tracking-tight">
+            {badgeText}
           </span>
         </div>
-      ) : null}
+      </div>
 
-      {/* TOP SECTION ABOVE ACTION BUTTONS */}
-      <div className="flex items-stretch p-[20px_24px_10px_24px] lg:p-[22px_24px_12px_24px]">
+      {/* Bundle Savings Notification */}
+      {bundleTotalDiscount > 0 && (
+        <div className="w-full bg-[#f2f9f1] rounded-b-[16px] px-4 py-2 flex items-center justify-center text-center">
+          <span className="font-rajdhani text-[13px] font-bold text-[#308026] tracking-wide">
+            Congrats! You save Rs. {bundleTotalDiscount} with this bundle deal
+          </span>
+        </div>
+      )}
 
-        {/* Image Container - width remains 117px, height stretches to match content area */}
-        <Link href={item.slug ? `/product/${item.slug}` : '#'} className={`relative w-[117px] shrink-0 rounded-[12px] border flex items-center justify-center overflow-hidden bg-white cursor-pointer ${isOutOfStock ? 'border-[#fee2e2]' : 'border-[#f1f5f9]'}`}>
-          <Image
-            src={item.image || '/images/protein.webp'}
-            alt={item.name}
-            fill
-            className={`object-contain p-2 hover:scale-105 transition-transform ${isOutOfStock ? 'opacity-80' : ''}`}
-            sizes="117px"
-          />
-          {/* Red Spill Overlay from Left Bottom to Top Right - INSIDE IMAGE ONLY */}
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(239,68,68,0.35)_0%,rgba(254,202,202,0.2)_45%,rgba(255,255,255,0.4)_85%)] pointer-events-none z-10" />
-          )}
-        </Link>
+      {/* Main Content Area */}
+      <div className="flex p-[14px_16px_16px_16px] gap-3.5 items-start">
+        
+        {/* Left Column: Checkbox, Image & Quantity Controller */}
+        <div className="flex flex-col items-center shrink-0">
+          <div className="relative w-[105px] h-[105px] sm:w-[115px] sm:h-[115px] rounded-[14px] bg-[#fafafa] flex items-center justify-center p-2 shadow-none">
+            
+            {/* Dark Checkbox Button */}
+            <button
+              type="button"
+              onClick={() => setIsSelected(!isSelected)}
+              className={`absolute top-2 left-2 z-10 w-[20px] h-[20px] rounded-[5px] flex items-center justify-center transition-colors shadow-none ${
+                isSelected ? 'bg-[#18181b] text-white' : 'bg-white border border-[#d4d4d8] text-transparent'
+              }`}
+              title={isSelected ? 'Deselect item' : 'Select item'}
+            >
+              <Check className="w-3.5 h-3.5 stroke-[3]" />
+            </button>
 
-          {/* Content Area - min-w-0 is required for the child truncate to function properly in flex */}
-          <div className="flex flex-1 flex-col gap-[8px] pl-[16px] min-w-0">
-            <div className="flex items-start justify-between gap-1 w-full relative">
-              <div className="flex flex-col gap-[2px] min-w-0 flex-1">
-                <span className="font-rajdhani text-[12px] font-semibold text-[#242424] leading-[18px]">
-                  {item.brand || 'Store Product'}
-                </span>
-                {/* Product Name - Single line with ellipsis */}
-                <Link href={item.slug ? `/product/${item.slug}` : '#'} className="hover:underline cursor-pointer">
-                  <h3 className="font-rajdhani font-bold text-[14px] text-[#242424] leading-[16px] tracking-[0.2px] truncate w-full">
-                    {item.name}
-                  </h3>
-                </Link>
-              </div>
-            </div>
+            {/* Product Image */}
+            <Link
+              href={item.slug ? `/product/${item.slug}` : '#'}
+              className="relative w-full h-full flex items-center justify-center cursor-pointer"
+            >
+              <Image
+                src={item.image || '/images/protein.webp'}
+                alt={item.name}
+                fill
+                className="object-contain p-1 hover:scale-105 transition-transform"
+                sizes="(max-width: 640px) 105px, 115px"
+              />
+            </Link>
+          </div>
 
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-[6px]">
-                {item.mrp > (item.price - (item.bundle_discount || 0)) && (
-                  <div className="flex items-center text-[#308026] mr-[4px]">
-                    <ArrowDownSharp className=" h-[18px] w-[18px]" fill="currentColor" />
-                    <span className="font-rajdhani text-[18px] font-semibold tracking-[-0.5px]">
-                      {Math.round(((item.mrp - (item.price - (item.bundle_discount || 0))) / item.mrp) * 100)}%
-                    </span>
-                  </div>
-                )}
-                {item.mrp > 0 && item.mrp > (item.price - (item.bundle_discount || 0)) && (
-                  <span className="font-rajdhani text-[18px] text-[#8b8e92] line-through decoration-[#8b8e92] decoration-[1.2px] tracking-[-0.8px]">
-                    Rs. {item.mrp.toLocaleString()}
-                  </span>
-                )}
-                <span className={`font-rajdhani font-bold text-[18px] ${item.is_sale ? 'bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)]' : 'bg-gradient-to-r from-[#308026] to-[#3AAF2A]'} bg-clip-text text-transparent`}>
-                  Rs. {Math.round(item.price - (item.bundle_discount || 0)).toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-row gap-[13px] items-center font-rajdhani text-[13px] font-medium text-[#71717a] whitespace-nowrap">
-              {Boolean(item.selected_size || item.selected_flavor) && (
-                <span>{[item.selected_size, item.selected_flavor].filter(Boolean).join(', ')}</span>
+          {/* Pill Quantity Selector (Directly beneath image) */}
+          <div className="w-[105px] sm:w-[115px] h-[34px] rounded-[8px] border border-[#e4e4e7] bg-white flex items-center justify-between px-2.5 mt-2.5 select-none shadow-none">
+            <button
+              type="button"
+              onClick={handleDecrease}
+              className="w-6 h-6 flex items-center justify-center text-[#71717a] hover:text-[#ef4444] active:scale-90 transition-transform"
+              title={item.quantity === 1 ? 'Remove item' : 'Decrease quantity'}
+            >
+              {item.quantity === 1 ? (
+                <Trash2 className="w-3.5 h-3.5" />
+              ) : (
+                <Minus className="w-3.5 h-3.5" />
               )}
-            </div>
+            </button>
 
-            {item.is_sale && saleTimeLeft && (
-              <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[#E3241B] mt-[-2px]">
-                <FlashIcon className="w-[14px] h-[14px]" />
-                <span>Sale ends in {saleTimeLeft}</span>
-              </div>
-            )}
+            <span className="font-rajdhani font-bold text-[16px] text-[#18181b]">
+              {item.quantity}
+            </span>
 
-            {/* Quantity Selector */}
-            <div className="relative flex w-[79px] items-center justify-center gap-[10px] rounded-[6px] border border-[#f1f5f9] bg-white/80 py-[8px] active:scale-95 transition-all hover:border-[#3F9733]">
-              <span className="font-rajdhani text-[14px] font-semibold text-[#242424]">Qty: {item.quantity}</span>
-              <QtyDropDownIcon className="h-[18px] w-[18px] text-[#242424]" />
-              <select
-                value={item.quantity}
-                onChange={(e) => updateQuantity(item, Number(e.target.value))}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
+            <button
+              type="button"
+              onClick={handleIncrease}
+              className="w-6 h-6 flex items-center justify-center text-[#71717a] hover:text-[#18181b] active:scale-90 transition-transform"
+              title="Increase quantity"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
 
-        {/* Delivery Info */}
-        <div className="flex items-center gap-[6px] px-[24px] py-[12px]">
-          <PackageIcon className="h-[16px] w-[16px] text-[#525252]" />
-          <span className="font-rajdhani text-[14px] text-[#525252]">
-            {getDeliveryString(item.stock_status)}
-          </span>
-        </div>
+        {/* Right Column: Title, Variant, Price, Delivery & Badges */}
+        <div className="flex-1 flex flex-col gap-1.5 min-w-0">
+          
+          {/* Title & Wishlist Button */}
+          <div className="flex items-start justify-between gap-2">
+            <Link href={item.slug ? `/product/${item.slug}` : '#'} className="min-w-0 flex-1 group">
+              <h3 className="font-rajdhani font-bold text-[16px] sm:text-[17px] text-[#18181b] leading-[20px] line-clamp-2 group-hover:text-[#308026] transition-colors tracking-tight">
+                {displayTitle}
+              </h3>
+            </Link>
 
-      {/* Action Bar */}
-      <div className="flex w-full border-t border-b border-[#f1f5f9]">
-        {[
-          { label: 'Remove', icon: TrashIcon },
-          { label: 'Wishlist', icon: HeartIcon },
-          { label: 'Buy Now', icon: FlashIcon },
-        ].map((action, idx) => (
-          <button
-            key={idx}
-            onClick={(e) => {
-              if (action.label === 'Remove') {
+            <button
+              type="button"
+              onClick={(e) => {
                 e.preventDefault();
-                removeItem(item);
-                showToast("Item Removed Successfully!", "success");
-              } else if (action.label === 'Wishlist') {
-                e.preventDefault();
-                setIsWishlisted(prev => {
-                  const next = !prev;
-                  showToast(next ? "Added to Wishlist!" : "Removed from Wishlist!", "success");
-                  return next;
-                });
-              }
-            }}
-            className={`flex flex-1 items-center justify-center gap-[12px] py-[12px] bg-white active:bg-[#f9fafb] transition-colors
-              ${idx !== 2 ? 'border-r border-[#f1f5f9]' : ''}`}
-          >
-            {action.label === 'Wishlist' ? (
-              <HeartIcon className="h-[18px] w-[18px] text-[#525252]" filled={isWishlisted} />
-            ) : (
-              <action.icon className="h-[18px] w-[18px] text-[#525252]" />
-            )}
-            <span className={`font-rajdhani text-[16px] font-semibold ${action.label === 'Wishlist' && isWishlisted ? 'text-[#ef4444]' : 'text-[#525252]'}`}>
-              {action.label}
+                setIsWishlisted(!isWishlisted);
+                showToast(!isWishlisted ? "Added to Wishlist!" : "Removed from Wishlist!", "success");
+              }}
+              className="w-[32px] h-[32px] rounded-[8px] border border-[#e4e4e7] bg-white flex items-center justify-center text-[#71717a] hover:text-[#ef4444] shrink-0 active:scale-95 transition-all shadow-none"
+              title={isWishlisted ? "In Wishlist" : "Save to Wishlist"}
+            >
+              <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-[#ef4444] text-[#ef4444]' : 'text-[#71717a]'}`} />
+            </button>
+          </div>
+
+          {/* Variant Chip (e.g. Color: Collector > or Flavour: Chocolate >) */}
+          {(item.selected_flavor || item.selected_size) && (
+            <Link
+              href={item.slug ? `/product/${item.slug}` : '#'}
+              className="inline-flex items-center gap-1 bg-[#f4f4f5] text-[#52525b] font-rajdhani text-[13px] font-semibold px-2.5 py-0.5 rounded-[6px] w-fit self-start max-w-full hover:bg-[#ebebeb] transition-colors whitespace-nowrap min-w-0 overflow-hidden"
+              title={[
+                item.selected_flavor ? `Flavour: ${item.selected_flavor}` : null,
+                item.selected_size ? `Size: ${item.selected_size}` : null
+              ].filter(Boolean).join(', ')}
+            >
+              <span className="truncate min-w-0">
+                {[
+                  item.selected_flavor ? `Flavour: ${item.selected_flavor}` : null,
+                  item.selected_size ? `Size: ${item.selected_size}` : null
+                ].filter(Boolean).join(', ')}
+              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-[#71717a] shrink-0" />
+            </Link>
+          )}
+
+          {/* Pricing Row: Price + Strikethrough + Discount % */}
+          <div className="flex items-baseline gap-2 flex-wrap mt-0.5">
+            <span className="font-rajdhani font-bold text-[19px] sm:text-[21px] text-[#18181b] tracking-tight">
+              Rs. {effectivePrice.toLocaleString()}
             </span>
-          </button>
-        ))}
-      </div>
+            {hasDiscount && (
+              <>
+                <span className="font-rajdhani font-semibold text-[15px] text-[#a1a1aa] line-through decoration-[#a1a1aa]">
+                  {item.mrp.toLocaleString()}
+                </span>
+                <span className="font-rajdhani font-bold text-[13px] text-[#059669]">
+                  {discountPercent}% OFF
+                </span>
+              </>
+            )}
+          </div>
 
+          {/* Delivery Promise Badge (No countdown) */}
+          <div className="flex flex-col gap-0.5 mt-0.5">
+            <span className="bg-[#fef9c3] text-[#713f12] font-rajdhani font-bold text-[12px] px-2 py-0.5 rounded-[4px] w-fit">
+              Get it by {deliveryEstimateStr}
+            </span>
+          </div>
+
+          {/* Trust / Policy Badges (Prepaid & COD, 100% Genuine) */}
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12px] text-[#71717a] font-rajdhani font-medium mt-1.5 pt-1.5 border-t border-[#f4f4f5]">
+            <span className="flex items-center gap-1">
+              <CreditCard className="w-3.5 h-3.5 text-[#71717a]" />
+              Prepaid & COD
+            </span>
+            <span className="flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#71717a]" />
+              100% Genuine
+            </span>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 };

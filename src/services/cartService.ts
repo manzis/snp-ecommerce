@@ -329,10 +329,12 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
     .from('products')
     .select(`
       id,
+      name,
       discounted_price,
       original_price,
       stock_status,
       images,
+      brands (name),
       product_variants (
         size_id,
         flavour_id,
@@ -451,8 +453,14 @@ export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promis
       '/images/protein.webp'
     ).trim();
 
+    const resolvedBrand = Array.isArray((product as any)?.brands) 
+      ? (product as any)?.brands[0]?.name 
+      : ((product as any)?.brands?.name || item.brand || 'Store Product');
+
     return {
       ...item,
+      brand: resolvedBrand,
+      name: product?.name || item.name,
       image: resolvedImage,
       price: parsedPrice,
       mrp: parsedMrp,

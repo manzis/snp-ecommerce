@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import ChangeIcon from '@/components/icons/ChangeIcon';
+import { Home, ChevronDown } from 'lucide-react';
 
 interface DeliveryAddressProps {
   isLoggedIn: boolean;
@@ -28,63 +28,69 @@ const DeliveryAddress: React.FC<DeliveryAddressProps> = ({
   onCreate,
   hasAddresses
 }) => {
+  const handleClick = () => {
+    if (!isLoggedIn) {
+      onLogin();
+    } else if (!hasAddresses) {
+      onCreate();
+    } else {
+      onChange();
+    }
+  };
+
+  const displayName = !isLoggedIn
+    ? 'Select Delivery Address'
+    : isLoading
+    ? 'Loading address...'
+    : hasAddresses && name
+    ? name
+    : 'Add Delivery Address';
+
+  const displaySubtitle = !isLoggedIn
+    ? 'Login to view or select saved addresses'
+    : isLoading
+    ? 'Fetching your location...'
+    : hasAddresses && address
+    ? address
+    : 'Tap here to add a new delivery address';
+
   return (
-    <section className="flex flex-col w-full bg-white border-t border-[#f1f5f9] px-[24px] py-[24px] relative">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col flex-1 min-w-0">
-          <div className="font-rajdhani text-[16px] leading-[24px] tracking-[-0.3px] text-[#242424]">
-            <span className="font-semibold">Delivery to : </span>
-            {isLoading ? (
-              <span className="text-[#8a8e91] animate-pulse">Checking status...</span>
-            ) : !isLoggedIn ? (
-              <span className="text-[#8a8e91]">Login to view saved address</span>
-            ) : hasAddresses ? (
-              <span>{name}...{phoneSuffix}</span>
-            ) : (
-              <span className="text-[#8a8e91]">No saved addresses</span>
-            )}
-          </div>
-          {isLoggedIn && hasAddresses && address && (
-            <p className="font-rajdhani text-[16px] max-w-[200px] lg:max-w-[400px] text-[#8a8e91] leading-[28px] tracking-[-0.6px] truncate">
-              {address}
-            </p>
-          )}
+    <section className="w-full bg-white rounded-b-[20px] sm:rounded-b-[24px] px-[16px] sm:px-[20px] lg:px-[24px] pt-[16px] pb-[14px] sm:pt-[18px] sm:pb-[14px] lg:pt-[20px] lg:pb-[16px] shadow-none flex items-center justify-between gap-3 transition-all">
+      {/* Clickable Address Area */}
+      <div
+        onClick={handleClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+        className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer group select-none text-left"
+      >
+        <div className="w-[20px] h-[20px] mt-0.5 flex items-center justify-center text-[#18181b] shrink-0">
+          <Home className="w-[18px] h-[18px] stroke-[1.8] text-[#18181b]" />
         </div>
 
-        {/* Home/Work/Other Badge - Only if logged in and has address */}
-        {isLoggedIn && hasAddresses && type && (
-          <div className="hidden lg:flex lg:ms-4 h-[24px] w-fit items-center justify-center rounded-[6px] bg-[#e8f5e7] px-[8px] shrink-0 self-start mt-[1px]">
-            <span className="font-rajdhani text-[14px] text-[#242424] tracking-[-0.56px]">{type}</span>
+        <div className="flex flex-col min-w-0 flex-1">
+          {/* Name + Chevron */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-rajdhani font-bold text-[17px] sm:text-[18px] text-[#18181b] leading-tight truncate group-hover:text-[#308026] transition-colors">
+              {displayName}
+            </span>
+            <ChevronDown className="w-4 h-4 text-[#71717a] group-hover:translate-y-0.5 transition-transform shrink-0" />
+            {type && hasAddresses && isLoggedIn && (
+              <span className="font-rajdhani text-[11px] font-semibold uppercase tracking-wider bg-[#f4f4f5] text-[#52525b] px-2 py-0.5 rounded-[4px]">
+                {type}
+              </span>
+            )}
           </div>
-        )}
 
-        {/* Action Button */}
-        <div className="ml-[12px] shrink-0">
-          {isLoading ? (
-            <div className="w-[80px] h-[36px] bg-[#f1f5f9] animate-pulse rounded-[6px]" />
-          ) : !isLoggedIn ? (
-            <button
-              onClick={onLogin}
-              className="flex items-center gap-[6px] rounded-[6px] border border-[#eaebf0] bg-white p-[8px_16px] active:scale-95 transition-transform"
-            >
-              <span className="font-rajdhani text-[14px] font-semibold text-[#6a6c6e]">Login</span>
-            </button>
-          ) : !hasAddresses ? (
-            <button
-              onClick={onCreate}
-              className="flex items-center gap-[6px] rounded-[6px] border border-[#eaebf0] bg-white p-[8px_16px] active:scale-95 transition-transform"
-            >
-              <span className="font-rajdhani text-[14px] font-semibold text-[#6a6c6e]">Create</span>
-            </button>
-          ) : (
-            <button
-              onClick={onChange}
-              className="flex items-center gap-[6px] rounded-[6px] border border-[#eaebf0] bg-white p-[8px_12px] active:scale-95 transition-transform"
-            >
-              <span className="font-rajdhani text-[14px] font-semibold text-[#6a6c6e]">Change</span>
-              <ChangeIcon className="h-[16px] w-[16px] text-[#6a6c6e]" />
-            </button>
-          )}
+          {/* Full address preview */}
+          <p className="font-rajdhani font-medium text-[14px] text-[#71717a] leading-tight truncate mt-1 w-full">
+            {displaySubtitle}
+          </p>
         </div>
       </div>
     </section>

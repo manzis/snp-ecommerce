@@ -31,7 +31,7 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
   };
 
   return (
-    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-center gap-[16px] lg:mx-0 lg:max-w-none border-b border-[#F1F5F9] pb-[24px]">
+    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-center gap-[16px] lg:mx-0 lg:max-w-none pb-[24px]">
 
       {/* HEADER SECTION */}
       <div

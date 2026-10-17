@@ -31,12 +31,12 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
 
   return (
-    <section className="flex w-full flex-col bg-white mt-[12px]">
-      <div className="flex flex-col border-t border-[#f1f5f9]">
+    <section className="flex w-full flex-col bg-white rounded-[20px] shadow-none overflow-hidden mt-[12px]">
+      <div className="flex flex-col">
         {/* MRP */}
-        <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
-          <span className="font-rajdhani text-[16px] text-[#242424]">MRP</span>
-          <span className="font-rajdhani text-[16px] text-[#242424] text-right">
+        <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f4f4f5]">
+          <span className="font-rajdhani text-[16px] text-[#18181b]">MRP</span>
+          <span className="font-rajdhani text-[16px] text-[#18181b] text-right">
             Rs. {totalMRP.toLocaleString()}
           </span>
         </div>
@@ -46,18 +46,18 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
           className="flex flex-col cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f1f5f9]">
+          <div className="flex justify-between items-center px-[24px] py-[18px] border-b border-[#f4f4f5]">
             <div className="flex items-center gap-[4px]">
-              <span className="font-rajdhani text-[16px] text-[#242424]">Discounts</span>
+              <span className="font-rajdhani text-[16px] text-[#18181b]">Discounts</span>
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
                 className="flex items-center justify-center"
               >
-                <DropDownIcon className="h-[16px] w-[16px] text-[#242424]" />
+                <DropDownIcon className="h-[16px] w-[16px] text-[#18181b]" />
               </motion.div>
             </div>
-            <span className="font-rajdhani text-[16px] text-[#242424] text-right">
+            <span className="font-rajdhani text-[16px] text-[#18181b] text-right">
               - Rs. {totalDiscount.toLocaleString()}
             </span>
           </div>
@@ -74,7 +74,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
               >
                 <div className="flex flex-col px-[24px] py-[16px] gap-[12px]">
                   <div className="flex justify-between items-center">
-                    <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Discount on MRP</span>
+                    <span className="font-rajdhani text-[15px] text-[#71717a]">Discount on MRP</span>
                     <span className="font-rajdhani text-[15px] font-medium text-[#308026]">
                       - Rs. {itemDiscount.toLocaleString()}
                     </span>
@@ -82,7 +82,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
                   {bundleDiscount > 0 && (
                     <div className="flex justify-between items-center">
-                      <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Bundle Discount</span>
+                      <span className="font-rajdhani text-[15px] text-[#71717a]">Bundle Discount</span>
                       <span className="font-rajdhani text-[15px] font-medium text-[#308026]">
                         - Rs. {bundleDiscount.toLocaleString()}
                       </span>
@@ -92,7 +92,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                   {couponDiscount > 0 && (
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-[6px]">
-                        <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Coupon Discount</span>
+                        <span className="font-rajdhani text-[15px] text-[#71717a]">Coupon Discount</span>
                         <span className="px-[6px] py-[1px] bg-[#e8f3e4] text-[#308026] text-[10px] font-bold rounded-sm uppercase tracking-wider">
                           {coupon?.code}
                         </span>
@@ -104,7 +104,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
                   )}
 
                   <div className="flex justify-between items-center">
-                    <span className="font-rajdhani text-[15px] text-[#242424] opacity-60">Delivery Charges</span>
+                    <span className="font-rajdhani text-[15px] text-[#71717a]">Delivery Charges</span>
                     <span className="font-rajdhani text-[15px] font-medium text-[#308026]">FREE</span>
                   </div>
                 </div>
@@ -114,8 +114,8 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
           {/* Subtotal Banner */}
           <div className="flex justify-between items-center px-[24px] py-[18px]">
-            <span className="font-rajdhani text-[16px] font-semibold text-[#242424]"> Sub Total Amount</span>
-            <span className="font-rajdhani text-[18px] font-bold text-[#242424]">
+            <span className="font-rajdhani text-[16px] font-semibold text-[#18181b]"> Sub Total Amount</span>
+            <span className="font-rajdhani text-[18px] font-bold text-[#18181b]">
               Rs. {finalPrice.toLocaleString()}
             </span>
           </div>
@@ -133,7 +133,7 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
 
       {/* FOOTER NOTE */}
       <div className="px-[24px] pb-[16px]">
-        <p className="font-rajdhani text-[14px] text-[#8b8e92] leading-[20px] tracking-[-0.4px]">
+        <p className="font-rajdhani text-[14px] text-[#71717a] leading-[20px] tracking-[-0.4px]">
           Note: Additional Charges such as shipping Fees are calculated at Checkout
         </p>
       </div>

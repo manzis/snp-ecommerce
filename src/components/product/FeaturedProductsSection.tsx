@@ -22,7 +22,7 @@ export default async function FeaturedProductsSection({
   }
 
   return (
-    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none border-t border-b border-[#F1F5F9] py-[24px]">
+    <section className="main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start gap-[24px] lg:mx-0 lg:max-w-none py-[24px]">
       
       {/* HEADER ROW */}
       <div className="flex w-full items-center justify-between px-[24px]">

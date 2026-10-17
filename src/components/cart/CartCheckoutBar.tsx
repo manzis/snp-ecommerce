@@ -154,7 +154,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
 
   if (isStatic) {
     return (
-      <div className="relative w-full flex flex-col justify-center bg-white border border-[#f1f5f9] rounded-[10px] overflow-hidden py-[8px]">
+      <div className="relative w-full flex flex-col justify-center bg-white rounded-[16px] shadow-none overflow-hidden py-[8px]">
         {SavingsBanner}
         <div className="h-[72px] w-full">
           {Content}
