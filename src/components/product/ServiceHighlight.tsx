@@ -30,12 +30,12 @@ const ServiceHighlights: React.FC = () => {
   ];
 
   return (
-    <div className="main-container w-full px-[24px]">
+    <div className="main-container w-full px-[18px] lg:px-[24px]">
       <section
-        className="relative mx-auto flex w-full max-w-[700px] flex-col items-center bg-white border border-[#E9E9E9] rounded-[6px] p-[4px] gap-[4px] shrink-0 lg:mx-0 lg:max-w-none "
+        className="relative mx-auto flex w-full max-w-[700px] flex-col items-center bg-white border border-[#E9E9E9] rounded-[14px] lg:rounded-[16px] overflow-hidden p-[4px] gap-[4px] shrink-0 lg:mx-0 lg:max-w-none"
       >
 
-        <div className="flex flex-row items-stretch w-full self-stretch ">
+        <div className="flex flex-row items-stretch w-full self-stretch rounded-t-[10px] lg:rounded-t-[12px] overflow-hidden">
           {highlights.map((item) => (
             <div
               key={item.id}
@@ -44,7 +44,7 @@ const ServiceHighlights: React.FC = () => {
                  flex-1: Forces equal 33.33% width distribution
                  px-[10px]: Balanced internal padding for text safety
               */
-              className={`flex flex-1 flex-col items-center justify-center py-[20px] px-[10px] gap-[12px] ${item.radius} transition-colors duration-300`}
+              className="flex flex-1 flex-col items-center justify-center py-[20px] px-[10px] gap-[12px] transition-colors duration-300"
             >
               {/* ICON: 30x30 locked */}
               <div className="relative w-[30px] h-[30px] shrink-0">
@@ -72,7 +72,7 @@ const ServiceHighlights: React.FC = () => {
         </div>
 
         {/* FRAME 168: Policy Bar */}
-        <div className="flex items-center justify-center w-full h-[30px] bg-[#3F9733] rounded-[2px] self-stretch">
+        <div className="flex items-center justify-center w-full h-[30px] bg-[#3F9733] rounded-[10px] lg:rounded-[12px] self-stretch">
           <p className="font-rajdhani text-[12px] font-medium leading-[14px] text-white text-center">
             Easy Returns , Check Our{' '}
             <Link href="/info#return-policy" className="underline hover:opacity-80 transition-opacity">

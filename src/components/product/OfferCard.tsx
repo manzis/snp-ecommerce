@@ -58,12 +58,12 @@ const OffersCard: React.FC = () => {
     }
   };
 
-  if (!mounted) return <div className=" h-[82px]  bg-white rounded-[12px] shadow-sm" />;
+  if (!mounted) return <div className=" h-[82px]  bg-white rounded-[14px] lg:rounded-[16px] shadow-sm" />;
 
   return (
 
     <div
-      className="relative flex w-full max-w-[700px]  lg:max-w-none flex-col items-start gap-[2px] rounded-[12px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] overflow-hidden transition-all duration-500 transition-bounce"
+      className="relative flex w-full max-w-[700px]  lg:max-w-none flex-col items-start gap-[2px] rounded-[14px] lg:rounded-[16px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] overflow-hidden transition-all duration-500 transition-bounce"
       style={{
         background: 'linear-gradient(269.37deg, #EAFFCD -1.23%, #FFFFFF 112.02%)',
       }}
@@ -76,7 +76,7 @@ const OffersCard: React.FC = () => {
       <button
         onClick={toggleExpand}
         aria-expanded={isExpanded}
-        className="group relative flex h-[40px]  w-full flex-row items-center justify-between rounded-[12px] p-[8px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] outline-none z-20 border-[1px] border-transparent"
+        className="group relative flex h-[40px]  w-full flex-row items-center justify-between rounded-[14px] lg:rounded-[16px] p-[8px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] outline-none z-20 border-[1px] border-transparent"
         style={{
           background: `
       linear-gradient(white, white) padding-box, 
@@ -123,7 +123,7 @@ const OffersCard: React.FC = () => {
                   className="flex h-[58px] w-full flex-row items-center gap-[12px] p-[12px] border-b border-[#242424]/5 last:border-none"
                 >
                   {/* COUPON CODE - 8px fixed padding, never squishes */}
-                  <div className="flex h-[34px] min-w-[63px] flex-shrink-0 items-center justify-center rounded-[4px] border border-dashed border-[#318126] px-[8px] bg-white/40">
+                  <div className="flex h-[34px] min-w-[63px] flex-shrink-0 items-center justify-center rounded-[6px] border border-dashed border-[#318126] px-[8px] bg-white/40">
                     <span className="font-rajdhani text-[14px] font-semibold leading-[18px] tracking-[0.09em] text-[#242424] uppercase">
                       {coupon.code}
                     </span>
@@ -137,7 +137,7 @@ const OffersCard: React.FC = () => {
                   {/* COPY BUTTON - Premium state feedback */}
                   <button
                     className={`
-                      flex h-[32px] min-w-[60px] flex-shrink-0 items-center justify-center rounded-[6px] border px-[10px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] 
+                      flex h-[32px] min-w-[60px] flex-shrink-0 items-center justify-center rounded-[8px] border px-[10px] shadow-[0px_1px_2px_rgba(16,24,40,0.04)] 
                       transition-all duration-200 active:scale-90
                       ${isThisCopied
                         ? 'bg-[#3F9733] border-[#3F9733] scale-105'

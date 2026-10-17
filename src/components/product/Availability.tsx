@@ -71,10 +71,10 @@ const Availability: React.FC<AvailabilityProps> = ({ productSlug, stockStatus: p
 
   return (
     /* Relative wrapper so the Absolute Popup anchors to THIS component */
-    <div className="relative w-full max-w-[700px] lg:max-w-none mx-auto lg:mx-0 px-[24px]">
+    <div className="relative w-full max-w-[700px] lg:max-w-none mx-auto lg:mx-0 px-[18px] lg:px-[24px]">
 
       <section
-        className={`flex w-full flex-col items-start rounded-[12px] overflow-hidden shrink-0 transition-all ${
+        className={`flex w-full flex-col items-start rounded-[14px] lg:rounded-[16px] overflow-hidden shrink-0 transition-all ${
           stockStatus === 'out_of_stock' 
             ? 'bg-gradient-to-r from-[#fef2f2] via-white to-[#fee2e2]/40 opacity-85 border border-[#fee2e2]' 
             : 'bg-[linear-gradient(95.13deg,#FFFDE7_30%,#ffe900_100%)]'

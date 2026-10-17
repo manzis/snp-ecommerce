@@ -7,6 +7,7 @@ import SizeSelection from './SizeSelction';
 import OfferCard from './OfferCard';
 import BundleDealCard from './BundleDealCard';
 import DeliveryDetails from './DeliveryDetails';
+import { triggerFlyToCart } from './FlyToCartAnimation';
 import { useToast } from '@/components/ui/ToastProvider';
 import type { ProductSize, ProductFlavour, Seller, Product } from '@/services/productService';
 import { useCartStore } from '@/store/cartStore';
@@ -236,7 +237,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     ).trim();
   };
 
-  const executeAddToCart = () => {
+  const executeAddToCart = (coords?: { x?: number; y?: number }) => {
     let isValid = true;
     if (sizes.length > 0 && !selectedSize) {
       setSizeError(true);
@@ -280,11 +281,19 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
 
     showToast("Successfully Added to Cart", "success");
     setIsInCart(true);
+    triggerFlyToCart({
+      x: coords?.x,
+      y: coords?.y,
+      image: itemImage
+    });
     window.dispatchEvent(new CustomEvent('addToCartSuccess'));
   };
 
   useEffect(() => {
-    const handleCustomAddToCart = () => executeAddToCart();
+    const handleCustomAddToCart = (e: Event) => {
+      const customEvent = e as CustomEvent<{ x?: number; y?: number }>;
+      executeAddToCart(customEvent.detail);
+    };
     window.addEventListener('requestAddToCart', handleCustomAddToCart);
     return () => window.removeEventListener('requestAddToCart', handleCustomAddToCart);
   }, [selectedSize, selectedFlavorId, activeVariantImage, product, sizes, flavours, filteredFlavours, setSizeError, setFlavorError, addItem, showToast]);
@@ -338,9 +347,17 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
     router.prefetch('/cart');
   }, [router]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e?: React.MouseEvent<HTMLButtonElement>) => {
     if (!isInCart) {
-      executeAddToCart();
+      let coords: { x?: number; y?: number } | undefined;
+      if (e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        coords = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      }
+      executeAddToCart(coords);
     } else {
       if (window.innerWidth >= 1024) {
         useCartStore.getState().setCartOpen(true);
@@ -397,7 +414,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
   };
 
   return (
-    <section className="relative flex w-full lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0 px-[24px]">
+    <section className="relative flex w-full lg:max-w-none flex-col items-start gap-[30px] lg:gap-[40px] mx-auto lg:mx-0 px-[18px] lg:px-[24px]">
       <FlavourSelection flavours={filteredFlavours} baseImage={product.images?.[0]} />
       <SizeSelection sizes={mappedSizes} />
       {/* Inline CTA (Mobile + Desktop) */}
@@ -420,10 +437,11 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
         )}
         <div className="flex w-full flex-row gap-[12px] lg:gap-[16px]">
           <button
+            id="inline-add-to-cart-btn"
             type="button"
-            onClick={handleAddToCart}
+            onClick={(e) => handleAddToCart(e)}
             disabled={product.stock_status === 'out_of_stock' || effectiveDisabled}
-            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || effectiveDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
+            className={`flex-1 h-[56px] lg:h-[60px] rounded-[12px] border border-[#E8E8E8] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || effectiveDisabled ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-100' : 'bg-white text-[#4d4d4d] active:scale-[0.98]'}`}
           >
             {product.stock_status === 'out_of_stock' ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
           </button>
@@ -431,7 +449,7 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
             type="button"
             onClick={handleDesktopBuyNow}
             disabled={product.stock_status === 'out_of_stock' || effectiveDisabled}
-            className={`flex-1 h-[56px] lg:h-[60px] rounded-[10px] lg:rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || effectiveDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
+            className={`flex-1 h-[56px] lg:h-[60px] rounded-[12px] font-rajdhani text-[17px] lg:text-[18px] uppercase font-bold tracking-[-0.015em] transition-all outline-none ${product.stock_status === 'out_of_stock' || effectiveDisabled ? 'bg-gray-200 text-gray-500 cursor-not-allowed opacity-50' : 'bg-[#ffe900] text-[#1e1e1e] active:scale-[0.98]'}`}
           >
             {product.stock_status === 'out_of_stock' ? "Unavailable" : "Buy Now"}
           </button>

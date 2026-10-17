@@ -15,7 +15,7 @@ export default function LegacyProductBanners({ banners }: LegacyProductBannersPr
     // We'll assume the first two are horizontal and the next two are square
 
     return (
-        <div className="w-full flex flex-col gap-4 lg:gap-8 px-6 lg:px-0">
+        <div className="w-full flex flex-col gap-4 lg:gap-8 px-[18px] lg:px-0">
             {/* Horizontal Banners Section */}
             {(banners[0] || banners[1]) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-6">

@@ -125,9 +125,17 @@ const ProductCTA = ({
     return () => window.removeEventListener('buyNowCartSuccess', handleBuyNowSuccess);
   }, [router]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e?: React.MouseEvent<HTMLButtonElement>) => {
     if (!isInCart) {
-      window.dispatchEvent(new CustomEvent('requestAddToCart'));
+      let coords: { x?: number; y?: number } | undefined;
+      if (e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        coords = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        };
+      }
+      window.dispatchEvent(new CustomEvent('requestAddToCart', { detail: coords }));
     } else {
       if (window.innerWidth >= 1024) {
         useCartStore.getState().setCartOpen(true);
@@ -172,11 +180,12 @@ const ProductCTA = ({
       >
         {/* Add to Cart / Go to Cart */}
         <button
+          id="sticky-add-to-cart-btn"
           type="button"
-          onClick={handleAddToCart}
+          onClick={(e) => handleAddToCart(e)}
           onPointerUp={blurButton}
           disabled={isOutOfStock || effectiveDisabled}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || effectiveDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[12px] border border-[#e2e8f0] outline-none transition-colors duration-200 ${isOutOfStock || effectiveDisabled ? 'bg-gray-100 cursor-not-allowed opacity-60' : 'bg-[#ffffff] active:bg-[#f2f3f5]'}`}
         >
           <span className="uppercase relative z-[1] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#4d4d4d] whitespace-nowrap">
             {isOutOfStock ? "Out of Stock" : (isInCart ? "Go to cart" : "Add to cart")}
@@ -189,7 +198,7 @@ const ProductCTA = ({
           onClick={handleBuyNow}
           onPointerUp={blurButton}
           disabled={isOutOfStock || effectiveDisabled}
-          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[10px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || effectiveDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
+          className={`relative flex h-[56px] basis-0 flex-grow shrink-0 items-center justify-center gap-[10px] rounded-[12px] z-[2] outline-none transition-colors duration-200 ${isOutOfStock || effectiveDisabled ? 'bg-gray-200 cursor-not-allowed opacity-60' : 'bg-[#ffe900] active:bg-[#e6d200]'}`}
         >
           <span className="uppercase relative z-[3] h-[17px] shrink-0 font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] text-[#1e1e1e] whitespace-nowrap">
             {isOutOfStock ? "Unavailable" : "Buy Now"}

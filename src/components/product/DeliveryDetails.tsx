@@ -47,11 +47,11 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         Delivery Details
       </h2>
 
-      <div className="flex flex-col gap-[4px] w-full">
+      <div className="flex flex-col gap-[8px] w-full">
         {/* 1. EXPANDABLE SELECTION BLOCK */}
 
         <div
-          className="relative flex flex-col rounded-[6px] overflow-hidden transition-[height] duration-350 [transition-timing-function:cubic-bezier(0.25,0.1,0.25,1)] border-[1px]"
+          className="relative flex flex-col rounded-[14px] lg:rounded-[16px] overflow-hidden transition-[height] duration-350 [transition-timing-function:cubic-bezier(0.25,0.1,0.25,1)] border-[1px]"
           style={{
             height: isExpanded ? '116px' : '46px',
             borderColor: isExpanded ? 'transparent' : '#EAFFCD',
@@ -92,7 +92,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
                   className="flex flex-1 items-start gap-[12px] px-[12px] pt-[18px] cursor-pointer"
                 >
                   <div className="flex items-center justify-center w-[16px] h-[20px]">
-                    <div className={`w-[16px] h-[16px] rounded-[6px] flex items-center justify-center transition-all duration-200 ${deliveryType === 'home' ? 'bg-[#3F9733] shadow-[0_0_0_3px_#D6FFB2]' : 'border border-[#9C9C9C]'}`}>
+                    <div className={`w-[16px] h-[16px] rounded-[5px] flex items-center justify-center transition-all duration-200 ${deliveryType === 'home' ? 'bg-[#3F9733] shadow-[0_0_0_3px_#D6FFB2]' : 'border border-[#9C9C9C]'}`}>
                       {deliveryType === 'home' && <CheckIcon className="w-[10px] h-[10px] text-white" />}
                     </div>
                   </div>
@@ -107,7 +107,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
                   className="flex flex-1 items-start gap-[12px] px-[12px] pt-[18px] border-l border-[#e8e8e8] cursor-pointer"
                 >
                   <div className="flex items-center justify-center w-[16px] h-[20px]">
-                    <div className={`w-[16px] h-[16px] rounded-[6px] flex items-center justify-center transition-all duration-200 ${deliveryType === 'pickup' ? 'bg-[#3F9733] shadow-[0_0_0_3px_#D6FFB2]' : 'border border-[#9C9C9C]'}`}>
+                    <div className={`w-[16px] h-[16px] rounded-[5px] flex items-center justify-center transition-all duration-200 ${deliveryType === 'pickup' ? 'bg-[#3F9733] shadow-[0_0_0_3px_#D6FFB2]' : 'border border-[#9C9C9C]'}`}>
                       {deliveryType === 'pickup' && <CheckIcon className="w-[10px] h-[10px] text-white" />}
                     </div>
                   </div>
@@ -124,7 +124,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         </div>
 
         {/* Delivery Date Row */}
-        <div className="flex items-center gap-[6px] self-stretch rounded-[6px] bg-gray-50 px-[12px] py-[14px]">
+        <div className="flex items-center gap-[6px] self-stretch rounded-[12px] bg-gray-50 px-[12px] py-[14px]">
           <VanIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0" />
           <span className="font-rajdhani text-[16px] font-semibold tracking-[-0.2px] text-[#242424] leading-[16px]">
             {getDeliveryText()}
@@ -132,7 +132,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
         </div>
 
         {/* Seller Info Row */}
-        <div className="relative flex items-start gap-[6px] self-stretch rounded-[6px] bg-gray-50 px-[12px] py-[14px]">
+        <div className="relative flex items-start gap-[6px] self-stretch rounded-[12px] bg-gray-50 px-[12px] py-[14px]">
           <StoreIcon className="h-[18px] w-[18px] text-[#242424] flex-shrink-0 mt-[1px]" />
           <div className="flex flex-col items-start justify-center gap-[4px]">
             <span className="font-rajdhani text-[16px] font-semibold tracking-[-0.2px] text-[#242424] leading-[16px]">

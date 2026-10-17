@@ -174,7 +174,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage
           {flavours.length === 0 ? (
             <button
               type="button"
-              className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[6px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
+              className="group relative flex h-[45px] px-[16px] min-w-[66px] flex-shrink-0 flex-col items-center justify-center rounded-[10px] transition-all duration-100 ease-in outline-[1.5px] outline-offset-0 bg-[#000000] outline-[#242424]"
             >
               <div className="flex h-[38px] flex-row items-center justify-center gap-[10px]">
                 <span className="whitespace-nowrap text-center font-rajdhani text-[18px] font-semibold leading-[18px] tracking-[-0.02em] text-[#FFFFFF]">
@@ -204,7 +204,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage
                    - Smart Animate: 200ms ease-in
                 */
                 className={`
-                  group relative flex h-[105px] w-[85px] flex-shrink-0 flex-col items-center justify-between rounded-[6px] transition-all duration-200 ease-in
+                  group relative flex h-[105px] w-[85px] flex-shrink-0 flex-col items-center justify-between rounded-[10px] transition-all duration-200 ease-in
                   outline-[1.5px] outline-offset-0 overflow-hidden
                   ${!item.is_available ? 'opacity-60 cursor-not-allowed bg-[#FAFAFA]' : 'cursor-pointer'}
                   ${isSelected
@@ -213,7 +213,7 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage
                 `}
               >
                 {!item.is_available && (
-                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/20 rounded-[6px] pointer-events-none">
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/20 rounded-[10px] pointer-events-none">
                     <div className="w-full bg-[#FAFAFA]/90 border-y border-gray-200 py-[4px] shadow-sm">
                       <span className="block font-rajdhani text-[10px] font-bold tracking-[0.05em] text-red-400 text-center uppercase">
                         Unavailable
@@ -245,8 +245,8 @@ const FlavourSelection: React.FC<FlavourSelectionProps> = ({ flavours, baseImage
                 <div className={`
                   relative flex h-[26px] w-full flex-shrink-0 items-center justify-center overflow-hidden transition-all duration-200 ease-in
                   ${isSelected
-                    ? 'bg-[#3F9733] rounded-[5px]'
-                    : 'bg-[#EFEFEF] rounded-[3px]'}
+                    ? 'bg-[#3F9733] rounded-[8px]'
+                    : 'bg-[#EFEFEF] rounded-[6px]'}
                 `}>
                   <div className={`relative w-full overflow-hidden ${isLong ? 'marquee-mask' : ''}`}>
                     <div className={isLong ? 'animate-marquee-continuous' : 'w-full text-center'}>

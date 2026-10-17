@@ -36,13 +36,13 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
       {/* HEADER SECTION */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
+        className="flex w-full items-center justify-between cursor-pointer select-none group px-[18px] lg:px-[24px]"
       >
         <h2 className="font-rajdhani text-[20px] font-bold tracking-[-0.4px] text-[#242424] leading-[18px] group-active:opacity-80 transition-opacity">
           Questions & Answers
         </h2>
         <button
-          className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px]  outline-none overflow-hidden group-active:scale-95 transition-transform duration-300"
+          className="flex h-[32px] w-[32px] items-center justify-center rounded-[8px]  outline-none overflow-hidden group-active:scale-95 transition-transform duration-300"
         >
           <div className={`w-[16px] h-[16px] transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
             <DropDownIcon className="w-full h-full text-black" />
@@ -53,16 +53,16 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
       {isExpanded && (
         <>
           {/* HORIZONTAL CAROUSEL */}
-          <div className="flex w-full flex-nowrap gap-[16px] overflow-x-auto no-scrollbar pb-2 px-[24px]">
+          <div className="flex w-full flex-nowrap gap-[16px] overflow-x-auto no-scrollbar pb-2 px-[18px] lg:px-[24px]">
             {qaPairs.length === 0 ? (
               <div className="px-[12px] py-[12px] text-sm text-[#797979]">No questions yet. Feel free to ask below!</div>
             ) : qaPairs.map((item) => (
               <div
                 key={item.id}
-                className="flex w-[300px]  flex-shrink-0 flex-col items-start rounded-[12px_0_12px_12px] border-[2px] border-white bg-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] transition-all"
+                className="flex w-[300px]  flex-shrink-0 flex-col items-start rounded-[14px_0_14px_14px] border-[2px] border-white bg-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] transition-all"
               >
                 {/* QUESTION BOX (Top) */}
-                <div className="flex w-full flex-col gap-[10px] items-start rounded-[12px_0_12px_12px] bg-[#3f9633] p-[12px] shrink-0">
+                <div className="flex w-full flex-col gap-[10px] items-start rounded-[14px_0_14px_14px] bg-[#3f9633] p-[12px] shrink-0">
                   <div className="flex items-start gap-[4px] font-rajdhani text-[16px] leading-[16px] tracking-[-0.32px] text-white">
                     <span className="font-semibold">Qn.</span>
                     <span className="font-medium leading-[19.2px] line-clamp-1">{item.question}</span>
@@ -96,8 +96,8 @@ const QuestionsAndAnswers: React.FC<QuestionsAndAnswersProps> = ({ qaPairs = [] 
           </div>
 
           {/* INPUT / SUBMISSION SECTION */}
-          <div className="flex px-[24px] w-full">
-            <div className="flex w-full items-stretch overflow-hidden rounded-[6px]  border border-[#eaebf0]">
+          <div className="flex px-[18px] lg:px-[24px] w-full">
+            <div className="flex w-full items-stretch overflow-hidden rounded-[10px]  border border-[#eaebf0]">
               <div className="flex-1 flex items-center bg-white px-[16px] gap-2">
                 <input
                   type="text"

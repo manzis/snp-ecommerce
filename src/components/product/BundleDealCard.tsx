@@ -383,7 +383,7 @@ const BundleDealCard: React.FC<BundleDealCardProps> = ({ mainProduct, currentPro
                 <button
                   onClick={() => handleAddBundleToCart('interactive')}
                   disabled={loadingBundle !== null || ordersDisabled}
-                  className={`w-full h-[52px] rounded-[14px] border border-[#E8E8E8] flex items-center justify-center gap-2 group transition-all active:scale-[0.98] mt-2 overflow-hidden relative ${loadingBundle === 'interactive' ? 'bg-[#f0fff4] border-[#318126]' : ordersDisabled ? 'bg-gray-100 opacity-60 cursor-not-allowed border-gray-200' : 'bg-gradient-to-r from-white via-white to-[#f0fff4]/50 hover:border-[#318126]'}`}
+                  className={`w-full h-[52px] rounded-[12px] border border-[#E8E8E8] flex items-center justify-center gap-2 group transition-all active:scale-[0.98] mt-2 overflow-hidden relative ${loadingBundle === 'interactive' ? 'bg-[#f0fff4] border-[#318126]' : ordersDisabled ? 'bg-gray-100 opacity-60 cursor-not-allowed border-gray-200' : 'bg-gradient-to-r from-white via-white to-[#f0fff4]/50 hover:border-[#318126]'}`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shine-once" />
                   <CartIcon className={`w-5 h-5 transition-colors ${loadingBundle === 'interactive' ? 'text-[#318126]' : 'text-[#4d4d4d]'}`} />

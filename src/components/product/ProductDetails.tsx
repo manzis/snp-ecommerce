@@ -122,10 +122,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   };
 
   return (
-    <section id="product-details-section" className="scroll-mt-[66px] main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start lg:mx-0 lg:max-w-none px-[24px]">
+    <section id="product-details-section" className="scroll-mt-[66px] main-container relative mx-auto flex w-full max-w-[700px] flex-col items-start lg:mx-0 lg:max-w-none px-[18px] lg:px-[24px]">
 
       {/* STICKY HEADER */}
-      <div className="sticky top-[66px] z-40 flex w-[calc(100%+48px)] lg:w-full flex-col bg-white pt-4 pb-4 -ml-[24px] px-[24px] lg:ml-0 lg:px-0 lg:pt-0 gap-[24px] shadow-[0_4px_6px_-6px_rgba(0,0,0,0.1)]">
+      <div className="sticky top-[66px] z-40 flex w-[calc(100%+36px)] lg:w-full flex-col bg-white pt-4 pb-4 -ml-[18px] px-[18px] lg:ml-0 lg:px-0 lg:pt-0 gap-[24px] shadow-[0_4px_6px_-6px_rgba(0,0,0,0.1)]">
         {/* SECTION TITLE: 20px, 600 weight, -0.4px tracking */}
         <h2 className="h-[18px] font-rajdhani text-[20px] font-bold leading-[18px] tracking-[-0.4px] text-[#242424] whitespace-nowrap">
           Product Details
@@ -141,7 +141,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 type="button"
                 onClick={(e) => handleTabClick(tab.id, e)}
                 className={`
-                  flex ${tab.width} lg:flex-1 lg:min-w-[140px] h-[40px] px-[12px] py-[8px] justify-center items-center rounded-[6px] border transition-all duration-300 shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] outline-none
+                  flex ${tab.width} lg:flex-1 lg:min-w-[140px] h-[40px] px-[12px] py-[8px] justify-center items-center rounded-[10px] border transition-all duration-300 shadow-[0_1px_2px_0_rgba(16,24,40,0.04)] outline-none
                   ${activeTab === tab.id
                     ? 'bg-[#242424] border-[#242424]'
                     : 'bg-[#fafbfc] border-[#eaebf0]'}
@@ -158,21 +158,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         </nav>
       </div>
 
-      <div className="flex w-full flex-col gap-[16px] self-stretch mt-1">
+      <div className="flex w-full min-w-0 max-w-full flex-col gap-[16px] self-stretch mt-1 overflow-hidden">
 
         {/* CONTENT AREA: Smoothest animation transitions */}
         <div
-          className="relative w-full"
+          className="relative w-full min-w-0 max-w-full overflow-hidden"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
 
           {activeTab === 'description' && (
-            <div className="w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="w-full min-w-0 max-w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500 overflow-hidden break-words [overflow-wrap:anywhere] [word-break:break-word]">
               {info?.description ? (
                 <div
-                  className="font-rajdhani text-[16px] leading-[24px] text-[#242424] prose-sm max-w-none [&_*]:!font-rajdhani [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1"
+                  className="font-rajdhani text-[16px] leading-[24px] text-[#242424] prose-sm max-w-full w-full min-w-0 break-words [overflow-wrap:anywhere] [word-break:break-word] [&_*]:!font-rajdhani [&_*]:max-w-full [&_*]:!whitespace-normal [&_*]:!break-words [&_*]:![overflow-wrap:anywhere] [&_*]:![word-break:break-word] [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_p]:break-words [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1 [&_li]:break-words [&_table]:w-full [&_table]:table-auto [&_table]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_img]:max-w-full [&_img]:h-auto"
                   dangerouslySetInnerHTML={{ __html: info.description }}
                 />
               ) : (
@@ -185,7 +185,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             <div className="w-full flex justify-center animate-in fade-in zoom-in-95 duration-500">
               {/* IMAGE: Using local public folder path to avoid URL errors */}
               <div
-                className="relative box-content w-full h-[362px] rounded-[8px] border-[4px] border-white shadow-[0_4px_6px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer"
+                className="relative box-content w-full h-[362px] rounded-[14px] lg:rounded-[16px] border-[4px] border-white shadow-[0_4px_6px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer"
                 onClick={() => setIsLightboxOpen(true)}
               >
                 <Image
@@ -252,11 +252,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
 // Reusable Detail Item to ensure 1:1 Figma Layout
 const DetailItem = ({ label, value, border = true }: { label: string; value: string; border?: boolean }) => (
-  <div className={`flex flex-1 flex-col gap-[5px] py-[4px] px-0 justify-center ${border ? 'border-l border-[#e8e8e8] pl-4' : ''}`}>
-    <span className="font-inter text-[14px] font-semibold leading-[20px] text-[#242424] tracking-[0.1px] whitespace-nowrap">
+  <div className={`flex flex-1 min-w-0 flex-col gap-[5px] py-[4px] px-0 justify-center ${border ? 'border-l border-[#e8e8e8] pl-4' : ''}`}>
+    <span className="font-inter text-[14px] font-semibold leading-[20px] text-[#242424] tracking-[0.1px] truncate">
       {label}
     </span>
-    <span className="font-inter text-[16px] font-medium leading-[20px] text-[#242424] line-clamp-2">
+    <span className="font-inter text-[16px] font-medium leading-[20px] text-[#242424] line-clamp-2 break-words [overflow-wrap:anywhere]">
       {value}
     </span>
   </div>

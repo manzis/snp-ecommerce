@@ -4,6 +4,7 @@ import Breadcrumbs from '@/components/layout/Breadcrumbs';
 import ProductImage from '@/components/product/ProductImage';
 import ProductHeader from '@/components/product/ProductHeader';
 import ProductCTA from '@/components/product/ProductCTA';
+import FlyToCartAnimation from '@/components/product/FlyToCartAnimation';
 import ProductOptions from '@/components/product/ProductOptions';
 import Availability from '@/components/product/Availability';
 import ServiceHighlights from '@/components/product/ServiceHighlight';
@@ -238,14 +239,15 @@ async function ProductContent({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[80px] pb-[32px] px-0 animate-page-enter">
-        <div className="w-full">
+      <main className="mx-auto w-full max-w-[1440px] lg:px-[36px] pt-[66px] lg:pt-[80px] pb-[32px] px-0 animate-page-enter">
+        {/* Sticky Breadcrumbs on Mobile */}
+        <div className="sticky top-[66px] z-30 w-full bg-white/95 backdrop-blur-md lg:static lg:bg-transparent lg:z-auto">
           <Breadcrumbs path={breadcrumbPath} />
         </div>
-        <div className="flex flex-row flex-wrap justify-center lg:justify-between lg:items-start items-start gap-y-[32px] lg:mt-[20px] lg:px-[24px]">
-          {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS */}
-          <div className="w-full max-w-[700px] lg:max-w-[1000] lg:w-[58%] px-[24px] lg:px-[0] flex flex-col gap-y-[32px] lg:gap-y-[60px]">
-            <div className="flex flex-col gap-y-[4px] lg:gap-y-[6px]">
+        <div className="relative w-full flex flex-col lg:flex-row lg:justify-between lg:items-start lg:gap-y-0 lg:mt-[20px] lg:px-[24px]">
+          {/* LEFT COLUMN: IMAGERY & HIGHLIGHTS (Sticky on Mobile) */}
+          <div className="w-full lg:w-[58%] px-0 flex flex-col gap-y-0 lg:gap-y-[60px] sticky top-[102px] z-10 lg:static lg:z-auto bg-white">
+            <div className="flex flex-col gap-y-0 lg:gap-y-[6px]">
               <ProductImage
                 images={product.images || []}
                 rating={product.rating}
@@ -288,80 +290,83 @@ async function ProductContent({ slug }: { slug: string }) {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: DETAILS */}
-          <div className="w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col lg:px-[0] ">
-            <ProductHeader
-              productSlug={product.slug}
-              brand={{
-                name: product.brands?.name || '',
-                slug: product.brands?.slug || '',
-                image_url: product.brands?.image_url
-              }}
-              title={product.title}
-              originalPrice={product.original_price}
-              discountedPrice={product.discounted_price}
-              discountPercentage={product.discount_percentage}
-              activeSale={activeSale}
-            />
-            <div className="mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
-              <ProductOptions
-                product={product}
-                sizes={product.product_sizes || []}
-                flavours={product.product_flavours || []}
-                seller={product.sellers || null}
-                ordersDisabled={ordersDisabled}
-                ordersDisabledUntil={ordersDisabledUntil}
-                ordersDisabledReason={ordersDisabledReason}
+          {/* RIGHT COLUMN: FLOATING SHEET WITH 12px TRANSPARENT OUTSIDE MARGIN */}
+          <div className="relative z-20 w-full max-w-[700px] lg:max-w-none lg:w-[38%] flex flex-col px-[12px] lg:px-0 bg-transparent mt-0 lg:mt-0">
+            {/* The Floating White Card Sheet */}
+            <div className="w-full bg-white rounded-t-[28px] sm:rounded-t-[32px] lg:rounded-t-[32px] shadow-none overflow-hidden pt-0 lg:pt-0">
+              <ProductHeader
+                productSlug={product.slug}
+                brand={{
+                  name: product.brands?.name || '',
+                  slug: product.brands?.slug || '',
+                  image_url: product.brands?.image_url
+                }}
+                title={product.title}
+                originalPrice={product.original_price}
+                discountedPrice={product.discounted_price}
+                discountPercentage={product.discount_percentage}
+                activeSale={activeSale}
               />
-              <Availability productSlug={product.slug} stockStatus={product.stock_status || 'in_stock'} />
-              <ServiceHighlights />
-              {product.highlights && product.highlights.length > 0 && (
-                <div className="lg:hidden">
-                  <ProductHighlights highlights={product.highlights} />
-                </div>
-              )}
-              <div className="w-full lg:hidden">
-                <ProductDetails product={product} />
-              </div>
-              <div className="w-full lg:hidden">
-                <LegacyProductBanners
-                  banners={[
-                    product.banner_image1,
-                    product.banner_image2,
-                    product.banner_image3,
-                    product.banner_image4
-                  ]}
+              <div className="mt-[20px] lg:mt-[24px] flex flex-col gap-y-[30px] lg:gap-y-[40px] bg-white">
+                <ProductOptions
+                  product={product}
+                  sizes={product.product_sizes || []}
+                  flavours={product.product_flavours || []}
+                  seller={product.sellers || null}
+                  ordersDisabled={ordersDisabled}
+                  ordersDisabledUntil={ordersDisabledUntil}
+                  ordersDisabledReason={ordersDisabledReason}
                 />
-                {product.brands?.id && (
-                  <div className="mt-8">
-                    <Suspense fallback={<SectionSkeleton height="250px" />}>
-                      <MoreByBrandWrapper 
-                        productId={product.id} 
-                        brandId={product.brands.id}
-                        categoryId={product.category_id}
-                        brandName={product.brands.name}
-                        brandSlug={product.brands.slug}
-                        brandLogo={product.brands.image_url}
-                      />
-                    </Suspense>
+                <Availability productSlug={product.slug} stockStatus={product.stock_status || 'in_stock'} />
+                <ServiceHighlights />
+                {product.highlights && product.highlights.length > 0 && (
+                  <div className="lg:hidden px-[18px]">
+                    <ProductHighlights highlights={product.highlights} />
                   </div>
                 )}
-                <div className="mt-6">
-                  <Suspense fallback={<SectionSkeleton height="200px" />}>
-                    <ReviewsWrapper productId={product.id} />
+                <div className="w-full lg:hidden">
+                  <ProductDetails product={product} />
+                </div>
+                <div className="w-full lg:hidden">
+                  <LegacyProductBanners
+                    banners={[
+                      product.banner_image1,
+                      product.banner_image2,
+                      product.banner_image3,
+                      product.banner_image4
+                    ]}
+                  />
+                  {product.brands?.id && (
+                    <div className="mt-8">
+                      <Suspense fallback={<SectionSkeleton height="250px" />}>
+                        <MoreByBrandWrapper 
+                          productId={product.id} 
+                          brandId={product.brands.id}
+                          categoryId={product.category_id}
+                          brandName={product.brands.name}
+                          brandSlug={product.brands.slug}
+                          brandLogo={product.brands.image_url}
+                        />
+                      </Suspense>
+                    </div>
+                  )}
+                  <div className="mt-6">
+                    <Suspense fallback={<SectionSkeleton height="200px" />}>
+                      <ReviewsWrapper productId={product.id} />
+                    </Suspense>
+                  </div>
+                </div>
+                <div className="w-full">
+                  <Suspense fallback={<SectionSkeleton height="150px" />}>
+                    <QAWrapper productId={product.id} />
                   </Suspense>
                 </div>
-              </div>
-              <div className="w-full">
-                <Suspense fallback={<SectionSkeleton height="150px" />}>
-                  <QAWrapper productId={product.id} />
-                </Suspense>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="hidden lg:block w-full mt-[32px] lg:mt-[48px] px-[24px] lg:px-[0]">
+        <div className="relative z-20 bg-white hidden lg:block w-full mt-[32px] lg:mt-[48px] px-[24px] lg:px-[0]">
           <LegacyProductBanners
             banners={[
               product.banner_image1,
@@ -372,13 +377,13 @@ async function ProductContent({ slug }: { slug: string }) {
           />
         </div>
 
-        <div className="w-full mt-[32px] lg:mt-[48px]">
+        <div className="relative z-20 bg-white w-full mt-[32px] lg:mt-[48px]">
           <ProductBanners linkedBanners={product.product_banners} variant="white" />
         </div>
-        <div className="w-full mt-[32px] lg:mt-[48px]">
+        <div className="relative z-20 bg-white w-full mt-[32px] lg:mt-[48px]">
           <WhyChooseUs imageUrl={bannerSetting?.imageUrl} />
         </div>
-        <div className="w-full mt-[32px] lg:mt-[48px] pb-[40px]">
+        <div className="relative z-20 bg-white w-full mt-[32px] lg:mt-[48px] pb-[40px]">
           <Suspense fallback={<SectionSkeleton height="400px" />}>
             <FeaturedProductsSection productId={product.id} categoryId={product.category_id} />
           </Suspense>
@@ -397,6 +402,7 @@ async function ProductContent({ slug }: { slug: string }) {
         ordersDisabled={ordersDisabled}
         ordersDisabledUntil={ordersDisabledUntil}
       />
+      <FlyToCartAnimation />
     </>
   );
 }

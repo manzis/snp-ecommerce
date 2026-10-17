@@ -81,6 +81,16 @@ const ProductHeader = ({
     displayPercentage = `${percent}%`;
   }
 
+  // Format title in normal case while preserving standard acronyms
+  const displayTitle = React.useMemo(() => {
+    if (!title) return '';
+    return title.replace(/\b[A-Z]{3,}\b/g, (match) => {
+      const preserveAcronyms = ['IU', 'MK-7', 'MK7', 'CFU', 'EPA', 'DHA', 'B12', 'CoQ-10', 'CoQ10', 'NPR', 'USA', 'FDA', 'GMP'];
+      if (preserveAcronyms.includes(match)) return match;
+      return match.charAt(0).toUpperCase() + match.slice(1).toLowerCase();
+    });
+  }, [title]);
+
   // Live countdown timer effect
   React.useEffect(() => {
     if (!activeSale?.ends_at) return;
@@ -115,53 +125,66 @@ const ProductHeader = ({
   }, [activeSale?.ends_at]);
 
   return (
-    <section className="flex w-full flex-col items-start font-rajdhani px-[24px]">
-      <div className="relative flex w-full max-w-[362px] lg:max-w-none flex-col items-start gap-[10px] lg:h-auto">
-
-        {/* Brand Row: Logo + Name + Redirect & Active Sale */}
-        <div className="flex w-full items-center justify-between">
-          <Link
-            href={`/brand/${brand.slug}`}
-            className="group flex items-center gap-[4px] hover:opacity-80 transition-opacity duration-150"
-          >
-            {/* Brand Logo */}
-            {brand.image_url ? (
-              <div className="relative shrink-0 w-[18px] h-[18px] rounded-[3px] overflow-hidden border border-[#E8E8E8] bg-[#FAFAFA]">
-                <Image
-                  src={brand.image_url}
-                  alt={brand.name}
-                  fill
-                  className="object-cover"
-                  sizes="32px"
+    <section className={brand?.name ? "flex w-full flex-col items-start font-rajdhani bg-[#F2F9F5] rounded-t-[28px] sm:rounded-t-[32px] lg:rounded-t-[32px] overflow-hidden" : "flex w-full flex-col items-start font-rajdhani bg-white rounded-t-[28px] sm:rounded-t-[32px] lg:rounded-t-[32px] overflow-hidden"}>
+      {/* Brand Header Banner with Background Separation */}
+      {brand?.name && (
+        <Link
+          href={`/brand/${brand.slug || ''}`}
+          className="group w-full flex items-center justify-between px-[18px] lg:px-[24px] pt-[12px] pb-[13px] hover:bg-black/[0.02] active:bg-black/[0.04] transition-colors duration-150 select-none rounded-t-[28px] sm:rounded-t-[32px] lg:rounded-t-[32px]"
+        >
+          <div className="flex items-center gap-[7.5px] min-w-0">
+            {/* Verified Scalloped Badge Icon - Optically centered & bolder checkmark */}
+            <svg className="w-[19px] h-[19px] shrink-0 overflow-visible" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <g transform="translate(12, 12) scale(0.85) translate(-12, -12)">
+                <path
+                  fill="#318126"
+                  d="M10.007 2.138a2.5 2.5 0 0 1 3.986 0l.968 1.155a2.5 2.5 0 0 0 2.296.95l1.492-.224a2.5 2.5 0 0 1 2.819 2.818l-.224 1.492a2.5 2.5 0 0 0 .95 2.296l1.155.968a2.5 2.5 0 0 1 0 3.986l-1.155.968a2.5 2.5 0 0 0-.95 2.296l.224 1.492a2.5 2.5 0 0 1-2.818 2.819l-1.492-.224a2.5 2.5 0 0 0-2.296.95l-.968 1.155a2.5 2.5 0 0 1-3.986 0l-.968-1.155a2.5 2.5 0 0 0-2.296-.95l-1.492.224a2.5 2.5 0 0 1-2.819-2.818l.224-1.492a2.5 2.5 0 0 0-.95-2.296l-1.155-.968a2.5 2.5 0 0 1 0-3.986l1.155-.968a2.5 2.5 0 0 0 .95-2.296l-.224-1.492a2.5 2.5 0 0 1 2.818-2.819l1.492.224a2.5 2.5 0 0 0 2.296-.95l.968-1.155Z"
                 />
-              </div>
-            ) : (
-              <div className="flex shrink-0 w-[18px] h-[18px] rounded-[3px] border border-[#E8E8E8] bg-[#F0F0F0] items-center justify-center">
-                <span className="font-rajdhani text-[11px] font-bold text-[#888] uppercase">
-                  {brand.name.charAt(0)}
-                </span>
-              </div>
-            )}
+                <path
+                  stroke="#FFFFFF"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="m8.1 12.6 2.8 2.8 5.3-5.3"
+                />
+              </g>
+            </svg>
+
             {/* Brand Name */}
-            <span className="font-rajdhani text-[15px] font-semibold leading-[18px] text-[#555] tracking-[-0.04em] uppercase group-hover:text-[#242424] transition-colors duration-150">
+            <span className="font-rajdhani font-bold text-[17.5px] leading-none text-[#318126] tracking-tight capitalize group-hover:text-[#25631e] transition-colors truncate">
               {brand.name}
             </span>
-            {/* Redirect Arrow */}
-            <RedirectIcon className="w-[14px] h-[14px] text-[#AAAAAA] group-hover:text-[#555] transition-colors duration-150 shrink-0" />
-          </Link>
+          </div>
 
-          {effectiveActiveSale && (
-            <Link href={`/sale/${effectiveActiveSale.slug || ''}`} className="ml-auto group flex items-center gap-[8px] bg-black text-white p-[4px] pr-[8px] lg:pr-[12px] shadow-sm hover:opacity-90 transition-opacity">
-                <div className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] text-white text-[10px] font-bold px-[6px] py-[2px] uppercase tracking-wider leading-none flex items-center justify-center">
-                    SALE
-                </div>
-              <span className="font-rajdhani font-bold text-[11px] lg:text-[12px] leading-none uppercase tracking-wider mt-[1px]">
-                {effectiveActiveSale.name}
+          <div className="flex items-center gap-[8px] shrink-0">
+            {effectiveActiveSale && (
+              <span className="inline-flex items-center gap-[6px] bg-black text-white px-[8px] py-[3px] rounded-[4px] shadow-xs">
+                <span className="bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] text-white text-[9px] font-bold px-[4px] py-[1px] uppercase tracking-wider leading-none">
+                  SALE
+                </span>
+                <span className="font-rajdhani font-bold text-[10.5px] uppercase tracking-wider">
+                  {effectiveActiveSale.name}
+                </span>
               </span>
-              <RedirectIcon className="w-2.5 h-2.5 text-white opacity-80 group-hover:opacity-100 transition-opacity" />
-            </Link>
-          )}
-        </div>
+            )}
+
+            {/* Right Chevron Arrow */}
+            <svg
+              className="w-[17px] h-[17px] text-[#318126] group-hover:translate-x-0.5 transition-transform duration-150 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.4}
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </Link>
+      )}
+
+      {/* Main Content Area: rounded top corners cutting into the green brand banner */}
+      <div className="w-full bg-white rounded-t-[22px] sm:rounded-t-[26px] px-[18px] lg:px-[24px] pt-[13px] lg:pt-[16px] flex flex-col items-start z-10 shadow-none">
+        <div className="relative flex w-full flex-col items-start gap-[10px] lg:h-auto">
 
         {/* Title */}
         <div className="relative flex w-full flex-col items-start gap-[6px] shrink-0 lg:h-auto">
@@ -169,9 +192,9 @@ const ProductHeader = ({
             <h1 
               onClick={() => setIsTitleExpanded(!isTitleExpanded)}
               title={isTitleExpanded ? "Click to collapse" : "Click to expand"}
-              className={`uppercase font-rajdhani font-bold text-[22px] lg:text-[26px] leading-[30px] lg:leading-[34px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent cursor-pointer transition-all duration-200 ${isTitleExpanded ? '' : 'line-clamp-2'}`}
+              className={`font-rajdhani font-bold text-[18px] lg:text-[22px] leading-[26px] sm:leading-[27px] lg:leading-[30px] text-left bg-[linear-gradient(90deg,#242424_0%,#535353_117.72%)] bg-clip-text text-transparent cursor-pointer transition-all duration-200 ${isTitleExpanded ? '' : 'line-clamp-2'}`}
             >
-              {title}
+              {displayTitle}
             </h1>
           </div>
         </div>
@@ -227,6 +250,7 @@ const ProductHeader = ({
           </div>
         </div>
 
+        </div>
       </div>
     </section>
   );

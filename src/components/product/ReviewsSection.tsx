@@ -55,12 +55,12 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
         {/* HEADER ROW */}
         <div
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex w-full items-center justify-between cursor-pointer select-none group px-[24px]"
+          className="flex w-full items-center justify-between cursor-pointer select-none group px-[18px] lg:px-[24px]"
         >
           <h2 className="font-rajdhani text-[20px] font-bold tracking-[-0.4px] text-[#242424] leading-[18px] group-active:opacity-80 transition-opacity">
             Rating and Reviews
           </h2>
-          <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[6px]   outline-none overflow-hidden group-active:scale-95 transition-transform duration-300">
+          <button className="flex h-[32px] w-[32px] items-center justify-center rounded-[8px]   outline-none overflow-hidden group-active:scale-95 transition-transform duration-300">
             <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
               <DropDownIcon className="h-[16px] w-[16px] text-black" />
             </div>
@@ -70,7 +70,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
         {isExpanded && (
           <div className="w-full flex flex-col gap-6">
             {/* HORIZONTAL SCROLLABLE REVIEWS */}
-            <div className="w-full overflow-x-auto no-scrollbar px-[24px]">
+            <div className="w-full overflow-x-auto no-scrollbar px-[18px] lg:px-[24px]">
               <div className="flex flex-row gap-[12px] lg:gap-[16px] pb-2">
                 {reviews.length === 0 ? (
                   <div className="px-[12px] py-[24px] text-sm text-[#797979]">No reviews yet. Be the first to review!</div>
@@ -84,11 +84,11 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ reviews = [] }) => {
                       <div
                         key={review.id}
                         onClick={() => hasMedia && handleOpenLightbox(index)}
-                        className={`relative group/review flex ${hasMedia ? 'h-[290px]' : 'h-[220px]'} w-[225px] flex-shrink-0 flex-col rounded-[8px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer transition-transform ${!hasMedia ? theme.bg : 'bg-white'}`}
+                        className={`relative group/review flex ${hasMedia ? 'h-[290px]' : 'h-[220px]'} w-[225px] flex-shrink-0 flex-col rounded-[14px] border-[2px] border-white p-[2px] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] overflow-hidden cursor-pointer transition-transform ${!hasMedia ? theme.bg : 'bg-white'}`}
                       >
                         {/* 1. Base Layer: Content Media (Photo/Video) */}
                         {hasMedia && (
-                          <div className="relative h-full w-full rounded-[6px] overflow-hidden bg-gray-50">
+                          <div className="relative h-full w-full rounded-[12px] overflow-hidden bg-gray-50">
                             {isVideo ? (
                               <video
                                 src={review.image!}

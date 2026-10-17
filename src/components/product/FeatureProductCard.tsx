@@ -54,7 +54,7 @@ export default function FeaturedProductCard({
             >
 
                 {/* --- Product Image Container --- */}
-                <div className={`flex h-[159px] w-full items-center self-stretch shrink-0 rounded-[8px] relative overflow-hidden ${stockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}>
+                <div className={`flex h-[159px] w-full items-center self-stretch shrink-0 rounded-[14px] relative overflow-hidden ${stockStatus === 'out_of_stock' ? 'grayscale-[0.5]' : ''}`}>
                     <Image
                         src={optimizeImage(imageUrl, 300)}
                         alt={title}

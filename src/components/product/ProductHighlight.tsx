@@ -71,7 +71,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
   };
 
   if (highlights.length === 0) return null;
-  if (!mounted) return <div className="w-full h-[485px] bg-[#f9fafb] rounded-[8px]" />;
+  if (!mounted) return <div className="w-full h-[485px] bg-[#f9fafb] rounded-[14px] lg:rounded-[16px]" />;
 
   return (
     <section className="relative mx-auto flex w-full max-w-[362px] md:max-w-none flex-col items-start gap-[24px] lg:mx-0 select-none">
@@ -92,7 +92,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
             - h-[485px]: Fixed height to match Product Details vertical rhythm
         */}
         <div 
-          className="relative flex h-[485px] w-full lg:flex-[2.1] flex-col overflow-hidden rounded-[8px] border-[2px] border-white bg-[#F9F9F9] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] cursor-grab active:cursor-grabbing shrink-0"
+          className="relative flex h-[485px] w-full lg:flex-[2.1] flex-col overflow-hidden rounded-[14px] lg:rounded-[16px] border-[2px] border-white bg-[#F9F9F9] shadow-[0_1px_3px_0_rgba(16,24,40,0.1)] cursor-grab active:cursor-grabbing shrink-0"
           onMouseDown={handleStart}
           onMouseUp={handleEnd}
           onMouseLeave={() => setIsDragging(false)}
@@ -151,7 +151,7 @@ const ProductHighlights: React.FC<ProductHighlightsProps> = ({ highlights = [] }
               <button
                 key={`hl-thumb-${idx}`}
                 onClick={() => setActiveTab(idx)}
-                className={`relative flex-1 w-full overflow-hidden rounded-[8px] border-[2px] transition-all duration-300 shadow-[0_1px_3px_0_rgba(16,24,40,0.1)]
+                className={`relative flex-1 w-full overflow-hidden rounded-[12px] border-[2px] transition-all duration-300 shadow-[0_1px_3px_0_rgba(16,24,40,0.1)]
                   ${isActive ? 'border-[#3F9633]' : 'border-white'}
                 `}
               >

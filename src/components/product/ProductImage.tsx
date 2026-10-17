@@ -3,10 +3,7 @@
 import Image from 'next/image';
 import React, { useState, useRef, useEffect } from 'react';
 import { optimizeImage } from '@/lib/optimizeImage';
-import ActionButton from './ActionButton';
-import StarIcon from '@/components/icons/GreenStar';
-import ShareIcon from '@/components/icons/Share';
-import WishlistIcon from '@/components/icons/Wishlisht';
+import { Heart, Send } from 'lucide-react';
 import MediaLightbox from '@/components/ui/MediaLightBox';
 import { useProductSelectionStore } from '@/store/productSelectionStore';
 
@@ -153,8 +150,10 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[500px] lg:max-w-none flex-col items-center gap-[16px] lg:gap-[20px] relative select-none">
-      <div className="relative h-[360px] lg:h-[560px] w-full overflow-hidden bg-white border border-[#F5F5F5] group">
+    <div className="mx-auto flex w-full max-w-none flex-col items-center gap-0 lg:gap-[20px] relative select-none">
+      <div
+        className="relative h-[410px] sm:h-[450px] lg:h-[620px] w-full overflow-hidden bg-white group"
+      >
         {/* Main Image Scroll / Drag Container */}
         <div
           ref={scrollRef}
@@ -203,13 +202,13 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               disabled={activeIndex === 0}
-              className={`absolute left-2 md:left-3 top-1/2 -translate-y-1/2 z-20 flex w-8 h-8 md:w-10 md:h-10 lg:w-11 lg:h-11 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm border border-black/10 text-[#242424] transition-all duration-200 ${
+              className={`absolute left-6 md:left-3 top-1/2 -translate-y-1/2 z-20 flex w-10 h-10 md:w-12 md:h-12 items-center justify-center rounded-full bg-white/95 shadow-none backdrop-blur-sm border border-black/10 text-[#242424] transition-all duration-200 ${
                 activeIndex === 0
                   ? 'opacity-30 cursor-not-allowed'
                   : 'hover:bg-white hover:scale-105 active:scale-95 cursor-pointer opacity-90 md:opacity-80 md:group-hover:opacity-100'
               }`}
             >
-              <svg className="w-4 h-4 md:w-5 md:h-5 pr-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-6 md:h-6 pr-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -224,13 +223,13 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
               onMouseDown={(e) => e.stopPropagation()}
               onTouchStart={(e) => e.stopPropagation()}
               disabled={activeIndex === displayImages.length - 1}
-              className={`absolute right-2 md:right-3 top-1/2 -translate-y-1/2 z-20 flex w-8 h-8 md:w-10 md:h-10 lg:w-11 lg:h-11 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm border border-black/10 text-[#242424] transition-all duration-200 ${
+              className={`absolute right-6 md:right-3 top-1/2 -translate-y-1/2 z-20 flex w-10 h-10 md:w-12 md:h-12 items-center justify-center rounded-full bg-white/95 shadow-none backdrop-blur-sm border border-black/10 text-[#242424] transition-all duration-200 ${
                 activeIndex === displayImages.length - 1
                   ? 'opacity-30 cursor-not-allowed'
                   : 'hover:bg-white hover:scale-105 active:scale-95 cursor-pointer opacity-90 md:opacity-80 md:group-hover:opacity-100'
               }`}
             >
-              <svg className="w-4 h-4 md:w-5 md:h-5 pl-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-6 md:h-6 pl-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -258,49 +257,66 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
           </div>
         )}
 
-        {/* Rating Badge */}
-        <div className="absolute left-[0px] bottom-[0px] z-20 flex h-[31px] items-center gap-[10px] bg-[#ffe900] px-[8px] py-[6px] shadow-sm">
-          <div className="flex gap-[2px] items-center shrink-0">
-            <StarIcon className="w-[13px] h-[13px] text-[#242424]" />
-            <span className="font-rajdhani text-[14px] font-[600] text-[#242424] ml-1">{rating}</span>
-            <div className="w-[1px] h-[10px] bg-black mx-2 opacity-20" />
-            <span className="font-rajdhani text-[14px] font-[600] text-[#797979]">{reviewsCount}</span>
+        {/* Rating Badge (Bottom Left) */}
+        <div className="absolute left-6 md:left-4 bottom-4 z-20 flex h-[35px] items-center bg-white px-3.5 rounded-[10px] border border-black/10 shadow-none">
+          <div className="flex items-center shrink-0">
+            <span className="font-rajdhani font-bold text-[15px] leading-none text-[#18181B]">{rating || '4.8'}</span>
+            <svg className="w-4 h-4 fill-[#10B981] text-[#10B981] shrink-0 ml-2 mr-3" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            <div className="w-[1px] h-3.5 bg-gray-200 mr-3" />
+            <span className="font-rajdhani font-semibold text-[14px] leading-none text-[#71717A]">
+              {String(reviewsCount || '0').replace(/[()]/g, '').replace(/reviews?/i, '').trim()}
+            </span>
           </div>
         </div>
 
-        {/* Action Buttons (Share / Wishlist) */}
-        <div className="absolute right-[12px] bottom-[12px] flex flex-col gap-[12px] z-20">
-          <ActionButton
-            label="Share"
-            onClick={handleShare}
-            onMouseDown={(e) => e.stopPropagation()}
-            onMouseUp={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-            icon={<ShareIcon className="w-full h-full text-[#242424]" />}
-          />
-          <ActionButton
-            label="Wishlist"
+        {/* Action Buttons (Wishlist & Share - Top Right) */}
+        <div className="absolute top-4 right-6 md:top-4 md:right-4 flex flex-col gap-2.5 z-20">
+          <button
+            type="button"
+            aria-label="Wishlist"
             onClick={handleWishlist}
             onMouseDown={(e) => e.stopPropagation()}
             onMouseUp={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
-            icon={
-              <WishlistIcon
-                filled={isWishlisted}
-                className={`w-full h-full transition-colors duration-200 ${
-                  isWishlisted ? 'text-red-500' : 'text-[#242424]'
+            className="flex h-[40px] w-[40px] md:h-[42px] md:w-[42px] items-center justify-center rounded-[12px] bg-white text-[#242424] border border-black/10 shadow-none hover:bg-[#fafafa] active:scale-95 transition-all outline-none"
+          >
+            <div className="relative flex items-center justify-center">
+              <Heart
+                size={22}
+                strokeWidth={1.8}
+                className={`transition-colors duration-200 ${
+                  isWishlisted ? 'fill-red-500 text-red-500' : 'text-[#242424]'
                 }`}
               />
-            }
-          />
+              {!isWishlisted && (
+                <span className="absolute -top-1 -right-1 text-[10px] font-bold leading-none text-[#242424] select-none">
+                  +
+                </span>
+              )}
+            </div>
+          </button>
+
+          <button
+            type="button"
+            aria-label="Share"
+            onClick={handleShare}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+            className="flex h-[40px] w-[40px] md:h-[42px] md:w-[42px] items-center justify-center rounded-[12px] bg-white text-[#242424] border border-black/10 shadow-none hover:bg-[#fafafa] active:scale-95 transition-all outline-none"
+          >
+            <Send size={20} strokeWidth={1.9} className="text-[#242424] -translate-x-[0.5px] translate-y-[0.5px]" />
+          </button>
         </div>
       </div>
 
       {/* Pagination Line Indicator & Desktop Thumbnails */}
-      <div className="flex flex-col w-full gap-3">
-        <div className="flex w-full h-[2.5px] shrink-0 overflow-hidden rounded-full bg-[#E8E8E8]">
+      <div className="flex flex-col items-center justify-center w-full px-6 lg:px-0 pt-3.5 pb-6 lg:py-0">
+        <div className="flex w-full max-w-[320px] sm:max-w-[360px] lg:max-w-none h-[3.5px] shrink-0 overflow-hidden rounded-full bg-[#E5E7EB]">
           {displayImages.map((_, idx) => (
             <button
               key={idx}
@@ -308,7 +324,7 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
               aria-label={`Go to slide ${idx + 1}`}
               onPointerUp={(e) => e.currentTarget.blur()}
               onClick={() => scrollToSlide(idx)}
-              className={`h-full flex-1 transition-colors duration-400 ${
+              className={`h-full flex-1 transition-colors duration-300 ${
                 idx === activeIndex ? 'bg-[#242424]' : 'bg-transparent'
               } md:hover:bg-[#242424]/10`}
             />
@@ -317,14 +333,14 @@ const ProductImage = ({ images, rating, reviewsCount, productName = "Product", s
 
         {/* Desktop Thumbnail Selector */}
         {displayImages.length > 1 && (
-          <div className="hidden md:flex items-center justify-center gap-2 overflow-x-auto py-1">
+          <div className="hidden md:flex items-center justify-center gap-2 overflow-x-auto py-1 lg:mt-3">
             {displayImages.map((img, idx) => (
               <button
                 key={`thumb-${img}-${idx}`}
                 type="button"
                 onClick={() => scrollToSlide(idx)}
                 onMouseDown={(e) => e.stopPropagation()}
-                className={`relative w-14 h-14 lg:w-16 lg:h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 shrink-0 bg-white ${
+                className={`relative w-14 h-14 lg:w-16 lg:h-16 rounded-[10px] overflow-hidden border-2 transition-all duration-200 shrink-0 bg-white ${
                   idx === activeIndex
                     ? 'border-[#242424] scale-105 shadow-sm'
                     : 'border-[#F0F0F0] opacity-60 hover:opacity-100 hover:border-gray-300'
