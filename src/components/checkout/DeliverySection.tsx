@@ -139,29 +139,40 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
   };
 
   return (
-    <div className={`main-container mx-auto flex w-full  flex-col items-start  border-t border-[#f1f5f9] lg:max-w-none transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
-      }`}>
+    <div className={`w-full bg-white rounded-[20px] shadow-none overflow-hidden transition-all duration-300 ${
+      disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
+    }`}>
       {/* ACCORDION HEADER */}
       <button
         onClick={onToggle}
         disabled={disabled}
-        className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 ${isOpen ? 'bg-[#fafbfb] py-[24px]' : 'bg-white py-[24px]'
-          }`}
+        className="flex w-full justify-between items-center px-[20px] sm:px-[24px] py-[18px] sm:py-[20px] bg-white transition-colors duration-200 outline-none"
       >
-        <div className="flex items-center gap-[12px]">
-          <h1 className="font-rajdhani text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
+        <div className="flex items-center gap-[10px] sm:gap-[12px]">
+          <div className={`w-[24px] h-[24px] rounded-full flex items-center justify-center font-rajdhani text-[13px] font-bold shrink-0 transition-colors ${
+            isConfirmed ? 'bg-[#308026] text-white' : 'bg-[#242424] text-white'
+          }`}>
+            {isConfirmed ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            ) : (
+              '2'
+            )}
+          </div>
+          <h2 className="font-rajdhani text-[18px] sm:text-[19px] font-bold leading-tight tracking-tight text-[#18181b]">
             Delivery Details
-          </h1>
+          </h2>
           {isConfirmed && !isOpen && !disabled && selectedAddressId && deliveryOption && (
-            <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px]">
+            <div className="flex px-[8px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[6px]">
+              <span className="font-rajdhani text-[12px] font-semibold text-[#166534] tracking-tight whitespace-nowrap">
                 Details Added
               </span>
             </div>
           )}
         </div>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
-          <DropDownIcon className="w-[18px] h-[18px] text-[#242424]" />
+          <DropDownIcon className="w-[18px] h-[18px] text-[#18181b]" />
         </motion.div>
       </button>
 
@@ -174,7 +185,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
             exit={{ height: 0, opacity: 0 }}
             className="w-full overflow-hidden"
           >
-            <div className="w-full max-w-full min-w-0 flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
+            <div className="w-full flex flex-col gap-[20px] px-[20px] sm:px-[24px] pb-[28px] pt-[16px] bg-white border-t border-[#f0f3ee]">
 
               <AddressSelector
                 addresses={addresses}
@@ -214,7 +225,7 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="text-[12px] font-semibold text-[#ef4444] px-[2px]"
+                    className="text-[13px] font-semibold text-[#ef4444] px-[2px]"
                   >
                     {errorMessage}
                   </motion.p>
@@ -225,10 +236,11 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
               <button
                 onClick={handleConfirm}
                 disabled={isLoading || addresses.length === 0}
-                className={`w-full py-[14px] rounded-[12px] font-rajdhani text-[16px] font-semibold transition-all active:scale-[0.98] ${isLoading || addresses.length === 0
-                  ? 'bg-[#ffe900] text-[#242424] opacity-50 cursor-not-allowed'
-                  : 'bg-[#ffe900] active:bg-[#f5e000] text-[#242424]'
-                  }`}
+                className={`w-full h-[48px] rounded-[14px] font-rajdhani text-[16px] font-bold transition-all active:scale-[0.98] outline-none ${
+                  isLoading || addresses.length === 0
+                    ? 'bg-[#ffe900] text-[#18181b] opacity-40 cursor-not-allowed'
+                    : 'bg-[#ffe900] hover:bg-[#f5e000] active:bg-[#ebd500] text-[#18181b]'
+                }`}
               >
                 {isLoading ? 'Loading Addresses...' : 'Confirm Address'}
               </button>

@@ -44,8 +44,8 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
       {badge && (
         <div className={`absolute -top-[10px] right-[48px] flex h-[20px] px-[8px] justify-center items-center rounded-[6px] z-10 pointer-events-none overflow-hidden ${
           badgeType === 'discount' 
-            ? 'bg-[#3f9633] text-white' 
-            : 'bg-[#ffe900] border border-[#ebd700] text-[#242424]'
+            ? 'bg-[#308026] text-white shadow-sm' 
+            : 'bg-[#ffe900] border border-[#ebd700] text-[#18181b]'
         }`}>
           <motion.div
             className="absolute top-0 bottom-0 w-[50%] skew-x-[-20deg]"
@@ -74,8 +74,8 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
         }}
         className={`flex flex-col w-full transition-all duration-300 outline-none rounded-[16px] overflow-hidden ${
           isActive 
-            ? 'border-[1.5px] border-[#242424]' 
-            : 'border-[1px] border-[#e2e8f0]'
+            ? 'border-[1.5px] border-[#308026] shadow-sm' 
+            : 'border-[1px] border-[#eaebf0] hover:border-[#d0d5dd]'
         }`}
       >
         {/* Clickable Header Button */}
@@ -86,18 +86,18 @@ const PaymentOption: React.FC<PaymentOptionProps> = ({
         >
           <div className="flex items-center gap-[10px]">
             {/* Icon Container */}
-            <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0 text-[#242424]">
+            <div className="w-[18px] h-[18px] flex items-center justify-center shrink-0 text-[#18181b]">
               {icon}
             </div>
 
             {/* Label */}
-            <span className="font-rajdhani text-[16px] font-semibold leading-[24px] tracking-[-0.07px] text-[#242424]">
+            <span className="font-rajdhani text-[16px] font-bold leading-[24px] tracking-[-0.2px] text-[#18181b]">
               {label}
             </span>
 
             {/* Popular Tag */}
             {isPopular && !badge && (
-              <div className="flex h-[18px] px-[6px] justify-center items-center bg-[#3f9633] rounded-[6px] ml-[2px]">
+              <div className="flex h-[18px] px-[6px] justify-center items-center bg-[#308026] rounded-[6px] ml-[2px]">
                 <span className="font-rajdhani text-[10px] font-medium leading-[6px] text-white tracking-[0.2px] uppercase">
                   POPULAR
                 </span>

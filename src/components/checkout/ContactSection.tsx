@@ -99,26 +99,34 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
   }));
 
   return (
-    <div className="main-container mx-auto flex w-full flex-col items-start border-t border-[#f1f5f9] transition-all duration-300">
+    <div className="w-full bg-white rounded-[20px] shadow-none overflow-hidden transition-all duration-300">
       <button
         onClick={onToggle}
-        className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 ${isOpen ? 'bg-[#fafafb] py-[24px] pb-[16px]' : 'bg-white py-[24px]'
-          }`}
+        className="flex w-full justify-between items-center px-[20px] sm:px-[24px] py-[18px] sm:py-[20px] bg-white transition-colors duration-200 outline-none"
       >
-        <div className="flex items-center gap-[12px]">
-          <h3 className="font-rajdhani text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
+        <div className="flex items-center gap-[10px] sm:gap-[12px]">
+          <div className={`w-[24px] h-[24px] rounded-full flex items-center justify-center font-rajdhani text-[13px] font-bold shrink-0 transition-colors ${
+            isConfirmed ? 'bg-[#308026] text-white' : 'bg-[#242424] text-white'
+          }`}>
+            {isConfirmed ? (
+              <CheckIcon className="w-[12px] h-[12px] text-white" />
+            ) : (
+              '1'
+            )}
+          </div>
+          <h3 className="font-rajdhani text-[18px] sm:text-[19px] font-bold leading-tight tracking-tight text-[#18181b]">
             Contact Details
           </h3>
           {isConfirmed && !isOpen && inputValue.trim() !== '' && (
-            <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
+            <div className="flex px-[8px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[6px]">
+              <span className="font-rajdhani text-[12px] font-semibold text-[#166534] tracking-tight whitespace-nowrap">
                 All set up
               </span>
             </div>
           )}
         </div>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
-          <DropDownIcon className="w-[18px] h-[18px] text-[#242424]" />
+          <DropDownIcon className="w-[18px] h-[18px] text-[#18181b]" />
         </motion.div>
       </button>
 
@@ -130,33 +138,33 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
             exit={{ height: 0, opacity: 0 }}
             className="w-full overflow-hidden"
           >
-            <div className="w-full max-w-full min-w-0 flex flex-col gap-[20px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
+            <div className="w-full flex flex-col gap-[18px] px-[20px] sm:px-[24px] pb-[28px] pt-[16px] bg-white border-t border-[#f0f3ee]">
               <div className="flex flex-col gap-[10px] w-full">
 
-                {/* Input Container with Enhanced "Hard" Shake Animation */}
+                {/* Input Container */}
                 <motion.div
                   key={shakeTrigger}
                   animate={errorMsg ? { x: [0, -12, 12, -12, 12, -8, 8, -4, 4, 0] } : {}}
                   transition={{ duration: 0.45, ease: "easeInOut" }}
-                  className={`flex h-[50px] p-[12px] gap-[8px] items-center bg-white rounded-[8px] border transition-all duration-200 
+                  className={`flex h-[50px] px-4 gap-[8px] items-center rounded-[12px] border transition-all duration-200 
                     ${errorMsg
-                      ? 'border-[#e11717] bg-[#fff5f5]'
-                      : 'border-[#eaebf0] focus-within:border-[#242424] focus-within:shadow-[0_0_0_0.5px_#242424]'
+                      ? 'border-[#ef4444] bg-[#fff5f5]'
+                      : 'border-[#eaebf0] bg-[#f7faf6] focus-within:bg-white focus-within:border-[#308026]'
                     }`}
                 >
                   <div className="flex flex-grow items-center gap-[8px]">
                     {/^\d{10}$/.test(inputValue) && (
-                      <span className="font-rajdhani text-[18px] text-[#242424] font-medium">+977</span>
+                      <span className="font-rajdhani text-[17px] text-[#18181b] font-medium">+977</span>
                     )}
                     <input
                       type="text"
-                      placeholder="Email or Mobile Phone No"
+                      placeholder="Email or Mobile Phone Number"
                       value={inputValue}
                       onChange={handleInputChange}
-                      className="w-full font-rajdhani text-[18px] text-[#242424] bg-transparent placeholder:text-[#68727d] outline-none"
+                      className="w-full font-rajdhani text-[17px] text-[#18181b] bg-transparent placeholder:text-[#8b8e92] outline-none"
                     />
                   </div>
-                  <ContactIcon className="w-[20px] h-[20px] text-[#68727d]" />
+                  <ContactIcon className="w-[18px] h-[18px] text-[#8b8e92]" />
                 </motion.div>
 
                 <AnimatePresence>
@@ -164,38 +172,37 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                     <motion.p
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="font-rajdhani text-[13px] font-medium text-[#e11717]"
+                      className="font-rajdhani text-[13px] font-medium text-[#ef4444]"
                     >
                       {errorMsg}
                     </motion.p>
                   ) : (
-                    <p className="font-rajdhani text-[14px] leading-[22px] text-[#68727d]">
-                      Order Details and confirmation will be shared to this email address.
+                    <p className="font-rajdhani text-[14px] leading-[20px] text-[#71717a]">
+                      Order confirmation and shipping updates will be sent to this contact.
                     </p>
                   )}
                 </AnimatePresence>
               </div>
 
               <div
-                className="flex items-center gap-[6px] cursor-pointer select-none"
+                className="flex items-center gap-[8px] cursor-pointer select-none"
                 onClick={() => setIsMarketing(!isMarketing)}
               >
-                <div className={`flex w-[16px] h-[16px] items-center justify-center rounded-[6px] transition-colors ${isMarketing ? 'bg-[#308026]' : 'border border-[#eaebf0]'
-                  }`}>
-                  {isMarketing && <CheckIcon className="w-[10px] h-[10px] text-white" />}
+                <div className={`flex w-[18px] h-[18px] items-center justify-center rounded-[6px] transition-colors ${
+                  isMarketing ? 'bg-[#308026]' : 'border border-[#eaebf0] bg-[#f7faf6]'
+                }`}>
+                  {isMarketing && <CheckIcon className="w-[11px] h-[11px] text-white" />}
                 </div>
-                <span className="font-rajdhani text-[16px] leading-[22px] text-[#4d4d4d]">
-                  Email me with news and offers
+                <span className="font-rajdhani text-[15px] leading-[20px] text-[#4d4d4d]">
+                  Email me with news and exclusive offers
                 </span>
               </div>
 
               <button
                 onClick={validateAndConfirm}
-                className="flex w-full h-[48px] justify-center items-center bg-[#ffe900] active:bg-[#f5e000] rounded-[12px] active:scale-[0.98] transition-all"
+                className="flex w-full h-[48px] justify-center items-center bg-[#ffe900] hover:bg-[#f5e000] active:bg-[#ebd500] rounded-[14px] font-rajdhani text-[16px] font-bold text-[#18181b] active:scale-[0.98] transition-all outline-none"
               >
-                <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px]">
-                  Confirm Details
-                </span>
+                Confirm Details
               </button>
             </div>
           </motion.div>

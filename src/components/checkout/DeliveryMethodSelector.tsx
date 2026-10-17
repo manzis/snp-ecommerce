@@ -42,8 +42,8 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
 
       {/* Options Container */}
       <div
-        className={`flex flex-col rounded-[12px] border transition-all duration-200 overflow-hidden bg-white ${
-          hasError ? 'border-[#e11717] bg-[#fff5f5]' : 'border-[#eaebf0]'
+        className={`flex flex-col rounded-[14px] border transition-all duration-200 overflow-hidden bg-white ${
+          hasError ? 'border-[#ef4444] bg-[#fff5f5]' : 'border-[#eaebf0]'
         }`}
       >
         <div className="flex flex-col">
@@ -54,23 +54,23 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
                 key={opt.id}
                 onClick={() => onSelect(opt.id)}
                 className={`flex p-[16px] gap-[12px] border-b border-[#eaebf0] last:border-b-0 cursor-pointer transition-colors duration-200 ${
-                  isSelected ? 'bg-[#f7faf6]' : 'hover:bg-[#fafafb]'
+                  isSelected ? 'bg-[#f7faf6]' : 'hover:bg-[#f7faf6]/60'
                 }`}
               >
                 {/* Radio Circle */}
                 <div
                   className={`flex items-center justify-center w-[18px] h-[18px] mt-[3px] rounded-full border-[2px] transition-all shrink-0 ${
-                    isSelected ? 'border-[#3f9633]' : 'border-[#d0d5dd]'
+                    isSelected ? 'border-[#308026]' : 'border-[#d0d5dd]'
                   }`}
                 >
                   {isSelected && (
-                    <div className="w-[8px] h-[8px] bg-[#3f9633] rounded-full" />
+                    <div className="w-[8px] h-[8px] bg-[#308026] rounded-full" />
                   )}
                 </div>
 
                 <div className="flex flex-col flex-1 min-w-0">
                   <div className="flex justify-between items-center gap-[8px]">
-                    <span className="font-rajdhani text-[16px] font-semibold text-[#242424]">
+                    <span className="font-rajdhani text-[16px] font-bold text-[#18181b]">
                       {opt.title}
                     </span>
                     {isFreeShipping ? (
@@ -78,12 +78,12 @@ const DeliveryMethodSelector: React.FC<DeliveryMethodSelectorProps> = ({
                         <span className="font-rajdhani text-[14px] font-medium text-[#8a8e91] line-through whitespace-nowrap">
                           {opt.price}
                         </span>
-                        <span className="font-rajdhani text-[14px] font-bold text-[#3f9633] tracking-[0.3px] whitespace-nowrap">
+                        <span className="font-rajdhani text-[14px] font-bold text-[#308026] tracking-[0.3px] whitespace-nowrap">
                           Free
                         </span>
                       </div>
                     ) : (
-                      <span className="font-rajdhani text-[14px] font-semibold text-[#242424] tracking-[0.3px] whitespace-nowrap">
+                      <span className="font-rajdhani text-[14px] font-bold text-[#18181b] tracking-[0.3px] whitespace-nowrap">
                         {opt.price}
                       </span>
                     )}

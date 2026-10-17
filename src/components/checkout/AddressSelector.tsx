@@ -76,26 +76,36 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
               <div
                 key={addr.id}
                 onClick={() => onSelect(addr.id!)}
-                className={`relative w-full max-w-full min-w-0 flex justify-between items-start p-[16px] rounded-[12px] border transition-all cursor-pointer ${selectedId === addr.id ? 'border-[1.5px] border-[#242424] bg-[#fafbfb]' : 'border-[#eaebf0]'
-                  }`}
+                className={`relative w-full max-w-full min-w-0 flex justify-between items-start p-[16px] rounded-[14px] border transition-all cursor-pointer ${
+                  selectedId === addr.id
+                    ? 'border-[1.5px] border-[#308026] bg-[#f7faf6]'
+                    : 'border-[#eaebf0] bg-white hover:border-[#d0d5dd]'
+                }`}
               >
                 <div className="flex flex-col gap-[4px] min-w-0 flex-1 max-w-[calc(100%-80px)]">
-                  <p className="font-rajdhani text-[18px] text-[#242424] truncate w-full block">
-                    <span className="font-semibold">Delivery To :</span> {addr.first_name} {addr.last_name}
-                  </p>
-                  <div className="flex flex-col text-[#838383] font-rajdhani min-w-0 w-full block">
-                    <p className="text-[15px] truncate w-full block">
+                  <div className="flex items-center gap-[6px] flex-wrap">
+                    <p className="font-rajdhani text-[17px] sm:text-[18px] text-[#18181b] font-bold truncate">
+                      {addr.first_name} {addr.last_name}
+                    </p>
+                    {addr.type && (
+                      <span className="font-rajdhani text-[11px] font-semibold uppercase tracking-wider bg-[#f4f4f5] text-[#52525b] px-2 py-0.5 rounded-[4px]">
+                        {addr.type}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col text-[#71717a] font-rajdhani min-w-0 w-full block">
+                    <p className="text-[14px] sm:text-[15px] truncate w-full block font-medium">
                       {addr.address_line_1}, {addr.street}, {addr.area ? `${addr.area}, ` : ''}{addr.city} - {addr.pincode}
                     </p>
-                    <p className="text-[14px] truncate w-full block">
+                    <p className="text-[13px] sm:text-[14px] truncate w-full block mt-0.5">
                       {addr.email} <span className="mx-1 text-[#eaebf0]">|</span> {addr.phone}
                     </p>
                   </div>
                 </div>
 
                 {selectedId === addr.id && (
-                  <div className="absolute -top-[10px] left-[18px] flex items-center justify-center bg-white px-[10px] py-[4px] border border-black rounded-[24px] z-10">
-                    <span className="font-rajdhani text-[12px] font-semibold leading-[14px] text-[#242424] tracking-[0.1px] whitespace-nowrap">
+                  <div className="absolute -top-[10px] left-[18px] flex items-center justify-center bg-[#308026] text-white px-[8px] py-[2px] rounded-[6px] shadow-sm z-10">
+                    <span className="font-rajdhani text-[11px] font-bold leading-[12px] text-white tracking-[0.3px] uppercase">
                       Selected
                     </span>
                   </div>
@@ -103,14 +113,14 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
 
                 <button
                   onClick={(e) => { e.stopPropagation(); onEdit(addr.id!); }}
-                  className="ml-[12px] flex items-center justify-center p-[4px_18px] border border-[#eaebf0] rounded-[8px] bg-white  active:scale-95 transition-transform shrink-0"
+                  className="ml-[12px] flex items-center justify-center px-[12px] py-[4px] border border-[#eaebf0] rounded-[8px] bg-white hover:bg-gray-50 active:scale-95 transition-all shrink-0"
                 >
-                  <span className="font-rajdhani text-[13px] font-semibold text-[#6a6c6e]">Edit</span>
+                  <span className="font-rajdhani text-[13px] font-semibold text-[#52525b]">Edit</span>
                 </button>
 
                 <button
                   onClick={(e) => { e.stopPropagation(); onDelete(addr.id!); }}
-                  className="absolute bottom-[12px] right-[16px] font-rajdhani text-[11px] font-semibold text-[#d92d20] hover:underline active:scale-95 transition-transform"
+                  className="absolute bottom-[12px] right-[16px] font-rajdhani text-[12px] font-semibold text-[#ef4444] hover:underline active:scale-95 transition-transform"
                 >
                   Remove
                 </button>

@@ -51,24 +51,35 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
   isProcessing = false
 }) => {
   return (
-    <div className={`main-container mx-auto flex w-full flex-col items-start border-t border-[#f1f5f9] transition-all duration-300 ${disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
-      }`}>
+    <div className={`w-full bg-white rounded-[20px] shadow-none overflow-hidden transition-all duration-300 ${
+      disabled ? 'opacity-40 pointer-events-none' : 'opacity-100'
+    }`}>
 
       {/* SECTION HEADER */}
       <button
         onClick={onToggle}
         disabled={disabled}
         type="button"
-        className={`flex w-full justify-between items-center px-[24px] transition-colors duration-300 outline-none ${isOpen ? 'bg-[#fafbfc] py-[24px]' : 'bg-white py-[24px]'
-          }`}
+        className="flex w-full justify-between items-center px-[20px] sm:px-[24px] py-[18px] sm:py-[20px] bg-white transition-colors duration-200 outline-none"
       >
-        <div className="flex items-center gap-[12px]">
-          <h2 className="font-rajdhani text-[20px] font-semibold leading-[30px] tracking-[-0.8px] text-[#242424]">
+        <div className="flex items-center gap-[10px] sm:gap-[12px]">
+          <div className={`w-[24px] h-[24px] rounded-full flex items-center justify-center font-rajdhani text-[13px] font-bold shrink-0 transition-colors ${
+            isConfirmed ? 'bg-[#308026] text-white' : 'bg-[#242424] text-white'
+          }`}>
+            {isConfirmed ? (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            ) : (
+              '3'
+            )}
+          </div>
+          <h2 className="font-rajdhani text-[18px] sm:text-[19px] font-bold leading-tight tracking-tight text-[#18181b]">
             Payments
           </h2>
           {isConfirmed && !isOpen && !disabled && (
-            <div className="flex px-[6px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[4px]">
-              <span className="font-rajdhani text-[12px] leading-[12px] text-[#575757] tracking-[-0.48px] whitespace-nowrap">
+            <div className="flex px-[8px] py-[2px] justify-center items-center bg-[#eaffcc] rounded-[6px]">
+              <span className="font-rajdhani text-[12px] font-semibold text-[#166534] tracking-tight whitespace-nowrap">
                 Ready to Pay
               </span>
             </div>
@@ -78,7 +89,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
         >
-          <DropDownIcon className="w-[18px] h-[18px] text-[#242424]" />
+          <DropDownIcon className="w-[18px] h-[18px] text-[#18181b]" />
         </motion.div>
       </button>
 
@@ -92,11 +103,11 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
             className="w-full overflow-hidden"
           >
-            <div className="w-full max-w-full min-w-0 flex flex-col gap-[24px] px-[24px] pb-[32px] pt-[24px] bg-white rounded-[24px_24px_0_0] border-t border-[#f1f5f9]">
+            <div className="w-full flex flex-col gap-[22px] px-[20px] sm:px-[24px] pb-[28px] pt-[16px] bg-white border-t border-[#f0f3ee]">
 
               {/* ONLINE PAYMENTS GROUP */}
-              <div className="flex flex-col gap-[24px]">
-                <span className="font-rajdhani text-[18px] font-semibold leading-[24px] text-[#242424] tracking-[-0.07px]">
+              <div className="flex flex-col gap-[14px]">
+                <span className="font-rajdhani text-[17px] font-bold leading-[22px] text-[#18181b] tracking-[-0.3px]">
                   Online Payments
                 </span>
                 <div className="flex flex-col gap-[12px]">

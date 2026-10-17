@@ -126,8 +126,14 @@ export default function CheckoutPage() {
   const priceHeaderRef = useRef<CheckoutPriceHeaderHandle>(null);
   const [qrData, setQrData] = useState<{ qrFile: File | null; qrRemarks: string }>({ qrFile: null, qrRemarks: 'Shopping Payment' });
 
+  const desktopPriceHeaderRef = useRef<CheckoutPriceHeaderHandle>(null);
+
   const handleInfoClick = () => {
-    priceHeaderRef.current?.expandAndScroll();
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      desktopPriceHeaderRef.current?.expandAndScroll();
+    } else {
+      priceHeaderRef.current?.expandAndScroll();
+    }
   };
 
   useEffect(() => {
@@ -387,6 +393,7 @@ export default function CheckoutPage() {
       }, items);
 
       if (result.success) {
+        setCompletedSteps((prev) => [...new Set([...prev, 'payments'])]);
         isRedirectingRef.current = true;
         setProcessingMessage("Finalizing...");
         await clearCart();
@@ -582,10 +589,12 @@ export default function CheckoutPage() {
           isProcessing={isAbandoning}
         />
 
-        <main className="mx-auto w-full md:max-w-[640px] lg:max-w-[1000px] lg:flex lg:gap-[24px] lg:px-[24px] lg:pt-[24px] mb-[48px] lg:mb-[48px] lg:pb-[40px]">
-          <div className="flex-1 min-w-0 flex flex-col gap-[12px]">
+        {/* FULL WIDTH PRICE HEADER ON MOBILE (Edge-to-edge, zero outside padding) */}
+        <div className="w-full bg-white shadow-none lg:hidden">
+          <div className="w-full">
             <CheckoutPriceHeader
               ref={priceHeaderRef}
+              items={items}
               totalAmount={`NPR ${finalTotal.toLocaleString()}`}
               mrp={totalMRP}
               subtotal={subtotal}
@@ -599,9 +608,16 @@ export default function CheckoutPage() {
               onRemoveCoupon={handleRemoveCoupon}
               isValidating={isValidating}
               couponError={couponError}
+              isFullWidth={true}
             />
+          </div>
+        </div>
 
-            <div className="flex flex-col border-b border-[#f1f5f9] w-full">
+        <main className="mx-auto w-full max-w-[1280px] px-[16px] sm:px-[20px] lg:px-[24px] pt-[24px] lg:flex lg:gap-[24px] mb-[48px] lg:mb-0">
+          {/* LEFT COLUMN: Checkout Steps */}
+          <div className="flex-1 min-w-0 flex flex-col gap-[14px]">
+            {/* Step Cards with gap-[14px] */}
+            <div className="flex flex-col gap-[14px] w-full">
               <ContactSection
                 ref={contactRef}
                 isOpen={activeStep === 'contact'}
@@ -637,7 +653,7 @@ export default function CheckoutPage() {
               <div ref={paymentsRef} className="w-full">
                 <PaymentSection
                   isOpen={activeStep === 'payments'}
-                  isConfirmed={!!selectedPaymentId}
+                  isConfirmed={completedSteps.includes('payments')}
                   disabled={!completedSteps.includes('delivery') || isProcessing}
                   selectedId={selectedPaymentId}
                   onSelect={(id) => {
@@ -659,8 +675,32 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          {/* RIGHT COLUMN: Desktop Order Summary & Checkout Button (Sticky) */}
           <aside className="w-full lg:w-[380px] mt-[12px] lg:mt-0 h-fit">
-            <div className="lg:sticky lg:top-[105px]">
+            <div className="lg:sticky lg:top-[105px] flex flex-col gap-[16px]">
+              {/* Desktop Order Summary Header */}
+              <div className="hidden lg:block w-full">
+                <CheckoutPriceHeader
+                  ref={desktopPriceHeaderRef}
+                  items={items}
+                  totalAmount={`NPR ${finalTotal.toLocaleString()}`}
+                  mrp={totalMRP}
+                  subtotal={subtotal}
+                  couponDiscount={couponDiscountValue}
+                  couponCode={couponCodeValue}
+                  bundleDiscount={bundleDiscount}
+                  paymentDiscount={onlinePaymentDiscount}
+                  shippingCharge={shippingCharge}
+                  codCharge={codCharge}
+                  onApplyCoupon={handleApplyCoupon}
+                  onRemoveCoupon={handleRemoveCoupon}
+                  isValidating={isValidating}
+                  couponError={couponError}
+                  isFullWidth={false}
+                />
+              </div>
+
+              {/* Desktop Checkout Bar */}
               <div className="hidden lg:block">
                 <CartCheckoutBar
                   isStatic={true}

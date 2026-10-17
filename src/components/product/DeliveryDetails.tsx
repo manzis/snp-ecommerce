@@ -5,7 +5,7 @@ import Link from 'next/link';
 import HomeIcon from '@/components/icons/HomeIcon';
 import VanIcon from '@/components/icons/VanIcon';
 import StoreIcon from '@/components/icons/StoreIcon';
-import ArrowIcon from '@/components/icons/ChevronLeftIcon';
+import DropDownIcon from '@/components/icons/DropDownIcon';
 import CheckIcon from '@/components/icons/TickIcon';
 import type { Seller } from '@/services/productService';
 
@@ -64,21 +64,29 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({ seller, stockStatus }
           {/* Trigger Row */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex h-[46px] w-full items-center justify-between px-[12px] py-[14px] outline-none z-10"
+            className="flex h-[46px] w-full items-center justify-between px-[14px] outline-none z-10 cursor-pointer select-none"
           >
-            <div className="flex items-center gap-[6px]">
-              <HomeIcon className="w-[16px] h-[16px] text-[#242424]" />
+            <div className="flex items-center gap-[8px]">
+              {deliveryType === 'home' ? (
+                <HomeIcon className="w-[16px] h-[16px] text-[#242424] shrink-0" />
+              ) : (
+                <StoreIcon className="w-[16px] h-[16px] text-[#242424] shrink-0" />
+              )}
               <div className="flex items-center gap-[6px]">
-                <span className="font-rajdhani text-[16px] font-semibold leading-[16px] tracking-[-0.2px] text-[#242424]">
-                  Home Delivery
+                <span className="font-rajdhani text-[16px] font-semibold leading-none tracking-tight text-[#242424]">
+                  {deliveryType === 'home' ? 'Home Delivery' : 'Store Pickup'}
                 </span>
-                <span className="font-rajdhani text-[16px] font-[500] leading-[16px] tracking-[-0.2px] text-[#515151]">
-                  Kathmandu, Nepal
+                <span className="font-rajdhani text-[15px] sm:text-[16px] font-medium leading-none tracking-tight text-[#515151]">
+                  {deliveryType === 'home' ? 'Kathmandu, Nepal' : 'Nearest Branch'}
                 </span>
               </div>
             </div>
-            <div className={`w-[18px] h-[18px] transition-transform duration-300 [transition-timing-function:cubic-bezier(0.25,0.1,0.25,1)] ${isExpanded ? 'rotate-90' : 'rotate-0'}`}>
-              <ArrowIcon className="w-full h-full text-black" />
+            <div className="flex items-center justify-center w-[20px] h-[20px] shrink-0">
+              <DropDownIcon
+                className={`w-[14px] h-[14px] text-[#242424] transition-transform duration-300 ease-in-out ${
+                  isExpanded ? 'rotate-180' : 'rotate-0'
+                }`}
+              />
             </div>
           </button>
 

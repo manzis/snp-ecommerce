@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import MediaLightbox from '@/components/ui/MediaLightBox';
 import type { Product } from '@/services/productService';
@@ -9,6 +9,79 @@ type TabID = 'description' | 'ingredients' | 'manufacturer' | 'other';
 
 interface ProductDetailsProps {
   product: Product;
+}
+
+/**
+ * Sanitizes and cleans up external product description HTML (e.g. pasted from Amazon or supplier specs).
+ * 1. Strips hardcoded fixed pixel widths (e.g. style="width: 637px") from wrappers, tables and cells.
+ * 2. Strips intrusive font-family overrides (e.g. "Amazon Ember") so site typography remains consistent.
+ * 3. Wraps tables in a responsive horizontal scroll container so labels stay intact without being crushed.
+ * 4. Converts tab-separated specifications into clean 2-column tables.
+ */
+function formatProductDescription(rawHtml?: string): string {
+  if (!rawHtml) return '';
+
+  let cleaned = rawHtml;
+
+  // 1. Remove Amazon/external fixed pixel widths and font overrides
+  cleaned = cleaned.replace(/\bstyle\s*=\s*"([^"]*)"/gi, (match, styleContent) => {
+    const rules = styleContent.split(';').map((r: string) => r.trim());
+    const filtered = rules.filter((rule: string) => {
+      if (!rule) return false;
+      const [prop] = rule.split(':');
+      const p = prop.trim().toLowerCase();
+      return !['width', 'min-width', 'max-width', 'font-family', 'word-break', 'max-height'].includes(p);
+    });
+    return filtered.length > 0 ? `style="${filtered.join('; ')}"` : '';
+  });
+
+  // Remove fixed width/height attributes (e.g. width="500")
+  cleaned = cleaned.replace(/\s+(?:width|height)\s*=\s*["'][^"']*["']/gi, '');
+
+  // 2. Wrap tables in an overflow container if not already wrapped
+  if (cleaned.includes('<table') && !cleaned.includes('product-desc-table-wrap')) {
+    cleaned = cleaned.replace(/(<table[\s\S]*?<\/table>)/gi, (match) => {
+      return `<div class="product-desc-table-wrap overflow-x-auto w-full my-3 pb-1 -mx-0.5 px-0.5 no-scrollbar">${match}</div>`;
+    });
+  }
+
+  // 3. Handle tab-separated key-values if plain text or html with tabs was entered:
+  cleaned = cleaned.replace(/&Tab;|&#9;/gi, '\t');
+  if (cleaned.includes('\t') && !cleaned.includes('<table')) {
+    const lines = cleaned.split(/\r?\n|<br\s*\/?>|<\/p>|<\/div>/i);
+    let inTable = false;
+    const newParts: string[] = [];
+    let tableRows: string[] = [];
+
+    for (const rawLine of lines) {
+      const plainText = rawLine.replace(/<[^>]*>/g, '').trim();
+      if (plainText.includes('\t')) {
+        const parts = plainText.split('\t').map(s => s.trim()).filter(Boolean);
+        if (parts.length >= 2) {
+          const key = parts[0];
+          const val = parts.slice(1).join(' ');
+          tableRows.push(`<tr><td class="spec-label">${key}</td><td class="spec-value">${val}</td></tr>`);
+          inTable = true;
+          continue;
+        }
+      }
+
+      if (inTable) {
+        newParts.push(`<div class="product-desc-table-wrap overflow-x-auto w-full my-3 pb-1 -mx-0.5 px-0.5 no-scrollbar"><table class="product-spec-table w-full border-collapse"><tbody>${tableRows.join('')}</tbody></table></div>`);
+        tableRows = [];
+        inTable = false;
+      }
+      if (rawLine.trim()) {
+        newParts.push(rawLine);
+      }
+    }
+    if (inTable && tableRows.length > 0) {
+      newParts.push(`<div class="product-desc-table-wrap overflow-x-auto w-full my-3 pb-1 -mx-0.5 px-0.5 no-scrollbar"><table class="product-spec-table w-full border-collapse"><tbody>${tableRows.join('')}</tbody></table></div>`);
+    }
+    cleaned = newParts.join('\n');
+  }
+
+  return cleaned;
 }
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
@@ -31,10 +104,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       return;
     }
 
-    // We do this immediately (no setTimeout) and with 'auto' (instant) behavior.
-    // This prevents the browser from aggressively adjusting scroll when the height 
-    // dramatically changes (e.g. from a very long description to short ingredients),
-    // which leaves the user stranded at the bottom of the page.
     const section = document.getElementById('product-details-section');
     if (section) {
       const sectionTop = section.getBoundingClientRect().top + window.scrollY;
@@ -57,6 +126,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const info = Array.isArray(product.product_info) ? product.product_info[0] : product.product_info;
   const otherDetails = info?.other_details || {};
   const manufacturerInfo = info?.manufacture_info || {};
+
+  const formattedDescription = useMemo(() => {
+    return formatProductDescription(info?.description);
+  }, [info?.description]);
 
   // Decide which data source to use based on the active tab
   const activeDataObj = activeTab === 'manufacturer' ? manufacturerInfo : otherDetails;
@@ -169,11 +242,24 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         >
 
           {activeTab === 'description' && (
-            <div className="w-full min-w-0 max-w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500 overflow-hidden break-words [overflow-wrap:anywhere] [word-break:break-word]">
-              {info?.description ? (
+            <div className="w-full min-w-0 max-w-full font-rajdhani text-[16px] font-medium leading-[24px] text-[#242424] animate-in fade-in slide-in-from-left-4 duration-500 overflow-hidden [overflow-wrap:break-word]">
+              {formattedDescription ? (
                 <div
-                  className="font-rajdhani text-[16px] leading-[24px] text-[#242424] prose-sm max-w-full w-full min-w-0 break-words [overflow-wrap:anywhere] [word-break:break-word] [&_*]:!font-rajdhani [&_*]:max-w-full [&_*]:!whitespace-normal [&_*]:!break-words [&_*]:![overflow-wrap:anywhere] [&_*]:![word-break:break-word] [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1]:font-semibold [&_h2]:font-semibold [&_h3]:font-semibold [&_h4]:font-semibold [&_h1,h2,h3,h4]:mb-3 [&_p]:mb-4 [&_p]:break-words [&_ul]:list-disc [&_ul]:pl-0 [&_ul]:list-inside [&_li]:mb-1 [&_li]:break-words [&_table]:w-full [&_table]:table-auto [&_table]:overflow-x-auto [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_img]:max-w-full [&_img]:h-auto"
-                  dangerouslySetInnerHTML={{ __html: info.description }}
+                  className="font-rajdhani text-[16px] leading-[24px] text-[#242424] prose-sm max-w-full w-full min-w-0 [overflow-wrap:break-word]
+                    [&_*]:!font-rajdhani [&_*]:max-w-full
+                    [&_h1,&_h2,&_h3,&_h4]:!font-rajdhani [&_h1,&_h2,&_h3,&_h4]:font-bold [&_h1,&_h2,&_h3,&_h4]:text-[#242424] [&_h1]:text-[22px] [&_h2]:text-[20px] [&_h3]:text-[18px] [&_h4]:text-[16px] [&_h1,&_h2,&_h3,&_h4]:mt-6 [&_h1,&_h2,&_h3,&_h4]:mb-3
+                    [&_p]:mb-3.5 [&_p]:leading-[24px] [&_p]:[overflow-wrap:break-word]
+                    [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_ul]:space-y-1.5
+                    [&_li]:!font-rajdhani [&_li]:text-[15px] [&_li]:leading-[22px] [&_li]:text-[#374151] [&_li]:[overflow-wrap:break-word]
+                    [&_table]:w-full [&_table]:border-collapse [&_table]:my-3.5 [&_table]:table-auto
+                    [&_tr]:border-b [&_tr]:border-[#f0f0f0]
+                    [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:!whitespace-nowrap [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:!font-semibold [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:!text-[#242424] [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:!pr-5 [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:!py-2.5 [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:align-top [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:w-[1%] [&_td:first-child,&_th:first-child,&_td.a-span3,&_.spec-label]:min-w-fit
+                    [&_td:first-child_*,&_th:first-child_*,&_td.a-span3_*,&_.spec-label_*]:!whitespace-nowrap [&_td:first-child_*,&_th:first-child_*,&_td.a-span3_*,&_.spec-label_*]:!font-semibold [&_td:first-child_*,&_th:first-child_*,&_td.a-span3_*,&_.spec-label_*]:!text-[#242424]
+                    [&_td:last-child,&_th:last-child,&_td.a-span9,&_.spec-value]:!whitespace-normal [&_td:last-child,&_th:last-child,&_td.a-span9,&_.spec-value]:!text-[#4b5563] [&_td:last-child,&_th:last-child,&_td.a-span9,&_.spec-value]:!py-2.5 [&_td:last-child,&_th:last-child,&_td.a-span9,&_.spec-value]:align-top [&_td:last-child,&_th:last-child,&_td.a-span9,&_.spec-value]:w-full [&_td:last-child,&_th:last-child,&_td.a-span9,&_.spec-value]:[overflow-wrap:break-word]
+                    [&_td:last-child_*,&_th:last-child_*,&_td.a-span9_*,&_.spec-value_*]:!whitespace-normal [&_td:last-child_*,&_th:last-child_*,&_td.a-span9_*,&_.spec-value_*]:[overflow-wrap:break-word]
+                    [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_img]:max-w-full [&_img]:h-auto
+                  "
+                  dangerouslySetInnerHTML={{ __html: formattedDescription }}
                 />
               ) : (
                 <p>No description available for this product.</p>

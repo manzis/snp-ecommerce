@@ -54,6 +54,30 @@ export default function RichTextEditor({
         }
     };
 
+    const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+        const text = e.clipboardData.getData('text/plain');
+        const html = e.clipboardData.getData('text/html');
+
+        // If it's tab-separated plain text (e.g. copied from specs), turn it into a clean table
+        if (!html && text && text.includes('\t')) {
+            e.preventDefault();
+            const lines = text.split(/\r?\n/);
+            const rows = lines.map(line => {
+                const parts = line.split('\t').map(p => p.trim());
+                if (parts.length >= 2) {
+                    return `<tr><td style="font-weight: 600; padding: 6px 16px 6px 0; white-space: nowrap; vertical-align: top; width: 1%;">${parts[0]}</td><td style="padding: 6px 0; vertical-align: top;">${parts.slice(1).join(' ')}</td></tr>`;
+                }
+                return line ? `<tr><td colspan="2" style="padding: 6px 0;">${line}</td></tr>` : '';
+            }).filter(Boolean);
+
+            const tableHtml = `<table style="width: 100%; border-collapse: collapse; margin: 12px 0;"><tbody>${rows.join('')}</tbody></table><p><br></p>`;
+            document.execCommand('insertHTML', false, tableHtml);
+            if (editorRef.current) {
+                onChange(editorRef.current.innerHTML);
+            }
+        }
+    };
+
     const handleInput = () => {
         if (editorRef.current) {
             onChange(editorRef.current.innerHTML);
@@ -133,9 +157,10 @@ export default function RichTextEditor({
                 ref={editorRef}
                 contentEditable
                 onInput={handleInput}
+                onPaste={handlePaste}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                className="flex-1 min-h-[300px] p-6 outline-none prose prose-sm max-w-none text-[14px] font-regular leading-relaxed text-[#242424]"
+                className="flex-1 min-h-[300px] p-6 outline-none prose prose-sm max-w-none text-[14px] font-regular leading-relaxed text-[#242424] [&_table]:w-full [&_table]:border-collapse [&_table]:my-3 [&_tr]:border-b [&_tr]:border-gray-100 [&_td:first-child,&_th:first-child,&_td.a-span3]:whitespace-nowrap [&_td:first-child,&_th:first-child,&_td.a-span3]:font-semibold [&_td:first-child,&_th:first-child,&_td.a-span3]:text-[#242424] [&_td:first-child,&_th:first-child,&_td.a-span3]:pr-4 [&_td:first-child,&_th:first-child,&_td.a-span3]:py-2 [&_td:first-child,&_th:first-child,&_td.a-span3]:align-top [&_td:first-child,&_th:first-child,&_td.a-span3]:w-[1%] [&_td:last-child,&_th:last-child,&_td.a-span9]:whitespace-normal [&_td:last-child,&_th:last-child,&_td.a-span9]:text-gray-600 [&_td:last-child,&_th:last-child,&_td.a-span9]:py-2 [&_td:last-child,&_th:last-child,&_td.a-span9]:align-top [&_td:last-child,&_th:last-child,&_td.a-span9]:w-full"
             />
             
             {/* Placeholder simulation for contenteditable */}
