@@ -80,7 +80,7 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
           <motion.div
             animate={isApplied ? { scale: [1, 1.02, 0.99, 1] } : { scale: 1 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className={`w-full border rounded-[12px] h-[50px] px-4 flex items-center justify-between transition-all ${
+            className={`w-full border-[1.5px] rounded-[12px] h-[50px] px-4 flex items-center justify-between transition-all ${
               isApplied
                 ? 'bg-[#f2f9f1] border-[#308026]'
                 : errorMessage
@@ -102,10 +102,10 @@ const CartCoupons: React.FC<CartCouponsProps> = ({ onApply }) => {
                 }
               }}
               disabled={isApplied || isValidating}
-              className={`w-full bg-transparent font-rajdhani outline-none placeholder:text-[#a1a1aa] ${
+              className={`w-full bg-transparent font-rajdhani outline-none placeholder:text-[#a1a1aa] placeholder:font-semibold ${
                 isApplied
                   ? 'font-bold text-[17px] text-[#308026] tracking-wider uppercase'
-                  : 'font-medium text-[16px] text-[#18181b]'
+                  : 'font-semibold text-[16px] text-[#18181b]'
               }`}
             />
 

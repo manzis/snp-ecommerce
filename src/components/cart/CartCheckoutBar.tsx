@@ -138,12 +138,12 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
           {isNavigating ? (
             <div className="flex items-center gap-2">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span className="uppercase font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] whitespace-nowrap text-white">
+              <span className="uppercase font-rajdhani font-bold text-[18px] tracking-[-0.015em] leading-[18px] whitespace-nowrap text-white">
                 Preparing...
               </span>
             </div>
           ) : (
-            <span className={`uppercase font-rajdhani font-bold text-[17px] tracking-[-0.015em] font-[500] leading-[17px] whitespace-nowrap ${disabled ? 'text-gray-500' : buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
+            <span className={`uppercase font-rajdhani font-bold text-[18px] tracking-[-0.015em] leading-[18px] whitespace-nowrap ${disabled ? 'text-gray-500' : buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
               {disabled ? 'Orders Paused' : buttonText}
             </span>
           )}

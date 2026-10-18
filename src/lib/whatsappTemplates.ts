@@ -34,7 +34,10 @@ export function resolveOrderPhone(order: OrderProps): string | null {
   const phone =
     order.shippingAddress?.phone ||
     order.shippingAddress?.addressDetails?.phone ||
-    order.customerPhone;
+    order.customerPhone ||
+    order.shippingAddress?.alt_phone ||
+    order.shippingAddress?.addressDetails?.alt_phone ||
+    (order as any).contact_details?.alt_phone;
 
   return phone && phone.trim() ? phone.trim() : null;
 }

@@ -120,12 +120,12 @@ const WalletPaymentDetails: React.FC<WalletPaymentDetailsProps> = ({ onPlaceOrde
           {isProcessing ? (
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#242424] border-t-transparent" />
-              <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+              <span className="font-rajdhani text-[17px] font-bold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
                 Processing Payment...
               </span>
             </div>
           ) : (
-            <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+            <span className="font-rajdhani text-[17px] font-bold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
               Pay Via {WALLETS.find(w => w.id === selectedWallet)?.name} {totalAmount ? `(${totalAmount})` : ''}
             </span>
           )}

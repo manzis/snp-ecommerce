@@ -99,7 +99,15 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                     </p>
                     <p className="text-[13px] sm:text-[14px] truncate w-full block mt-0.5">
                       {addr.email} <span className="mx-1 text-[#eaebf0]">|</span> {addr.phone}
+                      {addr.alt_phone && (
+                        <span> <span className="mx-1 text-[#eaebf0]">|</span> Alt: {addr.alt_phone}</span>
+                      )}
                     </p>
+                    {addr.delivery_notes && (
+                      <p className="text-[12px] text-[#52525b] italic truncate w-full block mt-1 bg-[#f4f4f5]/80 px-2 py-0.5 rounded-[4px] border border-[#eaebf0]/60">
+                        <span className="font-semibold not-italic text-[#3f3f46]">Note:</span> {addr.delivery_notes}
+                      </p>
+                    )}
                   </div>
                 </div>
 

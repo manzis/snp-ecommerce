@@ -9,10 +9,11 @@ import TickIcon from '@/components/icons/TickIcon';
 import CaretDownIcon from '@/components/icons/CaretDownIcon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdminToast } from '../ui/AdminToastProvider';
-import { resolveOrderPhone, openWhatsAppForOrder, getWhatsAppButtonLabel } from '@/lib/whatsappTemplates';
+import { resolveOrderPhone, openWhatsAppForOrder, getWhatsAppButtonLabel, formatPhoneForWhatsApp, getWhatsAppMessage, generateWhatsAppUrl } from '@/lib/whatsappTemplates';
 import PhoneIcon from '@/components/icons/PhoneIcon';
 import CopyIcon from '@/components/icons/CopyIcon';
-import { syncExternalOrderTrackingAction } from '@/app/actions/orderActions';
+import EditIcon from '@/components/icons/EditIcon';
+import { syncExternalOrderTrackingAction, updateOrderCustomerDetailsAdminAction } from '@/app/actions/orderActions';
 import { getCarrierTrackingUrl } from '@/lib/deliveryHelper';
 import { generateAndOpenInvoice } from '@/utils/invoiceGenerator';
 
@@ -30,6 +31,8 @@ interface OrderDetailsModalProps {
 // Timeline Rank Configuration
 const STATUS_RANK: Record<string, number> = {
     'PENDING': 1, 'CONFIRMED': 2, 'PROCESSING': 3,
+    'CUSTOMER_UPDATED': 2.5,
+    'DETAILS_UPDATED': 2.5,
     'DELAYED': 3.5,
     'SHIPPED': 4, 'IN_TRANSIT': 5, 'SHIPMENT_ARRIVED': 6,
     'SHIPMENT_DELAYED': 6.5,
@@ -65,12 +68,104 @@ export default function OrderDetailsModal({
     const [isGeneratingInvoice, setIsGeneratingInvoice] = useState(false);
     const [showInvoiceOptions, setShowInvoiceOptions] = useState(false);
 
+    // Edit customer details state
+    const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
+    const [isSavingCustomer, setIsSavingCustomer] = useState(false);
+
+    const getInitialFormValues = (ord: (OrderProps & any) | null) => {
+        if (!ord) return {
+            customerName: '',
+            customerPhone: '',
+            alternatePhone: '',
+            customerEmail: '',
+            street: '',
+            area: '',
+            city: '',
+            state: '',
+            pincode: '',
+            shippingOption: 'home',
+            deliveryNotes: ''
+        };
+
+        const addr = ord.shippingAddress || {};
+        const details = addr.addressDetails || {};
+
+        const name = ord.customerName || (details.first_name ? `${details.first_name} ${details.last_name || ''}`.trim() : (addr.first_name ? `${addr.first_name} ${addr.last_name || ''}`.trim() : ''));
+        const phone = ord.customerPhone || addr.phone || details.phone || '';
+        const altPhone = addr.alt_phone || details.alt_phone || (ord as any).contact_details?.alt_phone || (ord as any).alt_phone || (ord as any).alternate_phone || (addr as any).alternatePhone || '';
+        const email = ord.customerEmail || addr.email || details.email || '';
+
+        const street = addr.street || details.street || addr.address_line_1 || details.address_line_1 || '';
+        const area = addr.area || details.area || addr.address_line_2 || details.address_line_2 || '';
+        const city = addr.city || details.city || '';
+        const state = addr.state || details.state || '';
+        const pincode = addr.pincode || addr.postal_code || details.pincode || details.postal_code || '';
+        const shippingOption = (addr.option === 'pickup' || details.type === 'Pickup') ? 'pickup' : 'home';
+        const deliveryNotes = addr.delivery_notes || details.delivery_notes || (ord as any).special_instructions || (ord as any).notes || (ord as any).delivery_notes || (addr as any).deliveryNotes || '';
+
+        return {
+            customerName: name,
+            customerPhone: phone,
+            alternatePhone: altPhone,
+            customerEmail: email,
+            street,
+            area,
+            city,
+            state,
+            pincode,
+            shippingOption,
+            deliveryNotes
+        };
+    };
+
+    const [customerForm, setCustomerForm] = useState(() => getInitialFormValues(propOrder));
+
     // Keep local order updated when propOrder changes
     React.useEffect(() => {
         setLocalOrder(propOrder);
+        setCustomerForm(getInitialFormValues(propOrder));
     }, [propOrder]);
 
     const order = localOrder || propOrder;
+
+    const handleSaveCustomerDetails = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        const targetId = order?.id || order?.shortId;
+        if (!targetId || isSavingCustomer) return;
+
+        if (!customerForm.customerName.trim()) {
+            showAdminToast('Customer name is required.', 'error');
+            return;
+        }
+
+        if (!customerForm.customerPhone.trim()) {
+            showAdminToast('Customer phone number is required.', 'error');
+            return;
+        }
+
+        setIsSavingCustomer(true);
+        try {
+            const res = await updateOrderCustomerDetailsAdminAction(targetId, customerForm);
+            if (res.success && res.order) {
+                setLocalOrder(res.order as any);
+                onOrderUpdated?.(res.order);
+                showAdminToast(
+                    res.hasChanged
+                        ? 'Customer details & address updated successfully!'
+                        : 'Saved (no changes detected).',
+                    'success'
+                );
+                setIsEditCustomerOpen(false);
+            } else {
+                showAdminToast(res.message || 'Failed to update customer details.', 'error');
+            }
+        } catch (err: any) {
+            console.error('Error saving customer details:', err);
+            showAdminToast(err?.message || 'Failed to update customer details.', 'error');
+        } finally {
+            setIsSavingCustomer(false);
+        }
+    };
 
     // Manual tracking sync handler
     const handleManualTrackingSync = async () => {
@@ -175,6 +270,8 @@ export default function OrderDetailsModal({
         PENDING: { text: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-100' },
         CONFIRMED: { text: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-100' },
         PROCESSING: { text: 'text-indigo-700', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+        CUSTOMER_UPDATED: { text: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-100' },
+        DETAILS_UPDATED: { text: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-100' },
         SHIPPED: { text: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-100' },
         IN_TRANSIT: { text: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-100' },
         DELIVERED: { text: 'text-green-700', bg: 'bg-green-50', border: 'border-green-100' },
@@ -510,9 +607,13 @@ export default function OrderDetailsModal({
                                 const milestoneLogs = order.statusUpdates
                                     ?.filter(u => new Date(u.date).getTime() <= new Date().getTime()) // Hide future-stamped logs for safety
                                     .filter(u => {
-                                        const rank = STATUS_RANK[u.status.toUpperCase()] || 0;
-                                        if (u.status.toUpperCase() === 'DELAYED' && m.id === 'ORDERED') return true;
-                                        if (u.status.toUpperCase() === 'SHIPMENT_DELAYED' && m.id === 'SHIPPED') return true;
+                                        const uStatus = u.status.toUpperCase();
+                                        if (uStatus === 'DELAYED' && m.id === 'ORDERED') return true;
+                                        if (uStatus === 'SHIPMENT_DELAYED' && m.id === 'SHIPPED') return true;
+                                        if (uStatus === 'CUSTOMER_UPDATED' || uStatus === 'DETAILS_UPDATED') {
+                                            return m.id === 'ORDERED';
+                                        }
+                                        const rank = STATUS_RANK[uStatus] || 0;
                                         return rank >= m.rankRange[0] && rank <= m.rankRange[1];
                                     })
                                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
@@ -580,7 +681,9 @@ export default function OrderDetailsModal({
                                                                     <div className={`absolute -left-[24.5px] top-[5.5px] w-[5px] h-[5px] ${isLogCompleted ? 'bg-[#308026]' : 'bg-gray-300'} rounded-full z-10`} />
                                                                     <div className="space-y-1">
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-[11px] font-medium text-black uppercase">{log.status}</span>
+                                                                            <span className="text-[11px] font-medium text-black uppercase">
+                                                                                {log.status.toUpperCase() === 'CUSTOMER_UPDATED' ? 'Customer Details Updated' : log.status}
+                                                                            </span>
                                                                             <span className="text-[10px] text-[#a1a1aa] font-mono">{formatLogDateTime(log.date)}</span>
                                                                         </div>
                                                                         <p className="text-[12px] text-[#71717a] leading-relaxed">{log.message}</p>
@@ -857,11 +960,36 @@ export default function OrderDetailsModal({
 
                     {/* Section 4: Customer Logistics */}
                     <section className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Customer Logistics</h4>
-                            <div className="h-px flex-1 bg-gray-100" />
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 flex-1">
+                                <h4 className="text-[13px] font-medium text-[#242424] tracking-tight">Customer Logistics</h4>
+                                {isEditCustomerOpen && (
+                                    <span className="text-[10px] font-medium uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-[4px]">
+                                        Editing Mode
+                                    </span>
+                                )}
+                                <div className="h-px flex-1 bg-gray-100" />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (isEditCustomerOpen) {
+                                        setCustomerForm(getInitialFormValues(order));
+                                        setIsEditCustomerOpen(false);
+                                    } else {
+                                        setIsEditCustomerOpen(true);
+                                    }
+                                }}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-[#242424] bg-white hover:bg-zinc-100 border border-gray-200 rounded-[6px] transition-all active:scale-95 cursor-pointer shadow-xs"
+                                title={isEditCustomerOpen ? "Cancel editing customer logistics" : "Edit customer details and shipping address"}
+                            >
+                                <EditIcon className="w-3.5 h-3.5 text-[#242424]" />
+                                <span>{isEditCustomerOpen ? 'Cancel Edit' : 'Edit Details'}</span>
+                            </button>
                         </div>
-                        <div className="border border-dotted border-gray-300 rounded-[6px] divide-y divide-dotted divide-gray-300 overflow-hidden bg-zinc-50/10">
+
+                        {!isEditCustomerOpen ? (
+                            <div className="border border-dotted border-gray-300 rounded-[6px] divide-y divide-dotted divide-gray-300 overflow-hidden bg-zinc-50/10">
                             <div className="grid grid-cols-2 divide-x divide-dotted divide-gray-300">
                                 <div className="p-5 flex flex-col gap-1.5">
                                     <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Customer Details</label>
@@ -906,6 +1034,28 @@ export default function OrderDetailsModal({
                                             </button>
                                         )}
                                     </div>
+                                    {(() => {
+                                        const altPhone = order.shippingAddress?.alt_phone || order.shippingAddress?.addressDetails?.alt_phone || (order as any).contact_details?.alt_phone || (order as any).alt_phone || (order as any).alternate_phone;
+                                        if (!altPhone) return null;
+                                        return (
+                                            <div
+                                                className="text-[11px] text-[#71717a] flex items-center gap-1 group cursor-pointer w-fit"
+                                                onClick={() => {
+                                                    if (navigator.clipboard) {
+                                                        navigator.clipboard.writeText(altPhone);
+                                                    } else {
+                                                        fallbackCopyTextToClipboard(altPhone);
+                                                    }
+                                                    showAdminToast('Alternate phone copied!', 'success');
+                                                }}
+                                            >
+                                                <span className="text-[#a1a1aa]">Alt:</span> {altPhone}
+                                                <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Alternate Phone">
+                                                    <CopyIcon width="10" height="10" />
+                                                </button>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                                 <div className="p-5 flex flex-col gap-1.5">
                                     <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Payment Architecture</label>
@@ -920,7 +1070,7 @@ export default function OrderDetailsModal({
                                     <span className="text-[10px] text-[#a1a1aa] mt-0.5">Automated settlement active</span>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 divide-x divide-gray-200 border-t border-gray-200">
+                            <div className="grid grid-cols-2 divide-x divide-dotted divide-gray-300 border-t border-dotted border-gray-300">
                                 <div className="p-5 flex flex-col gap-1.5">
                                     <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">Customer Address</label>
                                     {order.shippingAddress ? (
@@ -1078,6 +1228,30 @@ export default function OrderDetailsModal({
                                                     </div>
                                                 );
                                             })()}
+                                            {(() => {
+                                                const addr = order.shippingAddress;
+                                                const details = addr?.addressDetails || {};
+                                                const altPhone = addr?.alt_phone || details?.alt_phone || (order as any).contact_details?.alt_phone || (order as any).alt_phone || (order as any).alternate_phone;
+                                                if (!altPhone) return null;
+                                                return (
+                                                    <div
+                                                        className="text-[#242424] font-medium pt-0.5 flex items-center gap-1 group cursor-pointer w-fit"
+                                                        onClick={() => {
+                                                            if (navigator.clipboard) {
+                                                                navigator.clipboard.writeText(altPhone);
+                                                            } else {
+                                                                fallbackCopyTextToClipboard(altPhone);
+                                                            }
+                                                            showAdminToast('Alternate phone copied!', 'success');
+                                                        }}
+                                                    >
+                                                        <span className="text-[#a1a1aa] font-normal">Alt Phone:</span> {altPhone}
+                                                        <button className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-black transition-all" title="Copy Alternate Phone">
+                                                            <CopyIcon width="12" height="12" />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
                                     ) : (
                                         <p className="text-[13px] text-gray-400 italic">Static address unassigned</p>
@@ -1095,6 +1269,113 @@ export default function OrderDetailsModal({
                                 </div>
                             </div>
 
+                            {/* Logistics Highlights: Alternative Contact & Delivery Notes (Directly Above Send Confirmation Button) */}
+                            {(() => {
+                                const addr = order.shippingAddress;
+                                const details = addr?.addressDetails || {};
+                                const altPhone = addr?.alt_phone || details?.alt_phone || (order as any).contact_details?.alt_phone || (order as any).alt_phone || (order as any).alternate_phone || (addr as any)?.alternatePhone || '';
+                                const notes = addr?.delivery_notes || details?.delivery_notes || (order as any).special_instructions || (order as any).notes || (order as any).delivery_notes || (addr as any)?.deliveryNotes || '';
+
+                                return (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-dotted divide-gray-300 border-t border-dotted border-gray-300 bg-zinc-50/25">
+                                        {/* Alternative Contact Number */}
+                                        <div className="p-5 flex flex-col justify-between gap-1.5">
+                                            <div>
+                                                <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider flex items-center gap-1.5">
+                                                    <PhoneIcon width="11" height="11" className="text-[#71717a]" />
+                                                    Alternative Contact Number
+                                                </label>
+                                                {altPhone ? (
+                                                    <div className="flex items-center flex-wrap gap-2 mt-1.5">
+                                                        <span className="text-[13px] font-mono font-medium text-[#242424]">
+                                                            {altPhone}
+                                                        </span>
+                                                        <div className="flex items-center gap-1">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (navigator.clipboard) {
+                                                                        navigator.clipboard.writeText(altPhone);
+                                                                    } else {
+                                                                        fallbackCopyTextToClipboard(altPhone);
+                                                                    }
+                                                                    showAdminToast('Alternate phone copied!', 'success');
+                                                                }}
+                                                                className="p-1 hover:bg-zinc-200/80 rounded text-gray-500 hover:text-black transition-colors cursor-pointer"
+                                                                title="Copy Alternate Phone"
+                                                            >
+                                                                <CopyIcon width="12" height="12" />
+                                                            </button>
+                                                            <a
+                                                                href={`tel:${altPhone}`}
+                                                                className="p-1 hover:bg-zinc-200/80 rounded text-gray-500 hover:text-black transition-colors"
+                                                                title="Call Alternate Phone"
+                                                            >
+                                                                <PhoneIcon width="12" height="12" />
+                                                            </a>
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    const message = getWhatsAppMessage(order);
+                                                                    const url = generateWhatsAppUrl(altPhone, message);
+                                                                    window.open(url, '_blank', 'noopener,noreferrer');
+                                                                    showAdminToast('WhatsApp opened for alternate number', 'success');
+                                                                }}
+                                                                className="p-1 hover:bg-green-100 rounded text-green-600 hover:text-green-700 transition-colors cursor-pointer"
+                                                                title="WhatsApp Alternate Phone"
+                                                            >
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-[12px] text-zinc-400 italic mt-1.5">Not provided</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Delivery Notes / Instructions */}
+                                        <div className="p-5 flex flex-col justify-between gap-1.5">
+                                            <div>
+                                                <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider flex items-center gap-1.5">
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#71717a]">
+                                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                                    </svg>
+                                                    Delivery Notes / Instructions
+                                                </label>
+                                                {notes ? (
+                                                    <div className="mt-1.5 p-2.5 bg-amber-50/80 border border-amber-200/70 rounded-[5px] text-[12px] text-amber-950 font-medium whitespace-pre-wrap leading-relaxed flex items-start justify-between gap-2">
+                                                        <span className="flex-1">{notes}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                if (navigator.clipboard) {
+                                                                    navigator.clipboard.writeText(notes);
+                                                                } else {
+                                                                    fallbackCopyTextToClipboard(notes);
+                                                                }
+                                                                showAdminToast('Delivery notes copied!', 'success');
+                                                            }}
+                                                            className="p-1 hover:bg-amber-100 rounded text-amber-700 hover:text-amber-900 transition-colors shrink-0 cursor-pointer"
+                                                            title="Copy Delivery Notes"
+                                                        >
+                                                            <CopyIcon width="11" height="11" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-[12px] text-zinc-400 italic mt-1.5">No special instructions</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
                             {/* WhatsApp Update Button */}
                             <button
                                 onClick={() => handleWhatsApp()}
@@ -1110,7 +1391,288 @@ export default function OrderDetailsModal({
                                 {customerPhone ? getWhatsAppButtonLabel(normalizedStatus) : 'No Phone Number'}
                             </button>
                         </div>
+                        ) : (
+                            <form onSubmit={handleSaveCustomerDetails} className="border border-dotted border-gray-300 rounded-[6px] p-5 bg-white space-y-5 shadow-xs">
+                                <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                                    <div className="space-y-0.5">
+                                        <h5 className="text-[13px] font-semibold text-[#242424] flex items-center gap-2">
+                                            <EditIcon className="w-4 h-4 text-black" />
+                                            <span>Edit Customer Details & Shipping Address</span>
+                                        </h5>
+                                        <p className="text-[11px] text-[#71717a]">
+                                            Saving will update the order and record an official Customer Details / Address status log.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setCustomerForm(getInitialFormValues(order));
+                                            setIsEditCustomerOpen(false);
+                                        }}
+                                        className="text-[12px] font-medium text-gray-400 hover:text-black transition-colors px-2 py-1 cursor-pointer"
+                                    >
+                                        ✕ Cancel
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {/* Customer / Recipient Name */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Customer / Recipient Name <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customerForm.customerName}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, customerName: e.target.value }))}
+                                            placeholder="Recipient Full Name"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Primary Phone */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Primary Phone Number <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={customerForm.customerPhone}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, customerPhone: e.target.value }))}
+                                            placeholder="e.g. 9801234567"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all font-mono"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Alternate Phone */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Alternate Contact Number
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={customerForm.alternatePhone}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, alternatePhone: e.target.value }))}
+                                            placeholder="Secondary contact phone (optional)"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all font-mono"
+                                        />
+                                    </div>
+
+                                    {/* Customer Email */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Email Address
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={customerForm.customerEmail}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, customerEmail: e.target.value }))}
+                                            placeholder="e.g. customer@gmail.com (Optional)"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all"
+                                        />
+                                    </div>
+
+                                    {/* Street Address / Landmark */}
+                                    <div className="sm:col-span-2 flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Street Address / Landmark <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customerForm.street}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, street: e.target.value }))}
+                                            placeholder="e.g. New Road, Opposite Bishal Bazar"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Area / Ward / Tole */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Area / Ward / Tole
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customerForm.area}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, area: e.target.value }))}
+                                            placeholder="e.g. Khichapokhari, Ward No. 4"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all"
+                                        />
+                                    </div>
+
+                                    {/* City */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            City <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customerForm.city}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, city: e.target.value }))}
+                                            placeholder="e.g. Kathmandu, Pokhara"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* State / Province */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            State / Province
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customerForm.state}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, state: e.target.value }))}
+                                            placeholder="e.g. Bagmati Province"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all"
+                                        />
+                                    </div>
+
+                                    {/* Postal Code / Pincode */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Postal Code / Pincode
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customerForm.pincode}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, pincode: e.target.value }))}
+                                            placeholder="e.g. 44600"
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all font-mono"
+                                        />
+                                    </div>
+
+                                    {/* Preferred Shipping Mode */}
+                                    <div className="sm:col-span-2 flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Preferred Shipping Mode
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setCustomerForm(prev => ({ ...prev, shippingOption: 'home' }))}
+                                                className={`px-3 py-2.5 rounded-[6px] border text-[12px] font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                                                    customerForm.shippingOption !== 'pickup'
+                                                        ? 'border-black bg-black text-white shadow-xs'
+                                                        : 'border-gray-200 bg-zinc-50 text-gray-700 hover:bg-zinc-100'
+                                                }`}
+                                            >
+                                                <span className={`w-2 h-2 rounded-full ${customerForm.shippingOption !== 'pickup' ? 'bg-[#308026]' : 'bg-gray-400'}`} />
+                                                Home Delivery
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setCustomerForm(prev => ({ ...prev, shippingOption: 'pickup' }))}
+                                                className={`px-3 py-2.5 rounded-[6px] border text-[12px] font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                                                    customerForm.shippingOption === 'pickup'
+                                                        ? 'border-black bg-black text-white shadow-xs'
+                                                        : 'border-gray-200 bg-zinc-50 text-gray-700 hover:bg-zinc-100'
+                                                }`}
+                                            >
+                                                <span className={`w-2 h-2 rounded-full ${customerForm.shippingOption === 'pickup' ? 'bg-[#A16207]' : 'bg-gray-400'}`} />
+                                                Pickup from Station
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Delivery Notes */}
+                                    <div className="sm:col-span-2 flex flex-col gap-1.5">
+                                        <label className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider">
+                                            Delivery Notes / Logistics Instructions
+                                        </label>
+                                        <textarea
+                                            rows={2}
+                                            value={customerForm.deliveryNotes}
+                                            onChange={e => setCustomerForm(prev => ({ ...prev, deliveryNotes: e.target.value }))}
+                                            placeholder="e.g. Call before delivery, ring second floor bell..."
+                                            className="px-3 py-2 text-[13px] text-[#242424] bg-zinc-50 border border-gray-200 rounded-[6px] outline-none focus:border-black focus:bg-white transition-all resize-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Form Actions */}
+                                <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setCustomerForm(getInitialFormValues(order));
+                                            setIsEditCustomerOpen(false);
+                                        }}
+                                        disabled={isSavingCustomer}
+                                        className="px-4 py-2 text-[12px] font-medium text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 rounded-[6px] transition-all disabled:opacity-50 cursor-pointer"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingCustomer}
+                                        className="px-5 py-2 text-[12px] font-medium text-white bg-black hover:bg-zinc-800 rounded-[6px] transition-all flex items-center gap-2 disabled:opacity-60 shadow-xs cursor-pointer active:scale-95"
+                                    >
+                                        {isSavingCustomer ? (
+                                            <>
+                                                <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.25" />
+                                                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeLinecap="round" />
+                                                </svg>
+                                                <span>Saving Changes...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <TickIcon className="w-3 h-3 text-white" />
+                                                <span>Save & Update Order</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </section>
+
+                    {/* Customer Details & Address Status Logs (Below Customer Logistics) */}
+                    {(() => {
+                        const customerUpdateLogs = (order.statusUpdates || []).filter(u => {
+                            const s = (u.status || '').toUpperCase();
+                            const msg = (u.message || '').toLowerCase();
+                            return s === 'CUSTOMER_UPDATED' || s === 'DETAILS_UPDATED' || msg.includes('customer details') || msg.includes('address updated');
+                        });
+
+                        if (customerUpdateLogs.length === 0) return null;
+
+                        return (
+                            <section className="space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <h4 className="text-[13px] font-medium text-[#242424] tracking-tight flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-purple-600" />
+                                        Customer Details / Address Updated Status Log
+                                        <span className="text-[11px] font-normal text-[#71717a]">({customerUpdateLogs.length})</span>
+                                    </h4>
+                                    <div className="h-px flex-1 bg-gray-100" />
+                                </div>
+                                <div className="border border-dotted border-gray-300 rounded-[6px] divide-y divide-dotted divide-gray-200 overflow-hidden bg-purple-50/20">
+                                    {customerUpdateLogs.map((log, idx) => (
+                                        <div key={idx} className="p-4 flex flex-col gap-1.5">
+                                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                                                <span className="text-[11px] font-semibold text-purple-900 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-[4px] flex items-center gap-1.5">
+                                                    <TickIcon className="w-2.5 h-2.5 text-purple-700" />
+                                                    Customer Details / Address Updated
+                                                </span>
+                                                <span className="text-[10px] text-[#71717a] font-mono">
+                                                    {formatLogDateTime(log.date)}
+                                                </span>
+                                            </div>
+                                            <p className="text-[12px] text-[#242424] leading-relaxed mt-0.5 whitespace-pre-line">
+                                                {log.message}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        );
+                    })()}
 
                     {/* Meta payload */}
                     <div className="text-center pt-4">

@@ -184,7 +184,14 @@ export default function CheckoutPage() {
 
   const handleDeliveryConfirm = (address: any, option: string) => {
     const rawPrice = option === 'home' ? storeSettings.homeDeliveryCost : storeSettings.pickupCost;
-    setDeliveryData({ addressId: address.id, option, shippingPrice: rawPrice, addressDetails: address });
+    setDeliveryData({
+      addressId: address.id,
+      option,
+      shippingPrice: rawPrice,
+      alt_phone: address.alt_phone || null,
+      delivery_notes: address.delivery_notes || null,
+      addressDetails: address
+    });
     setDeliveryError(null);
     setCompletedSteps((prev) => [...new Set([...prev, 'delivery'])]);
     setActiveStep('payments');
@@ -385,7 +392,10 @@ export default function CheckoutPage() {
         cod_fees: codCharge,
         tax_amount: 0,
         shipping_address: deliveryData,
-        contact_details: contactData,
+        contact_details: {
+          ...contactData,
+          alt_phone: deliveryData?.alt_phone || deliveryData?.addressDetails?.alt_phone || null
+        },
         payment_method: selectedPaymentId,
         payment_screenshot_url: paymentScreenshotUrl,
         payment_remarks: finalQrData?.qrRemarks || null,

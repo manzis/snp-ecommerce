@@ -242,12 +242,12 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
             {isProcessing ? (
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#242424] border-t-transparent" />
-                <span className="font-rajdhani text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
+                <span className="font-rajdhani text-[17px] font-bold text-[#242424] tracking-[-0.2px]">
                   Verifying Payment...
                 </span>
               </div>
             ) : (
-              <span className="font-rajdhani text-[16px] font-semibold text-[#242424] tracking-[-0.2px]">
+              <span className="font-rajdhani text-[17px] font-bold text-[#242424] tracking-[-0.2px]">
                 Verify payment via QR
               </span>
             )}

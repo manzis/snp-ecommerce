@@ -1562,3 +1562,332 @@ export async function fetchOrdersStatsAction(options?: {
   }
 }
 
+/**
+ * Server action to update customer details and shipping address of an order (Admin Only).
+ * Appends a status log if any details were updated.
+ */
+export async function updateOrderCustomerDetailsAdminAction(
+  orderId: string,
+  details: {
+    customerName: string;
+    customerPhone: string;
+    alternatePhone?: string;
+    customerEmail?: string;
+    street: string;
+    area?: string;
+    city: string;
+    state?: string;
+    pincode?: string;
+    shippingOption?: string;
+    deliveryNotes?: string;
+  }
+) {
+  const supabase = await createClient();
+
+  // 1. Verify Admin Role
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { success: false, message: 'Unauthorized.' };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return { success: false, message: 'Forbidden. Admin access required.' };
+  }
+
+  const adminSupabase = getSupabaseAdmin() || supabase;
+
+  try {
+    const orderSelect = `
+      *,
+      order_items (
+        id,
+        product_id,
+        quantity,
+        price,
+        mrp,
+        selected_size,
+        selected_flavor,
+        products (
+          name,
+          images,
+          stock_status,
+          brands (
+            name
+          )
+        )
+      )
+    `;
+
+    const cleanedId = (orderId || '').trim();
+    if (!cleanedId) {
+      return { success: false, message: 'Invalid order ID provided.' };
+    }
+
+    let orderQuery = adminSupabase.from('orders').select(orderSelect);
+
+    const isFullUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanedId);
+
+    if (isFullUuid) {
+      orderQuery = orderQuery.eq('id', cleanedId);
+    } else {
+      const hexPart = cleanedId.replace(/[^A-Fa-f0-9]/g, '').toLowerCase().slice(0, 8);
+      if (hexPart.length >= 4) {
+        const lowerBound = `${hexPart.padEnd(8, '0')}-0000-0000-0000-000000000000`;
+        const upperBound = `${hexPart.padEnd(8, 'f')}-ffff-ffff-ffff-ffffffffffff`;
+        orderQuery = orderQuery.gte('id', lowerBound).lte('id', upperBound);
+      } else {
+        orderQuery = orderQuery.eq('id', cleanedId);
+      }
+    }
+
+    const { data: currentOrder, error: fetchErr } = await orderQuery.limit(1).maybeSingle();
+
+    if (fetchErr) {
+      console.error('Fetch order error in updateOrderCustomerDetailsAdminAction:', fetchErr);
+      return { success: false, message: `Failed to fetch order: ${fetchErr.message}` };
+    }
+
+    if (!currentOrder) {
+      return { success: false, message: `Order not found with ID "${orderId}".` };
+    }
+
+    const oldShipping = (currentOrder.shipping_address && typeof currentOrder.shipping_address === 'object')
+      ? currentOrder.shipping_address
+      : {};
+    const oldAddrDetails = (oldShipping.addressDetails && typeof oldShipping.addressDetails === 'object')
+      ? oldShipping.addressDetails
+      : {};
+
+    const oldName = (
+      oldAddrDetails.first_name ? `${oldAddrDetails.first_name} ${oldAddrDetails.last_name || ''}`.trim() :
+      oldShipping.first_name ? `${oldShipping.first_name} ${oldShipping.last_name || ''}`.trim() :
+      currentOrder.contact_details?.full_name || ''
+    ).trim();
+
+    const oldPhone = (
+      oldShipping.phone ||
+      oldAddrDetails.phone ||
+      currentOrder.contact_details?.phone ||
+      (!currentOrder.contact_details?.value?.includes('@') ? currentOrder.contact_details?.value : '') ||
+      ''
+    ).trim();
+
+    const oldAltPhone = (
+      oldShipping.alt_phone ||
+      oldAddrDetails.alt_phone ||
+      currentOrder.contact_details?.alt_phone ||
+      ''
+    ).trim();
+
+    const oldEmail = (
+      oldShipping.email ||
+      oldAddrDetails.email ||
+      currentOrder.contact_details?.email ||
+      (currentOrder.contact_details?.value?.includes('@') ? currentOrder.contact_details?.value : '') ||
+      ''
+    ).trim();
+
+    const oldStreet = (
+      oldShipping.street ||
+      oldAddrDetails.street ||
+      oldShipping.address_line_1 ||
+      oldAddrDetails.address_line_1 ||
+      ''
+    ).trim();
+
+    const oldArea = (
+      oldShipping.area ||
+      oldAddrDetails.area ||
+      oldShipping.address_line_2 ||
+      oldAddrDetails.address_line_2 ||
+      ''
+    ).trim();
+
+    const oldCity = (
+      oldShipping.city ||
+      oldAddrDetails.city ||
+      ''
+    ).trim();
+
+    const oldState = (
+      oldShipping.state ||
+      oldAddrDetails.state ||
+      ''
+    ).trim();
+
+    const oldPincode = (
+      oldShipping.pincode ||
+      oldAddrDetails.pincode ||
+      oldShipping.postal_code ||
+      oldAddrDetails.postal_code ||
+      ''
+    ).trim();
+
+    const oldOption = (
+      oldShipping.option ||
+      (oldAddrDetails.type?.toLowerCase() === 'pickup' ? 'pickup' : 'home') ||
+      'home'
+    ).trim();
+
+    const oldNotes = (
+      oldShipping.delivery_notes ||
+      oldAddrDetails.delivery_notes ||
+      ''
+    ).trim();
+
+    // Clean new values
+    const newName = (details.customerName || '').trim();
+    const newPhone = (details.customerPhone || '').trim();
+    const newAltPhone = (details.alternatePhone || '').trim();
+    const newEmail = (details.customerEmail || '').trim();
+    const newStreet = (details.street || '').trim();
+    const newArea = (details.area || '').trim();
+    const newCity = (details.city || '').trim();
+    const newState = (details.state || '').trim();
+    const newPincode = (details.pincode || '').trim();
+    const newOption = (details.shippingOption || 'home').trim();
+    const newNotes = (details.deliveryNotes || '').trim();
+
+    // Identify changed fields
+    const changedFields: string[] = [];
+    if (newName && newName !== oldName) changedFields.push(`Name: ${newName}`);
+    if (newPhone && newPhone !== oldPhone) changedFields.push(`Phone: ${newPhone}`);
+    if (newAltPhone !== oldAltPhone) {
+      changedFields.push(newAltPhone ? `Alt Phone: ${newAltPhone}` : 'Alt Phone removed');
+    }
+    if (newEmail !== oldEmail) {
+      changedFields.push(newEmail ? `Email: ${newEmail}` : 'Email removed');
+    }
+    if (newStreet !== oldStreet || newArea !== oldArea) {
+      const addrCombined = [newStreet, newArea].filter(Boolean).join(', ');
+      changedFields.push(`Address: ${addrCombined}`);
+    }
+    if (newCity && newCity !== oldCity) changedFields.push(`City: ${newCity}`);
+    if (newState && newState !== oldState) changedFields.push(`State: ${newState}`);
+    if (newPincode && newPincode !== oldPincode) changedFields.push(`Pincode: ${newPincode}`);
+    if (newOption && newOption !== oldOption) {
+      changedFields.push(`Shipping Mode: ${newOption === 'pickup' ? 'Pickup' : 'Home Delivery'}`);
+    }
+    if (newNotes !== oldNotes && newNotes) {
+      changedFields.push(`Notes: ${newNotes}`);
+    }
+
+    const nameParts = newName.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const combinedStreetAddress = [newStreet, newArea].filter(Boolean).join(', ');
+
+    const updatedAddressDetails = {
+      ...oldAddrDetails,
+      first_name: firstName,
+      last_name: lastName,
+      phone: newPhone,
+      alt_phone: newAltPhone || null,
+      email: newEmail || null,
+      street: newStreet,
+      area: newArea,
+      address: combinedStreetAddress,
+      address_line_1: newStreet,
+      address_line_2: newArea,
+      city: newCity,
+      state: newState,
+      pincode: newPincode,
+      postal_code: newPincode,
+      country: oldAddrDetails.country || 'Nepal',
+      type: newOption === 'pickup' ? 'Pickup' : 'Home',
+      delivery_notes: newNotes || null
+    };
+
+    const updatedShippingAddress = {
+      ...oldShipping,
+      first_name: firstName,
+      last_name: lastName,
+      phone: newPhone,
+      alt_phone: newAltPhone || null,
+      email: newEmail || null,
+      street: newStreet,
+      area: newArea,
+      address: combinedStreetAddress,
+      address_line_1: newStreet,
+      address_line_2: newArea,
+      city: newCity,
+      state: newState,
+      pincode: newPincode,
+      postal_code: newPincode,
+      country: oldShipping.country || 'Nepal',
+      option: newOption,
+      delivery_notes: newNotes || null,
+      addressDetails: updatedAddressDetails
+    };
+
+    const updatedContactDetails = {
+      ...(currentOrder.contact_details || {}),
+      full_name: newName,
+      name: newName,
+      email: newEmail || null,
+      phone: newPhone,
+      alt_phone: newAltPhone || null
+    };
+
+    // If details have been updated, add status log
+    let updatedStatusUpdates = [...(currentOrder.status_updates || [])];
+    if (changedFields.length > 0) {
+      const logMessage = `Customer details / address updated: ${changedFields.join('; ')}`;
+      const newStatusLog = {
+        status: 'CUSTOMER_UPDATED',
+        message: logMessage,
+        date: new Date().toISOString()
+      };
+      updatedStatusUpdates.push(newStatusLog);
+    }
+
+    const { data: updatedRecord, error: updateErr } = await adminSupabase
+      .from('orders')
+      .update({
+        shipping_address: updatedShippingAddress,
+        contact_details: updatedContactDetails,
+        status_updates: updatedStatusUpdates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', currentOrder.id)
+      .select(orderSelect)
+      .single();
+
+    if (updateErr) throw updateErr;
+
+    // Sync profile address/phone if customer has linked auth account
+    if (currentOrder.user_id) {
+      try {
+        await adminSupabase.from('profiles').update({
+          full_name: newName,
+          phone: newPhone,
+          address_data: updatedShippingAddress
+        }).eq('id', currentOrder.user_id);
+      } catch (profErr) {
+        console.warn('[Admin] Profile sync error:', profErr);
+      }
+    }
+
+    revalidatePath('/account/orders');
+    revalidatePath('/admin/orders');
+
+    return {
+      success: true,
+      hasChanged: changedFields.length > 0,
+      order: mapToOrderProps(updatedRecord),
+      message: changedFields.length > 0
+        ? 'Customer details & address updated successfully.'
+        : 'Customer details saved (no changes detected).'
+    };
+  } catch (error: any) {
+    console.error('Action Error: updateOrderCustomerDetailsAdminAction:', error);
+    return { success: false, message: error.message || 'Failed to update customer details.' };
+  }
+}
+
+

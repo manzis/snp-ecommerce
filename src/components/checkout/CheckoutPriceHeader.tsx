@@ -102,14 +102,14 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
             className="flex justify-between items-center p-[14px_18px] bg-[#eaffcc] rounded-[14px] w-full outline-none active:scale-[0.99] transition-transform cursor-pointer"
           >
             <div className="flex items-center gap-[8px]">
-              <span className="font-rajdhani text-[17px] sm:text-[18px] font-bold text-[#18181b] tracking-[-0.5px]">
+              <span className="font-rajdhani text-[17px] sm:text-[18px] font-bold text-[#14532d] tracking-[-0.5px]">
                 Total Order Amount
               </span>
               <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <DropDownIcon className="w-[16px] h-[16px] text-[#18181b]" />
+                <DropDownIcon className="w-[16px] h-[16px] text-[#14532d]" />
               </motion.div>
             </div>
-            <span className="font-rajdhani text-[18px] sm:text-[19px] font-bold text-[#18181b] tracking-tight">
+            <span className="font-rajdhani text-[18px] sm:text-[19px] font-bold text-[#14532d] tracking-tight">
               {totalAmount}
             </span>
           </button>
@@ -199,10 +199,10 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
               </svg>
 
               <div className="absolute top-0 left-0 h-full flex items-center pl-[18px] z-10 gap-2">
-                <span className="font-rajdhani font-bold italic text-[17px] sm:text-[18px] text-[#18181b] tracking-tight">
+                <span className="font-rajdhani font-bold italic text-[17px] sm:text-[18px] text-[#14532d] tracking-tight">
                   Items Summary
                 </span>
-                <span className="font-rajdhani font-bold text-[12px] text-[#25661e] bg-white/80 px-2 py-0.5 rounded-full shadow-sm">
+                <span className="font-rajdhani font-bold text-[12px] text-[#14532d] bg-white/80 px-2 py-0.5 rounded-full shadow-sm">
                   {items.length} {items.length === 1 ? 'item' : 'items'}
                 </span>
               </div>
@@ -269,14 +269,14 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
           ) : (
             <div className="flex flex-col gap-[6px]">
               <div
-                className={`relative flex items-center justify-between rounded-[12px] border h-[48px] px-3.5 transition-all ${
+                className={`relative flex items-center justify-between rounded-[12px] h-[50px] px-4 transition-all ${
                   couponError
-                    ? 'border-[#ef4444] bg-[#fff5f5]'
-                    : 'border-[#eaebf0] bg-[#f7faf6] focus-within:bg-white focus-within:border-[#308026]'
+                    ? 'border-[1.5px] border-[#ef4444] bg-[#fef2f2]'
+                    : 'border-0 bg-[#f7f8fa] focus-within:bg-white focus-within:border-[1.5px] focus-within:border-[#308026]'
                 }`}
               >
                 <div className="flex items-center gap-[8px] flex-1">
-                  <DiscountIcon className={`w-[18px] h-[18px] ${couponError ? 'text-[#ef4444]' : 'text-[#71717a]'}`} />
+                  <DiscountIcon className={`w-[18px] h-[18px] ${couponError ? 'text-[#ef4444]' : 'text-[#a1a1aa]'}`} />
                   <input
                     type="text"
                     placeholder="Enter Coupon Code"
@@ -289,7 +289,7 @@ const CheckoutPriceHeader = forwardRef<CheckoutPriceHeaderHandle, CheckoutPriceH
                         handleApply();
                       }
                     }}
-                    className={`w-full bg-transparent font-rajdhani text-[15px] font-semibold uppercase tracking-wider outline-none placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-[#8b8e92] ${
+                    className={`w-full bg-transparent font-rajdhani text-[16px] font-semibold uppercase tracking-wider outline-none placeholder:normal-case placeholder:font-semibold placeholder:tracking-normal placeholder:text-[#a1a1aa] ${
                       couponError ? 'text-[#ef4444]' : 'text-[#18181b]'
                     }`}
                   />

@@ -146,11 +146,11 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                   key={shakeTrigger}
                   animate={errorMsg ? { x: [0, -12, 12, -12, 12, -8, 8, -4, 4, 0] } : {}}
                   transition={{ duration: 0.45, ease: "easeInOut" }}
-                  className={`flex h-[50px] px-4 gap-[8px] items-center rounded-[12px] border transition-all duration-200 
-                    ${errorMsg
-                      ? 'border-[#ef4444] bg-[#fff5f5]'
-                      : 'border-[#eaebf0] bg-[#f7faf6] focus-within:bg-white focus-within:border-[#308026]'
-                    }`}
+                  className={`flex h-[50px] px-4 gap-[8px] items-center rounded-[12px] transition-all duration-200 ${
+                    errorMsg
+                      ? 'border-[1.5px] border-[#ef4444] bg-[#fef2f2]'
+                      : 'border-0 bg-[#f7f8fa] focus-within:bg-white focus-within:border-[1.5px] focus-within:border-[#308026]'
+                  }`}
                 >
                   <div className="flex flex-grow items-center gap-[8px]">
                     {/^\d{10}$/.test(inputValue) && (
@@ -161,10 +161,10 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                       placeholder="Email or Mobile Phone Number"
                       value={inputValue}
                       onChange={handleInputChange}
-                      className="w-full font-rajdhani text-[17px] text-[#18181b] bg-transparent placeholder:text-[#8b8e92] outline-none"
+                      className="w-full font-rajdhani text-[16px] sm:text-[17px] text-[#18181b] bg-transparent placeholder:text-[#a1a1aa] outline-none"
                     />
                   </div>
-                  <ContactIcon className="w-[18px] h-[18px] text-[#8b8e92]" />
+                  <ContactIcon className="w-[18px] h-[18px] text-[#a1a1aa]" />
                 </motion.div>
 
                 <AnimatePresence>
@@ -189,7 +189,7 @@ const ContactSection = forwardRef<ContactSectionHandle, ContactSectionProps>(({
                 onClick={() => setIsMarketing(!isMarketing)}
               >
                 <div className={`flex w-[18px] h-[18px] items-center justify-center rounded-[6px] transition-colors ${
-                  isMarketing ? 'bg-[#308026]' : 'border border-[#eaebf0] bg-[#f7faf6]'
+                  isMarketing ? 'bg-[#308026]' : 'border border-[#eaebf0] bg-[#f7f8fa]'
                 }`}>
                   {isMarketing && <CheckIcon className="w-[11px] h-[11px] text-white" />}
                 </div>

@@ -33,6 +33,7 @@ async function syncProfileFromAddress(supabase: any, userId: string, address: Us
         full_name: fullName,
         phone: address.phone,
         email: address.email,
+        address_data: address,
         updated_at: new Date().toISOString()
       })
       .eq('id', userId);
@@ -59,7 +60,7 @@ export async function saveUserAddressAction(address: UserAddress, targetUserId?:
     }
 
     // Force strict user binding
-    const payload = {
+    const payload: any = {
       user_id: finalUserId,
       first_name: address.first_name,
       last_name: address.last_name,
@@ -70,19 +71,42 @@ export async function saveUserAddressAction(address: UserAddress, targetUserId?:
       address_line_1: address.address_line_1,
       email: address.email,
       phone: address.phone,
+      alt_phone: address.alt_phone || null,
+      delivery_notes: address.delivery_notes || null,
       latitude: address.latitude,
       longitude: address.longitude,
       type: address.type,
     };
 
-    let query;
-    if (address.id) {
-      query = supabase.from('user_addresses').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', address.id).select().single();
-    } else {
-      query = supabase.from('user_addresses').insert([payload]).select().single();
+    const executeSave = async (dataPayload: any) => {
+      if (address.id) {
+        return await supabase
+          .from('user_addresses')
+          .update({ ...dataPayload, updated_at: new Date().toISOString() })
+          .eq('id', address.id)
+          .select()
+          .single();
+      } else {
+        return await supabase
+          .from('user_addresses')
+          .insert([dataPayload])
+          .select()
+          .single();
+      }
+    };
+
+    let { data, error } = await executeSave(payload);
+
+    // If table does not yet have alt_phone or delivery_notes columns, fallback gracefully without failing
+    if (error && (error.code === '42703' || error.message?.includes('alt_phone') || error.message?.includes('delivery_notes'))) {
+      const fallbackPayload = { ...payload };
+      delete fallbackPayload.alt_phone;
+      delete fallbackPayload.delivery_notes;
+      const retry = await executeSave(fallbackPayload);
+      data = retry.data;
+      error = retry.error;
     }
 
-    const { data, error } = await query;
     if (error) {
       return { data: null, error: `${error.message} - ${error.details || ''}` };
     }
@@ -90,7 +114,13 @@ export async function saveUserAddressAction(address: UserAddress, targetUserId?:
     // AUTOMATIC SYNC: Update profile with these contact details
     await syncProfileFromAddress(supabase, finalUserId, address);
     
-    return { data: data as UserAddress, error: null };
+    const returnData: UserAddress = {
+      ...(data as UserAddress),
+      alt_phone: address.alt_phone || (data as any)?.alt_phone,
+      delivery_notes: address.delivery_notes || (data as any)?.delivery_notes,
+    };
+
+    return { data: returnData, error: null };
   } catch (err: any) {
     return { data: null, error: err.message || 'Unknown Server Error' };
   }

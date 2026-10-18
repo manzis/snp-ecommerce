@@ -10,6 +10,8 @@ interface DeliveryData {
   addressId: string;
   option: string;
   shippingPrice: number;
+  alt_phone?: string;
+  delivery_notes?: string;
   addressDetails?: any;
 }
 

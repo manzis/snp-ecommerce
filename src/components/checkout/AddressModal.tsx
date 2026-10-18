@@ -35,7 +35,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
   const { showToast } = useToast();
   const contactData = useCheckoutStore(state => state.contactData);
   const [formData, setFormData] = useState<Partial<UserAddress>>({
-    first_name: '', last_name: '', address_line_1: '', city: '', pincode: '', street: '', area: '', email: '', phone: '', type: 'Home'
+    first_name: '', last_name: '', address_line_1: '', city: '', pincode: '', street: '', area: '', email: '', phone: '', alt_phone: '', delivery_notes: '', type: 'Home'
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -64,7 +64,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
         const isEmail = contactData?.value?.includes('@');
         const prefillEmail = isEmail ? contactData.value : '';
 
-        setFormData({ first_name: '', last_name: '', address_line_1: '', city: '', pincode: '', street: '', area: '', email: prefillEmail, phone: '', type: 'Home', latitude: 27.7172, longitude: 85.3240 });
+        setFormData({ first_name: '', last_name: '', address_line_1: '', city: '', pincode: '', street: '', area: '', email: prefillEmail, phone: '', alt_phone: '', delivery_notes: '', type: 'Home', latitude: 27.7172, longitude: 85.3240 });
         setTempLat(27.7172);
         setTempLng(85.3240);
 
@@ -251,18 +251,19 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-[12px]">
-                      <div className="flex flex-col">
-                        <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Email*</label>
-                        <motion.input
-                          animate={errors.email ? { x: [-5, 5, -5, 5, 0] } : {}}
-                          transition={{ duration: 0.4 }}
-                          type="email" placeholder="john@example.com" value={formData.email || ''}
-                          onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setErrors(prev => ({ ...prev, email: '' })); }}
-                          className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.email ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
-                        />
-                        {errors.email && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.email}</span>}
-                      </div>
+                    <div className="flex flex-col">
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Email*</label>
+                      <motion.input
+                        animate={errors.email ? { x: [-5, 5, -5, 5, 0] } : {}}
+                        transition={{ duration: 0.4 }}
+                        type="email" placeholder="john@example.com" value={formData.email || ''}
+                        onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setErrors(prev => ({ ...prev, email: '' })); }}
+                        className={`w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani ${errors.email ? 'border-[#d92d20] border-[1.5px]' : 'border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]'}`}
+                      />
+                      {errors.email && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.email}</span>}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-[12px]">
                       <div className="flex flex-col">
                         <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Phone*</label>
                         <motion.div
@@ -280,6 +281,20 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                           />
                         </motion.div>
                         {errors.phone && <span className="text-[#d92d20] text-[11px] font-rajdhani mt-[2px] ml-[4px]">{errors.phone}</span>}
+                      </div>
+
+                      <div className="flex flex-col">
+                        <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">Alternative Phone (Optional)</label>
+                        <div className="flex items-center w-full h-[50px] border outline-none transition-colors rounded-[8px] font-rajdhani overflow-hidden border-[#eaebf0] border-[1px] focus-within:border-[#242424] focus-within:border-[1.5px]">
+                          <div className="h-full px-[12px] flex items-center justify-center bg-[#f7f8f9] border-r border-[#eaebf0] text-[#838383] font-medium text-[14px]">
+                            +977
+                          </div>
+                          <input
+                            type="tel" placeholder="98XXXXXXXX" value={formData.alt_phone || ''}
+                            onChange={(e) => setFormData({ ...formData, alt_phone: e.target.value })}
+                            className="flex-1 h-full px-[12px] outline-none"
+                          />
+                        </div>
                       </div>
                     </div>
 
@@ -322,6 +337,19 @@ const AddressModal: React.FC<AddressModalProps> = ({ isOpen, onClose, mode, user
                           className="w-full h-[50px] px-[16px] border outline-none transition-colors rounded-[8px] font-rajdhani border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px]"
                         />
                       </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-[12px] font-rajdhani font-medium text-[#838383] mb-[4px] ml-[4px]">
+                        Delivery Instructions / Notes (Optional)
+                      </label>
+                      <textarea
+                        rows={2}
+                        placeholder="E.g., Ring bell twice, leave with security guard, call before arriving..."
+                        value={formData.delivery_notes || ''}
+                        onChange={(e) => setFormData({ ...formData, delivery_notes: e.target.value })}
+                        className="w-full p-[12px] border outline-none transition-colors rounded-[8px] font-rajdhani border-[#eaebf0] border-[1px] focus:border-[#242424] focus:border-[1.5px] resize-none text-[14px]"
+                      />
                     </div>
                   </div>
 

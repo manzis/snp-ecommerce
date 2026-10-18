@@ -41,13 +41,13 @@ const CodPaymentDetails: React.FC<CodPaymentDetailsProps> = ({
         {isProcessing ? (
           <div className="flex items-center gap-2">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#242424] border-t-transparent" />
-            <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+            <span className="font-rajdhani text-[17px] font-bold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
               Placing Order...
             </span>
           </div>
         ) : (
-          <span className="font-rajdhani text-[16px] font-semibold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
-            Place Order ( Pay on Delivery)
+          <span className="font-rajdhani text-[17px] font-bold leading-[24px] text-[#242424] tracking-[-0.2px] whitespace-nowrap">
+            Place Order (Pay on Delivery)
           </span>
         )}
       </button>
