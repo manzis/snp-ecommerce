@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CartItem from '@/components/cart/CartItem';
 import CartSummary from '@/components/cart/CartSummary';
@@ -22,7 +22,7 @@ import { useToast } from '@/components/ui/ToastProvider';
 
 export default function CartSidebar() {
   const router = useRouter();
-  const { items, reverifyCartPrices, getCouponDiscount, isCartOpen, setCartOpen } = useCartStore();
+  const { items, reverifyCartPrices, getCouponDiscount, isCartOpen, setCartOpen, selectAllItems } = useCartStore();
   const { user, isLoading: isAuthLoading } = useAuth();
   const { openLogin } = useAuthModal();
   const { showToast } = useToast();
@@ -87,18 +87,24 @@ export default function CartSidebar() {
     return addresses.find(addr => addr.id === selectedAddressId) || addresses[0] || null;
   }, [addresses, selectedAddressId]);
 
-  // 1. CALCULATE TOTALS
-  const subtotal = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+  // 1. CALCULATE TOTALS (Based only on checked items)
+  const selectedItems = useMemo(() => {
+    return items.filter((item: any) => item.selected !== false);
   }, [items]);
+
+  const allSelected = items.length > 0 && items.every((i: any) => i.selected !== false);
+
+  const subtotal = useMemo(() => {
+    return selectedItems.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+  }, [selectedItems]);
 
   const totalMRP = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
-  }, [items]);
+    return selectedItems.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
+  }, [selectedItems]);
 
   const bundleDiscount = useMemo(() => {
-    return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
-  }, [items]);
+    return Math.round(selectedItems.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
+  }, [selectedItems]);
 
   const couponDiscount = getCouponDiscount();
   const finalTotal = useMemo(() => {
@@ -106,14 +112,18 @@ export default function CartSidebar() {
   }, [subtotal, bundleDiscount, couponDiscount]);
 
   const outOfStockItems = useMemo(() => {
-    return items.filter((item: any) => {
+    return selectedItems.filter((item: any) => {
       if (!item.stock_status) return false;
       const status = item.stock_status.toLowerCase().replace(/[^a-z]/g, '');
       return status === 'outofstock' || status === 'soldout' || status === 'out';
     });
-  }, [items]);
+  }, [selectedItems]);
 
   const handleCheckout = () => {
+    if (selectedItems.length === 0) {
+      showToast('Please select at least one item to checkout.', 'error');
+      return;
+    }
     if (outOfStockItems.length > 0) {
       setIsOutOfStockModalOpen(true);
       return;
@@ -195,11 +205,17 @@ export default function CartSidebar() {
             <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100 shrink-0">
               <div>
                 <h2 className="text-xl font-bold text-[#242424] font-rajdhani">My Cart</h2>
-                <p className="text-sm text-[#71717a] font-rajdhani">{items.length} Items</p>
+                <p className="text-sm text-[#71717a] font-rajdhani">
+                  {items.length > 0
+                    ? selectedItems.length === items.length
+                      ? `${items.length} ${items.length === 1 ? 'Item' : 'Items'}`
+                      : `${selectedItems.length} of ${items.length} Selected`
+                    : '0 Items'}
+                </p>
               </div>
               <button
                 onClick={() => setCartOpen(false)}
-                className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -224,6 +240,44 @@ export default function CartSidebar() {
 
               {/* Items List */}
               <div className="flex flex-col gap-3">
+                {items.length > 0 && (
+                  <div className="flex items-center justify-between px-3.5 py-2.5 bg-white rounded-xl shadow-none">
+                    <button
+                      type="button"
+                      onClick={() => selectAllItems(!allSelected)}
+                      className="flex items-center gap-2 cursor-pointer outline-none select-none text-left"
+                    >
+                      <div
+                        className={`w-[20px] h-[20px] rounded-[5px] flex items-center justify-center transition-all ${
+                          allSelected
+                            ? 'bg-[#18181b] text-white'
+                            : selectedItems.length > 0
+                            ? 'bg-[#18181b]/10 text-[#18181b]'
+                            : 'bg-white border border-[#d4d4d8]'
+                        }`}
+                      >
+                        {allSelected && (
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        )}
+                        {!allSelected && selectedItems.length > 0 && (
+                          <div className="w-[8px] h-[2px] bg-[#18181b] rounded-full" />
+                        )}
+                      </div>
+                      <span className="font-rajdhani font-semibold text-sm text-[#242424]">
+                        Select All ({selectedItems.length}/{items.length})
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => selectAllItems(!allSelected)}
+                      className="font-rajdhani font-semibold text-xs text-[#3F9733] hover:text-[#327a28] cursor-pointer outline-none"
+                    >
+                      {allSelected ? 'Deselect All' : 'Select All'}
+                    </button>
+                  </div>
+                )}
+
                 {items.map((item: any) => (
                   <CartItem key={item.id} item={item} />
                 ))}
@@ -273,7 +327,13 @@ export default function CartSidebar() {
                   isStatic={true}
                   totalAmount={`NPR ${finalTotal.toLocaleString()}`}
                   mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
+                  buttonText={
+                    selectedItems.length === 0
+                      ? 'Select Items'
+                      : `Checkout (${selectedItems.length})`
+                  }
                   onCheckout={handleCheckout}
+                  disabled={selectedItems.length === 0}
                 />
               </div>
             )}

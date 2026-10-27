@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { CartItemType, addToCart, updateCartItem, removeCartItem, removeBundleItems, mergeCart, fetchCart, clearCartRemote } from '@/services/cartService';
+import { CartItemType, addToCart, updateCartItem, removeCartItem, removeBundleItems, mergeCart, fetchCart, clearCartRemote, removePurchasedItemsRemote } from '@/services/cartService';
 
 import type { Coupon } from '@/services/couponService';
 
@@ -16,8 +16,11 @@ interface CartState {
   removeItem: (item: CartItemType) => void;
 
   updateQuantity: (item: CartItemType, quantity: number) => void;
+  toggleItemSelection: (id: string) => void;
+  selectAllItems: (selected: boolean) => void;
   mergeCartOnLogin: (userId: string) => Promise<void>;
   clearCart: () => Promise<void>;
+  clearPurchasedItems: (purchasedItems: CartItemType[]) => Promise<void>;
   refreshLocalCartOnMount: () => Promise<void>;
   reverifyCartPrices: (force?: boolean) => Promise<void>;
   coupon: Coupon | null;
@@ -43,11 +46,16 @@ export const useCartStore = create<CartState>()(
       setUserId: (userId) => set({ userId }),
 
       loadCart: async () => {
-        const { userId } = get();
+        const { userId, items } = get();
         if (!userId) return;
         set({ isLoading: true });
         const dbItems = await fetchCart(userId);
-        set({ items: dbItems, isLoading: false });
+        // Preserve local selection state for existing items
+        const merged = dbItems.map(dbItem => {
+          const existing = items.find(i => i.id === dbItem.id);
+          return existing ? { ...dbItem, selected: existing.selected !== false } : { ...dbItem, selected: true };
+        });
+        set({ items: merged, isLoading: false });
       },
 
       addItem: (item) => {
@@ -60,14 +68,15 @@ export const useCartStore = create<CartState>()(
             existing.quantity += item.quantity;
             // Sum bundle discounts when merging identical units in same bundle
             existing.bundle_discount = item.bundle_discount || 0;
+            existing.selected = true;
             newItems[existingIndex] = existing;
             if (state.userId) updateCartItem(state.userId, existing, existing.quantity);
           } else {
-            newItems.push(item);
+            newItems.push({ ...item, selected: true });
             if (state.userId) addToCart(item, state.userId);
           }
 
-          return { items: newItems, coupon: null };
+          return { items: newItems };
         });
       },
 
@@ -83,10 +92,11 @@ export const useCartStore = create<CartState>()(
               ...updatedItems[existingIndex],
               quantity: updatedItems[existingIndex].quantity + item.quantity,
               // Sum bundle discounts during batch merging
-              bundle_discount: item.bundle_discount || 0
+              bundle_discount: item.bundle_discount || 0,
+              selected: true
             };
           } else {
-            updatedItems.push(item);
+            updatedItems.push({ ...item, selected: true });
           }
         });
 
@@ -146,6 +156,37 @@ export const useCartStore = create<CartState>()(
         set({ items: newItems, coupon: null });
       },
 
+      toggleItemSelection: (id) => {
+        set((state) => {
+          const target = state.items.find(i => i.id === id);
+          if (!target) return state;
+
+          const currentSelected = target.selected !== false;
+          const newSelected = !currentSelected;
+
+          let newItems: CartItemType[];
+          if (target.bundle_id) {
+            // Atomic bundle selection toggle: all items in the bundle toggle together
+            newItems = state.items.map(i =>
+              i.bundle_id === target.bundle_id ? { ...i, selected: newSelected } : i
+            );
+          } else {
+            newItems = state.items.map(i =>
+              i.id === id ? { ...i, selected: newSelected } : i
+            );
+          }
+
+          return { items: newItems, coupon: null };
+        });
+      },
+
+      selectAllItems: (selected) => {
+        set((state) => ({
+          items: state.items.map(i => ({ ...i, selected })),
+          coupon: null
+        }));
+      },
+
 
       mergeCartOnLogin: async (newUserId) => {
         const { items, userId, isLoading } = get();
@@ -181,6 +222,17 @@ export const useCartStore = create<CartState>()(
         const { userId } = get();
         set({ items: [], coupon: null });
         if (userId) await clearCartRemote(userId);
+      },
+
+      clearPurchasedItems: async (purchasedItems) => {
+        const { userId, items } = get();
+        const purchasedIds = new Set(purchasedItems.map(p => p.id));
+        const remainingItems = items.filter(i => !purchasedIds.has(i.id));
+
+        set({ items: remainingItems, coupon: null });
+        if (userId) {
+          await removePurchasedItemsRemote(userId, purchasedItems);
+        }
       },
 
       reverifyCartPrices: async (force = false) => {
@@ -227,9 +279,11 @@ export const useCartStore = create<CartState>()(
         const { coupon, items } = get();
         if (!coupon) return 0;
 
-        if (items.some(item => item.is_sale)) return 0;
+        const selectedItems = items.filter(item => item.selected !== false);
+        if (selectedItems.length === 0) return 0;
+        if (selectedItems.some(item => item.is_sale)) return 0;
 
-        const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
         // 1. Min Cart Value check
         if (subtotal < coupon.min_cart_value) return 0;
@@ -237,7 +291,7 @@ export const useCartStore = create<CartState>()(
         // 2. Eligibility & Calculation
         let eligibleAmount = subtotal;
         if (coupon.product_id) {
-          const eligibleItems = items.filter(item => item.product_id === coupon.product_id);
+          const eligibleItems = selectedItems.filter(item => item.product_id === coupon.product_id);
           if (eligibleItems.length === 0) return 0;
           eligibleAmount = eligibleItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
         }

@@ -316,6 +316,7 @@ async function ProductContent({ slug }: { slug: string }) {
                   ordersDisabled={ordersDisabled}
                   ordersDisabledUntil={ordersDisabledUntil}
                   ordersDisabledReason={ordersDisabledReason}
+                  activeSale={activeSale}
                 />
                 <Availability productSlug={product.slug} stockStatus={product.stock_status || 'in_stock'} />
                 <ServiceHighlights />

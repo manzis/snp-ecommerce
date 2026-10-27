@@ -53,7 +53,12 @@ export default function OtherShipmentItems({ items, total }: OtherShipmentItemsP
                                     {item.selected_flavor && (
                                         <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#8a8e91]">Flavour : {item.selected_flavor}</span>
                                     )}
-                                    <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#8a8e91]">Qty : {item.quantity}</span>
+                                    <span className="font-rajdhani text-[12px] font-[600] leading-[16px] text-[#242424]">Qty : {item.quantity || 1}</span>
+                                    {item.price && (
+                                        <span className="font-rajdhani text-[12px] font-[600] leading-[16px] text-[#308026]">
+                                            Rs. {(Number(item.price) * (item.quantity || 1)).toLocaleString()}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </li>
@@ -67,7 +72,7 @@ export default function OtherShipmentItems({ items, total }: OtherShipmentItemsP
                         Total Amount
                     </span>
                     <span className="font-rajdhani text-[16px] font-[600] leading-[22px] tracking-[0.2px] text-[#242424]">
-                        NPR {total}
+                        NPR {Number(total || 0).toLocaleString()}
                     </span>
                 </div>
 

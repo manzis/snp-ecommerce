@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle } from 'lucide-react';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import CreditCardIcon from '@/components/icons/CardIcon';
 import NetBankingIcon from '@/components/icons/BankingIcon';
@@ -100,10 +101,28 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
             className="w-full overflow-hidden"
           >
-            <div className="w-full flex flex-col gap-[22px] px-[20px] sm:px-[24px] pb-[28px] pt-[16px] bg-white border-t border-[#f0f3ee]">
+            <div id="checkout-payment-options" className="w-full flex flex-col gap-[22px] px-[20px] sm:px-[24px] pb-[28px] pt-[16px] bg-white border-t border-[#f0f3ee]">
+
+              {/* TOP Validation Error Banner for Payment */}
+              <AnimatePresence>
+                {externalError && (
+                  <motion.div
+                    id="checkout-payment-error"
+                    initial={{ height: 0, opacity: 0, y: -6 }}
+                    animate={{ height: 'auto', opacity: 1, y: 0 }}
+                    exit={{ height: 0, opacity: 0, y: -6 }}
+                    className="flex items-center gap-[8px] p-[10px_14px] bg-[#fff5f5] border border-[#fecaca] rounded-[10px] text-[#e11717] mb-[2px]"
+                  >
+                    <AlertCircle className="w-4 h-4 shrink-0 text-[#e11717]" />
+                    <span className="font-rajdhani text-[14px] font-semibold tracking-[-0.2px]">
+                      {externalError}
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* ONLINE PAYMENTS GROUP */}
               <div className="flex flex-col gap-[14px]">

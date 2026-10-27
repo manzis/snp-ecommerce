@@ -78,6 +78,7 @@ export default function CheckoutPage() {
     items,
     userId,
     clearCart,
+    clearPurchasedItems,
     coupon,
     applyCoupon,
     removeCoupon,
@@ -87,6 +88,10 @@ export default function CheckoutPage() {
   const [processingMessage, setProcessingMessage] = useState("Processing your order...");
   const [isValidating, setIsValidating] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+
+  const selectedItems = useMemo(() => {
+    return items.filter((item: any) => item.selected !== false);
+  }, [items]);
 
   const contactData = useCheckoutStore((state) => state.contactData);
   const setContactData = useCheckoutStore((state) => state.setContactData);
@@ -111,12 +116,12 @@ export default function CheckoutPage() {
   const setHideBottomNav = useUIStore((state) => state.setHideBottomNav);
 
   const outOfStockItems = useMemo(() => {
-    return items.filter((item: any) => {
+    return selectedItems.filter((item: any) => {
       if (!item.stock_status) return false;
       const status = item.stock_status.toLowerCase().replace(/[^a-z]/g, '');
       return status === 'outofstock' || status === 'soldout' || status === 'out';
     });
-  }, [items]);
+  }, [selectedItems]);
 
   // REFS
   const contactRef = useRef<ContactSectionHandle>(null);
@@ -135,6 +140,35 @@ export default function CheckoutPage() {
       priceHeaderRef.current?.expandAndScroll();
     }
   };
+
+  const scrollToTarget = useCallback((
+    target: HTMLElement | string | (() => HTMLElement | null) | null,
+    position: 'center' | 'top' = 'top'
+  ) => {
+    if (typeof window === 'undefined') return;
+
+    const el = typeof target === 'string'
+      ? (document.querySelector(target) as HTMLElement | null)
+      : typeof target === 'function'
+      ? target()
+      : target;
+
+    if (!el) return;
+
+    el.scrollIntoView({
+      behavior: 'smooth',
+      block: position === 'center' ? 'center' : 'start'
+    });
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const scrollToSection = useCallback((element: HTMLElement | null) => {
+    return scrollToTarget(element, 'top');
+  }, [scrollToTarget]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -162,11 +196,12 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (isMounted && items.length === 0) {
+    if (isMounted && selectedItems.length === 0) {
       resetCheckout();
       sessionStorage.removeItem('checkout_initiated');
+      router.replace('/cart');
     }
-  }, [items.length, isMounted, resetCheckout]);
+  }, [selectedItems.length, isMounted, resetCheckout, router]);
 
   useEffect(() => {
     if (isMounted && outOfStockItems.length > 0) {
@@ -200,8 +235,8 @@ export default function CheckoutPage() {
   const handleApplyCoupon = async (code: string) => {
     setIsValidating(true);
     setCouponError(null);
-    const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const result = await validateCoupon(code, subtotal, items);
+    const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const result = await validateCoupon(code, subtotal, selectedItems);
     setIsValidating(false);
 
     if (result.isValid && result.coupon) {
@@ -254,8 +289,8 @@ export default function CheckoutPage() {
     }
     isSubmittingRef.current = true;
 
-    if (items.length === 0) {
-      alert("Your cart is empty");
+    if (selectedItems.length === 0) {
+      alert("No items selected for checkout");
       isSubmittingRef.current = false;
       return;
     }
@@ -289,12 +324,11 @@ export default function CheckoutPage() {
       if (!success) {
         setContactError("Required: Please confirm your contact details");
         setActiveStep('contact');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        scrollToTop();
         isSubmittingRef.current = false;
         return;
       }
-      isSubmittingRef.current = false;
-      return;
+      // Valid contact: immediately proceed to delivery validation without stopping!
     }
 
     // 2. Delivery Validation
@@ -304,27 +338,27 @@ export default function CheckoutPage() {
       if (success !== true) {
         setDeliveryError("Please complete delivery details to continue");
         setActiveStep('delivery');
-        deliveryScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        scrollToTarget(deliveryScrollRef.current, 'top');
         isSubmittingRef.current = false;
         return;
       }
-      isSubmittingRef.current = false;
-      return;
+      // Valid delivery: immediately proceed to payment validation without stopping!
     }
 
     // 3. Payments Step Focus
     if (!selectedPaymentId) {
       setPaymentError("Choose a payment method to continue");
       setActiveStep('payments');
-      paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scrollToTarget(paymentsRef.current, 'top');
       isSubmittingRef.current = false;
       return;
     }
 
     const unavailableMethods = ['cards', 'netbanking', 'wallets'];
     if (unavailableMethods.includes(selectedPaymentId)) {
-      alert("This payment method is currently undergoing maintenance. Please choose another method.");
+      setPaymentError("This payment method is currently undergoing maintenance. Please choose another method.");
       setActiveStep('payments');
+      scrollToTarget(paymentsRef.current, 'top');
       isSubmittingRef.current = false;
       return;
     }
@@ -353,7 +387,12 @@ export default function CheckoutPage() {
           setActiveStep('payments');
           setIsProcessing(false);
           isSubmittingRef.current = false;
-          paymentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const qrEl = document.getElementById('checkout-qr-upload-section');
+          if (qrEl) {
+            scrollToTarget(qrEl, 'center');
+          } else {
+            scrollToTarget(paymentsRef.current, 'top');
+          }
           return;
         }
 
@@ -400,13 +439,13 @@ export default function CheckoutPage() {
         payment_screenshot_url: paymentScreenshotUrl,
         payment_remarks: finalQrData?.qrRemarks || null,
         idempotency_key: idempotencyKeyRef.current
-      }, items);
+      }, selectedItems);
 
       if (result.success) {
         setCompletedSteps((prev) => [...new Set([...prev, 'payments'])]);
         isRedirectingRef.current = true;
         setProcessingMessage("Finalizing...");
-        await clearCart();
+        await clearPurchasedItems(selectedItems);
         resetCheckout();
         sessionStorage.removeItem('checkout_initiated');
         router.push(`/checkout/success?orderId=${result.orderId}`);
@@ -449,7 +488,7 @@ export default function CheckoutPage() {
           ...deliveryData?.addressDetails,
           contact_value: contactData.value // Explicitly store value
         },
-        items: items,
+        items: selectedItems,
         total_amount: finalTotal,
         session_id: typeof window !== 'undefined' ? localStorage.getItem('cart_session_id') : null
       });
@@ -505,27 +544,33 @@ export default function CheckoutPage() {
   }, [completedSteps, showCancelModal]);
 
   useEffect(() => {
-    if (activeStep === 'delivery' && deliveryScrollRef.current) {
-      deliveryScrollRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!isMounted) return;
+    // Don't override an in-flight validation scroll
+    if (contactError || deliveryError || paymentError) return;
+
+    if (activeStep === 'contact') {
+      scrollToTop();
+    } else if (activeStep === 'delivery' && deliveryScrollRef.current) {
+      scrollToTarget(deliveryScrollRef.current, 'top');
     } else if (activeStep === 'payments' && paymentsRef.current) {
-      paymentsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      scrollToTarget(paymentsRef.current, 'top');
     }
-  }, [activeStep]);
+  }, [activeStep, isMounted, contactError, deliveryError, paymentError, scrollToTarget, scrollToTop]);
 
   const totalMRP = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
-  }, [items]);
+    return selectedItems.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
+  }, [selectedItems]);
 
   const subtotal = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
-  }, [items]);
+    return selectedItems.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+  }, [selectedItems]);
 
   const couponDiscountValue = getCouponDiscount();
   const couponCodeValue = coupon?.code || "";
 
   const bundleDiscount = useMemo(() => {
-    return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
-  }, [items]);
+    return Math.round(selectedItems.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
+  }, [selectedItems]);
 
   const rawShippingPrice = useMemo(() => {
     if (!deliveryData?.option) return 0;
@@ -604,7 +649,7 @@ export default function CheckoutPage() {
           <div className="w-full">
             <CheckoutPriceHeader
               ref={priceHeaderRef}
-              items={items}
+              items={selectedItems}
               totalAmount={`NPR ${finalTotal.toLocaleString()}`}
               mrp={totalMRP}
               subtotal={subtotal}
@@ -639,7 +684,7 @@ export default function CheckoutPage() {
                 externalError={contactError}
               />
 
-              <div ref={deliveryScrollRef} className="w-full">
+              <div ref={deliveryScrollRef} className="w-full scroll-mt-[75px]">
                 <DeliverySection
                   ref={deliveryRef}
                   userId={userId!}
@@ -660,7 +705,7 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div ref={paymentsRef} className="w-full">
+              <div ref={paymentsRef} className="w-full scroll-mt-[75px]">
                 <PaymentSection
                   isOpen={activeStep === 'payments'}
                   isConfirmed={completedSteps.includes('payments')}
@@ -692,7 +737,7 @@ export default function CheckoutPage() {
               <div className="hidden lg:block w-full">
                 <CheckoutPriceHeader
                   ref={desktopPriceHeaderRef}
-                  items={items}
+                  items={selectedItems}
                   totalAmount={`NPR ${finalTotal.toLocaleString()}`}
                   mrp={totalMRP}
                   subtotal={subtotal}
@@ -755,7 +800,7 @@ export default function CheckoutPage() {
           onClose={() => setIsOutOfStockModalOpen(false)}
           outOfStockItems={outOfStockItems}
           onProceed={() => {
-            if (items.length === 0) {
+            if (selectedItems.length === 0) {
               router.push('/cart');
             }
           }}

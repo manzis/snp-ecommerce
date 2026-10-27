@@ -157,6 +157,7 @@ export default function OrderDetailsPage() {
                             contact={orderData?.contact_details}
                         />
                         <PriceDetails
+                            items={orderData?.order_items || order.order_items}
                             total={orderData?.total_amount}
                             mrp={orderData?.mrp_amount}
                             discount={orderData?.discount_amount}

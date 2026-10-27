@@ -11,17 +11,25 @@ const CartSummary: React.FC<CartSummaryProps> = () => {
   const { items, coupon, getCouponDiscount } = useCartStore();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const subtotal = useMemo(() =>
-    items.reduce((acc, item) => acc + (item.price * item.quantity), 0),
-    [items]);
+  const selectedItems = useMemo(
+    () => items.filter((item) => item.selected !== false),
+    [items]
+  );
 
-  const totalMRP = useMemo(() =>
-    items.reduce((acc, item) => acc + ((item.mrp || item.price) * item.quantity), 0),
-    [items]);
+  const subtotal = useMemo(
+    () => selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0),
+    [selectedItems]
+  );
 
-  const bundleDiscount = useMemo(() =>
-    Math.round(items.reduce((acc, item) => acc + ((item.bundle_discount || 0) * item.quantity), 0)),
-    [items]);
+  const totalMRP = useMemo(
+    () => selectedItems.reduce((acc, item) => acc + ((item.mrp || item.price) * item.quantity), 0),
+    [selectedItems]
+  );
+
+  const bundleDiscount = useMemo(
+    () => Math.round(selectedItems.reduce((acc, item) => acc + ((item.bundle_discount || 0) * item.quantity), 0)),
+    [selectedItems]
+  );
 
 
   const itemDiscount = totalMRP - subtotal;

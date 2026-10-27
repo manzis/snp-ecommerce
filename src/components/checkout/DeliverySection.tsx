@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle } from 'lucide-react';
 import DropDownIcon from '@/components/icons/DropDownIcon';
 import AddressSelector from './AddressSelector';
 import DeliveryMethodSelector from './DeliveryMethodSelector';
@@ -187,48 +188,56 @@ const DeliverySection = forwardRef<DeliverySectionHandle, DeliverySectionProps>(
           >
             <div className="w-full flex flex-col gap-[20px] px-[20px] sm:px-[24px] pb-[28px] pt-[16px] bg-white border-t border-[#f0f3ee]">
 
-              <AddressSelector
-                addresses={addresses}
-                selectedId={selectedAddressId}
-                isLoading={isLoading}
-                onSelect={setSelectedAddressId}
-                onDelete={handleDeleteAddress}
-                onEdit={(id) => {
-                  const t = addresses.find(a => a.id === id);
-                  if (t) setEditingAddress(t);
-                  setModalMode('edit');
-                  setIsModalOpen(true);
-                }}
-                onAddNew={() => {
-                  setEditingAddress(null);
-                  setModalMode('add');
-                  setIsModalOpen(true);
-                }}
-              />
+              <div id="checkout-address-section" className="w-full">
+                <AddressSelector
+                  addresses={addresses}
+                  selectedId={selectedAddressId}
+                  isLoading={isLoading}
+                  onSelect={setSelectedAddressId}
+                  onDelete={handleDeleteAddress}
+                  onEdit={(id) => {
+                    const t = addresses.find(a => a.id === id);
+                    if (t) setEditingAddress(t);
+                    setModalMode('edit');
+                    setIsModalOpen(true);
+                  }}
+                  onAddNew={() => {
+                    setEditingAddress(null);
+                    setModalMode('add');
+                    setIsModalOpen(true);
+                  }}
+                />
+              </div>
 
-              <DeliveryMethodSelector
-                methods={deliveryMethods}
-                selectedMethodId={deliveryOption}
-                hasError={!!errorMessage && !deliveryOption}
-                freeThreshold={freeThreshold}
-                subtotal={subtotal}
-                onSelect={(id) => {
-                  setDeliveryOption(id);
-                  setErrorMessage(null);
-                }}
-              />
+              <div id="checkout-delivery-method" className="w-full">
+                <DeliveryMethodSelector
+                  methods={deliveryMethods}
+                  selectedMethodId={deliveryOption}
+                  hasError={!!errorMessage && !deliveryOption}
+                  freeThreshold={freeThreshold}
+                  subtotal={subtotal}
+                  onSelect={(id) => {
+                    setDeliveryOption(id);
+                    setErrorMessage(null);
+                  }}
+                />
+              </div>
 
               {/* Validation Error Message */}
               <AnimatePresence>
                 {errorMessage && (
-                  <motion.p
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="text-[13px] font-semibold text-[#ef4444] px-[2px]"
+                  <motion.div
+                    id="checkout-delivery-error"
+                    initial={{ height: 0, opacity: 0, y: -4 }}
+                    animate={{ height: 'auto', opacity: 1, y: 0 }}
+                    exit={{ height: 0, opacity: 0, y: -4 }}
+                    className="flex items-center gap-[8px] p-[10px_14px] bg-[#fff5f5] border border-[#fecaca] rounded-[10px] text-[#e11717]"
                   >
-                    {errorMessage}
-                  </motion.p>
+                    <AlertCircle className="w-4 h-4 shrink-0 text-[#e11717]" />
+                    <span className="font-rajdhani text-[14px] font-semibold">
+                      {errorMessage}
+                    </span>
+                  </motion.div>
                 )}
               </AnimatePresence>
 

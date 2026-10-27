@@ -42,6 +42,7 @@ export interface OrderProps {
     image: string;
     size: string;
     flavour: string;
+    quantity?: number;
     extraItemsCount: number;
     isCancellable: boolean;
     cancellationReason?: string;
@@ -187,13 +188,18 @@ const OrderCard: React.FC<{ order: OrderProps }> = ({ order }) => {
                             </div>
                         </div>
                         {/* VARIANTS */}
-                        <div className="flex items-center gap-[12px]">
+                        <div className="flex flex-wrap items-center gap-[12px]">
                             <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91] whitespace-nowrap">
                                 Size : {order.size}
                             </span>
                             <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91] whitespace-nowrap">
                                 Flavour : {order.flavour}
                             </span>
+                            {order.quantity && order.quantity > 1 && (
+                                <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424] whitespace-nowrap">
+                                    Qty : {order.quantity}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>

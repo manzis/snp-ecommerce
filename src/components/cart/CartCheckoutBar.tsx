@@ -49,15 +49,15 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
   }, [router, pathname]);
 
   const handleAction = async () => {
-    setIsNavigating(true);
-    // Reverify prices & stock strictly before proceeding (bypassing throttle)
-    await useCartStore.getState().reverifyCartPrices(true);
-    setIsNavigating(false);
-
     if (onCheckout) {
       onCheckout();
       return;
     }
+
+    setIsNavigating(true);
+    // Reverify prices & stock strictly before proceeding (bypassing throttle)
+    await useCartStore.getState().reverifyCartPrices(true);
+    setIsNavigating(false);
 
     if (pathname !== '/checkout') {
       if (!user) {
@@ -144,7 +144,7 @@ const CartCheckoutBar: React.FC<CartCheckoutBarProps> = ({
             </div>
           ) : (
             <span className={`uppercase font-rajdhani font-bold text-[18px] tracking-[-0.015em] leading-[18px] whitespace-nowrap ${disabled ? 'text-gray-500' : buttonText === 'Processing...' ? 'text-white' : 'text-[#1e1e1e]'}`}>
-              {disabled ? 'Orders Paused' : buttonText}
+              {disabled && buttonText === 'Checkout' ? 'Orders Paused' : buttonText}
             </span>
           )}
         </button>

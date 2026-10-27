@@ -17,6 +17,7 @@ export interface CartItemType {
   bundle_discount?: number;
   is_sale?: boolean;
   sale_end_date?: string;
+  selected?: boolean;
 }
 
 export const getCartItemId = (item: { 
@@ -319,6 +320,16 @@ export const mergeCart = async (localItems: CartItemType[], userId: string) => {
 export const clearCartRemote = async (userId: string) => {
   const { error } = await supabase.from('cart_items').delete().eq('user_id', userId);
   if (error) console.error('Error clearing cart:', error);
+};
+
+export const removePurchasedItemsRemote = async (userId: string, items: CartItemType[]) => {
+  for (const item of items) {
+    if (item.bundle_id) {
+      await removeBundleItems(userId, item.bundle_id);
+    } else {
+      await removeCartItem(userId, item);
+    }
+  }
 };
 
 export const refreshCartItemsPrices = async (localItems: CartItemType[]): Promise<CartItemType[]> => {

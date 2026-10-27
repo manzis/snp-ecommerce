@@ -24,6 +24,7 @@ interface ProductOptionsProps {
   ordersDisabled?: boolean;
   ordersDisabledUntil?: string | null;
   ordersDisabledReason?: string;
+  activeSale?: any;
 }
 
 const ProductOptions: React.FC<ProductOptionsProps> = ({
@@ -34,7 +35,11 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
   ordersDisabled = false,
   ordersDisabledUntil,
   ordersDisabledReason,
+  activeSale: propsActiveSale,
 }) => {
+  const { volatileData } = useVolatileProductData(product.slug);
+  const activeSale = volatileData !== null ? volatileData.activeSale : propsActiveSale;
+  const isSaleActive = Boolean(activeSale?.ends_at && new Date(activeSale.ends_at).getTime() > Date.now());
   const {
     isOrdersDisabled,
     countdownText,
@@ -275,7 +280,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
       mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
       image: itemImage,
       quantity: 1,
-      stock_status: product.stock_status || 'in_stock'
+      stock_status: product.stock_status || 'in_stock',
+      is_sale: isSaleActive,
+      sale_end_date: isSaleActive ? activeSale?.ends_at : undefined,
     });
 
 
@@ -331,7 +338,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
           mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
           image: itemImage,
           quantity: 1,
-          stock_status: product.stock_status || 'in_stock'
+          stock_status: product.stock_status || 'in_stock',
+          is_sale: isSaleActive,
+          sale_end_date: isSaleActive ? activeSale?.ends_at : undefined,
         });
 
         window.dispatchEvent(new CustomEvent('addToCartSuccess'));
@@ -399,7 +408,9 @@ const ProductOptions: React.FC<ProductOptionsProps> = ({
         mrp: originalPrice || parseInt((product.original_price || '0').replace(/\D/g, ''), 10),
         image: itemImage,
         quantity: 1,
-        stock_status: product.stock_status || 'in_stock'
+        stock_status: product.stock_status || 'in_stock',
+        is_sale: isSaleActive,
+        sale_end_date: isSaleActive ? activeSale?.ends_at : undefined,
       });
       window.dispatchEvent(new CustomEvent('addToCartSuccess'));
     }

@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Trash2, Plus, Minus, Heart, Check, CreditCard, Truck, ShieldCheck, ChevronRight } from 'lucide-react';
+import FlashIcon from '@/components/icons/FlashIcon';
 import { useCartStore } from '@/store/cartStore';
 import { useToast } from '@/components/ui/ToastProvider';
 import type { CartItemType } from '@/services/cartService';
@@ -32,10 +33,10 @@ const getDeliveryDates = (isPre: boolean) => {
 };
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { items, updateQuantity, removeItem } = useCartStore();
+  const { items, updateQuantity, removeItem, toggleItemSelection } = useCartStore();
   const { showToast } = useToast();
   const [isWishlisted, setIsWishlisted] = React.useState(false);
-  const [isSelected, setIsSelected] = React.useState(true);
+  const isSelected = item.selected !== false;
 
   const bundleTotalDiscount = React.useMemo(() => {
     if (!item.bundle_id) return 0;
@@ -95,6 +96,74 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     return getDeliveryDates(isPreOrder);
   }, [isPreOrder]);
 
+  const [effectiveSaleEndDate, setEffectiveSaleEndDate] = React.useState<string | undefined>(item.sale_end_date);
+  const [saleTimeLeft, setSaleTimeLeft] = React.useState('');
+
+  React.useEffect(() => {
+    if (item.sale_end_date) {
+      setEffectiveSaleEndDate(item.sale_end_date);
+      return;
+    }
+    if (item.is_sale) {
+      const productId = item.product_id || (item.id && item.id.length >= 36 ? item.id.slice(0, 36) : null);
+      if (productId) {
+        import('@/lib/supabase/client').then(({ supabase }) => {
+          supabase
+            .from('sales_offers_products')
+            .select('sales_offers(ends_at, is_active)')
+            .eq('product_id', productId)
+            .then(({ data }) => {
+              if (data && data.length > 0) {
+                const active = data
+                  .map((d: any) => d.sales_offers)
+                  .find((s: any) => s && s.is_active && new Date(s.ends_at) > new Date());
+                if (active?.ends_at) {
+                  setEffectiveSaleEndDate(active.ends_at);
+                }
+              }
+            });
+        });
+      }
+    }
+  }, [item.is_sale, item.sale_end_date, item.product_id, item.id]);
+
+  React.useEffect(() => {
+    if (!item.is_sale || !effectiveSaleEndDate) {
+      setSaleTimeLeft('');
+      return;
+    }
+    const endsAt = new Date(effectiveSaleEndDate).getTime();
+
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const distance = endsAt - now;
+
+      if (distance < 0) {
+        setSaleTimeLeft('Ended');
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      const parts = [];
+      if (days > 0) parts.push(`${days}d`);
+      if (hours > 0 || days > 0) parts.push(`${hours}h`);
+      parts.push(`${minutes}m`);
+      parts.push(`${seconds}s`);
+
+      setSaleTimeLeft(parts.join(' '));
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [item.is_sale, effectiveSaleEndDate]);
+
+  const isSale = Boolean(item.is_sale && (!effectiveSaleEndDate || new Date(effectiveSaleEndDate).getTime() > Date.now()));
+
   const effectivePrice = Math.round(item.price - (item.bundle_discount || 0));
   const hasDiscount = item.mrp > effectivePrice;
   const discountPercent = hasDiscount ? Math.round(((item.mrp - effectivePrice) / item.mrp) * 100) : 0;
@@ -112,12 +181,12 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     updateQuantity(item, item.quantity + 1);
   };
 
-  const badgeText = isOutOfStock ? 'Out of stock' : isPreOrder ? 'Pre order' : 'express';
+  const badgeText = isOutOfStock ? 'Out of stock' : isPreOrder ? 'Global' : 'Express';
 
   return (
-    <div className={`w-full bg-white rounded-[20px] shadow-none overflow-hidden flex flex-col relative transition-all ${isOutOfStock ? 'opacity-85' : ''}`}>
+    <div className={`w-full bg-white rounded-[20px] shadow-none overflow-hidden flex flex-col relative transition-all ${isOutOfStock ? 'opacity-85' : !isSelected ? 'opacity-75' : ''}`}>
       
-      {/* Top Banner Tab: express / Pre order / Out of stock */}
+      {/* Top Banner Tab: Express / Global / Out of stock */}
       <div className={`relative w-full h-[36px] overflow-hidden select-none transition-colors ${
         isOutOfStock
           ? 'bg-[#fff5f5]'
@@ -169,9 +238,9 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             {/* Dark Checkbox Button */}
             <button
               type="button"
-              onClick={() => setIsSelected(!isSelected)}
-              className={`absolute top-2 left-2 z-10 w-[20px] h-[20px] rounded-[5px] flex items-center justify-center transition-colors shadow-none ${
-                isSelected ? 'bg-[#18181b] text-white' : 'bg-white border border-[#d4d4d8] text-transparent'
+              onClick={() => toggleItemSelection(item.id)}
+              className={`absolute top-2 left-2 z-10 w-[20px] h-[20px] rounded-[5px] flex items-center justify-center transition-colors shadow-none cursor-pointer ${
+                isSelected ? 'bg-[#18181b] text-white' : 'bg-white border border-[#d4d4d8] text-transparent hover:border-[#18181b]'
               }`}
               title={isSelected ? 'Deselect item' : 'Select item'}
             >
@@ -227,8 +296,8 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <div className="flex-1 flex flex-col gap-1.5 min-w-0">
           
           {/* Title & Wishlist Button */}
-          <div className="flex items-start justify-between gap-2">
-            <Link href={item.slug ? `/product/${item.slug}` : '#'} className="min-w-0 flex-1 group">
+          <div className="relative min-w-0 pr-[36px] pb-1">
+            <Link href={item.slug ? `/product/${item.slug}` : '#'} className="block group">
               <h3 className="font-rajdhani font-bold text-[16px] sm:text-[17px] text-[#18181b] leading-[20px] line-clamp-2 group-hover:text-[#308026] transition-colors tracking-tight">
                 {displayTitle}
               </h3>
@@ -241,10 +310,10 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
                 setIsWishlisted(!isWishlisted);
                 showToast(!isWishlisted ? "Added to Wishlist!" : "Removed from Wishlist!", "success");
               }}
-              className="w-[32px] h-[32px] rounded-[8px] border border-[#e4e4e7] bg-white flex items-center justify-center text-[#71717a] hover:text-[#ef4444] shrink-0 active:scale-95 transition-all shadow-none"
+              className="absolute top-0 right-0 w-[28px] h-[28px] rounded-[8px] border border-[#e4e4e7] bg-white flex items-center justify-center text-[#71717a] hover:text-[#ef4444] shrink-0 active:scale-95 transition-all shadow-none"
               title={isWishlisted ? "In Wishlist" : "Save to Wishlist"}
             >
-              <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-[#ef4444] text-[#ef4444]' : 'text-[#71717a]'}`} />
+              <Heart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-[#ef4444] text-[#ef4444]' : 'text-[#71717a]'}`} />
             </button>
           </div>
 
@@ -252,7 +321,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           {(item.selected_flavor || item.selected_size) && (
             <Link
               href={item.slug ? `/product/${item.slug}` : '#'}
-              className="inline-flex items-center gap-1 bg-[#f4f4f5] text-[#52525b] font-rajdhani text-[13px] font-semibold px-2.5 py-0.5 rounded-[6px] w-fit self-start max-w-full hover:bg-[#ebebeb] transition-colors whitespace-nowrap min-w-0 overflow-hidden"
+              className="inline-flex items-center gap-1.5 bg-[#f4f4f5] text-[#52525b] font-rajdhani text-[13px] font-semibold px-2.5 pt-1 pb-[3px] rounded-[6px] w-fit max-w-full hover:bg-[#ebebeb] transition-colors self-start min-w-0"
               title={[
                 item.selected_flavor ? `Flavour: ${item.selected_flavor}` : null,
                 item.selected_size ? `Size: ${item.selected_size}` : null
@@ -270,7 +339,13 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
           {/* Pricing Row: Price + Strikethrough + Discount % */}
           <div className="flex items-baseline gap-2 flex-wrap mt-0.5">
-            <span className="font-rajdhani font-bold text-[19px] sm:text-[21px] text-[#18181b] tracking-tight">
+            <span
+              className={`font-rajdhani font-bold text-[19px] sm:text-[21px] tracking-tight ${
+                isSale
+                  ? 'bg-[linear-gradient(90deg,#ff0000_0%,#ff2a00_70%,#ff7300_100%)] bg-clip-text text-transparent'
+                  : 'text-[#18181b]'
+              }`}
+            >
               Rs. {effectivePrice.toLocaleString()}
             </span>
             {hasDiscount && (
@@ -285,9 +360,17 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
             )}
           </div>
 
+          {/* Sale Countdown Timer */}
+          {isSale && saleTimeLeft && saleTimeLeft !== 'Ended' && (
+            <div className="flex items-center gap-1.5 text-[12px] font-rajdhani font-semibold text-[#E3241B] mt-[-2px]">
+              <FlashIcon className="w-[14px] h-[14px] shrink-0 text-[#E3241B]" />
+              <span>Sale ends in {saleTimeLeft}</span>
+            </div>
+          )}
+
           {/* Delivery Promise Badge (No countdown) */}
           <div className="flex flex-col gap-0.5 mt-0.5">
-            <span className="bg-[#fef9c3] text-[#713f12] font-rajdhani font-bold text-[12px] px-2 py-0.5 rounded-[4px] w-fit">
+            <span className="bg-[linear-gradient(90deg,#fef9c3_0%,#fef9c3_60%,#ffffff_100%)] text-[#713f12] font-rajdhani font-bold text-[12px] pl-2 pr-3.5 py-0.5 rounded-[4px] w-fit">
               Get it by {deliveryEstimateStr}
             </span>
           </div>

@@ -136,7 +136,12 @@ export default function PrimaryOrderDetails({ order }: PrimaryOrderDetailsProps)
                         <div className="flex flex-wrap items-center gap-[13px]">
                             <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Size : {order.size}</span>
                             <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Flavour : {order.flavour}</span>
-                            <span className="font-rajdhani text-[14px] font-[500] leading-[18px] text-[#8a8e91]">Qty : 1</span>
+                            <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#242424]">Qty : {order.quantity || order.order_items?.[0]?.quantity || 1}</span>
+                            {order.order_items?.[0]?.price && (
+                                <span className="font-rajdhani text-[14px] font-[600] leading-[18px] text-[#308026]">
+                                    Rs. {(Number(order.order_items[0].price) * (order.quantity || order.order_items[0].quantity || 1)).toLocaleString()}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>

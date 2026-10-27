@@ -32,6 +32,7 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(initialFile);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadSectionRef = useRef<HTMLDivElement>(null);
 
   // 1. Timer Logic - Starts ONLY when isRevealed is true
 
@@ -74,6 +75,8 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
     if (isProcessing) return;
     if (!selectedFile) {
       setError("Please upload the payment receipt first.");
+      const el = uploadSectionRef.current || document.getElementById('checkout-qr-upload-section');
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
     onVerify({ file: selectedFile, remarks });
@@ -173,24 +176,31 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
       </div>
 
       {/* Upload Section (Dashed) */}
-      <div className="flex flex-col w-full gap-[8px]">
+      <div
+        id="checkout-qr-upload-section"
+        ref={uploadSectionRef}
+        className={`flex flex-col w-full gap-[8px] scroll-mt-[100px] rounded-[14px] transition-all p-1 ${
+          ((hasError || !!error) && !selectedFile) ? 'animate-pulse' : ''
+        }`}
+      >
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isProcessing}
-          className={`flex w-full h-[56px] items-center justify-between px-[16px] rounded-[12px] border-[1.5px] border-dashed transition-all duration-200 ${selectedFile
+          className={`flex w-full h-[58px] items-center justify-between px-[16px] rounded-[12px] border-[2px] border-dashed transition-all duration-200 ${
+            selectedFile
               ? 'border-[#308026] bg-[#f7faf6]'
               : (hasError || (!!error && !selectedFile))
-                ? 'border-[#e11717] bg-[#fff5f5]'
-                : 'border-[#e2e8f0] bg-white'
-            } ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
+                ? 'border-[#e11717] bg-[#fff5f5] ring-2 ring-[#fee2e2] shadow-sm'
+                : 'border-[#e2e8f0] bg-white hover:border-[#cbd5e1]'
+          } ${isProcessing ? 'opacity-60 cursor-not-allowed' : ''}`}
         >
           <div className="flex items-center gap-[10px] overflow-hidden">
-            <UploadIcon className="w-[18px] h-[18px] text-[#68727d] rotate-180" />
-            <span className="font-rajdhani text-[15px] text-[#242424] truncate max-w-[200px]">
+            <UploadIcon className={`w-[20px] h-[20px] rotate-180 ${(hasError || (!!error && !selectedFile)) ? 'text-[#e11717]' : 'text-[#68727d]'}`} />
+            <span className={`font-rajdhani text-[15px] truncate max-w-[200px] ${(hasError || (!!error && !selectedFile)) ? 'text-[#e11717] font-bold' : 'text-[#242424]'}`}>
               {selectedFile ? selectedFile.name : 'Upload Payment Receipt'}
             </span>
           </div>
-          <span className="font-rajdhani text-[13px] font-semibold text-[#308026]">
+          <span className={`font-rajdhani text-[13px] font-bold ${(hasError || (!!error && !selectedFile)) ? 'text-[#e11717]' : 'text-[#308026]'}`}>
             {selectedFile ? 'Change' : 'Browse'}
           </span>
         </button>
@@ -207,7 +217,9 @@ const QrPaymentDetails: React.FC<QrPaymentDetailsProps> = ({
             Upload a statement receipt (PNG, JPG or PDF)
           </p>
           {((hasError || !!error) && !selectedFile) && (
-            <span className="text-[#e11717] font-semibold text-[12px]">Please upload screenshot</span>
+            <span className="text-[#e11717] font-bold text-[13px] flex items-center gap-1">
+              <span>⚠️</span> Please upload screenshot
+            </span>
           )}
         </div>
       </div>

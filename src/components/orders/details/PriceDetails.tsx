@@ -17,11 +17,13 @@ interface PriceDetailsProps {
     bundleDiscount?: number;
     codFees?: number;
     taxAmount?: number;
+    items?: any[];
 }
 
 export default function PriceDetails({
     total, mrp, discount, shipping, method, paymentStatus = 'pending',
-    discountOnMrp = 0, couponDiscount = 0, couponCode, bundleDiscount = 0, codFees = 0, taxAmount = 0
+    discountOnMrp = 0, couponDiscount = 0, couponCode, bundleDiscount = 0, codFees = 0, taxAmount = 0,
+    items = []
 }: PriceDetailsProps) {
     const [isDiscountsExpanded, setIsDiscountsExpanded] = useState(false);
     const [isFeesExpanded, setIsFeesExpanded] = useState(false);
@@ -33,10 +35,67 @@ export default function PriceDetails({
             </h2>
             <div className="flex w-full flex-col items-start rounded-[16px] border border-[#f1f5f9] bg-[#ffffff] p-[6px]">
                 <div className="flex w-full flex-col items-start">
+                    {/* ORDERED ITEMS INDIVIDUAL PRICE BREAKDOWN */}
+                    {items && items.length > 0 && (
+                        <div className="flex w-full flex-col border-b border-[#f1f5f9] p-[16px_14px] gap-[12px] bg-[#fafdf8] rounded-t-[12px]">
+                            <div className="flex items-center justify-between">
+                                <span className="font-rajdhani text-[13px] font-[700] uppercase tracking-wider text-[#475569]">
+                                    Ordered Items
+                                </span>
+                                <span className="font-rajdhani text-[12px] font-[600] text-[#308026] bg-[#eaffcc] px-[8px] py-[2px] rounded-[6px]">
+                                    {items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0)} {items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0) === 1 ? 'item' : 'items'}
+                                </span>
+                            </div>
+                            <div className="flex flex-col gap-[10px] divide-y divide-[#f1f5f9]">
+                                {items.map((item: any, idx: number) => {
+                                    const qty = item.quantity || 1;
+                                    const name = item.products?.name || item.title || 'Product Item';
+                                    const unitPrice = Number(item.price || 0);
+                                    const totalPrice = unitPrice * qty;
+                                    const variantParts = [item.selected_size, item.selected_flavor].filter(Boolean);
+                                    const variantText = variantParts.join(' • ');
+
+                                    return (
+                                        <div key={idx} className={`flex items-start justify-between gap-[12px] ${idx > 0 ? 'pt-[10px]' : ''}`}>
+                                            <div className="flex flex-col flex-1 min-w-0 pr-[4px]">
+                                                <span className="font-rajdhani text-[15px] font-[600] leading-[20px] text-[#242424]">
+                                                    <span className="font-[700] text-[#308026] mr-1.5">{qty}x</span>
+                                                    {name}
+                                                </span>
+                                                <div className="flex flex-wrap items-center gap-x-[8px] gap-y-[2px] mt-[2px]">
+                                                    {variantText && (
+                                                        <span className="font-rajdhani text-[12px] font-[500] leading-[16px] text-[#8a8e91]">
+                                                            {variantText}
+                                                        </span>
+                                                    )}
+                                                    {qty > 1 && (
+                                                        <span className="font-rajdhani text-[12px] font-[600] leading-[16px] text-[#64748b]">
+                                                            (Rs. {unitPrice.toLocaleString()} each)
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end shrink-0">
+                                                <span className="font-rajdhani text-[15px] font-[600] leading-[20px] text-[#242424]">
+                                                    Rs. {totalPrice.toLocaleString()}
+                                                </span>
+                                                {item.mrp && Number(item.mrp) > unitPrice && (
+                                                    <span className="font-rajdhani text-[11px] font-[500] text-[#8a8e91] line-through">
+                                                        Rs. {(Number(item.mrp) * qty).toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                     {/* MRP */}
                     <div className="flex w-full items-center justify-between border-b border-[#f1f5f9] p-[18px_13px]">
                         <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424]">MRP</span>
-                        <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424] text-right">Rs. {mrp}</span>
+                        <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424] text-right">Rs. {Number(mrp || 0).toLocaleString()}</span>
                     </div>
 
                     {/* Discounts (Expandable) */}
@@ -54,7 +113,7 @@ export default function PriceDetails({
                                     <CaretDownIcon className="w-4 h-4 text-[#8a8e91]" />
                                 </motion.div>
                             </div>
-                            <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#308026] text-right">- Rs. {discount}</span>
+                            <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#308026] text-right">- Rs. {Number(discount || 0).toLocaleString()}</span>
                         </button>
 
                         <AnimatePresence initial={false}>
@@ -69,12 +128,12 @@ export default function PriceDetails({
                                     <div className="flex flex-col gap-[12px] px-[24px] pb-[12px] pt-[12px]">
                                         <div className="flex items-center justify-between">
                                             <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Discount on MRP</span>
-                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">- Rs. {discountOnMrp || discount}</span>
+                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">- Rs. {Number(discountOnMrp || discount || 0).toLocaleString()}</span>
                                         </div>
                                         {bundleDiscount > 0 && (
                                             <div className="flex items-center justify-between">
                                                 <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Bundle Savings</span>
-                                                <span className="font-rajdhani text-[14px] font-[500] text-[#308026] text-right">- Rs. {bundleDiscount}</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#308026] text-right">- Rs. {Number(bundleDiscount).toLocaleString()}</span>
                                             </div>
                                         )}
                                         {couponDiscount > 0 && (
@@ -83,7 +142,7 @@ export default function PriceDetails({
                                                     <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Coupon Savings</span>
                                                     {couponCode && <span className="text-[10px] text-[#308026] font-bold">Code: {couponCode}</span>}
                                                 </div>
-                                                <span className="font-rajdhani text-[14px] font-[500] text-[#308026]">- Rs. {couponDiscount}</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#308026]">- Rs. {Number(couponDiscount).toLocaleString()}</span>
                                             </div>
                                         )}
                                     </div>
@@ -107,7 +166,7 @@ export default function PriceDetails({
                                     <CaretDownIcon className="w-4 h-4 text-[#8a8e91]" />
                                 </motion.div>
                             </div>
-                            <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424] text-right">+ Rs. {shipping + codFees + taxAmount}</span>
+                            <span className="font-rajdhani text-[16px] font-[500] leading-[18px] text-[#242424] text-right">+ Rs. {Number(shipping + codFees + taxAmount).toLocaleString()}</span>
                         </button>
 
                         <AnimatePresence initial={false}>
@@ -122,12 +181,12 @@ export default function PriceDetails({
                                     <div className="flex flex-col gap-[12px] px-[24px] pb-[12px] pt-[12px]">
                                         <div className="flex items-center justify-between">
                                             <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Shipping Fees</span>
-                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Rs. {shipping}</span>
+                                            <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Rs. {Number(shipping).toLocaleString()}</span>
                                         </div>
                                         {codFees > 0 && (
                                             <div className="flex items-center justify-between">
                                                 <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Cash on Delivery Fee</span>
-                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Rs. {codFees}</span>
+                                                <span className="font-rajdhani text-[14px] font-[500] text-[#64748b]">Rs. {Number(codFees).toLocaleString()}</span>
                                             </div>
                                         )}
                                         {taxAmount > 0 && (
@@ -145,7 +204,7 @@ export default function PriceDetails({
                     {/* Total Amount */}
                     <div className="flex w-full items-center justify-between p-[18px_13px] h-[54px]">
                         <span className="font-rajdhani text-[16px] font-[600] leading-[18px] text-[#242424]">Total Amount</span>
-                        <span className="font-rajdhani text-[16px] font-[600] leading-[18px] text-[#242424]">Rs. {total}</span>
+                        <span className="font-rajdhani text-[16px] font-[600] leading-[18px] text-[#242424]">Rs. {Number(total || 0).toLocaleString()}</span>
                     </div>
                 </div>
 

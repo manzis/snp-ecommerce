@@ -74,6 +74,7 @@ export function mapToOrderProps(order: any): OrderProps {
     image: product.images?.[0] || '/images/product.png',
     size: firstItem.selected_size || 'Standard',
     flavour: firstItem.selected_flavor || 'Default',
+    quantity: firstItem.quantity || 1,
     extraItemsCount: Math.max(0, (order.order_items?.length || 0) - 1),
     isCancellable: order.status === 'pending' || order.status === 'confirmed',
     statusUpdates: order.status_updates || [],

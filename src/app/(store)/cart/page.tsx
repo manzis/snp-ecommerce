@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Check } from 'lucide-react';
 import DynamicPageNav from '@/components/layout/DynamicPageNav';
 import CartItem from '@/components/cart/CartItem';
 import CartSummary from '@/components/cart/CartSummary';
@@ -26,7 +27,7 @@ import OrderDisabledBanner from '@/components/product/OrderDisabledBanner';
 export default function CartPage() {
 
   const router = useRouter();
-  const { items, reverifyCartPrices, getCouponDiscount } = useCartStore();
+  const { items, reverifyCartPrices, getCouponDiscount, selectAllItems } = useCartStore();
   const { user, session, isLoading: isAuthLoading } = useAuth();
   const { openLogin } = useAuthModal();
   const { showToast } = useToast();
@@ -96,18 +97,24 @@ export default function CartPage() {
     return addresses.find(addr => addr.id === selectedAddressId) || addresses[0] || null;
   }, [addresses, selectedAddressId]);
 
-  // 1. CALCULATE TOTALS
-  const subtotal = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+  // 1. CALCULATE TOTALS (Based only on checked items)
+  const selectedItems = useMemo(() => {
+    return items.filter((item: any) => item.selected !== false);
   }, [items]);
+
+  const allSelected = items.length > 0 && items.every((i: any) => i.selected !== false);
+
+  const subtotal = useMemo(() => {
+    return selectedItems.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
+  }, [selectedItems]);
 
   const totalMRP = useMemo(() => {
-    return items.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
-  }, [items]);
+    return selectedItems.reduce((acc: number, item: any) => acc + ((item.mrp || item.price) * item.quantity), 0);
+  }, [selectedItems]);
 
   const bundleDiscount = useMemo(() => {
-    return Math.round(items.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
-  }, [items]);
+    return Math.round(selectedItems.reduce((acc: number, item: any) => acc + ((item.bundle_discount || 0) * item.quantity), 0));
+  }, [selectedItems]);
 
   const couponDiscount = getCouponDiscount();
   const finalTotal = useMemo(() => {
@@ -115,16 +122,20 @@ export default function CartPage() {
   }, [subtotal, bundleDiscount, couponDiscount]);
 
   const outOfStockItems = useMemo(() => {
-    return items.filter((item: any) => {
+    return selectedItems.filter((item: any) => {
       if (!item.stock_status) return false;
       const status = item.stock_status.toLowerCase().replace(/[^a-z]/g, '');
       return status === 'outofstock' || status === 'soldout' || status === 'out';
     });
-  }, [items]);
+  }, [selectedItems]);
 
   const handleCheckout = () => {
     if (ordersDisabled) {
       showToast(ordersDisabledReason || 'Orders are temporarily paused. Please wait for the countdown to complete.', 'error');
+      return;
+    }
+    if (selectedItems.length === 0) {
+      showToast('Please select at least one item to checkout.', 'error');
       return;
     }
     if (outOfStockItems.length > 0) {
@@ -184,7 +195,13 @@ export default function CartPage() {
       {/* STICKY NAV */}
       <DynamicPageNav
         title="My Cart"
-        subtitle={`${items.length} Items`}
+        subtitle={
+          items.length > 0
+            ? selectedItems.length === items.length
+              ? `${items.length} ${items.length === 1 ? 'Item' : 'Items'}`
+              : `${selectedItems.length} of ${items.length} Selected`
+            : undefined
+        }
       />
 
       {/* FULL WIDTH DELIVERY ADDRESS (No outside spacing / padding) */}
@@ -214,6 +231,44 @@ export default function CartPage() {
 
           {/* List of Cart Items */}
           <div className="flex flex-col gap-[14px]">
+            {items.length > 0 && (
+              <div className="flex items-center justify-between px-[16px] py-[12px] bg-white rounded-[16px] shadow-none">
+                <button
+                  type="button"
+                  onClick={() => selectAllItems(!allSelected)}
+                  className="flex items-center gap-[10px] cursor-pointer outline-none select-none text-left"
+                >
+                  <div
+                    className={`w-[20px] h-[20px] rounded-[5px] flex items-center justify-center transition-all ${
+                      allSelected
+                        ? 'bg-[#18181b] text-white'
+                        : selectedItems.length > 0
+                        ? 'bg-[#18181b]/10 text-[#18181b]'
+                        : 'bg-white border border-[#d4d4d8]'
+                    }`}
+                  >
+                    {allSelected && (
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    )}
+                    {!allSelected && selectedItems.length > 0 && (
+                      <div className="w-[8px] h-[2px] bg-[#18181b] rounded-full" />
+                    )}
+                  </div>
+                  <span className="font-rajdhani font-semibold text-[15px] text-[#242424]">
+                    Select All ({selectedItems.length}/{items.length} items)
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => selectAllItems(!allSelected)}
+                  className="font-rajdhani font-semibold text-[13px] text-[#3F9733] hover:text-[#327a28] cursor-pointer outline-none"
+                >
+                  {allSelected ? 'Deselect All' : 'Select All'}
+                </button>
+              </div>
+            )}
+
             {items.map((item: any) => (
               <CartItem key={item.id} item={item} />
             ))}
@@ -267,8 +322,15 @@ export default function CartPage() {
                   isStatic={true}
                   totalAmount={`NPR ${finalTotal.toLocaleString()}`}
                   mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
+                  buttonText={
+                    ordersDisabled
+                      ? 'Orders Paused'
+                      : selectedItems.length === 0
+                      ? 'Select Items'
+                      : `Checkout (${selectedItems.length})`
+                  }
                   onCheckout={handleCheckout}
-                  disabled={ordersDisabled}
+                  disabled={ordersDisabled || selectedItems.length === 0}
                 />
               </div>
             </div>
@@ -283,9 +345,15 @@ export default function CartPage() {
         <CartCheckoutBar
           totalAmount={`NPR ${finalTotal.toLocaleString()}`}
           mrpAmount={`NPR ${totalMRP.toLocaleString()}`}
-          buttonText="Checkout"
+          buttonText={
+            ordersDisabled
+              ? 'Orders Paused'
+              : selectedItems.length === 0
+              ? 'Select Items'
+              : `Checkout (${selectedItems.length})`
+          }
           onCheckout={handleCheckout}
-          disabled={ordersDisabled}
+          disabled={ordersDisabled || selectedItems.length === 0}
         />
       )}
 
